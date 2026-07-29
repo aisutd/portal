@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export function QuickCtaCard() {
   return (
@@ -8,9 +9,11 @@ export function QuickCtaCard() {
         <span className="block">Nothing on your</span>
         <span className="block">calendar this week?</span>
       </h2>
-      <Button variant="accent" size="md" block>
-        Browse Events →
-      </Button>
+      <Link href="/events/browse" className="w-full">
+        <Button variant="accent" size="md" block className="font-black">
+          Browse Events →
+        </Button>
+      </Link>
     </Card>
   );
 }

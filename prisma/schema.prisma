@@ -29,6 +29,16 @@ enum EventStatus {
   ARCHIVED
 }
 
+enum EventTag {
+  FOOD
+  DRINK
+  SOCIAL
+  LEARN
+  WORKSHOP
+  NETWORKING
+  INDUSTRY
+}
+
 enum RSVPStatus {
   GOING
   CANCELED
@@ -156,6 +166,9 @@ model Event {
   capacity         Int?
   visibility       String?
   eligibilityRules Json?
+
+  tags             EventTag[]
+
   createdById      String
   createdBy        User        @relation(fields: [createdById], references: [id])
   createdAt        DateTime    @default(now())

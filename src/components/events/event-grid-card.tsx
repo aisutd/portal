@@ -6,13 +6,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
 import type { TagData } from "@/components/dashboard/up-next-card";
+import { normalizeEventTags } from "@/lib/event-tags";
 
 export type EventGridItem = {
   title: string;
   /** "ECSW 2.412 · 08/27/26 · 7:00 PM" */
   meta: string;
   description: string;
-  tags: TagData[];
+  tags: Array<string | TagData>;
   eventId: string;
 };
 
@@ -25,6 +26,7 @@ export function EventGridCard({ title, meta, description, tags, eventId }: Event
   const { isSignedIn } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const normalizedTags = normalizeEventTags(tags);
 
   async function handleRsvp() {
     if (!isSignedIn) {
@@ -62,7 +64,7 @@ export function EventGridCard({ title, meta, description, tags, eventId }: Event
       </p>
       <div className="mt-[13px] flex items-center justify-between">
         <div className="flex gap-[8px]">
-          {tags.map((t) => (
+          {normalizedTags.map((t) => (
             <Tag key={t.label} label={t.label} bg={t.bg} color={t.color} />
           ))}
         </div>

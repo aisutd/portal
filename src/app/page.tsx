@@ -44,7 +44,7 @@ export default function EventsPage() {
 
             <Link
               href="/events/browse"
-              className="flex h-[75px] w-full items-center justify-center rounded-full bg-orange px-[21px] font-body text-[25px] font-semibold leading-none text-orange-ink [filter:drop-shadow(0px_5px_7px_rgba(242,169,104,0.34))] lg:w-[300px]"
+              className="flex h-[75px] w-full items-center justify-center rounded-full bg-orange px-[21px] font-body text-[25px] font-black leading-none text-orange-ink [filter:drop-shadow(0px_5px_7px_rgba(242,169,104,0.34))] lg:w-[300px]"
             >
               Browse Events →
             </Link>
