@@ -3,6 +3,7 @@ import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { StatCard } from "@/components/admin/stat-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { MobileAdminOverview } from "@/components/mobile/admin/MobileAdminOverview";
 import {
   overviewStatsPrimary,
   overviewStatsSecondary,
@@ -16,6 +17,12 @@ export const metadata: Metadata = {
 
 export default function AdminOverviewPage() {
   return (
+    <>
+      <div className="md:hidden">
+        <MobileAdminOverview />
+      </div>
+
+      <div className="hidden md:block">
       <div className="flex min-h-screen w-full bg-cream">
         <AdminSidebar active="Overview" role="Officer" />
 
@@ -76,5 +83,7 @@ export default function AdminOverviewPage() {
           </div>
         </div>
       </div>
+      </div>
+    </>
   );
 }

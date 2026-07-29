@@ -172,7 +172,7 @@ export const openApps: OpenApp[] = [
     metaMedium: true,
     actions: [
       { label: "Learn more", variant: "soft" },
-      { label: "Apply", variant: "primary" },
+      { label: "Apply", variant: "primary", href: "/applications/detail" },
     ],
   },
   {
@@ -183,7 +183,7 @@ export const openApps: OpenApp[] = [
     metaMedium: true,
     actions: [
       { label: "Learn more", variant: "ghost" },
-      { label: "Apply", variant: "primary" },
+      { label: "Apply", variant: "primary", href: "/applications/detail" },
     ],
   },
   {
@@ -430,6 +430,15 @@ export const personalFields = [
   "UTD Email *",
   "Resume *",
   "LinkedIn *",
+];
+
+export const applicationFormStepFields = [
+  personalFields,
+  [
+    "Why do you want to join AIS? *",
+    "What skills or experience do you bring? *",
+  ],
+  ["Anything else you'd like the reviewers to know?"],
 ];
 
 /* ------------------------------------------------------- Apply · Detail (roles) */

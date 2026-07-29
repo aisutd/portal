@@ -2,10 +2,9 @@
 
 import { type ChangeEvent, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Navbar } from "@/components/navbar";
 import { FormStepper } from "@/components/apply/form-stepper";
 import { FormField, FormTextarea } from "@/components/ui/form-field";
-import { MobileApplyForm } from "@/components/mobile/apply/MobileApplyForm";
+import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import {
   applicationFormStepFields,
   applicationSteps,
@@ -117,21 +116,16 @@ function validateStep(values: FieldValues, fields: string[]) {
 
 function LoadingState() {
   return (
-    <div className="flex flex-col gap-[24px]">
-      <div className="h-[34px] w-[460px] max-w-full rounded-full bg-[#f4f1ea]" />
-      <div className="h-[48px] w-full rounded-[11px] border border-border-soft bg-white" />
-      <div className="h-[20px] w-[320px] rounded-full bg-[#f4f1ea]" />
-      <div className="grid grid-cols-1 gap-x-[28px] gap-y-[20px] sm:grid-cols-2">
+    <div className="flex flex-col gap-[18px]">
+      <div className="h-[26px] w-[80%] rounded-full bg-[#f4f1ea]" />
+      <div className="h-[40px] w-full rounded-[11px] border border-border-soft bg-white" />
+      <div className="flex flex-col gap-[14px]">
         {personalFields.map((label) => (
           <div key={label} className="flex flex-col gap-[7px]">
-            <div className="h-[14px] w-[120px] rounded-full bg-[#f4f1ea]" />
-            <div className="h-[42px] rounded-[8px] bg-[#f4f1ea]" />
+            <div className="h-[12px] w-[100px] rounded-full bg-[#f4f1ea]" />
+            <div className="h-[40px] rounded-[8px] bg-[#f4f1ea]" />
           </div>
         ))}
-      </div>
-      <div className="flex w-full justify-between">
-        <div className="h-[44px] w-[88px] rounded-[11px] bg-[#f4f1ea]" />
-        <div className="h-[44px] w-[88px] rounded-[11px] bg-[#f4f1ea]" />
       </div>
     </div>
   );
@@ -139,13 +133,13 @@ function LoadingState() {
 
 function NotFoundState({ message }: { message: string }) {
   return (
-    <div className="rounded-[18px] border border-border-soft bg-white p-[35px] font-body text-[14px] leading-[20.3px] text-ink-muted">
+    <div className="rounded-[16px] border border-border-soft bg-white p-[20px] font-mobile-body text-[13px] text-ink-muted">
       {message}
     </div>
   );
 }
 
-export default function ApplyFormPage() {
+export function MobileApplyForm() {
   const searchParams = useSearchParams();
   const applicationId = searchParams.get("id");
   const [fieldValues, setFieldValues] = useState<FieldValues>(DEFAULT_FIELD_VALUES);
@@ -319,79 +313,60 @@ export default function ApplyFormPage() {
           <FormTextarea {...commonProps} />
         )}
         {errorMessage ? (
-          <p className="font-body text-[12px] leading-[17px] text-[#9a3b36]">
-            {errorMessage}
-          </p>
+          <p className="font-mobile-body text-[11px] text-[#9a3b36]">{errorMessage}</p>
         ) : null}
       </div>
     );
   }
 
   return (
-    <>
-      <div className="md:hidden">
-        <MobileApplyForm />
+    <MobileScreen>
+      <div className="flex flex-col gap-[18px] rounded-[16px] border border-border-soft bg-white p-[20px] [filter:drop-shadow(0px_8px_11px_rgba(0,0,0,0.04))]">
+        <h1 className="font-mobile-display text-[17px] font-bold text-ink">
+          AIM Mentor Application · Fall 2026
+        </h1>
+
+        <FormStepper steps={applicationSteps} active={activeStep} />
+
+        <p className="font-mobile-body text-[12px] font-bold text-ink">
+          * Please verify that the following information is correct
+        </p>
+
+        {loading ? (
+          <LoadingState />
+        ) : error ? (
+          <NotFoundState message={error} />
+        ) : (
+          <>
+            <div className="flex flex-col gap-[14px]">
+              {(stepFieldGroups[activeStep] ?? []).map((label) => renderField(label))}
+            </div>
+
+            <div className="flex w-full justify-between">
+              <button
+                type="button"
+                className="flex h-[42px] items-center justify-center rounded-[11px] border border-border-soft bg-white px-[16px] font-mobile-body text-[13px] font-bold text-ink-muted disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={handleBackStep}
+                disabled={activeStep === 0}
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                aria-label="Next step"
+                className="flex h-[42px] min-w-[88px] items-center justify-center rounded-[11px] bg-brand px-[16px] text-[13px] font-bold leading-none text-white disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={handleNextStep}
+                disabled={activeStep >= applicationSteps.length - 1}
+                onBlur={() => {
+                  scheduleDraftSave(fieldValuesRef.current, activeStep);
+                }}
+              >
+                {activeStep >= applicationSteps.length - 1 ? "Done" : "Next"}
+              </button>
+            </div>
+          </>
+        )}
       </div>
-
-      <div className="hidden md:block">
-    <div className="flex min-h-screen w-full flex-col bg-cream">
-      <Navbar active="Apply" />
-
-      <div className="flex w-full flex-col items-center px-[47px] pt-[34px] pb-[120px]">
-        {/* Application card */}
-        <div className="w-full max-w-[1346px] rounded-[18px] border border-border-soft bg-white p-[35px] [filter:drop-shadow(0px_8px_11px_rgba(0,0,0,0.04))]">
-          <div className="flex flex-col gap-[24px]">
-            <h1 className="font-display text-[32px] font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
-              AIM Mentor Application Â· Fall 2026
-            </h1>
-
-            <FormStepper steps={applicationSteps} active={activeStep} />
-
-            <p className="font-body text-[14px] font-bold leading-[20.3px] text-ink">
-              * Please verify that the following information is correct
-            </p>
-
-            {loading ? (
-              <LoadingState />
-            ) : error ? (
-              <NotFoundState message={error} />
-            ) : (
-              <>
-                {/* Field grid */}
-                <div className="grid grid-cols-1 gap-x-[28px] gap-y-[20px] sm:grid-cols-2">
-                  {(stepFieldGroups[activeStep] ?? []).map((label) => renderField(label))}
-                </div>
-
-                {/* Navigation */}
-                <div className="flex w-full justify-between">
-                  <button
-                    type="button"
-                    className="flex h-[44px] items-center justify-center rounded-[11px] border border-border-soft bg-white px-[18px] font-body text-[14px] font-semibold leading-none text-ink-muted disabled:cursor-not-allowed disabled:opacity-50"
-                    onClick={handleBackStep}
-                    disabled={activeStep === 0}
-                  >
-                    Back
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Next step"
-                    className="flex h-[44px] min-w-[96px] items-center justify-center rounded-[11px] bg-brand px-[18px] text-[14px] font-bold leading-none text-white disabled:cursor-not-allowed disabled:opacity-50"
-                    onClick={handleNextStep}
-                    disabled={activeStep >= applicationSteps.length - 1}
-                    onBlur={() => {
-                      scheduleDraftSave(fieldValuesRef.current, activeStep);
-                    }}
-                  >
-                    {activeStep >= applicationSteps.length - 1 ? "Done" : "Next"}
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-      </div>
-    </>
+    </MobileScreen>
   );
 }

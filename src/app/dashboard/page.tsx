@@ -5,6 +5,7 @@ import { getNextUpcomingRsvp } from "@/lib/dashboard-utils";
 import { AchievementsCard } from "@/components/dashboard/achievements-card";
 import { QuickCtaCard } from "@/components/dashboard/quick-cta-card";
 import { AnnouncementsCard } from "@/components/dashboard/announcements-card";
+import { MobileDashboard } from "@/components/mobile/dashboard/MobileDashboard";
 import {
   DashboardStatusStrip,
   StatusStripSkeleton,
