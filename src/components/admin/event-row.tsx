@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/progress-bar";
 
@@ -6,9 +7,11 @@ type EventAction = {
   label: string;
   variant: "primary" | "accent" | "ghost";
   pill?: boolean;
+  href?: string;
 };
 
 export type EventRowData = {
+  id: string;
   title: string;
   status: EventStatus;
   /** "Aug 27 · 7:00 PM · ECSW 1.315" */
@@ -86,18 +89,27 @@ export function EventRow({
         />
       </div>
 
-      {/* Actions (direct flex children so the row gap spaces them) */}
-      {actions.map((a) => (
-        <Button
-          key={a.label}
-          variant={a.variant}
-          size="sm"
-          pill={a.pill}
-          className="rounded-[8px]"
-        >
-          {a.label}
-        </Button>
-      ))}
+      {/* Actions */}
+      {actions.map((a) => {
+        const buttonNode = (
+          <Button
+            variant={a.variant}
+            size="sm"
+            pill={a.pill}
+            className="rounded-[8px]"
+          >
+            {a.label}
+          </Button>
+        );
+
+        return a.href ? (
+          <Link key={a.label} href={a.href}>
+            {buttonNode}
+          </Link>
+        ) : (
+          <div key={a.label}>{buttonNode}</div>
+        );
+      })}
     </div>
   );
 }

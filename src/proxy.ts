@@ -1,5 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 const isPublicRoute = createRouteMatcher([
   '/',
@@ -22,8 +23,17 @@ export default clerkMiddleware(async (auth, req) => {
 
   // Extra role gate on top of that, for admin routes only
   if (isAdminRoute(req)) {
-    const role = session.sessionClaims?.metadata?.role;
-    if (!role || !allowedAdminRoles.includes(role as string)) {
+    let role = session.sessionClaims?.metadata?.role as string | undefined;
+
+    if (!role && session.userId) {
+      const user = await prisma.user.findUnique({
+        where: { clerkId: session.userId },
+        select: { role: true },
+      });
+      role = user?.role;
+    }
+
+    if (!role || !allowedAdminRoles.includes(role)) {
       return NextResponse.redirect(new URL('/dashboard', req.url));
     }
   }

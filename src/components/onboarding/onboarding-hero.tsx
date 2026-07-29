@@ -31,7 +31,7 @@ export function OnboardingHero() {
 
       {/* CTA */}
       <div>
-        <Button variant="accent" size="lg">
+        <Button variant="accent" size="lg" onClick={ () => location.href='https://discord.gg/JFEkPHjzEK' }>
           Join Discord ↗
         </Button>
       </div>

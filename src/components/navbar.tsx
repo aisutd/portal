@@ -1,24 +1,69 @@
 "use client";
 
 import Link from "next/link";
-import { Show, UserButton, useAuth } from "@clerk/nextjs";
+import { Show, UserButton, useAuth, useUser } from "@clerk/nextjs";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = ["Events", "Apply", "Dashboard"] as const;
+const ADMIN_LABEL = "Admin" as const;
+const ADMIN_ROLES = ["REVIEWER", "ORGANIZER", "SUPER_ADMIN"] as const;
 
-const NAV_ROUTES: Record<(typeof NAV_ITEMS)[number], string> = {
+const NAV_ROUTES: Record<(typeof NAV_ITEMS)[number] | typeof ADMIN_LABEL, string> = {
   Events: "/",
   Apply: "/applications",
   Dashboard: "/dashboard",
+  Admin: "/admin/dashboard",
 };
 
 type NavbarProps = {
   /** Which primary link is highlighted. Defaults to the dashboard. */
-  active?: (typeof NAV_ITEMS)[number] | "Profile";
+  active?: (typeof NAV_ITEMS)[number] | "Profile" | typeof ADMIN_LABEL;
 };
 
 export function Navbar({ active = "Dashboard" }: NavbarProps) {
   const { isSignedIn } = useAuth();
+  const { user } = useUser();
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isSignedIn) {
+      setRole(null);
+      return;
+    }
+
+    const metadataRole = (user?.publicMetadata as { role?: string } | undefined)?.role;
+    if (metadataRole) {
+      setRole(metadataRole);
+      return;
+    }
+
+    let active = true;
+
+    async function loadRole() {
+      try {
+        const response = await fetch("/api/me");
+        if (!active) return;
+        if (!response.ok) {
+          setRole(null);
+          return;
+        }
+
+        const data = await response.json();
+        setRole(data?.role ?? null);
+      } catch {
+        if (active) setRole(null);
+      }
+    }
+
+    loadRole();
+
+    return () => {
+      active = false;
+    };
+  }, [isSignedIn, user]);
+
+  const showAdminLink = !!role && ADMIN_ROLES.includes(role as (typeof ADMIN_ROLES)[number]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#f0f0f0] bg-white">
@@ -54,6 +99,20 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
               </li>
             );
           })}
+
+          {showAdminLink ? (
+            <li>
+              <Link
+                href={NAV_ROUTES.Admin}
+                className={cn(
+                  "font-techno text-[15px] font-black tracking-[0.5px] px-[24px] py-[10px] rounded-full transition-colors flex items-center justify-center",
+                  active === ADMIN_LABEL ? "bg-[#e1e8ff] text-[#2f5fe8]" : "text-[#4b4178] hover:bg-gray-100"
+                )}
+              >
+                Admin
+              </Link>
+            </li>
+          ) : null}
         </ul>
 
         {/* Account */}
