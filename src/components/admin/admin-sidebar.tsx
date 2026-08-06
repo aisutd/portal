@@ -7,7 +7,7 @@ const NAV_ROUTES: Record<(typeof NAV_ITEMS)[number], string> = {
   Overview: "/admin/dashboard",
   Applications: "/admin/applications/1",
   Events: "/admin/events",
-  Members: "/admin/users/1",
+  Members: "/admin/members",
 };
 
 type AdminSidebarProps = {

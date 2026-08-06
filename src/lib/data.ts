@@ -12,7 +12,6 @@ import type { Applicant } from "@/components/admin/applicant-list-item";
 import type { ApplicantDetailData } from "@/components/admin/applicant-detail";
 import type { SettingRow } from "@/components/admin/settings-card";
 import type { StatCardData } from "@/components/admin/stat-card";
-import type { Member } from "@/components/admin/members-table";
 import type { EventRowData } from "@/components/admin/event-row";
 import type { Role } from "@/components/apply/role-card";
 import type { FeaturedEvent } from "@/components/events/featured-event-card";
@@ -290,45 +289,6 @@ export const eventSettings: SettingRow[] = [
   { label: "Require check-in QR", type: "toggle", on: true },
   { label: "Members only", type: "toggle", on: false },
   { label: "Visibility", type: "badge", badge: "Draft" },
-];
-
-/* ---------------------------------------------------------- Admin · Members */
-
-export const memberStats: StatCardData[] = [
-  { value: "109", label: "total members" },
-  { value: "28", label: "officers" },
-  { value: "63", label: "active this sem" },
-  { value: "12", label: "new this month", highlight: true },
-];
-
-export const memberFilters: FilterChip[] = [
-  { label: "All", active: true },
-  { label: "Officers" },
-  { label: "Mentors" },
-  { label: "Mentees" },
-];
-
-const ROLE = {
-  officer: { label: "Officer", bg: "#e1e8ff", color: "#1f3aa3" },
-  mentor: { label: "Mentor", bg: "#e9e5f6", color: "#4b4178" },
-  mentee: { label: "Mentee", outline: true },
-} as const;
-
-const STATUS = {
-  active: { label: "Active", bg: "#d3eccf", color: "#356b2e" },
-  atRisk: { label: "At risk", bg: "#fbe3cb", color: "#7a4416" },
-  inactive: { label: "Inactive", bg: "#efece3", color: "#6a685f" },
-} as const;
-
-export const members: Member[] = [
-  { name: "Ava Johnson", netid: "aja210", role: ROLE.officer, events: "14", joined: "Aug 2024", status: STATUS.active },
-  { name: "Bilal Khan", netid: "bxk190", role: ROLE.mentor, events: "9", joined: "Sep 2024", status: STATUS.active },
-  { name: "Carmen Ruiz", netid: "cmr204", role: ROLE.mentee, events: "6", joined: "Jan 2025", status: STATUS.active },
-  { name: "Devon Lee", netid: "dpl217", role: ROLE.mentee, events: "3", joined: "Feb 2025", status: STATUS.atRisk },
-  { name: "Emma Novak", netid: "env188", role: ROLE.mentor, events: "11", joined: "Aug 2024", status: STATUS.active },
-  { name: "Felix Adeyemi", netid: "fxa176", role: ROLE.officer, events: "18", joined: "Aug 2023", status: STATUS.active },
-  { name: "Grace Park", netid: "gxp201", role: ROLE.mentee, events: "1", joined: "Mar 2025", status: STATUS.inactive },
-  { name: "Henry Osei", netid: "hxo199", role: ROLE.mentor, events: "7", joined: "Sep 2024", status: STATUS.active },
 ];
 
 /* --------------------------------------------------------- Admin · Overview */

@@ -37,12 +37,15 @@ const DEBOUNCE_MS = 300;
 export function MembersToolbar({ query }: { query: MembersQuery }) {
   const router = useRouter();
   const [term, setTerm] = useState(query.q);
+  const [syncedQ, setSyncedQ] = useState(query.q);
 
-  // Keep the box in sync when the URL changes from outside (back button,
-  // filter chip), without clobbering what the user is mid-way through typing.
-  useEffect(() => {
+  // Resync the box when the URL changes from outside (back button, filter
+  // chip). Adjusting during render rather than in an effect avoids a second
+  // render pass and keeps focus in the input while typing.
+  if (query.q !== syncedQ) {
+    setSyncedQ(query.q);
     setTerm(query.q);
-  }, [query.q]);
+  }
 
   useEffect(() => {
     if (term === query.q) return;
