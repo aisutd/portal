@@ -1,34 +1,32 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 
 type RowAction = {
   label: string;
-  variant: "primary" | "accent" | "soft" | "ghost";
+  variant: "primary" | "accent" | "soft" | "ghost" | "outline";
   pill?: boolean;
   href?: string;
+  disabled?: boolean;
 };
 
 export type OpenApp = {
   title: string;
   description: string;
-  /** e.g. "closes June 25, 2026 · 11:59 PM CT" */
   meta: string;
   borderColor: string;
-  /** Medium-weight meta for active rows; regular for the upcoming one. */
   metaMedium?: boolean;
-  /** Slightly fades the not-yet-open row. */
   dim?: boolean;
   statusBadge?: ReactNode;
   actions: RowAction[];
 };
 
 /**
- * A single row in "Open Applications Right Now": details on the left,
- * a pair of CTAs on the right.
+ * A single row in the applications list: details on the left and CTA(s) on the
+ * right.
  */
 export function OpenAppRow({
   title,
@@ -55,9 +53,12 @@ export function OpenAppRow({
       style={{ borderColor, opacity: dim ? 0.94 : 1 }}
     >
       <div className="min-w-0 flex-1">
-        <h3 className="font-display text-[17px] font-semibold leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
-          {title}
-        </h3>
+        <div className="flex flex-wrap items-start gap-[10px]">
+          <h3 className="font-display text-[17px] font-semibold leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
+            {title}
+          </h3>
+          {statusBadge ? <div className="shrink-0">{statusBadge}</div> : null}
+        </div>
         <p className="mt-[6px] font-body text-[14px] font-normal leading-[20.3px] text-ink-muted">
           {description}
         </p>
@@ -70,14 +71,16 @@ export function OpenAppRow({
         </p>
       </div>
 
-      <div className="flex shrink-0 gap-[10px]">
+      <div className="flex shrink-0 flex-wrap gap-[10px]">
         {actions.map((action) => (
           <Button
             key={action.label}
             variant={action.variant}
             size="md"
             pill={action.pill}
-            type="button"
+            type={action.href ? undefined : "button"}
+            disabled={action.disabled}
+            href={action.href}
             onClick={() => handleActionClick(action.label)}
           >
             {action.label}

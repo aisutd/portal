@@ -70,19 +70,18 @@ function getEligibility(programType: ProgramType) {
 
 export async function GET(
   _request: Request,
-  ctx: RouteContext<"/api/applications/[id]">
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const currentUser = await getCurrentUser();
   if ("error" in currentUser) {
     return currentUser.error;
   }
 
-  const { id } = await ctx.params;
+  const { id } = await params;
 
   const application = await prisma.programApplication.findFirst({
     where: {
       id,
-      visibleToUsers: true,
     },
     select: {
       id: true,
