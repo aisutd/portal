@@ -105,8 +105,10 @@ export async function GET() {
         },
       ],
       select: {
+        id: true,
         applicationId: true,
         status: true,
+        submittedAt: true,
       },
     }),
   ]);
@@ -124,14 +126,18 @@ export async function GET() {
   const submissionByApplicationId = new Map<
     string,
     {
+      id: string;
       status: (typeof submissions)[number]["status"];
+      submittedAt: string;
     }
   >();
 
   for (const submission of submissions) {
     if (!submissionByApplicationId.has(submission.applicationId)) {
       submissionByApplicationId.set(submission.applicationId, {
+        id: submission.id,
         status: submission.status,
+        submittedAt: submission.submittedAt.toISOString(),
       });
     }
   }
@@ -142,6 +148,8 @@ export async function GET() {
       phase: getPhase(application.openAt, application.closeAt, now),
       draft: draftByApplicationId.get(application.id) ?? null,
       submissionStatus: submissionByApplicationId.get(application.id)?.status ?? null,
+      submissionId: submissionByApplicationId.get(application.id)?.id ?? null,
+      submittedAt: submissionByApplicationId.get(application.id)?.submittedAt ?? null,
     })),
   });
 }

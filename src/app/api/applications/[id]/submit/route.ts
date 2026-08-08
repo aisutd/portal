@@ -45,7 +45,6 @@ export async function POST(
   const application = await prisma.programApplication.findFirst({
     where: {
       id,
-      visibleToUsers: true,
     },
     select: {
       id: true,
@@ -74,6 +73,12 @@ export async function POST(
       return { error: createErrorResponse("Draft not found", "BAD_REQUEST", 400) } as const;
     }
 
+    if (draft.isSubmitted) {
+      return {
+        error: createErrorResponse("Application already submitted", "ALREADY_SUBMITTED", 409),
+      } as const;
+    }
+
     const latestSubmission = await tx.applicationSubmission.findFirst({
       where: {
         applicationId: id,
@@ -87,7 +92,13 @@ export async function POST(
       },
     });
 
-    const versionNumber = latestSubmission ? latestSubmission.versionNumber + 1 : 1;
+    if (latestSubmission) {
+      return {
+        error: createErrorResponse("Application already submitted", "ALREADY_SUBMITTED", 409),
+      } as const;
+    }
+
+    const versionNumber = 1;
     const normalizedFormPayloadJson =
       draft.formPayloadJson === null
         ? Prisma.JsonNull

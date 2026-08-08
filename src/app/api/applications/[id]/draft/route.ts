@@ -33,19 +33,18 @@ async function getCurrentUser() {
 
 export async function GET(
   _request: Request,
-  ctx: RouteContext<"/api/applications/[id]/draft">
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const currentUser = await getCurrentUser();
   if ("error" in currentUser) {
     return currentUser.error;
   }
 
-  const { id } = await ctx.params;
+  const { id } = await params;
 
   const application = await prisma.programApplication.findFirst({
     where: {
       id,
-      visibleToUsers: true,
     },
     select: {
       id: true,
@@ -76,19 +75,18 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  ctx: RouteContext<"/api/applications/[id]/draft">
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const currentUser = await getCurrentUser();
   if ("error" in currentUser) {
     return currentUser.error;
   }
 
-  const { id } = await ctx.params;
+  const { id } = await params;
 
   const application = await prisma.programApplication.findFirst({
     where: {
       id,
-      visibleToUsers: true,
     },
     select: {
       id: true,
