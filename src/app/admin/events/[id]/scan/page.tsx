@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { QRScannerClient } from "@/components/admin/qr-scanner";
+import { MobileAdminScan } from "@/components/mobile/admin/MobileAdminScan";
 
 export const metadata: Metadata = {
   title: "AIS Admin — Scan & Perks",
@@ -22,27 +23,34 @@ export default async function EventScanPage({
 
   if (!event) return notFound();
 
+  const items = event.items.map((i) => ({
+    id: i.id,
+    name: i.name,
+    type: i.type,
+  }));
+
   return (
-    <div className="flex h-full flex-1 flex-col gap-5 p-[46px]">
-      <div>
-        <Link href="/admin/events" className="font-mono text-xs text-brand tracking-wide">
-          ← Back to Events
-        </Link>
-        <h2 className="mt-2 font-display text-3xl font-bold text-ink">
-          Scanner: {event.title}
-        </h2>
+    <>
+      <div className="md:hidden">
+        <MobileAdminScan eventTitle={event.title} eventId={event.id} items={items} />
       </div>
 
-      <div className="flex mt-4 flex-col items-center justify-center">
-        <QRScannerClient 
-          eventId={event.id} 
-          items={event.items.map(i => ({ 
-            id: i.id, 
-            name: i.name, 
-            type: i.type 
-          }))} 
-        />
+      <div className="hidden md:block">
+        <div className="flex h-full flex-1 flex-col gap-5 p-[46px]">
+          <div>
+            <Link href="/admin/events" className="font-mono text-xs text-brand tracking-wide">
+              ← Back to Events
+            </Link>
+            <h2 className="mt-2 font-display text-3xl font-bold text-ink">
+              Scanner: {event.title}
+            </h2>
+          </div>
+
+          <div className="flex mt-4 flex-col items-center justify-center">
+            <QRScannerClient eventId={event.id} items={items} />
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

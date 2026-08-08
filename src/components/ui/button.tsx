@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -16,6 +17,8 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   pill?: boolean;
   /** Stretch to the parent width. */
   block?: boolean;
+  /** Render as a navigation link instead of a button. */
+  href?: string;
 };
 
 const base =
@@ -47,6 +50,7 @@ export function Button({
   size = "md",
   pill,
   block = false,
+  href,
   className,
   children,
   ...props
@@ -63,18 +67,30 @@ export function Button({
         ? "rounded-[8px]"
         : "rounded-[10px]";
 
+  const classes = cn(
+    base,
+    variantClasses[variant],
+    !isAuth && sizeClasses[size],
+    radius,
+    block && "w-full",
+    className
+  );
+
+  if (href) {
+    const linkProps = props as Omit<
+      React.ComponentProps<typeof Link>,
+      "href" | "className" | "children"
+    >;
+
+    return (
+      <Link className={classes} href={href} {...linkProps}>
+        {children}
+      </Link>
+    );
+  }
+
   return (
-    <button
-      className={cn(
-        base,
-        variantClasses[variant],
-        !isAuth && sizeClasses[size],
-        radius,
-        block && "w-full",
-        className
-      )}
-      {...props}
-    >
+    <button className={classes} {...props}>
       {children}
     </button>
   );

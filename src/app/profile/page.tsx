@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { getProfileCompletion } from "@/lib/dashboard-utils";
 import { revalidatePath } from "next/cache";
+import { MobileProfile } from "@/components/mobile/profile/MobileProfile";
 
 export default async function ProfilePage() {
   const clerkUser = await currentUser();
@@ -50,6 +51,12 @@ export default async function ProfilePage() {
   }
 
   return (
+    <>
+      <div className="md:hidden">
+        <MobileProfile profile={profile} completion={completion} updateProfile={updateProfile} />
+      </div>
+
+      <div className="hidden md:block">
     <div className="flex min-h-screen w-full flex-col bg-cream font-[Inter]">
       <Navbar active="Profile" />
 
@@ -265,5 +272,7 @@ export default async function ProfilePage() {
         </form>
       </div>
     </div>
+      </div>
+    </>
   );
 }

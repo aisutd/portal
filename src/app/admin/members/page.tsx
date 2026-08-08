@@ -4,6 +4,7 @@ import { StatCard } from "@/components/admin/stat-card";
 import { MembersTable } from "@/components/admin/members-table";
 import { MembersToolbar } from "@/components/admin/members-toolbar";
 import { MembersPagination } from "@/components/admin/members-pagination";
+import { MobileAdminMembers } from "@/components/mobile/admin/MobileAdminMembers";
 import { Button } from "@/components/ui/button";
 import { parseMembersQuery } from "@/lib/members/query-params";
 import { getMembersViewModel } from "@/lib/members/view-model";
@@ -22,7 +23,12 @@ export default async function AdminMembersPage({
   const view = await getMembersViewModel(query);
 
   return (
-    <div className="flex min-h-screen w-full bg-cream">
+    <>
+      <div className="md:hidden">
+        <MobileAdminMembers query={query} view={view} />
+      </div>
+
+      <div className="hidden min-h-screen w-full bg-cream md:flex">
       <AdminSidebar active="Members" role="Officer" />
 
       <div className="flex h-full flex-1 flex-col gap-[20px] p-[46px]">
@@ -70,6 +76,7 @@ export default async function AdminMembersPage({
           total={view.total}
         />
       </div>
-    </div>
+      </div>
+    </>
   );
 }

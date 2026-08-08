@@ -121,6 +121,22 @@ export async function getUpcomingEvents(take: number = 2, userId?: string) {
   return events.sort(() => 0.5 - Math.random()).slice(0, take);
 }
 
+export function formatDaysAway(date: Date) {
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfTarget = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const diffDays = Math.round((startOfTarget.getTime() - startOfToday.getTime()) / (1000 * 3600 * 24));
+
+  if (diffDays < 0) return "recently";
+  if (diffDays === 0) return "today";
+  if (diffDays === 1) return "tomorrow";
+  return `in ${diffDays} days`;
+}
+
+export function formatEventDate(date: Date) {
+  return date.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+
 export async function getNextUpcomingRsvp(userId: string) {
   // 1. First attempt: Find an RSVP for an event ending in the future
   const upcomingRsvp = await prisma.rSVP.findFirst({

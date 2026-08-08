@@ -23,6 +23,7 @@ function AuthCardInner() {
   const { signUp } = useSignUp();
   const { signIn } = useSignIn();
 
+  const goToSetup = () => router.push("/onboarding/setup");
   const goToDashboard = () => router.push("/dashboard");
 
   const handleSignUpSubmit = async (e: React.FormEvent) => {
@@ -66,7 +67,7 @@ function AuthCardInner() {
     }
 
     if (signUp.status === "complete") {
-      await signUp.finalize({ navigate: goToDashboard });
+      await signUp.finalize({ navigate: goToSetup });
     } else {
       console.error("signUp.password error:", error); // ADD THIS
       setErrorMessage("Couldn't complete sign-up. Please try again.");

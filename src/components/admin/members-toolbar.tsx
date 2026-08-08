@@ -5,32 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  membersHref,
-  type MemberFilter,
-  type MemberSort,
-  type MembersQuery,
-} from "@/lib/members/query-params";
-
-const FILTER_LABELS: Record<MemberFilter, string> = {
-  all: "All",
-  officers: "Officers",
-  mentors: "Mentors",
-  mentees: "Mentees",
-};
-
-const SORT_LABELS: Record<MemberSort, string> = {
-  az: "sort: A–Z",
-  za: "sort: Z–A",
-  recent: "sort: newest",
-};
-
-/** Cycles when the sort pill is clicked. */
-const NEXT_SORT: Record<MemberSort, MemberSort> = {
-  az: "za",
-  za: "recent",
-  recent: "az",
-};
+import { membersHref, type MemberFilter, type MembersQuery } from "@/lib/members/query-params";
+import { FILTER_LABELS, NEXT_SORT, SORT_LABELS } from "@/lib/members/labels";
 
 const DEBOUNCE_MS = 300;
 

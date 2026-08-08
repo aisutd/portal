@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "../**/*.{js,ts,jsx,tsx,mdx}";
 
 :root {
   --background: #ffffff;
@@ -69,6 +70,9 @@
   --font-mono: var(--font-inter);
 
   /* AIS Portal brand fonts */
+  /* Mobile design system stand-in fonts (Placard Next -> Poppins, Garet -> Nunito Sans) */
+  --font-mobile-display: var(--font-placard);
+  --font-mobile-body: var(--font-garet);
   --font-display: var(--font-inter);
   --font-nav: var(--font-inter);
   --font-heading: var(--font-inter);
