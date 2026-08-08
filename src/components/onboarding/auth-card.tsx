@@ -23,6 +23,7 @@ function AuthCardInner() {
   const { signUp } = useSignUp();
   const { signIn } = useSignIn();
 
+  const goToSetup = () => router.push("/onboarding/setup");
   const goToDashboard = () => router.push("/dashboard");
 
   const handleSignUpSubmit = async (e: React.FormEvent) => {
@@ -66,7 +67,7 @@ function AuthCardInner() {
     }
 
     if (signUp.status === "complete") {
-      await signUp.finalize({ navigate: goToDashboard });
+      await signUp.finalize({ navigate: goToSetup });
     } else {
       console.error("signUp.password error:", error); // ADD THIS
       setErrorMessage("Couldn't complete sign-up. Please try again.");
@@ -145,7 +146,7 @@ function AuthCardInner() {
   const isSignUp = tab === "Sign up";
 
   return (
-    <div className="relative h-[500px] w-full max-w-[400px] rounded-[14px] bg-white shadow-auth-card">
+    <div className="relative h-[500px] w-full max-w-100 rounded-[14px] bg-white shadow-auth-card">
       <div className="absolute left-[30px] right-[30px] top-[30px]">
         <SegmentedTabs
           options={["Sign up", "Log in"]}

@@ -9,6 +9,7 @@ import { Marquee } from "@/components/apply/marquee";
 import { OpenAppRow, type OpenApp } from "@/components/apply/open-app-row";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { MobileApply } from "@/components/mobile/apply/MobileApply";
 import { applySteps, programs } from "@/lib/data";
 
 type ApplicationResponse = {
@@ -354,81 +355,91 @@ export default function ApplyPage() {
   const submittedApplications = sortSubmittedApplications(applications);
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-cream">
-      <Navbar active="Apply" />
-
-      <div className="relative w-full pb-[46px] pt-[46px]">
-        <section className="px-[46px] pt-[8px]">
-          <h1 className="font-display text-[65px] font-bold leading-[47.52px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
-            Choose Your <span className="text-brand">AIS Path</span>
-          </h1>
-          <p className="mt-[7.76px] max-w-[1000px] pl-[20.94px] font-body text-[20px] font-normal leading-[24px] text-ink">
-            Welcome to the enrollment hub. Whether you&apos;re here to learn,
-            lead, or build, there&apos;s a place waiting for you.
-          </p>
-        </section>
-
-        <section className="mt-[55.76px] flex flex-col gap-[16px] px-[46px]">
-          <SectionHeader
-            title="How to Begin"
-            titleClassName="text-[30px] leading-[25.96px]"
-          />
-          <div className="flex flex-col gap-[20px] lg:flex-row lg:items-stretch">
-            {applySteps.map((step) => (
-              <StepCard key={step.step} {...step} />
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-[31.49px] px-[46px]">
-          <div className="flex flex-col gap-[20px] lg:flex-row lg:items-stretch">
-            {programs.map((program, index) => (
-              <Fragment key={program.title}>
-                <ProgramCard {...program} showActionButton={false} />
-                {index < programs.length - 1 ? <ProgramFlowArrow /> : null}
-              </Fragment>
-            ))}
-          </div>
-        </section>
-
-        <div className="mt-[29.59px]">
-          <Marquee text="JOIN THE MOVEMENT · AIS UTD · BUILD THE FUTURE · AIS UTD" />
-        </div>
-
-        <ApplicationSection
-          title="Open Applications"
-          items={openApplications}
-          loading={loading}
-          emptyMessage="There are no open applications right now."
-          buildRow={buildOpenRow}
-        />
-        <ApplicationSection
-          title="Upcoming Applications"
-          items={upcomingApplications}
-          loading={loading}
-          emptyMessage="There are no upcoming applications."
-          buildRow={buildOpenRow}
-        />
-        <ApplicationSection
-          title="Closed Applications"
-          items={closedApplications}
-          loading={loading}
-          emptyMessage="There are no closed applications to show."
-          buildRow={buildOpenRow}
-        />
-        <ApplicationSection
-          title="Submitted Applications"
-          items={submittedApplications}
-          loading={loading}
-          emptyMessage="You have not submitted any applications yet."
-          action={
-            <Button href="/applications/history" variant="ghost" size="sm">
-              View history
-            </Button>
-          }
-          buildRow={buildSubmittedRow}
-        />
+    <>
+      {/* --- MOBILE LAYOUT --- */}
+      <div className="md:hidden">
+        <MobileApply />
       </div>
-    </div>
+
+      {/* --- DESKTOP LAYOUT --- */}
+      <div className="hidden md:block">
+        <div className="flex min-h-screen w-full flex-col bg-cream">
+          <Navbar active="Apply" />
+
+          <div className="relative w-full pb-[46px] pt-[46px]">
+            <section className="px-[46px] pt-[8px]">
+              <h1 className="font-display text-[65px] font-bold leading-[47.52px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+                Choose Your <span className="text-brand">AIS Path</span>
+              </h1>
+              <p className="mt-[7.76px] max-w-[1000px] pl-[20.94px] font-body text-[20px] font-normal leading-[24px] text-ink">
+                Welcome to the enrollment hub. Whether you&apos;re here to learn,
+                lead, or build, there&apos;s a place waiting for you.
+              </p>
+            </section>
+
+            <section className="mt-[55.76px] flex flex-col gap-[16px] px-[46px]">
+              <SectionHeader
+                title="How to Begin"
+                titleClassName="text-[30px] leading-[25.96px]"
+              />
+              <div className="flex flex-col gap-[20px] lg:flex-row lg:items-stretch">
+                {applySteps.map((step) => (
+                  <StepCard key={step.step} {...step} />
+                ))}
+              </div>
+            </section>
+
+            <section className="mt-[31.49px] px-[46px]">
+              <div className="flex flex-col gap-[20px] lg:flex-row lg:items-stretch">
+                {programs.map((program, index) => (
+                  <Fragment key={program.title}>
+                    <ProgramCard {...program} showActionButton={false} />
+                    {index < programs.length - 1 ? <ProgramFlowArrow /> : null}
+                  </Fragment>
+                ))}
+              </div>
+            </section>
+
+            <div className="mt-[29.59px]">
+              <Marquee text="JOIN THE MOVEMENT · AIS UTD · BUILD THE FUTURE · AIS UTD" />
+            </div>
+
+            <ApplicationSection
+              title="Open Applications"
+              items={openApplications}
+              loading={loading}
+              emptyMessage="There are no open applications right now."
+              buildRow={buildOpenRow}
+            />
+            <ApplicationSection
+              title="Upcoming Applications"
+              items={upcomingApplications}
+              loading={loading}
+              emptyMessage="There are no upcoming applications."
+              buildRow={buildOpenRow}
+            />
+            <ApplicationSection
+              title="Closed Applications"
+              items={closedApplications}
+              loading={loading}
+              emptyMessage="There are no closed applications to show."
+              buildRow={buildOpenRow}
+            />
+            <ApplicationSection
+              title="Submitted Applications"
+              items={submittedApplications}
+              loading={loading}
+              emptyMessage="You have not submitted any applications yet."
+              action={
+                <Button href="/applications/history" variant="ghost" size="sm">
+                  View history
+                </Button>
+              }
+              buildRow={buildSubmittedRow}
+            />
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

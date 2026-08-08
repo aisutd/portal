@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { FormField, FormTextarea } from "@/components/ui/form-field";
 import { SectionHeader } from "@/components/ui/section-header";
 import { applicationFormStepFields, applicationSteps } from "@/lib/data";
+import { MobileSubmitted } from "@/components/mobile/apply/MobileSubmitted";
 
 type SubmissionResponse = {
   submission: {
@@ -51,7 +52,7 @@ const timeFormatter = new Intl.DateTimeFormat("en-US", {
 
 function formatDateTime(value: string) {
   const date = new Date(value);
-  return `${dateFormatter.format(date)} Â· ${timeFormatter.format(date)}`;
+  return `${dateFormatter.format(date)} · ${timeFormatter.format(date)}`;
 }
 
 function getStatusBadge(status: string) {
@@ -227,76 +228,84 @@ function SubmittedContent() {
   }, [submissionId]);
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-cream">
-      <Navbar active="Apply" />
+    <>
+      <div className="md:hidden">
+        <MobileSubmitted />
+      </div>
 
-      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[24px] px-[46px] pb-[46px] pt-[45px]">
-        <section className="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex flex-col gap-[8px]">
-            <h1 className="font-display text-[32px] font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
-              Submitted Application
-            </h1>
-            <p className="font-body text-[15px] leading-[21.75px] text-ink-muted">
-              View your submitted answers in read-only form.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-[10px]">
-            <Button href="/applications/history" variant="ghost" size="md">
-              View History
-            </Button>
-            <Button href="/applications" variant="primary" size="md">
-              Back to Applications
-            </Button>
-          </div>
-        </section>
+      <div className="hidden md:block">
+        <div className="flex min-h-screen w-full flex-col bg-cream">
+          <Navbar active="Apply" />
 
-        {loading ? (
-          <LoadingState />
-        ) : error ? (
-          <NotFoundState message={error} />
-        ) : submission ? (
-          <div className="flex flex-col gap-[20px] rounded-[18px] border border-border-soft bg-white p-[35px]">
-            <div className="flex flex-col gap-[12px] sm:flex-row sm:items-start sm:justify-between">
-              <div className="flex flex-col gap-[6px]">
-                <h2 className="font-display text-[24px] font-semibold leading-[28px] text-ink [font-variation-settings:'wdth'_100]">
-                  {submission.application.title}
-                </h2>
-                <p className="font-body text-[14px] leading-[20.3px] text-ink-muted">
-                  Submitted {formatDateTime(submission.submittedAt)}
+          <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[24px] px-[46px] pb-[46px] pt-[45px]">
+            <section className="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex flex-col gap-[8px]">
+                <h1 className="font-display text-[32px] font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+                  Submitted Application
+                </h1>
+                <p className="font-body text-[15px] leading-[21.75px] text-ink-muted">
+                  View your submitted answers in read-only form.
                 </p>
               </div>
-              <div className="shrink-0">
-                {getStatusBadge(submission.status)}
+              <div className="flex flex-wrap gap-[10px]">
+                <Button href="/applications/history" variant="ghost" size="md">
+                  View History
+                </Button>
+                <Button href="/applications" variant="primary" size="md">
+                  Back to Applications
+                </Button>
               </div>
-            </div>
+            </section>
 
-            {submission.application.retentionUntil ? (
-              <p className="font-body text-[14px] leading-[20.3px] text-ink-muted">
-                Retention until{" "}
-                {dateFormatter.format(
-                  new Date(submission.application.retentionUntil),
-                )}
-              </p>
-            ) : null}
-
-            {applicationSteps.map((step, index) => {
-              const fields = stepFieldGroups[index] ?? [];
-
-              return (
-                <div key={step} className="flex flex-col gap-[14px]">
-                  <SectionHeader title={step} />
-                  <div className="grid grid-cols-1 gap-x-[28px] gap-y-[20px] sm:grid-cols-2">
-                    {fields.map((label) =>
-                      renderReadOnlyField(label, fieldValues[label] ?? ""),
-                    )}
+            {loading ? (
+              <LoadingState />
+            ) : error ? (
+              <NotFoundState message={error} />
+            ) : submission ? (
+              <div className="flex flex-col gap-[20px] rounded-[18px] border border-border-soft bg-white p-[35px]">
+                <div className="flex flex-col gap-[12px] sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex flex-col gap-[6px]">
+                    <h2 className="font-display text-[24px] font-semibold leading-[28px] text-ink [font-variation-settings:'wdth'_100]">
+                      {submission.application.title}
+                    </h2>
+                    <p className="font-body text-[14px] leading-[20.3px] text-ink-muted">
+                      Submitted {formatDateTime(submission.submittedAt)}
+                    </p>
+                  </div>
+                  <div className="shrink-0">
+                    {getStatusBadge(submission.status)}
                   </div>
                 </div>
-              );
-            })}
+
+                {submission.application.retentionUntil ? (
+                  <p className="font-body text-[14px] leading-[20.3px] text-ink-muted">
+                    Retention until{" "}
+                    {dateFormatter.format(
+                      new Date(submission.application.retentionUntil),
+                    )}
+                  </p>
+                ) : null}
+
+                {applicationSteps.map((step, index) => {
+                  const fields = stepFieldGroups[index] ?? [];
+
+                  return (
+                    <div key={step} className="flex flex-col gap-[14px]">
+                      <SectionHeader title={step} />
+                      <div className="grid grid-cols-1 gap-x-[28px] gap-y-[20px] sm:grid-cols-2">
+                        {fields.map((label) =>
+                          renderReadOnlyField(label, fieldValues[label] ?? ""),
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
           </div>
-        ) : null}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

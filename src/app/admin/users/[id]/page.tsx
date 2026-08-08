@@ -4,6 +4,7 @@ import { StatCard } from "@/components/admin/stat-card";
 import { MembersTable } from "@/components/admin/members-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { MobileAdminMembers } from "@/components/mobile/admin/MobileAdminMembers";
 import { memberStats, memberFilters, members } from "@/lib/data";
 
 export const metadata: Metadata = {
@@ -13,6 +14,12 @@ export const metadata: Metadata = {
 
 export default function AdminMembersPage() {
   return (
+    <>
+      <div className="md:hidden">
+        <MobileAdminMembers />
+      </div>
+
+      <div className="hidden md:block">
       <div className="flex min-h-screen w-full bg-cream">
         <AdminSidebar active="Members" role="Officer" />
 
@@ -81,5 +88,7 @@ export default function AdminMembersPage() {
           </div>
         </div>
       </div>
+      </div>
+    </>
   );
 }

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { FormStepper } from "@/components/apply/form-stepper";
 import { FormField, FormTextarea } from "@/components/ui/form-field";
+import { MobileApplyForm } from "@/components/mobile/apply/MobileApplyForm";
 import {
   applicationFormStepFields,
   applicationSteps,
@@ -572,6 +573,12 @@ function ApplyFormContent() {
   }
 
   return (
+    <>
+      <div className="md:hidden">
+        <MobileApplyForm />
+      </div>
+
+      <div className="hidden md:block">
     <div className="flex min-h-screen w-full flex-col bg-cream">
       <Navbar active="Apply" />
 
@@ -649,6 +656,8 @@ function ApplyFormContent() {
         </div>
       </div>
     </div>
+      </div>
+    </>
   );
 }
 

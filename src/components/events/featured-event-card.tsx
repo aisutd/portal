@@ -5,12 +5,13 @@ import { useAuth } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
 import type { TagData } from "@/components/dashboard/up-next-card";
+import { normalizeEventTags } from "@/lib/event-tags";
 
 export type FeaturedEvent = {
   badge: string;
   title: string;
   description: string;
-  tags: TagData[];
+  tags: Array<string | TagData>;
 };
 
 /**
@@ -25,6 +26,7 @@ export function FeaturedEventCard({
 }: FeaturedEvent) {
   const router = useRouter();
   const { isSignedIn } = useAuth();
+  const normalizedTags = normalizeEventTags(tags);
 
   function handleRsvpNow() {
     if (!isSignedIn) {
@@ -49,7 +51,7 @@ export function FeaturedEventCard({
 
       <div className="flex flex-wrap items-center justify-between gap-[16px]">
         <div className="flex gap-[8px]">
-          {tags.map((t) => (
+          {normalizedTags.map((t) => (
             <Tag key={t.label} label={t.label} bg={t.bg} color={t.color} />
           ))}
         </div>

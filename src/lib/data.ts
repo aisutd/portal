@@ -283,7 +283,6 @@ export const eventTags: TagData[] = [
   { label: "workshop", bg: "#cde9e5", color: "#1d6a61" },
   { label: "networking", bg: "#d6e2ff", color: "#284b9c" },
   { label: "industry", bg: "#ded9f4", color: "#463e86" },
-  { label: "+ add tag", bg: "#efece3", color: "#6a685f", border: "#e2ded2" },
 ];
 
 export const eventSettings: SettingRow[] = [
@@ -348,74 +347,74 @@ export const overviewStatsSecondary: StatCardData[] = [
 /** Skeleton bar widths (% of card) for the Recent activity placeholder. */
 export const recentActivityWidths = ["88%", "74%", "80%", "62%"];
 
-/* ----------------------------------------------------------- Admin · Events */
+// /* ----------------------------------------------------------- Admin · Events */
 
-export const eventStats: StatCardData[] = [
-  { value: "3", label: "upcoming" },
-  { value: "128", label: "total RSVPs" },
-  { value: "86", label: "checked in" },
-  { value: "92%", label: "avg capacity", highlight: true },
-];
+// export const eventStats: StatCardData[] = [
+//   { value: "3", label: "upcoming" },
+//   { value: "128", label: "total RSVPs" },
+//   { value: "86", label: "checked in" },
+//   { value: "92%", label: "avg capacity", highlight: true },
+// ];
 
-const STATUS_LIVE = { label: "Live", bg: "#d2ecd9", color: "#2c5d3e" };
-const STATUS_DRAFT = { label: "Draft", bg: "#efece3", color: "#6a685f" };
-const STATUS_PAST = { label: "Past", bg: "#efece3", color: "#8a8a93" };
+// const STATUS_LIVE = { label: "Live", bg: "#d2ecd9", color: "#2c5d3e" };
+// const STATUS_DRAFT = { label: "Draft", bg: "#efece3", color: "#6a685f" };
+// const STATUS_PAST = { label: "Past", bg: "#efece3", color: "#8a8a93" };
 
-const FILL_BRAND = "#2f5fe8";
-const FILL_GREY = "#8a8a93";
+// const FILL_BRAND = "#2f5fe8";
+// const FILL_GREY = "#8a8a93";
 
-export const adminEvents: EventRowData[] = [
-  {
-    title: "Fall Kickoff",
-    status: STATUS_LIVE,
-    meta: "Aug 27 · 7:00 PM · ECSW 1.315",
-    leftInfo: "86 / 150 checked in",
-    rightInfo: "128 RSVPs",
-    progress: 57,
-    progressFill: FILL_BRAND,
-    actions: [
-      { label: "Edit", variant: "ghost" },
-      { label: "Scan", variant: "primary" },
-    ],
-  },
-  {
-    title: "Intro to PyTorch",
-    status: STATUS_LIVE,
-    meta: "Sep 3 · 6:00 PM · ECSW 1.355",
-    leftInfo: "12 / 40 checked in",
-    rightInfo: "31 RSVPs",
-    progress: 30,
-    progressFill: FILL_BRAND,
-    actions: [
-      { label: "Edit", variant: "ghost" },
-      { label: "Scan", variant: "primary" },
-    ],
-  },
-  {
-    title: "Sponsor Mixer",
-    status: STATUS_DRAFT,
-    meta: "Sep 10 · 7:00 PM · TBD",
-    leftInfo: "not published",
-    rightInfo: "cap 60",
-    progress: 0,
-    progressFill: FILL_BRAND,
-    actions: [
-      { label: "Edit", variant: "ghost" },
-      { label: "Publish", variant: "accent", pill: false },
-    ],
-  },
-  {
-    title: "AIM Social",
-    status: STATUS_PAST,
-    meta: "May 26 · 6:00 PM · ECSW 1.315",
-    leftInfo: "48 / 50 attended",
-    rightInfo: "export CSV ↗",
-    progress: 96,
-    progressFill: FILL_GREY,
-    dim: true,
-    actions: [{ label: "View", variant: "ghost" }],
-  },
-];
+// export const adminEvents: EventRowData[] = [
+//   {
+//     title: "Fall Kickoff",
+//     status: STATUS_LIVE,
+//     meta: "Aug 27 · 7:00 PM · ECSW 1.315",
+//     leftInfo: "86 / 150 checked in",
+//     rightInfo: "128 RSVPs",
+//     progress: 57,
+//     progressFill: FILL_BRAND,
+//     actions: [
+//       { label: "Edit", variant: "ghost" },
+//       { label: "Scan", variant: "primary" },
+//     ],
+//   },
+//   {
+//     title: "Intro to PyTorch",
+//     status: STATUS_LIVE,
+//     meta: "Sep 3 · 6:00 PM · ECSW 1.355",
+//     leftInfo: "12 / 40 checked in",
+//     rightInfo: "31 RSVPs",
+//     progress: 30,
+//     progressFill: FILL_BRAND,
+//     actions: [
+//       { label: "Edit", variant: "ghost" },
+//       { label: "Scan", variant: "primary" },
+//     ],
+//   },
+//   {
+//     title: "Sponsor Mixer",
+//     status: STATUS_DRAFT,
+//     meta: "Sep 10 · 7:00 PM · TBD",
+//     leftInfo: "not published",
+//     rightInfo: "cap 60",
+//     progress: 0,
+//     progressFill: FILL_BRAND,
+//     actions: [
+//       { label: "Edit", variant: "ghost" },
+//       { label: "Publish", variant: "accent", pill: false },
+//     ],
+//   },
+//   {
+//     title: "AIM Social",
+//     status: STATUS_PAST,
+//     meta: "May 26 · 6:00 PM · ECSW 1.315",
+//     leftInfo: "48 / 50 attended",
+//     rightInfo: "export CSV ↗",
+//     progress: 96,
+//     progressFill: FILL_GREY,
+//     dim: true,
+//     actions: [{ label: "View", variant: "ghost" }],
+//   },
+// ];
 
 /* -------------------------------------------------------- Apply · Form (step) */
 
