@@ -125,6 +125,15 @@ export function formatDaysAway(date: Date) {
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const startOfTarget = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  
+  // Calculate raw difference in milliseconds to check exact hour progress
+  const hourDiff = (date.getTime() - now.getTime()) / (1000 * 3600);
+  
+  // If the event started in the past but within our 12-hour lookback window
+  if (hourDiff < 0 && hourDiff >= -12) {
+    return "now";
+  }
+  
   const diffDays = Math.round((startOfTarget.getTime() - startOfToday.getTime()) / (1000 * 3600 * 24));
 
   if (diffDays < 0) return "recently";
@@ -138,29 +147,36 @@ export function formatEventDate(date: Date) {
 }
 
 export async function getNextUpcomingRsvp(userId: string) {
-  // 1. First attempt: Find an RSVP for an event ending in the future
+  // 1. Get the current app server time
+  const now = new Date();
+  
+  // 2. Shift the boundary forward by 5 hours to align with your database timezone context
+  const dbNowAhead = new Date(now.getTime() + 5 * 60 * 60 * 1000);
+  
+  // 3. Subtract your 12-hour lookback window from that shifted DB base time
+  const twelveHoursAgoDB = new Date(dbNowAhead.getTime() - 12 * 60 * 60 * 1000);
+
+  // First attempt: Find an RSVP for an event matching the synchronized database time window
   const upcomingRsvp = await prisma.rSVP.findFirst({
     where: { 
       userId, 
-      status: "GOING",
+      status: "GOING", 
       event: { 
-        endTime: { gte: new Date() } 
+        startTime: { gte: twelveHoursAgoDB } 
       } 
     },
     include: { event: true },
-    orderBy: { event: { startTime: "asc" } },
+    orderBy: { event: { startTime: "asc" } }, // Earliest first
   });
 
   if (upcomingRsvp) return upcomingRsvp;
 
-  // 2. Fallback: Find an RSVP for an event with UPCOMING status
+  // Fallback: Find an RSVP for an event with an explicit UPCOMING status field
   const upcomingStatusRsvp = await prisma.rSVP.findFirst({
-    where: {
-      userId,
-      status: "GOING",
-      event: {
-        status: "UPCOMING"
-      }
+    where: { 
+      userId, 
+      status: "GOING", 
+      event: { status: "UPCOMING" } 
     },
     include: { event: true },
     orderBy: { event: { startTime: "asc" } },
@@ -168,12 +184,9 @@ export async function getNextUpcomingRsvp(userId: string) {
 
   if (upcomingStatusRsvp) return upcomingStatusRsvp;
 
-  // 3. Last fallback: Return the user's most recent GOING RSVP
+  // Last fallback: Return the user's most recent GOING RSVP historical record
   return prisma.rSVP.findFirst({
-    where: { 
-      userId, 
-      status: "GOING" 
-    },
+    where: { userId, status: "GOING" },
     include: { event: true },
     orderBy: { createdAt: "desc" },
   });

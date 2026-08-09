@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
-
 import type { Metadata } from "next";
+import { getAuthenticatedUser } from "@/lib/auth";
 import { Navbar } from "@/components/navbar";
 import { Tag } from "@/components/ui/tag";
 import { EventGridCard } from "@/components/events/event-grid-card";
@@ -13,26 +13,48 @@ export const metadata: Metadata = {
   description: "Browse upcoming AIS events by tag.",
 };
 
-async function getEvents() {
+async function getEvents(userId: string | null) {
   return prisma.event.findMany({
     orderBy: { startTime: "asc" },
     take: 20,
+    include: {
+      rsvps: userId
+        ? {
+            where: {
+              userId: userId,
+              status: "GOING",
+            },
+          }
+        : false,
+    },
   });
 }
 
 export default async function EventsBrowsePage() {
-  const events = await getEvents();
+  const user = await getAuthenticatedUser();
+  const userId = user?.id ?? null;
+  const events = await getEvents(userId);
+
+  // Map events to include userIsGoing flag for client-side use
+  const initialEvents = events.map((event) => ({
+    id: event.id,
+    title: event.title,
+    description: event.description,
+    location: event.location,
+    startTime: event.startTime.toISOString(), // Ensure ISO string format for client dates
+    tags: event.tags,
+    isRsvpd: !!(event.rsvps && event.rsvps.length > 0),
+  }));
 
   return (
     <>
       <div className="md:hidden">
-        <MobileEventsBrowse />
+        <MobileEventsBrowse initialEvents={initialEvents} />
       </div>
 
       <div className="hidden md:block">
         <div className="flex min-h-screen w-full flex-col bg-cream">
           <Navbar active="Events" />
-
           <div className="flex w-full flex-col md:flex-row md:items-stretch">
             {/* Tag filter sidebar */}
             <aside className="flex flex-col gap-[10px] border-b border-border-soft px-[26px] py-[32px] md:w-[219px] md:shrink-0 md:border-b-0 md:border-r">
@@ -49,7 +71,7 @@ export default async function EventsBrowsePage() {
             {/* Event grid */}
             <div className="min-w-px flex-1 p-[46px]">
               <div className="grid grid-cols-1 gap-[24px] lg:grid-cols-2">
-                {events.map((event) => (
+                {initialEvents.map((event) => (
                   <EventGridCard
                     key={event.id}
                     title={event.title}
@@ -57,6 +79,7 @@ export default async function EventsBrowsePage() {
                     description={event.description}
                     tags={event.tags}
                     eventId={event.id}
+                    isRsvpd={event.isRsvpd}
                   />
                 ))}
               </div>

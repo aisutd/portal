@@ -30,6 +30,12 @@ export function MobileEvents() {
           <Badge label="Past Adventures" variant="outline" />
         </div>
       </div>
+      
+      <Link href="/events/browse">
+          <Button variant="accent" size="md" block>
+            Browse Events →
+          </Button>
+      </Link>
 
       {/* Featured event */}
       <div className="flex flex-col gap-[16px] overflow-hidden rounded-[16px] border border-border-soft bg-brand-soft p-[20px]">
@@ -101,11 +107,6 @@ export function MobileEvents() {
           </div>
         </div>
 
-        <Link href="/events/browse">
-          <Button variant="accent" size="md" block>
-            Browse Events →
-          </Button>
-        </Link>
       </div>
 
       {/* Slogan banner (bleeds past the screen padding) */}

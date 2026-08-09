@@ -1,5 +1,5 @@
 "use client";
-
+//TODO - Make what is required at profile creation consistent accross api and this doc's canNext()
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FormStepper } from "@/components/apply/form-stepper";
@@ -47,9 +47,9 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
   const canNext = () => {
     if (step === 0)
       return (
-        form.firstName.trim() && form.lastName.trim() && form.prefName.trim()
+        form.firstName.trim() && form.lastName.trim() // && form.prefName.trim()
       );
-    if (step === 1) return form.year && form.degree && form.major.trim();
+    if (step === 1) return form.utdNetId // && form.year && form.degree && form.major.trim();
     return true;
   };
 
@@ -102,12 +102,14 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
               value={form.firstName}
               onChange={set("firstName")}
               placeholder="Ada"
+              required
             />
             <Field
               label="Last Name"
               value={form.lastName}
               onChange={set("lastName")}
               placeholder="Lovelace"
+              required
             />
             <Field
               label="Middle Name (optional)"
@@ -182,6 +184,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
               value={form.utdNetId}
               onChange={set("utdNetId")}
               placeholder="abc123456"
+              required
             />
           </div>
         )}

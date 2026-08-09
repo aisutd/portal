@@ -171,8 +171,8 @@ export function MobileApply() {
 
   return (
     <MobileScreen>
-      <div className="flex flex-col gap-[8px]">
-        <h1 className="font-mobile-display text-[24px] font-bold leading-[30px] text-ink">
+      <div className="flex flex-col gap-2 pt-4">
+        <h1 className="font-mobile-display text-[36px] font-bold leading-7.5 text-ink">
           Choose Your <span className="text-brand">AIS Path</span>
         </h1>
         <p className="font-mobile-body text-[14px] text-ink">

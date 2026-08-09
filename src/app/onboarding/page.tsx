@@ -16,16 +16,16 @@ export default function OnboardingPage() {
       </div>
 
       <div className="hidden md:block">
-        <div className="flex min-h-screen w-full flex-col bg-cream">
-          {/* Split composition: cream hero + brand auth panel. Stacks below lg. */}
-          <div className="flex w-full flex-col lg:min-h-[1045px] lg:flex-row">
-            <OnboardingHero />
+        {/* Force immediate side-by-side horizontal split on all desktop/tablet sizes */}
+<main className="hidden min-h-screen w-full bg-cream md:flex md:flex-row">
+  <section className="w-1/2">
+    <OnboardingHero />
+  </section>
+  <section className="flex w-1/2 items-center justify-center bg-brand p-8">
+    <AuthCard />
+  </section>
+</main>
 
-            <div className="flex flex-1 items-center justify-center bg-brand p-8 sm:p-12 lg:p-[84px]">
-              <AuthCard />
-            </div>
-          </div>
-        </div>
       </div>
     </>
   );

@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 
 /**
- * Phone-frame wrapper for mobile page bodies. Caps width to a phone-sized
- * column and centers it, matching the Figma mobile frames (max 430px).
+ * Full-width wrapper for mobile page bodies. 
+ * Expands to fit the width of the device screen.
  */
 export function MobileScreen({
   children,
@@ -12,10 +12,10 @@ export function MobileScreen({
   withBottomNavPadding?: boolean;
 }) {
   return (
-    <div className="min-h-screen bg-cream font-mobile-body text-ink">
+    <div className="min-h-screen w-full bg-cream font-mobile-body text-ink">
       <div
-        className={`mx-auto flex min-h-screen max-w-[430px] flex-col gap-[20px] px-[20px] pt-[20px] ${
-          withBottomNavPadding ? "pb-[96px]" : "pb-[20px]"
+        className={`flex min-h-screen w-full flex-col gap-5 px-5 pt-5 ${
+          withBottomNavPadding ? "pb-24" : "pb-5"
         }`}
       >
         {children}

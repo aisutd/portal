@@ -24,9 +24,13 @@ export default async function SetupPage() {
 
   return (
     <div className="flex min-h-screen w-full flex-col items-center bg-cream px-[24px] py-[60px]">
-      <span className="inline-flex rounded-[10px] border border-brand px-[15px] py-[9px] font-logo text-[15px] tracking-[1px] text-brand">
-        AIS
-      </span>
+      <div>
+         <img
+          className="h-10 shrink-0 object-contain sm:h-12"
+          src="/ais_logo_black.png"
+          alt="AIS Logo"
+        />
+      </div>
 
       <h1 className="mt-[24px] font-display text-[32px] font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
         Complete Your Profile

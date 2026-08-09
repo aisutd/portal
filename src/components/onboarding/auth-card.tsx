@@ -146,7 +146,7 @@ function AuthCardInner() {
   const isSignUp = tab === "Sign up";
 
   return (
-    <div className="relative h-[500px] w-full max-w-[400px] rounded-[14px] bg-white shadow-auth-card">
+    <div className="relative h-[500px] w-full max-w-100 rounded-[14px] bg-white shadow-auth-card">
       <div className="absolute left-[30px] right-[30px] top-[30px]">
         <SegmentedTabs
           options={["Sign up", "Log in"]}

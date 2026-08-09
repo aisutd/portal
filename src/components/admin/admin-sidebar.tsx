@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-const NAV_ITEMS = ["Overview", "Applications", "Events", "Members"] as const;
+const NAV_ITEMS = ["Overview", "Applications", "Events", "Members", "Exit"] as const;
 
 const NAV_ROUTES: Record<(typeof NAV_ITEMS)[number], string> = {
   Overview: "/admin/dashboard",
   Applications: "/admin/applications/1",
   Events: "/admin/events",
   Members: "/admin/members",
+  Exit: "/dashboard",
 };
 
 type AdminSidebarProps = {

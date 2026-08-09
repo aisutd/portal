@@ -5,7 +5,6 @@ import { getAuthenticatedUser } from "@/lib/auth";
 // Components
 import { Navbar } from "@/components/navbar";
 import { UpNextCard } from "@/components/dashboard/up-next-card";
-import { AchievementsCard } from "@/components/dashboard/achievements-card";
 import { QuickCtaCard } from "@/components/dashboard/quick-cta-card";
 import { AnnouncementsCard } from "@/components/dashboard/announcements-card";
 import { MobileDashboard } from "@/components/mobile/dashboard/MobileDashboard";
@@ -22,30 +21,44 @@ import { getNextUpcomingRsvp, formatDaysAway, formatEventDate } from "@/lib/dash
 import { announcements } from "@/lib/data";
 
 export default async function DashboardPage() {
-  // 1. Clean auth check using your new lib function
   const user = await getAuthenticatedUser();
   
   if (!user || !user.profile) {
     redirect("/onboarding/setup");
   }
 
-  // 2. Fetch dashboard data
   const nextRsvp = await getNextUpcomingRsvp(user.id);
+  
+  // Define it once, use it in both places
+  const userName = user.profile.firstName || "Member";
 
-  // 3. Render
+  // Calculate if the current event is happening now or recently started
+  const isPastEvent = nextRsvp ? new Date(nextRsvp.event.startTime) < new Date() : false;
+  
+  // Set dynamic eyebrow prefix text based on the event time status
+  const eyebrowPrefix = isPastEvent ? "Happening Now / Recent" : "Up next";
+
+
   return (
     <>
+      {/* --- MOBILE VIEW --- */}
       <div className="md:hidden">
-        <MobileDashboard userId={user.id} nextRsvp={nextRsvp} announcements={announcements} />
+        <MobileDashboard 
+          userId={user.id} 
+          userName={userName} // <-- Passed here
+          nextRsvp={nextRsvp} 
+          announcements={announcements} 
+        />
       </div>
 
+      {/* --- DESKTOP VIEW --- */}
       <div className="hidden md:block">
         <div className="flex min-h-screen w-full flex-col bg-cream">
           <Navbar />
 
           <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[28px] px-[46px] pb-[46px] pt-[45px]">
             <h1 className="font-display text-[40px] font-bold leading-[43.2px] tracking-[-0.4px] text-brand [font-variation-settings:'wdth'_100]">
-              Welcome back, {user.profile.firstName || "Member"}! :)
+              Welcome back, {userName}! :)
             </h1>
 
             {/* Row 1 — featured event + applications */}
@@ -80,7 +93,7 @@ export default async function DashboardPage() {
               <QuickCtaCard />
             </div>
 
-            {/* Row 3 — recommendations + announcements */}
+            {/* Row 3 — recommendations */}
             <div className="flex flex-col gap-[24px] xl:flex-row xl:items-start">
               <Suspense fallback={<div className="flex min-h-[150px] flex-1 items-center justify-center rounded-2xl bg-white">Loading recommendations...</div>}>
                 <DashboardRecommendedCard userId={user.id} />

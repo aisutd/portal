@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { label: "Applications", href: "/admin/applications/1" },
   { label: "Events", href: "/admin/events" },
   { label: "Members", href: "/admin/members" },
+  { label: "Exit Admin", href: "/dashboard"},
 ] as const;
 
 type MobileAdminNavProps = {
@@ -21,7 +22,7 @@ export function MobileAdminNav({ active = "Overview", role = "Officer" }: Mobile
         <h1 className="font-mobile-display text-[16px] font-bold text-ink">AIS Admin</h1>
         <span className="font-mono text-[11px] text-ink-faint">Role: {role}</span>
       </div>
-      <div className="-mx-[20px] flex gap-[8px] overflow-x-auto px-[20px] pb-[2px]">
+      <div className="-mx-[20px] flex gap-1 overflow-x-auto px-[20px] pb-[2px]">
         {NAV_ITEMS.map((item) => {
           const isActive = item.label === active;
           return (

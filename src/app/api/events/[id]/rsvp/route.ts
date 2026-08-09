@@ -38,19 +38,31 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     nonce: `${user.id}:${eventId}:${Date.now()}`,
   });
 
-  const rsvp = await prisma.rSVP.create({
-    data: {
+  const rsvpData = {
+    status: "GOING" as const,
+    qrToken,
+    qrPayload: JSON.stringify({
       userId: user.id,
       eventId,
-      status: "GOING",
-      qrToken,
-      qrPayload: JSON.stringify({
+      token: qrToken,
+      expiresAt: expiresAt.toISOString(),
+    }),
+    qrExpiresAt: expiresAt,
+  };
+
+  // FIX: Use upsert to handle both first-time RSVPs and re-RSVPs
+  const rsvp = await prisma.rSVP.upsert({
+    where: {
+      userId_eventId: {
         userId: user.id,
         eventId,
-        token: qrToken,
-        expiresAt: expiresAt.toISOString(),
-      }),
-      qrExpiresAt: expiresAt,
+      },
+    },
+    update: rsvpData,
+    create: {
+      userId: user.id,
+      eventId,
+      ...rsvpData,
     },
   });
 

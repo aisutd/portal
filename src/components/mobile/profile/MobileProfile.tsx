@@ -7,6 +7,8 @@ import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { MobileField } from "@/components/mobile/ui/MobileField";
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
 import { MobileEyebrow as Eyebrow } from "@/components/mobile/ui/MobileEyebrow";
+import { SignOutButton } from "@clerk/nextjs";
+import { PasswordResetButton } from "@/components/profile/PasswordResetButton";
 
 type MobileProfileProps = {
   profile: Profile;
@@ -168,9 +170,7 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
                 Update your account password
               </p>
             </div>
-            <Button type="button" variant="accent" size="sm">
-              Reset Password
-            </Button>
+            <PasswordResetButton />
           </div>
 
           <div className="flex items-center justify-between gap-[12px] rounded-[12px] bg-row-soft p-[14px]">
@@ -189,15 +189,31 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
         </Card>
 
         {/* Footer actions */}
+        
         <div className="flex gap-[12px]">
+          
           <Button type="reset" variant="soft" className="flex-1" block>
             Cancel
           </Button>
           <Button type="submit" variant="primary" className="flex-1" block>
             Apply Changes
           </Button>
+          
         </div>
       </form>
+        <div className="flex items-center w-full">
+        {/* SIGN OUT BUTTON */}
+                <SignOutButton redirectUrl="/">
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="lg" 
+                    className="mr-auto font-black text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    Sign Out
+                  </Button>
+                </SignOutButton>
+        </div>
 
       <BottomNav />
     </MobileScreen>

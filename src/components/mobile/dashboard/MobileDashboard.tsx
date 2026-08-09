@@ -18,45 +18,53 @@ import { BottomNav } from "@/components/mobile/ui/BottomNav";
 
 type MobileDashboardProps = {
   userId: string;
+  userName: string; // <-- Added this
   nextRsvp: Awaited<ReturnType<typeof getNextUpcomingRsvp>>;
   announcements: [Announcement, Announcement];
 };
 
-export function MobileDashboard({ userId, nextRsvp, announcements }: MobileDashboardProps) {
+export function MobileDashboard({ userId, userName, nextRsvp, announcements }: MobileDashboardProps) {
   return (
     <MobileScreen>
-      <h1 className="font-mobile-display text-[24px] font-bold text-brand">
-        Welcome back, Member! :)
+      <h1 className="font-mobile-display text-[36px] font-bold text-brand">
+        Welcome back, {userName}! :)
       </h1>
 
       {/* Up Next */}
-      <Card className="flex flex-col gap-[14px] p-[18px]">
+      <Card className="flex flex-col gap-[16px] p-[20px]">
         {nextRsvp ? (
           <>
-            <p className="font-mono text-[11px] uppercase tracking-[2px] text-ink-faint">
-              Up next · {formatDaysAway(nextRsvp.event.startTime)}
-            </p>
-            <div className="flex items-start gap-[14px]">
-              <div className="flex min-w-px flex-1 flex-col gap-[2px]">
-                <h3 className="font-mobile-display text-[17px] font-bold text-ink">
-                  {nextRsvp.event.title}
-                </h3>
-                <p className="font-mobile-body text-[13px] text-ink-muted">
-                  {formatEventDate(nextRsvp.event.startTime)}
+            <div className="flex flex-col gap-[4px]">
+              <div className="mb-[4px] flex items-center justify-between">
+                <p className="font-mono text-[11px] uppercase tracking-[2px] text-ink-faint">
+                  Up next · {formatDaysAway(nextRsvp.event.startTime)}
                 </p>
-                <p className="font-mobile-body text-[13px] text-ink-muted">
-                  {nextRsvp.event.location}
-                </p>
+                <Badge label="RSVP'd" bg="#e1e8ff" color="#1f3aa3" />
               </div>
-              {nextRsvp.qrToken && (
-                <div className="flex size-[76px] shrink-0 items-center justify-center rounded-[8px] border border-ink bg-white p-[6px]">
-                  <QRCode value={nextRsvp.qrToken} size={64} level="H" />
+              
+              <h3 className="font-mobile-display text-[20px] font-bold text-ink">
+                {nextRsvp.event.title}
+              </h3>
+              <p className="font-mobile-body text-[14px] text-ink-muted">
+                {formatEventDate(nextRsvp.event.startTime)}
+              </p>
+              <p className="font-mobile-body text-[14px] text-ink-muted">
+                {nextRsvp.event.location}
+              </p>
+            </div>
+
+            {nextRsvp.qrToken && (
+              <div className="mt-[8px] flex w-full items-center justify-center rounded-[12px] border border-ink bg-white p-[24px]">
+                <div className="w-full max-w-[280px]">
+                  <QRCode
+                    value={nextRsvp.qrToken}
+                    size={256}
+                    style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                    level="H"
+                  />
                 </div>
-              )}
-            </div>
-            <div>
-              <Badge label="RSVP'd" bg="#e1e8ff" color="#1f3aa3" />
-            </div>
+              </div>
+            )}
           </>
         ) : (
           <div className="flex flex-col items-center gap-[8px] rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6] p-[16px] text-center">

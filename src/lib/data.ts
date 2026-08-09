@@ -282,7 +282,6 @@ export const eventTags: TagData[] = [
   { label: "workshop", bg: "#cde9e5", color: "#1d6a61" },
   { label: "networking", bg: "#d6e2ff", color: "#284b9c" },
   { label: "industry", bg: "#ded9f4", color: "#463e86" },
-  { label: "+ add tag", bg: "#efece3", color: "#6a685f", border: "#e2ded2" },
 ];
 
 export const eventSettings: SettingRow[] = [
