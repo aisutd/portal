@@ -1,9 +1,11 @@
-import path from "path";
-import { fileURLToPath } from "url";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Pin the workspace root; otherwise Next walks up and picks a stray
+  // lockfile in the home directory as the root.
   turbopack: {
     root: path.dirname(fileURLToPath(import.meta.url)),
   },

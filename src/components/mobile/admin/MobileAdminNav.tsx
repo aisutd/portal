@@ -5,7 +5,7 @@ const NAV_ITEMS = [
   { label: "Overview", href: "/admin/dashboard" },
   { label: "Applications", href: "/admin/applications/1" },
   { label: "Events", href: "/admin/events" },
-  { label: "Members", href: "/admin/users/1" },
+  { label: "Members", href: "/admin/members" },
   { label: "Exit Admin", href: "/dashboard"},
 ] as const;
 
