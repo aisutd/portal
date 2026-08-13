@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import {
   Geist,
   Geist_Mono,
+  Inter,
   Nunito_Sans,
 } from "next/font/google";
 import localFont from 'next/font/local';
@@ -13,6 +14,11 @@ const placardNext = localFont({
   src: '../../public/fonts/PlacardNextRegular.ttf',
   display: 'swap',
   variable: '--font-placard',
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
 });
 
 const geistSans = Geist({
@@ -43,8 +49,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        // geistSans.className sets Geist as the default body font
-        className={`${geistSans.className} ${placardNext.variable} ${geistSans.variable} ${geistMono.variable} ${garetStandIn.variable} antialiased`}
+        className={`${inter.className} ${inter.variable} ${placardNext.variable} ${geistSans.variable} ${geistMono.variable} ${garetStandIn.variable} antialiased`}
       >
         <ClerkProvider>
           {children}

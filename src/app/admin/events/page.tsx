@@ -120,9 +120,13 @@ export default async function AdminEventsPage() {
           </div>
 
           <div className="flex w-full flex-col gap-[12px]">
-            {data.rows.map((e) => (
-              <EventRow key={e.title} {...e} />
-            ))}
+            {data.rows.length > 0 ? (
+              data.rows.map((e) => <EventRow key={e.title} {...e} />)
+            ) : (
+              <div className="w-full rounded-[14px] border border-border-soft bg-white px-[22px] py-[40px] text-center font-body text-[15px] text-ink-muted">
+                No events yet.
+              </div>
+            )}
           </div>
 
           <div className="flex w-full items-center justify-between rounded-[16px] bg-brand px-[23px] py-[21px]">

@@ -53,8 +53,12 @@ export function MobileDashboard({ userId, userName, nextRsvp, announcements }: M
               </p>
             </div>
 
-            {nextRsvp.qrToken && (
-              <div className="mt-[8px] flex w-full items-center justify-center rounded-[12px] border border-ink bg-white p-[24px]">
+            <Button variant="primary" size="sm" className="w-fit font-black">
+              Add to Calendar
+            </Button>
+
+            <div className="mt-[8px] flex w-full items-center justify-center rounded-[12px] border border-ink bg-white p-[24px]">
+              {nextRsvp.qrToken ? (
                 <div className="w-full max-w-[280px]">
                   <QRCode
                     value={nextRsvp.qrToken}
@@ -63,8 +67,12 @@ export function MobileDashboard({ userId, userName, nextRsvp, announcements }: M
                     level="H"
                   />
                 </div>
-              </div>
-            )}
+              ) : (
+                <span className="font-mono text-[11px] uppercase tracking-[1.5px] text-ink-faint">
+                  QR
+                </span>
+              )}
+            </div>
           </>
         ) : (
           <div className="flex flex-col items-center gap-[8px] rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6] p-[16px] text-center">

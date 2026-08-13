@@ -69,32 +69,30 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
       )}
 
       <form key={profile.updatedAt.toString()} action={updateProfile} className="flex flex-col gap-[16px]">
-        {/* Avatar + Links */}
-        <div className="flex gap-[12px]">
-          <Card className="flex flex-[3] flex-col items-center gap-[10px] p-[18px]">
-            <div className="size-[64px] rounded-full bg-photo" />
-            <p className="font-mobile-display text-[15px] font-bold uppercase tracking-[0.5px] text-ink">
-              {profile.firstName} {profile.lastName}
-            </p>
-            <Badge label={`${profile.major} · ${profile.year}`} bg="#fbe3cb" color="#7a4416" />
-          </Card>
+        {/* Name / Major bar */}
+        <Card className="flex flex-row flex-wrap items-center justify-between gap-[10px] p-[18px]">
+          <p className="font-mobile-display text-[15px] font-bold uppercase tracking-[0.5px] text-ink">
+            {profile.firstName} {profile.lastName}
+          </p>
+          <Badge label={`${profile.major} · ${profile.year}`} bg="#fbe3cb" color="#7a4416" />
+        </Card>
 
-          <Card className="flex flex-[2] flex-col gap-[12px] p-[16px]">
-            <Eyebrow>Links</Eyebrow>
-            <MobileField
-              label="LinkedIn"
-              name="linkedinUrl"
-              defaultValue={profile.linkedinUrl || ""}
-              placeholder="linkedin.com/in/…"
-            />
-            <MobileField
-              label="Github"
-              name="githubUrl"
-              defaultValue={profile.githubUrl || ""}
-              placeholder="github.com/…"
-            />
-          </Card>
-        </div>
+        {/* Links */}
+        <Card className="flex flex-col gap-[12px] p-[16px]">
+          <Eyebrow>Links</Eyebrow>
+          <MobileField
+            label="LinkedIn"
+            name="linkedinUrl"
+            defaultValue={profile.linkedinUrl || ""}
+            placeholder="linkedin.com/in/…"
+          />
+          <MobileField
+            label="Github"
+            name="githubUrl"
+            defaultValue={profile.githubUrl || ""}
+            placeholder="github.com/…"
+          />
+        </Card>
 
         {/* Personal Info */}
         <Card className="flex flex-col gap-[14px] p-[18px]">

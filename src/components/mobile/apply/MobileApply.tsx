@@ -6,121 +6,20 @@ import { Tag } from "@/components/ui/tag";
 import { Button } from "@/components/ui/button";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
-import { applySteps, programs } from "@/lib/data";
+import { Marquee } from "@/components/apply/marquee";
+import { OpenAppRow } from "@/components/apply/open-app-row";
+import { programs } from "@/lib/data";
+import {
+  type Application,
+  buildOpenRow,
+  buildSubmittedRow,
+  sortApplications,
+  sortSubmittedApplications,
+} from "@/lib/applications-utils";
 
 type ApplicationResponse = {
-  applications: Array<{
-    id: string;
-    title: string;
-    description: string;
-    openAt: string;
-    closeAt: string;
-    phase: "open" | "upcoming" | "closed";
-    draft: { stepIndex: number; isSubmitted: boolean } | null;
-    submissionStatus: string | null;
-  }>;
+  applications: Application[];
 };
-
-type OpenAppRow = {
-  id: string;
-  title: string;
-  description: string;
-  meta: string;
-  borderColor: string;
-  dim: boolean;
-  statusBadge: React.ReactNode;
-  actions: Array<{
-    label: string;
-    variant: "primary" | "accent" | "soft" | "ghost";
-    pill?: boolean;
-    href?: string;
-  }>;
-};
-
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
-  month: "long",
-  day: "numeric",
-  year: "numeric",
-  timeZone: "America/Chicago",
-});
-
-const timeFormatter = new Intl.DateTimeFormat("en-US", {
-  hour: "numeric",
-  minute: "2-digit",
-  timeZone: "America/Chicago",
-  timeZoneName: "short",
-});
-
-function formatDateTime(value: string) {
-  const date = new Date(value);
-  return `${dateFormatter.format(date)} · ${timeFormatter.format(date)}`;
-}
-
-function getStatusBadge(
-  draft: ApplicationResponse["applications"][number]["draft"],
-  submissionStatus: string | null
-) {
-  if (submissionStatus) {
-    const label = submissionStatus
-      .toLowerCase()
-      .split("_")
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join(" ");
-
-    if (submissionStatus === "ACCEPTED") return <Badge label={label} bg="#d3eccf" color="#356b2e" />;
-    if (submissionStatus === "REJECTED") return <Badge label={label} bg="#f9d5d3" color="#9a3b36" />;
-    if (submissionStatus === "WAITLISTED") return <Badge label={label} bg="#fbe3cb" color="#7a4416" />;
-    if (submissionStatus === "IN_REVIEW") return <Badge label={label} bg="#e1e8ff" color="#1f3aa3" />;
-    if (submissionStatus === "IN_CONSIDERATION") return <Badge label={label} bg="#e9e5f6" color="#4b4178" />;
-    if (submissionStatus === "COMPLETED" || submissionStatus === "ARCHIVED")
-      return <Badge label={label} bg="#efece3" color="#6a685f" />;
-
-    return <Badge label={label} bg="#e1e8ff" color="#1f3aa3" />;
-  }
-
-  if (draft) {
-    return <Badge label={draft.isSubmitted ? "Submitted" : "Draft"} variant="outline" />;
-  }
-
-  return null;
-}
-
-function buildRow(application: ApplicationResponse["applications"][number]): OpenAppRow {
-  const borderColor = application.phase === "open" ? "#2f5fe8" : "#e7e2d4";
-  const meta =
-    application.phase === "upcoming"
-      ? `opens ${formatDateTime(application.openAt)}`
-      : application.phase === "closed"
-        ? `closed ${formatDateTime(application.closeAt)}`
-        : `closes ${formatDateTime(application.closeAt)}`;
-
-  const actions =
-    application.phase === "open"
-      ? [
-          { label: "Learn more", variant: "soft" as const },
-          { label: "Apply", variant: "primary" as const, href: `/applications/detail?id=${application.id}` },
-        ]
-      : application.phase === "upcoming"
-        ? [
-            { label: "Learn more", variant: "ghost" as const },
-            { label: "Remind me", variant: "accent" as const, pill: false },
-          ]
-        : [
-            { label: "Learn more", variant: "ghost" as const },
-            { label: "View details", variant: "soft" as const, href: `/applications/detail?id=${application.id}` },
-          ];
-
-  return {
-    id: application.id,
-    title: application.title,
-    description: application.description,
-    meta,
-    borderColor,
-    dim: application.phase !== "open",
-    statusBadge: getStatusBadge(application.draft, application.submissionStatus),
-    actions,
-  };
-}
 
 function ApplicationSkeleton() {
   return (
@@ -135,8 +34,51 @@ function ApplicationSkeleton() {
   );
 }
 
+function MobileApplicationSection({
+  title,
+  items,
+  loading,
+  emptyMessage,
+  action,
+  buildRow,
+}: {
+  title: string;
+  items: Application[];
+  loading: boolean;
+  emptyMessage: string;
+  action?: React.ReactNode;
+  buildRow: (application: Application) => ReturnType<typeof buildOpenRow>;
+}) {
+  return (
+    <div className="flex flex-col gap-[12px]">
+      <div className="flex items-center justify-between gap-[8px]">
+        <h2 className="font-mobile-display text-[17px] font-bold text-ink">
+          {title}
+        </h2>
+        {action}
+      </div>
+      {loading ? (
+        <div className="flex flex-col gap-[12px]">
+          <ApplicationSkeleton />
+          <ApplicationSkeleton />
+        </div>
+      ) : items.length > 0 ? (
+        <div className="flex flex-col gap-[12px]">
+          {items.map((application) => (
+            <OpenAppRow key={application.id} {...buildRow(application)} />
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-[14px] border border-border-soft bg-white p-[16px] font-mobile-body text-[13px] text-ink-muted">
+          {emptyMessage}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function MobileApply() {
-  const [applications, setApplications] = useState<ApplicationResponse["applications"]>([]);
+  const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -167,7 +109,10 @@ export function MobileApply() {
     return () => controller.abort();
   }, []);
 
-  const openApplications = applications.filter((a) => a.phase === "open");
+  const openApplications = sortApplications(applications, "open");
+  const upcomingApplications = sortApplications(applications, "upcoming");
+  const closedApplications = sortApplications(applications, "closed");
+  const submittedApplications = sortSubmittedApplications(applications);
 
   return (
     <MobileScreen>
@@ -179,33 +124,6 @@ export function MobileApply() {
           Welcome to the enrollment hub. Whether you&apos;re here to learn,
           lead, or build, there&apos;s a place waiting for you.
         </p>
-      </div>
-
-      {/* How to Begin */}
-      <div className="flex flex-col gap-[12px]">
-        <h2 className="font-mobile-display text-[17px] font-bold text-ink">
-          How to Begin
-        </h2>
-        {applySteps.map((step) => (
-          <div
-            key={step.step}
-            className="relative flex flex-col gap-[4px] overflow-hidden rounded-[16px] border border-brand bg-white px-[18px] py-[16px]"
-          >
-            <p className="font-mono text-[11px] text-brand">{step.step}</p>
-            <h3 className="font-mobile-display text-[16px] font-bold text-ink">
-              {step.title}
-            </h3>
-            <p className="max-w-[230px] font-mobile-body text-[13px] text-ink-muted">
-              {step.description}
-            </p>
-            <span
-              aria-hidden
-              className="pointer-events-none absolute right-[10px] top-[38px] select-none font-mobile-display text-[56px] font-extrabold leading-none text-brand-soft"
-            >
-              {step.number}
-            </span>
-          </div>
-        ))}
       </div>
 
       {/* Programs */}
@@ -247,73 +165,52 @@ export function MobileApply() {
             <Button variant={program.cta} size="md" pill block>
               Apply Now →
             </Button>
+            {/* TODO: point at the real AIS website page for this program once it exists. */}
+            <Button variant="soft" size="md" pill block href="#">
+              Learn more →
+            </Button>
           </div>
         ))}
       </div>
 
       {/* Slogan banner (bleeds past the screen padding) */}
-      <div className="-mx-[20px] rotate-[-0.8deg] scale-[1.03] bg-brand py-[14px]">
-        <p className="text-center font-mobile-display text-[15px] tracking-[1px] text-white">
-          JOIN THE MOVEMENT · AIS UTD · BUILD THE FUTURE
-        </p>
+      <div className="-mx-[20px]">
+        <Marquee text="JOIN THE MOVEMENT · AIS UTD · BUILD THE FUTURE · LEARN. BUILD. LEAD. · YOUR AI COMMUNITY AT UTD · AIS UTD" />
       </div>
 
-      {/* Open applications */}
-      <div className="flex flex-col gap-[12px]">
-        <h2 className="font-mobile-display text-[17px] font-bold text-ink">
-          Open Applications Right Now
-        </h2>
-        {loading ? (
-          <div className="flex flex-col gap-[12px]">
-            <ApplicationSkeleton />
-            <ApplicationSkeleton />
-          </div>
-        ) : openApplications.length > 0 ? (
-          openApplications.map((application) => {
-            const app = buildRow(application);
-            return (
-              <div
-                key={app.id}
-                className="flex flex-col gap-[12px] rounded-[14px] border bg-white p-[16px]"
-                style={{ borderColor: app.borderColor, opacity: app.dim ? 0.94 : 1 }}
-              >
-                <div className="flex items-start justify-between gap-[8px]">
-                  <div>
-                    <h3 className="font-mobile-display text-[15px] font-bold text-ink">
-                      {app.title}
-                    </h3>
-                    <p className="mt-[4px] font-mobile-body text-[13px] text-ink-muted">
-                      {app.description}
-                    </p>
-                    <p className="mt-[4px] font-mono text-[11px] text-ink-faint">
-                      {app.meta}
-                    </p>
-                  </div>
-                  {app.statusBadge}
-                </div>
-                <div className="flex gap-[8px]">
-                  {app.actions.map((action) => (
-                    <Button
-                      key={action.label}
-                      variant={action.variant}
-                      size="sm"
-                      pill={action.pill}
-                      href={action.href}
-                      className="flex-1"
-                    >
-                      {action.label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <div className="rounded-[14px] border border-border-soft bg-white p-[16px] font-mobile-body text-[13px] text-ink-muted">
-            There are no open applications right now.
-          </div>
-        )}
-      </div>
+      <MobileApplicationSection
+        title="Open Applications"
+        items={openApplications}
+        loading={loading}
+        emptyMessage="There are no open applications right now."
+        buildRow={buildOpenRow}
+      />
+      <MobileApplicationSection
+        title="Upcoming Applications"
+        items={upcomingApplications}
+        loading={loading}
+        emptyMessage="There are no upcoming applications."
+        buildRow={buildOpenRow}
+      />
+      <MobileApplicationSection
+        title="Closed Applications"
+        items={closedApplications}
+        loading={loading}
+        emptyMessage="There are no closed applications to show."
+        buildRow={buildOpenRow}
+      />
+      <MobileApplicationSection
+        title="Submitted Applications"
+        items={submittedApplications}
+        loading={loading}
+        emptyMessage="You have not submitted any applications yet."
+        action={
+          <Button href="/applications/history" variant="ghost" size="sm">
+            View history
+          </Button>
+        }
+        buildRow={buildSubmittedRow}
+      />
 
       <BottomNav />
     </MobileScreen>

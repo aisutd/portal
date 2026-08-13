@@ -6,7 +6,7 @@ import { EventGridCard } from "@/components/events/event-grid-card";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
 import { eventFilterTags } from "@/lib/data";
-import { normalizeEventTags } from "@/lib/event-tags";
+import { formatEventCardDate, normalizeEventTags } from "@/lib/event-tags";
 
 type EventRecord = {
   id: string;
@@ -20,16 +20,6 @@ type EventRecord = {
 
 interface MobileEventsBrowseProps {
   initialEvents: EventRecord[];
-}
-
-function formatEventDate(dateString: string) {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(date).replace(", ", " · ");
 }
 
 function EventCardSkeleton() {
@@ -179,7 +169,7 @@ export function MobileEventsBrowse({ initialEvents }: MobileEventsBrowseProps) {
             <EventGridCard
               key={event.id}
               title={event.title}
-              meta={`${formatEventDate(event.startTime)} · ${event.location}`}
+              meta={`${formatEventCardDate(event.startTime)} · ${event.location}`}
               description={event.description}
               tags={normalizeEventTags(event.tags)}
               eventId={event.id}

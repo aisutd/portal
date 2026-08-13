@@ -75,24 +75,22 @@ export default async function ProfilePage() {
               </div>
             )}
 
-            <form key={profile.updatedAt.toString()} action={updateProfile} className="flex flex-col xl:flex-row gap-[24px] mt-[28px]">
+            <form key={profile.updatedAt.toString()} action={updateProfile} className="flex flex-col gap-[24px] mt-[28px]">
+              {/* USER INFO BAR */}
+              <Card className="flex w-full flex-col items-start justify-between gap-[16px] p-[29px] sm:flex-row sm:items-center">
+                <h2 className="font-[Inter] text-[24px] font-bold tracking-[-0.4px] text-ink uppercase">
+                  {profile.firstName} {profile.lastName}
+                </h2>
+                <div className="rounded-full bg-pill-amber px-[20px] py-[6px]">
+                  <span className="font-[Inter] text-orange-text font-bold text-[13px] tracking-widest uppercase">
+                    {profile.major} · {profile.year}
+                  </span>
+                </div>
+              </Card>
+
+              <div className="flex flex-col xl:flex-row gap-[24px]">
               {/* LEFT COLUMN */}
               <div className="flex w-full xl:w-[400px] shrink-0 flex-col gap-[24px]">
-                
-                {/* USER INFO CARD */}
-                <Card className="flex flex-col items-center justify-center p-[40px] gap-[20px]">
-                  <div className="flex size-[140px] shrink-0 items-center justify-center rounded-full bg-photo">
-                    <span className="font-[Inter] text-[12px] tracking-[1.5px] text-photo-text">PHOTO</span>
-                  </div>
-                  <h2 className="font-[Inter] text-[24px] font-bold tracking-[-0.4px] text-ink uppercase">
-                    {profile.firstName} {profile.lastName}
-                  </h2>
-                  <div className="rounded-full bg-pill-amber px-[20px] py-[6px]">
-                    <span className="font-[Inter] text-orange-text font-bold text-[13px] tracking-widest uppercase">
-                      {profile.major} · {profile.year}
-                    </span>
-                  </div>
-                </Card>
 
                 {/* LINKS CARD */}
                 <Card className="flex flex-col p-[29px] gap-[20px]">
@@ -124,6 +122,40 @@ export default async function ProfilePage() {
                         )}
                       />
                     </div>
+                  </div>
+                </Card>
+
+                {/* RESUME UPLOAD CARD */}
+                <Card className="flex flex-col p-[29px] gap-[20px]">
+                  <SectionHeader title="Resume Upload" />
+
+                  <div className={cn(
+                    "flex flex-col items-start justify-between rounded-[12px] border-[2px] p-[24px] gap-[20px]",
+                    !profile.resumeFileId ? "border-red-500 border-solid bg-red-50" : "border-dashed border-frame bg-[#f9f8f6]"
+                  )}>
+                    <div className="flex items-center gap-[20px]">
+                      <div className="flex size-[64px] shrink-0 items-center justify-center rounded-full bg-featured">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2f5fe8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                          <path d="M14 2v6h6"></path>
+                          <path d="M12 18v-6"></path>
+                          <path d="M9 15l3-3 3 3"></path>
+                        </svg>
+                      </div>
+                      <div className="flex flex-col gap-[4px]">
+                        <span className="font-[Inter] font-bold text-[16px] text-ink">Upload New Resume</span>
+                        <span className="font-[Inter] font-bold text-[12px] text-ink-muted uppercase tracking-wide">PDF, DOCX, UP TO 5MB.</span>
+                        <div className="mt-[4px] flex items-center gap-[6px] rounded-full bg-coffee px-[12px] py-[4px] w-fit border border-[#ddd5f0]">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4b4178" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                          <span className="font-[Inter] text-[11px] text-[#4b4178] font-bold">Uploaded Resume Name</span>
+                        </div>
+                      </div>
+                    </div>
+                    <Button variant="primary" size="md" pill className="w-full font-black px-[24px]">
+                      Select File
+                    </Button>
                   </div>
                 </Card>
               </div>
@@ -225,40 +257,6 @@ export default async function ProfilePage() {
                   </div>
                 </Card>
 
-                {/* RESUME UPLOAD CARD */}
-                <Card className="flex flex-col p-[29px] gap-[20px]">
-                  <SectionHeader title="Resume Upload" />
-                  
-                  <div className={cn(
-                    "flex flex-col md:flex-row items-start md:items-center justify-between rounded-[12px] border-[2px] p-[24px] gap-[20px]",
-                    !profile.resumeFileId ? "border-red-500 border-solid bg-red-50" : "border-dashed border-frame bg-[#f9f8f6]"
-                  )}>
-                    <div className="flex items-center gap-[20px]">
-                      <div className="flex size-[64px] shrink-0 items-center justify-center rounded-full bg-featured">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2f5fe8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                          <path d="M14 2v6h6"></path>
-                          <path d="M12 18v-6"></path>
-                          <path d="M9 15l3-3 3 3"></path>
-                        </svg>
-                      </div>
-                      <div className="flex flex-col gap-[4px]">
-                        <span className="font-[Inter] font-bold text-[16px] text-ink">Upload New Resume</span>
-                        <span className="font-[Inter] font-bold text-[12px] text-ink-muted uppercase tracking-wide">PDF, DOCX, UP TO 5MB.</span>
-                        <div className="mt-[4px] flex items-center gap-[6px] rounded-full bg-coffee px-[12px] py-[4px] w-fit border border-[#ddd5f0]">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4b4178" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                          </svg>
-                          <span className="font-[Inter] text-[11px] text-[#4b4178] font-bold">Uploaded Resume Name</span>
-                        </div>
-                      </div>
-                    </div>
-                    <Button variant="primary" size="md" pill className="font-black px-[24px]">
-                      Select File
-                    </Button>
-                  </div>
-                </Card>
-
                 {/* ACTIONS */}
                 <div className="mt-auto flex items-center justify-end gap-[16px] pt-[16px]">
                   {/* SIGN OUT BUTTON */}
@@ -280,7 +278,8 @@ export default async function ProfilePage() {
                     Apply Changes
                   </Button>
                 </div>
-                
+
+              </div>
               </div>
             </form>
           </div>

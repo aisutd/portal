@@ -6,6 +6,7 @@ import { Tag } from "@/components/ui/tag";
 import { EventGridCard } from "@/components/events/event-grid-card";
 import { MobileEventsBrowse } from "@/components/mobile/events/MobileEventsBrowse";
 import { eventFilterTags } from "@/lib/data";
+import { formatEventCardDate } from "@/lib/event-tags";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
@@ -75,7 +76,7 @@ export default async function EventsBrowsePage() {
                   <EventGridCard
                     key={event.id}
                     title={event.title}
-                    meta={`${event.location} · ${new Date(event.startTime).toLocaleString()}`}
+                    meta={`${formatEventCardDate(event.startTime)} · ${event.location}`}
                     description={event.description}
                     tags={event.tags}
                     eventId={event.id}

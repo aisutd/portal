@@ -66,20 +66,22 @@
   --color-table-line: #ece9e0;
 
   /* Fonts */
-  --font-sans: var(--font-inter); /* If you removed Inter, change this to var(--font-geist-sans) */
-  --font-mono: var(--font-inter);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-geist-mono);
 
   /* AIS Portal brand fonts */
   --font-mobile-display: var(--font-placard);
   --font-mobile-body: var(--font-garet);
   --font-display: var(--font-inter);
   --font-nav: var(--font-inter);
-  
-  /* 1. CHANGED THIS LINE to map the heading token to Placard Next */
-  --font-heading: var(--font-placard); 
-  
+  --font-heading: var(--font-placard);
   --font-body: var(--font-inter);
-  --font-ibm: var(--font-inter);
+  --font-ibm: var(--font-geist-mono);
+  --font-chakra: var(--font-inter);
+  --font-grotesk: var(--font-inter);
+  --font-logo: var(--font-inter);
+  --font-mono-alt: var(--font-geist-mono);
+  --font-techno: var(--font-geist-mono);
 }
 
 /* Literal design tokens — plain @theme is fine (and generates the utilities). */
@@ -106,14 +108,35 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  /* Note: If you removed Inter from layout.tsx, you might want to change this to var(--font-geist-sans) */
   font-family: var(--font-inter), sans-serif;
   overflow-x: hidden;
 }
 
-/* 2. ADDED THIS BLOCK to enforce the heading font on all h1-h6 tags */
 @layer base {
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
+  }
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-scroll {
+  animation: marquee-scroll 110s linear infinite;
+}
+
+.animate-marquee-scroll:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-scroll {
+    animation: none;
   }
 }

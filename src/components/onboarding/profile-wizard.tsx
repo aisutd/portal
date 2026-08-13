@@ -11,6 +11,25 @@ const STEPS = ["Personal", "Academic", "Links"];
 const YEARS = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"];
 const DEGREES = ["Bachelors", "Masters", "PhD"];
 
+function SelectArrow() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      fill="none"
+      className="pointer-events-none absolute right-[13px] top-1/2 size-[16px] -translate-y-1/2 text-ink-muted"
+    >
+      <path
+        d="M6 9l6 6 6-6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 type ProfileWizardProps = {
   email: string;
 };
@@ -84,14 +103,14 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
   };
 
   const selectClasses = cn(
-    "w-full rounded-[7px] border border-transparent bg-field px-[13px] py-[12px]",
+    "w-full appearance-none rounded-[7px] border border-transparent bg-field py-[12px] pl-[13px] pr-[36px]",
     "font-mono-alt text-[13px] leading-[normal] text-ink-card",
     "focus:outline-none focus:ring-2 focus:ring-brand/40"
   );
 
   return (
     <div>
-      <FormStepper steps={STEPS} active={step} />
+      <FormStepper steps={STEPS} active={step} onDark />
 
       <div className="mt-[20px] rounded-2xl border border-border-soft bg-white p-[30px]">
         {/* Step 1 — Personal */}
@@ -133,36 +152,42 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
               <label className="mb-[10px] font-grotesk text-[13px] font-semibold leading-[normal] text-label-ink">
                 Year
               </label>
-              <select
-                value={form.year}
-                onChange={set("year")}
-                className={selectClasses}
-              >
-                <option value="">Select year</option>
-                {YEARS.map((y) => (
-                  <option key={y} value={y}>
-                    {y}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={form.year}
+                  onChange={set("year")}
+                  className={selectClasses}
+                >
+                  <option value="">Select year</option>
+                  {YEARS.map((y) => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ))}
+                </select>
+                <SelectArrow />
+              </div>
             </div>
 
             <div className="flex flex-col">
               <label className="mb-[10px] font-grotesk text-[13px] font-semibold leading-[normal] text-label-ink">
                 Degree
               </label>
-              <select
-                value={form.degree}
-                onChange={set("degree")}
-                className={selectClasses}
-              >
-                <option value="">Select degree</option>
-                {DEGREES.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={form.degree}
+                  onChange={set("degree")}
+                  className={selectClasses}
+                >
+                  <option value="">Select degree</option>
+                  {DEGREES.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+                <SelectArrow />
+              </div>
             </div>
 
             <Field
@@ -224,7 +249,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
         {/* Navigation */}
         <div className="mt-[24px] flex items-center justify-between">
           {step > 0 ? (
-            <Button variant="ghost" size="sm" type="button" onClick={back}>
+            <Button variant="primary" size="sm" type="button" onClick={back}>
               Back
             </Button>
           ) : (
