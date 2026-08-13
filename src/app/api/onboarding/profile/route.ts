@@ -1,16 +1,33 @@
 import { NextResponse } from "next/server";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { ProfileCompletionStatus, UserRole } from "@prisma/client";
+import { EMAIL_DOMAIN_ERROR, isAllowedEmail } from "@/lib/email-domains";
 
 const VALID_YEARS = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"];
 const VALID_DEGREES = ["Bachelors", "Masters", "PhD"];
 
 export async function POST(req: Request) {
-  const { userId: clerkId } = await auth();
+  const clerkUser = await currentUser();
 
-  if (!clerkId) {
+  if (!clerkUser) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const clerkId = clerkUser.id;
+  const email = clerkUser.emailAddresses[0]?.emailAddress;
+
+  if (!email) {
+    return NextResponse.json(
+      { error: "Could not determine your email address." },
+      { status: 400 }
+    );
+  }
+
+  // Checked against Clerk rather than our own row, so the upsert below can't be
+  // used to slip a disallowed domain past the webhook's check.
+  if (!isAllowedEmail(email)) {
+    return NextResponse.json({ error: EMAIL_DOMAIN_ERROR }, { status: 403 });
   }
 
   // Look up the DB user, or create one if the Clerk webhook hasn't fired yet
@@ -20,16 +37,6 @@ export async function POST(req: Request) {
   });
 
   if (!user) {
-    const clerkUser = await currentUser();
-    const email = clerkUser?.emailAddresses[0]?.emailAddress;
-
-    if (!email) {
-      return NextResponse.json(
-        { error: "Could not determine your email address." },
-        { status: 400 }
-      );
-    }
-
     user = await prisma.user.upsert({
       where: { clerkId },
       update: {},
