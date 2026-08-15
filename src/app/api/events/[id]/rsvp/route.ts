@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthenticatedUser } from "@/lib/auth";
-import crypto from "crypto";
+import { generateQRToken } from "@/lib/qrToken";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getAuthenticatedUser();
@@ -30,17 +30,39 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "Already RSVP'd" }, { status: 409 });
   }
 
-  const tokenPayload = `${user.id}:${eventId}:${Date.now()}`;
-  const qrToken = crypto.createHash("sha256").update(tokenPayload).digest("hex");
+  const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7);
+  const qrToken = await generateQRToken({
+    userId: user.id,
+    eventId,
+    ttl: Math.floor((expiresAt.getTime() - Date.now()) / 1000),
+    nonce: `${user.id}:${eventId}:${Date.now()}`,
+  });
 
-  const rsvp = await prisma.rSVP.create({
-    data: {
+  const rsvpData = {
+    status: "GOING" as const,
+    qrToken,
+    qrPayload: JSON.stringify({
       userId: user.id,
       eventId,
-      status: "GOING",
-      qrToken,
-      qrPayload: JSON.stringify({ userId: user.id, eventId, token: qrToken }),
-      qrExpiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+      token: qrToken,
+      expiresAt: expiresAt.toISOString(),
+    }),
+    qrExpiresAt: expiresAt,
+  };
+
+  // FIX: Use upsert to handle both first-time RSVPs and re-RSVPs
+  const rsvp = await prisma.rSVP.upsert({
+    where: {
+      userId_eventId: {
+        userId: user.id,
+        eventId,
+      },
+    },
+    update: rsvpData,
+    create: {
+      userId: user.id,
+      eventId,
+      ...rsvpData,
     },
   });
 

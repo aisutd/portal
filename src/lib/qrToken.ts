@@ -1,27 +1,30 @@
-import {SignJWT, jwtVerify, type JWTPayload } from "jose";
+import { SignJWT, jwtVerify, type JWTPayload } from "jose";
+import crypto from "crypto";
 
-const secret = process.env.QR_TOKEN_SECRET;
+const secret = process.env.QR_TOKEN_SECRET ?? (process.env.NODE_ENV === "development" ? "dev-qr-token-secret" : undefined);
 
 if (!secret) {
   throw new Error("QR_TOKEN_SECRET is not set");
 }
 
 const SECRET_KEY = new TextEncoder().encode(secret);
-const ALG = "HS256"; //encoding algorithm
-const TTL = 60*15; //time to live for QR tokens - 15min
+const ALG = "HS256";
+const TTL = 60 * 60 * 24 * 7;
 
 //This is what the QR token will carry
 export interface QRTokenPayload {
   user_id: string;
   event_id: string;
-  iat?: number; //token creation time
-  exp?: number; //token expiration time
+  nonce?: string;
+  iat?: number;
+  exp?: number;
 }
- 
+
 export interface GenerateQRTokenOptions {
   userId: string;
   eventId: string;
   ttl?: number;
+  nonce?: string;
 }
 
 export interface VerifiedQRToken {
@@ -36,16 +39,19 @@ export async function generateQRToken({
   userId,
   eventId,
   ttl = TTL,
+  nonce,
 }: GenerateQRTokenOptions): Promise<string> {
-  if (!userId?.trim()) throw new Error("userId is required"); //Reject empty or whitespace only user IDs to prevent invalid tokens
-  if (!eventId?.trim()) throw new Error("eventId is required"); //Reject empty or whitespace only event IDs to prevent invalid tokens
-  if (ttl <= 0) throw new Error("ttlSeconds must be positive"); //TTL must be valid
- 
+  if (!userId?.trim()) throw new Error("userId is required");
+  if (!eventId?.trim()) throw new Error("eventId is required");
+  if (ttl <= 0) throw new Error("ttlSeconds must be positive");
+
   const now = Math.floor(Date.now() / 1000);
- 
+  const uniqueNonce = nonce ?? `${userId}:${eventId}:${now}:${crypto.randomUUID()}`;
+
   return new SignJWT({
     user_id: userId,
     event_id: eventId,
+    nonce: uniqueNonce,
   } satisfies QRTokenPayload)
     .setProtectedHeader({ alg: ALG })
     .setIssuedAt(now)
@@ -61,7 +67,7 @@ export async function verifyQRToken(token: string): Promise<VerifiedQRToken> {
     algorithms: [ALG],
   });
 
-  const { user_id, event_id, iat, exp } = payload;
+  const { user_id, event_id, nonce, iat, exp } = payload;
 
   if (!user_id) throw new Error("Token missing user_id");
   if (!event_id) throw new Error("Token missing event_id");

@@ -37,6 +37,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Ensure DATABASE_URL for Prisma (safe fallback for PRs)
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "DATABASE_URL=postgresql://localhost:5432/postgres?schema=public" >> "$GITHUB_ENV"
+          fi
+
+          if [ -z "$DATABASE_URL_UNPOOLED" ]; then
+            echo "DATABASE_URL_UNPOOLED=postgresql://localhost:5432/postgres" >> "$GITHUB_ENV"
+          fi
+
       - name: Validate Prisma schema
         run: npx prisma validate
 
