@@ -2,6 +2,7 @@
   "name": "portal",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "npx prisma generate && prisma migrate deploy && next build",

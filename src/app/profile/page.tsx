@@ -49,6 +49,7 @@ export default async function ProfilePage() {
         year: formData.get("year") as string,
         linkedinUrl: formData.get("linkedinUrl") as string,
         githubUrl: formData.get("githubUrl") as string,
+        portfolioUrl: formData.get("portfolioUrl") as string,
       }
     });
 
@@ -128,6 +129,18 @@ export default async function ProfilePage() {
                       />
                     </div>
                   </div>
+                  <div className="flex items-center gap-[16px]">
+                      <span className="font-[Inter] font-bold text-[15px] text-ink w-[80px]">Portfolio</span>
+                      <input 
+                        name="portfolioUrl"
+                        defaultValue={profile.portfolioUrl || ""}
+                        placeholder="https://..."
+                        className={cn(
+                          "h-[40px] flex-1 rounded-[8px] bg-field border px-[16px] text-[14px] text-ink focus:outline-none focus:border-brand",
+                          !profile.portfolioUrl ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                        )}
+                      />
+                    </div>
                 </Card>
               </div>
 
@@ -186,9 +199,12 @@ export default async function ProfilePage() {
                       <select 
                         name="major"
                         defaultValue={profile.major}
-                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] text-[15px] text-ink focus:outline-none focus:border-brand"
+                        className={cn(
+                          "h-[44px] rounded-[8px] bg-field border px-[16px] text-[14px] text-ink focus:outline-none focus:border-brand",
+                          !profile.major ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                        )}
                       >
-                        <option value="" disabled>Select your major</option>
+                        <option value="">Select your major</option>
                         {UTD_MAJORS.map((major) => (
                           <option key={major} value={major}>
                             {major}
@@ -201,9 +217,11 @@ export default async function ProfilePage() {
                       <select 
                         name="degree"
                         defaultValue={profile.degree}
-                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] text-[15px] text-ink focus:outline-none focus:border-brand"
-                      >
-                        <option value="" disabled>Select your degree</option>
+                        className={cn(
+                          "h-[44px] rounded-[8px] bg-field border px-[16px] text-[14px] text-ink focus:outline-none focus:border-brand",
+                          !profile.degree ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                        )}                      >
+                        <option value="">Select your degree</option>
                         {UTD_DEGREES.map((degree) => (
                           <option key={degree} value={degree}>
                             {degree}
@@ -216,9 +234,12 @@ export default async function ProfilePage() {
                       <select 
                         name="year"
                         defaultValue={profile.year}
-                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] text-[15px] text-ink focus:outline-none focus:border-brand"
+                        className={cn(
+                          "h-[44px] rounded-[8px] bg-field border px-[16px] text-[14px] text-ink focus:outline-none focus:border-brand",
+                          !profile.year ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                        )}
                       >
-                        <option value="" disabled>Select your year</option>
+                        <option value="">Select your year</option>
                         {ACADEMIC_YEARS.map((year) => (
                           <option key={year} value={year}>
                             {year}

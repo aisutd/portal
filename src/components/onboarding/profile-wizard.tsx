@@ -249,6 +249,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
               type="button"
               onClick={next}
               disabled={!canNext()}
+              className={!canNext() ? "bg-gray-400 opacity-50 cursor-not-allowed" : ""}
             >
               Next
             </Button>

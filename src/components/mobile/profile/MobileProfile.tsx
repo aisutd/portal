@@ -22,11 +22,13 @@ function MobileSelect({
   name,
   defaultValue,
   options,
+  className,
 }: {
   label: string;
   name: string;
   defaultValue: string;
   options: string[];
+  className: string;
 }) {
   return (
     <div className="flex flex-col gap-[6px]">
@@ -34,9 +36,11 @@ function MobileSelect({
       <select
         name={name}
         defaultValue={defaultValue}
-        className="w-full rounded-[10px] border border-transparent bg-field px-[13px] py-[11px] font-mobile-body text-[14px] text-ink focus:outline-none focus:ring-2 focus:ring-brand/40"
+        className={cn( "w-full rounded-[10px] border border-transparent bg-field px-[13px] py-[11px] font-mobile-body text-[14px] text-ink focus:outline-none focus:ring-2 focus:ring-brand/40", 
+          className
+        )}
       >
-        <option value="" disabled>Select {label.toLowerCase()}</option>
+        <option value="">Select {label.toLowerCase()}</option>
         {options.map((o) => (
           <option key={o} value={o}>
             {o}
@@ -89,6 +93,16 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
                 !profile.githubUrl ? "border-red-500 ring-2 ring-red-500 bg-red-50" : "border-transparent"
               )}
             />
+            <MobileField
+              label="Portfolio"
+              name="portfolioUrl"
+              defaultValue={profile.portfolioUrl || ""}
+              placeholder="https://..."
+              className={cn( 
+                /*!profile.portfolioUrl ? "border-red-500 ring-2 ring-red-500 bg-red-50" :*/ 
+                "border-transparent"
+              )}
+            />
           </Card>
         </div>
 
@@ -104,14 +118,26 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
             type="email"
             defaultValue={profile.utdEmail || ""}
           />
-          <MobileField label="UTD ID" name="utdNetId" defaultValue={profile.utdNetId || ""} />
-          <MobileSelect label="Major" name="major" defaultValue={profile.major} options={UTD_MAJORS} />
-          <MobileSelect label="Degree" name="degree" defaultValue={profile.degree} options={UTD_DEGREES} />
+          <MobileField label="UTD ID" name="utdNetId" defaultValue={profile.utdNetId || ""} 
+          className={cn( 
+                !profile.utdNetId ? "border-red-500 ring-2 ring-red-500 bg-red-50" : "border-transparent"
+              )}/>
+          <MobileSelect label="Major" name="major" defaultValue={profile.major} options={UTD_MAJORS} 
+          className={cn( 
+                !profile.major ? "border-red-500 ring-2 ring-red-500 bg-red-50" : "border-transparent"
+              )}/>
+          <MobileSelect label="Degree" name="degree" defaultValue={profile.degree} options={UTD_DEGREES} 
+          className={cn( 
+                !profile.degree ? "border-red-500 ring-2 ring-red-500 bg-red-50" : "border-transparent"
+              )}/>
           <MobileSelect
             label="Academic Year"
             name="year"
             defaultValue={profile.year}
             options={ACADEMIC_YEARS}
+            className={cn( 
+                !profile.year ? "border-red-500 ring-2 ring-red-500 bg-red-50" : "border-transparent"
+              )}
           />
         </Card>
 

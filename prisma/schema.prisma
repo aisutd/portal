@@ -116,10 +116,10 @@ model Profile {
   firstName               String
   lastName                String
   middleName              String
-  prefName                String
-  year                    String
-  degree                  String
-  major                   String
+  prefName                String?
+  year                    String?
+  degree                  String?
+  major                   String?
   utdEmail                String?
   utdNetId                String?
   githubUrl               String?
