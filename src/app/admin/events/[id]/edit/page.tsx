@@ -7,6 +7,7 @@ import { EventForm } from "@/components/admin/event-form";
 import { CoverPhotoCard } from "@/components/admin/cover-photo-card";
 import { SettingsCard } from "@/components/admin/settings-card";
 import { Button } from "@/components/ui/button";
+import { MobileAdminEditEvent } from "@/components/mobile/admin/MobileAdminEditEvent";
 import { eventTags, eventSettings } from "@/lib/data";
 import { updateEvent } from "./actions";
 
@@ -53,48 +54,56 @@ export default async function EditEventPage({
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-cream">
-      {/* Keeps the exact same sidebar/navbar */}
-      <AdminSidebar active="Events" role="Officer" />
+    <>
+      <div className="md:hidden">
+        <MobileAdminEditEvent eventId={event.id} defaultValues={defaultValues} />
+      </div>
 
-      <div className="flex h-full flex-1 flex-col gap-[20px] p-[46px]">
-        <div className="flex items-center justify-between">
-          <div>
-            <Link
-              href="/admin/events"
-              className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-brand"
-            >
-              ← Back to Events
-            </Link>
-            <h2 className="mt-[6px] font-display text-[32px] font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
-              Edit Event
-            </h2>
+      <div className="hidden md:block">
+        <div className="flex min-h-screen w-full bg-cream">
+          {/* Keeps the exact same sidebar/navbar */}
+          <AdminSidebar active="Events" role="Officer" />
+
+          <div className="flex h-full flex-1 flex-col gap-[20px] p-[46px]">
+            <div className="flex items-center justify-between">
+              <div>
+                <Link
+                  href="/admin/events"
+                  className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-brand"
+                >
+                  ← Back to Events
+                </Link>
+                <h2 className="mt-[6px] font-display text-[32px] font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+                  Edit Event
+                </h2>
+              </div>
+            </div>
+
+            <form action={updateEvent} className="flex w-full flex-col gap-[24px] lg:flex-row lg:items-start">
+              {/* Hidden input to pass the event ID to the server action */}
+              <input type="hidden" name="id" value={event.id} />
+
+              {/* Reusing the exact same EventForm with pre-filled defaultValues */}
+              <EventForm tags={eventTags} defaultValues={defaultValues} />
+
+              <div className="flex w-full flex-col gap-[20px] lg:w-[382px] lg:shrink-0">
+                <CoverPhotoCard />
+                <SettingsCard items={eventSettings} />
+                <div className="flex gap-[10px]">
+                  <Link href="/admin/events">
+                    <Button type="button" variant="ghost" size="md">
+                      Cancel
+                    </Button>
+                  </Link>
+                  <Button type="submit" variant="primary" size="md">
+                    Save Changes
+                  </Button>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
-
-        <form action={updateEvent} className="flex w-full flex-col gap-[24px] lg:flex-row lg:items-start">
-          {/* Hidden input to pass the event ID to the server action */}
-          <input type="hidden" name="id" value={event.id} />
-
-          {/* Reusing the exact same EventForm with pre-filled defaultValues */}
-          <EventForm tags={eventTags} defaultValues={defaultValues} />
-
-          <div className="flex w-full flex-col gap-[20px] lg:w-[382px] lg:shrink-0">
-            <CoverPhotoCard />
-            <SettingsCard items={eventSettings} />
-            <div className="flex gap-[10px]">
-              <Link href="/admin/events">
-                <Button type="button" variant="ghost" size="md">
-                  Cancel
-                </Button>
-              </Link>
-              <Button type="submit" variant="primary" size="md">
-                Save Changes
-              </Button>
-            </div>
-          </div>
-        </form>
       </div>
-    </div>
+    </>
   );
 }

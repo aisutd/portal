@@ -7,7 +7,8 @@
     "build": "npx prisma generate && prisma migrate deploy && next build",
     "start": "next start",
     "postinstall": "prisma generate",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --test \"src/**/*.test.mts\""
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1073.0",
@@ -16,6 +17,7 @@
     "@neondatabase/serverless": "^1.1.0",
     "@prisma/adapter-neon": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "@react-pdf/renderer": "^4.5.1",
     "@sentry/nextjs": "^10.58.0",
     "@vercel/analytics": "^2.0.1",
     "@yudiel/react-qr-scanner": "^2.6.0",
