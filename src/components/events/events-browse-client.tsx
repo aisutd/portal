@@ -40,25 +40,20 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
     selectedTags.length > 0
       ? list.filter((event) =>
           selectedTags.every((selectedTag) =>
-            event.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase())
+            (event.tags || []).some((tag) => tag.toLowerCase() === selectedTag.toLowerCase())
           )
         )
       : list;
 
-  const filteredUpcoming = filterList(upcomingEvents).sort(
-    (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
-  );
-  
-  const filteredPast = filterList(pastEvents).sort(
-    (a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
-  );
-
+  // Filter both lists independently to keep them in distinct sections
+  const filteredUpcoming = filterList(upcomingEvents);
+  const filteredPast = filterList(pastEvents);
   const totalFilteredCount = filteredUpcoming.length + filteredPast.length;
 
   return (
     <>
       <div className="md:hidden">
-        <MobileEventsBrowse upcomingEvents={upcomingEvents} pastEvents={pastEvents} />
+        <MobileEventsBrowse upcomingEvents={filteredUpcoming} pastEvents={filteredPast} />
       </div>
 
       <div className="hidden md:block">
@@ -66,14 +61,13 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
           <Navbar active="Events" />
           <div className="flex w-full flex-col md:flex-row md:items-stretch">
             
-            {/* Tag filter sidebar */}
+            {/* Tag filter sidebar (Interactive) */}
             <aside className="flex flex-col gap-[10px] border-b border-border-soft px-[26px] py-[32px] md:w-[219px] md:shrink-0 md:border-b-0 md:border-r">
               <p className="font-techno text-[12px] uppercase leading-[normal] tracking-[3px] text-ink-faint">
                 Tags
               </p>
               
               <div className="flex flex-wrap gap-[10px] md:flex-col md:items-start">
-                {/* All Events Button */}
                 <button
                   type="button"
                   aria-pressed={selectedTags.length === 0}
@@ -87,7 +81,6 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
                   All Events
                 </button>
 
-                {/* Filter Tags */}
                 {eventFilterTags.map((t) => {
                   const isSelected = selectedTags.includes(t.label);
                   return (
@@ -119,7 +112,7 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
               </div>
             </aside>
 
-            {/* Event sections */}
+            {/* Event sections (Distinct Sections with Flags) */}
             <div className="min-w-px flex-1 p-[46px] flex flex-col gap-[40px]">
               {totalFilteredCount === 0 ? (
                 <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-border-soft bg-white p-[40px] text-center shadow-sm">
@@ -142,11 +135,13 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
               ) : (
                 <>
                   {/* Upcoming Events Section */}
-                  {filteredUpcoming.length > 0 && (
-                    <section className="flex flex-col gap-[20px]">
-                      <h2 className="font-grotesk text-[22px] font-bold text-ink">
-                        Upcoming Events
-                      </h2>
+                  <section className="flex flex-col gap-[20px]">
+                    <h2 className="font-grotesk text-[22px] font-bold text-ink">
+                      Upcoming Events
+                    </h2>
+                    {filteredUpcoming.length === 0 ? (
+                      <p className="text-sm text-ink-muted">No upcoming events scheduled for these tags.</p>
+                    ) : (
                       <div className="grid grid-cols-1 gap-[24px] lg:grid-cols-2">
                         {filteredUpcoming.map((event) => (
                           <EventGridCard
@@ -161,8 +156,8 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
                           />
                         ))}
                       </div>
-                    </section>
-                  )}
+                    )}
+                  </section>
 
                   {/* Past Events Section */}
                   {filteredPast.length > 0 && (

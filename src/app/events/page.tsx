@@ -1,7 +1,9 @@
+export const dynamic = "force-dynamic";
+
 import type { Metadata } from "next";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { EventsBrowseClient } from "@/components/events/events-browse-client"; // Adjust import path as needed
+import { EventsBrowseClient } from "@/components/events/events-browse-client";
 
 export const metadata: Metadata = {
   title: "Events — Browse",
@@ -9,39 +11,40 @@ export const metadata: Metadata = {
 };
 
 async function getEventsData(userId: string | null) {
+  const now = new Date();
+
+  // Fetch upcoming events (ascending order: soonest first)
   const upcomingRaw = await prisma.event.findMany({
     where: { 
-      isPublished: true, 
-      status: { in: ["UPCOMING", "LIVE"] } 
+      isPublished: true,
+      startTime: { gte: now } 
     },
     orderBy: { startTime: "asc" },
     take: 20,
-    include: { rsvps: userId ? { where: { userId, status: "GOING" } } : false },
+    include: {
+      rsvps: userId
+        ? { where: { userId: userId, status: "GOING" } }
+        : false,
+    },
   });
 
-  // Branch the past query completely based on userId presence
-  const pastRaw = userId
-    ? await prisma.event.findMany({
-        where: { isPublished: true, status: { in: ["CLOSED", "ARCHIVED"] } },
-        orderBy: { startTime: "desc" },
-        take: 10,
-        include: { 
-          rsvps: { 
-            where: { userId, status: "GOING" }, 
-            include: { attendance: true } 
-          } 
-        },
-      })
-    : await prisma.event.findMany({
-        where: { isPublished: true, status: { in: ["CLOSED", "ARCHIVED"] } },
-        orderBy: { startTime: "desc" },
-        take: 10,
-        include: { 
-          rsvps: { 
-            where: { status: "GOING" } 
-          } 
-        },
-      });
+  // Fetch past events (descending order: most recent past first)
+  const pastRaw = await prisma.event.findMany({
+    where: { 
+      isPublished: true, 
+      startTime: { lt: now } 
+    },
+    orderBy: { startTime: "desc" },
+    take: 10,
+    include: {
+      rsvps: userId
+        ? { 
+            where: { userId: userId, status: "GOING" },
+            include: { attendance: true },
+          }
+        : false,
+    },
+  });
 
   const mapEvents = (events: typeof upcomingRaw) =>
     events.map((event) => ({
@@ -50,7 +53,7 @@ async function getEventsData(userId: string | null) {
       description: event.description,
       location: event.location,
       startTime: event.startTime.toISOString(),
-      tags: event.tags,
+      tags: event.tags || [],
       isRsvpd: !!(event.rsvps && event.rsvps.length > 0),
     }));
   
@@ -58,8 +61,6 @@ async function getEventsData(userId: string | null) {
     events.map((event) => {
       const userRsvp = event.rsvps && event.rsvps.length > 0 ? event.rsvps[0] : null;
       const isRsvpd = !!userRsvp;
-      
-      // Safely check attendance property handling the union type gracefully
       const hasAttended = userRsvp && 'attendance' in userRsvp ? !!userRsvp.attendance : false;
       const missedEvent = isRsvpd && !hasAttended;
 
@@ -69,7 +70,7 @@ async function getEventsData(userId: string | null) {
         description: event.description,
         location: event.location,
         startTime: event.startTime.toISOString(),
-        tags: event.tags,
+        tags: event.tags || [],
         isRsvpd,
         hasAttended,
         missedEvent,
