@@ -198,7 +198,7 @@ export default async function ProfilePage() {
                       <span className="font-[Inter] font-bold text-[14px] text-ink-muted">Major</span>
                       <select 
                         name="major"
-                        defaultValue={profile.major}
+                        defaultValue={profile.major ?? ""}
                         className={cn(
                           "h-[44px] rounded-[8px] bg-field border px-[16px] text-[14px] text-ink focus:outline-none focus:border-brand",
                           !profile.major ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
@@ -216,7 +216,7 @@ export default async function ProfilePage() {
                       <span className="font-[Inter] font-bold text-[14px] text-ink-muted">Degree</span>
                       <select 
                         name="degree"
-                        defaultValue={profile.degree}
+                        defaultValue={profile.degree ?? ""}
                         className={cn(
                           "h-[44px] rounded-[8px] bg-field border px-[16px] text-[14px] text-ink focus:outline-none focus:border-brand",
                           !profile.degree ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
@@ -233,7 +233,7 @@ export default async function ProfilePage() {
                       <span className="font-[Inter] font-bold text-[14px] text-ink-muted">Academic Year</span>
                       <select 
                         name="year"
-                        defaultValue={profile.year}
+                        defaultValue={profile.year ?? ""}
                         className={cn(
                           "h-[44px] rounded-[8px] bg-field border px-[16px] text-[14px] text-ink focus:outline-none focus:border-brand",
                           !profile.year ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
