@@ -4,6 +4,7 @@ import { ApplicantListItem } from "@/components/admin/applicant-list-item";
 import { ApplicantDetail } from "@/components/admin/applicant-detail";
 import { Badge } from "@/components/ui/badge";
 import { Tag } from "@/components/ui/tag";
+import { MobileAdminApplicantReview } from "@/components/mobile/admin/MobileAdminApplicantReview";
 import {
   reviewStats,
   reviewFilters,
@@ -18,6 +19,12 @@ export const metadata: Metadata = {
 
 export default function AdminApplyPage() {
   return (
+    <>
+      <div className="md:hidden">
+        <MobileAdminApplicantReview />
+      </div>
+
+      <div className="hidden md:block">
       <div className="flex min-h-screen w-full bg-cream">
         <AdminSidebar active="Applications" role="Officer" />
 
@@ -82,5 +89,7 @@ export default function AdminApplyPage() {
           </div>
         </div>
       </div>
+      </div>
+    </>
   );
 }

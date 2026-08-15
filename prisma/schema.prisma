@@ -29,6 +29,16 @@ enum EventStatus {
   ARCHIVED
 }
 
+enum EventTag {
+  FOOD
+  DRINK
+  SOCIAL
+  LEARN
+  WORKSHOP
+  NETWORKING
+  INDUSTRY
+}
+
 enum RSVPStatus {
   GOING
   CANCELED
@@ -79,76 +89,67 @@ enum MembershipType {
 // -----------------------------------------------------------------------------
 
 model User {
-  id      String   @id @default(cuid())
-  clerkId String   @unique
-  email   String   @unique
-  role    UserRole @default(MEMBER)
-
-  verifiedAt  DateTime?
-  lastLoginAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  profile     Profile?
-  memberships Membership[]
-  rsvps       RSVP[]
-  submissions ApplicationSubmission[]
-  drafts      ApplicationDraft[]
-  reviews     ApplicationReview[]
-
-  // Relations mapped from other models
-  uploadedFiles File[]
+  id            String                  @id @default(cuid())
+  clerkId       String                  @unique
+  email         String                  @unique
+  role          UserRole                @default(MEMBER)
+  verifiedAt    DateTime?
+  lastLoginAt   DateTime?
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+  drafts        ApplicationDraft[]
+  reviews       ApplicationReview[]
+  submissions   ApplicationSubmission[]
+  auditLogs     AuditLog[]              @relation("AuditActor")
   createdEvents Event[]
+  uploadedFiles File[]
+  itemScans     ItemScan[]              @relation("ItemScanner")
+  memberships   Membership[]
+  profile       Profile?
   createdApps   ProgramApplication[]
-  itemScans     ItemScan[] @relation("ItemScanner")
-  auditLogs     AuditLog[] @relation("AuditActor")
+  rsvps         RSVP[]
 }
 
 model Profile {
-  id     String @id @default(cuid())
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id])
-
-  firstName    String
-  lastName     String
-  middleName   String
-  prefName     String
-  year         String
-  degree       String
-  major        String
-  utdEmail     String?
-  utdNetId     String?
-  githubUrl    String?
-  linkedinUrl  String?
-  portfolioUrl String?
-
+  id                      String                  @id @default(cuid())
+  userId                  String                  @unique
+  firstName               String
+  lastName                String
+  middleName              String
+  prefName                String?
+  year                    String?
+  degree                  String?
+  major                   String?
+  utdEmail                String?
+  utdNetId                String?
+  githubUrl               String?
+  linkedinUrl             String?
+  portfolioUrl            String?
   profileCompletionStatus ProfileCompletionStatus
-
-  resumeFileId String?
-  resumeFile   File?   @relation(fields: [resumeFileId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  resumeFileId            String?
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  resumeFile              File?                   @relation(fields: [resumeFileId], references: [id])
+  user                    User                    @relation(fields: [userId], references: [id])
 }
 
 model File {
-  id           String   @id @default(cuid())
+  id           String                  @id @default(cuid())
   uploadedById String?
-  uploadedBy   User?    @relation(fields: [uploadedById], references: [id])
   fileName     String
   mimeType     String
   fileSize     Int
   storageKey   String
-  createdAt    DateTime @default(now())
-
-  resumes Profile[]
-  pdfs    ApplicationSubmission[]
+  createdAt    DateTime                @default(now())
+  pdfs         ApplicationSubmission[]
+  uploadedBy   User?                   @relation(fields: [uploadedById], references: [id])
+  resumes      Profile[]
 }
 
 model Event {
   id               String      @id @default(cuid())
   title            String
-  description      String      @db.Text
+  description      String
   location         String
   startTime        DateTime
   endTime          DateTime
@@ -156,130 +157,126 @@ model Event {
   capacity         Int?
   visibility       String?
   eligibilityRules Json?
+  isPublished      Boolean    @default(false)
+
+  tags             EventTag[]
+
   createdById      String
-  createdBy        User        @relation(fields: [createdById], references: [id])
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
-
-  rsvps RSVP[]
-  items EventItem[]
+  createdBy        User        @relation(fields: [createdById], references: [id])
+  items            EventItem[]
+  rsvps            RSVP[]
 }
 
 model RSVP {
-  id          String     @id @default(cuid())
+  id          String      @id @default(cuid())
   userId      String
   eventId     String
   status      RSVPStatus
   qrToken     String
   qrExpiresAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   qrPayload   String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-
-  user       User        @relation(fields: [userId], references: [id])
-  event      Event       @relation(fields: [eventId], references: [id])
-  attendance Attendance?
+  attendance  Attendance?
+  event       Event       @relation(fields: [eventId], references: [id])
+  user        User        @relation(fields: [userId], references: [id])
 
   @@unique([userId, eventId])
 }
 
 model Attendance {
-  id          String   @id @default(cuid())
-  rsvpId      String   @unique
-  rsvp        RSVP     @relation(fields: [rsvpId], references: [id], onDelete: Cascade)
-  checkedInAt DateTime @default(now())
+  id          String            @id @default(cuid())
+  checkedInAt DateTime          @default(now())
   method      AttendanceMethod?
   qrTokenUsed String?
-
-  scans ItemScan[]
+  rsvpId      String            @unique
+  rsvp        RSVP              @relation(fields: [rsvpId], references: [id], onDelete: Cascade)
+  scans       ItemScan[]
 }
 
 model EventItem {
-  id      String   @id @default(cuid())
+  id      String     @id @default(cuid())
   eventId String
-  event   Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   name    String
   type    ItemType
-
-  scans ItemScan[]
+  event   Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  scans   ItemScan[]
 
   @@unique([eventId, name])
 }
 
 model ItemScan {
-  id           String      @id @default(cuid())
+  id           String     @id @default(cuid())
   attendanceId String
-  attendance   Attendance  @relation(fields: [attendanceId], references: [id], onDelete: Cascade)
   eventItemId  String
-  eventItem    EventItem   @relation(fields: [eventItemId], references: [id], onDelete: Cascade)
-  scannedAt    DateTime    @default(now())
+  scannedAt    DateTime   @default(now())
   scannedById  String?
-  scannedBy    User?       @relation("ItemScanner", fields: [scannedById], references: [id])
+  attendance   Attendance @relation(fields: [attendanceId], references: [id], onDelete: Cascade)
+  eventItem    EventItem  @relation(fields: [eventItemId], references: [id], onDelete: Cascade)
+  scannedBy    User?      @relation("ItemScanner", fields: [scannedById], references: [id])
 
   @@unique([attendanceId, eventItemId])
 }
 
 model ProgramApplication {
-  id             String      @id @default(cuid())
+  id             String                  @id @default(cuid())
   title          String
-  description    String      @db.Text
+  description    String
   programType    ProgramType
   openAt         DateTime
   closeAt        DateTime
   decisionDate   DateTime?
-  visibleToUsers Boolean     @default(true)
+  visibleToUsers Boolean                 @default(true)
   retentionUntil DateTime?
   createdById    String
-  createdBy      User        @relation(fields: [createdById], references: [id])
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-
-  submissions ApplicationSubmission[]
-  drafts      ApplicationDraft[]
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  drafts         ApplicationDraft[]
+  submissions    ApplicationSubmission[]
+  createdBy      User                    @relation(fields: [createdById], references: [id])
 }
 
 model ApplicationDraft {
-  id              String   @id @default(cuid())
+  id              String             @id @default(cuid())
   applicationId   String
   userId          String
   formPayloadJson Json
   stepIndex       Int
-  isSubmitted     Boolean  @default(false)
-  lastSavedAt     DateTime @updatedAt
-
-  application ProgramApplication @relation(fields: [applicationId], references: [id])
-  user        User               @relation(fields: [userId], references: [id])
+  isSubmitted     Boolean            @default(false)
+  lastSavedAt     DateTime           @updatedAt
+  application     ProgramApplication @relation(fields: [applicationId], references: [id])
+  user            User               @relation(fields: [userId], references: [id])
 
   @@unique([applicationId, userId])
 }
 
 model ApplicationSubmission {
-  id              String            @id @default(cuid())
+  id              String              @id @default(cuid())
   applicationId   String
   userId          String
   versionNumber   Int
   formPayloadJson Json
   pdfFileId       String?
-  pdfFile         File?             @relation(fields: [pdfFileId], references: [id])
   status          ApplicationStatus
-  submittedAt     DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-
-  application ProgramApplication  @relation(fields: [applicationId], references: [id])
-  user        User                @relation(fields: [userId], references: [id])
-  reviews     ApplicationReview[]
+  submittedAt     DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  reviews         ApplicationReview[]
+  application     ProgramApplication  @relation(fields: [applicationId], references: [id])
+  pdfFile         File?               @relation(fields: [pdfFileId], references: [id])
+  user            User                @relation(fields: [userId], references: [id])
 }
 
 model ApplicationReview {
-  id            String            @id @default(cuid())
+  id            String                @id @default(cuid())
   submissionId  String
   reviewerId    String
   status        ApplicationStatus
-  notesInternal String?           @db.Text
-  updatedAt     DateTime          @updatedAt
-
-  submission ApplicationSubmission @relation(fields: [submissionId], references: [id])
-  reviewer   User                  @relation(fields: [reviewerId], references: [id])
+  notesInternal String?
+  updatedAt     DateTime              @updatedAt
+  reviewer      User                  @relation(fields: [reviewerId], references: [id])
+  submission    ApplicationSubmission @relation(fields: [submissionId], references: [id])
 }
 
 model Membership {
@@ -291,8 +288,7 @@ model Membership {
   activeFlag          Boolean        @default(false)
   sourceApplicationId String?
   createdAt           DateTime       @default(now())
-
-  user User @relation(fields: [userId], references: [id])
+  user                User           @relation(fields: [userId], references: [id])
 }
 
 model AuditLog {
@@ -303,6 +299,5 @@ model AuditLog {
   entityId     String
   metadataJson Json?
   createdAt    DateTime @default(now())
-
-  actor User? @relation("AuditActor", fields: [actorUserId], references: [id])
+  actor        User?    @relation("AuditActor", fields: [actorUserId], references: [id])
 }

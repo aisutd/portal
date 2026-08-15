@@ -5,10 +5,12 @@
  */
 export function Marquee({ text }: { text: string }) {
   return (
-    <div className="rotate-[-0.8deg] scale-[1.03] bg-brand py-[18px]">
-      <p className="text-center font-logo text-[21px] leading-[normal] tracking-[1.5px] text-white">
-        {text}
-      </p>
+    <div className="w-full overflow-hidden">
+      <div className="rotate-[-0.8deg] scale-[1.03] bg-brand py-[18px]">
+        <p className="text-center font-logo text-[21px] leading-[normal] tracking-[1.5px] text-white">
+          {text}
+        </p>
+      </div>
     </div>
   );
 }

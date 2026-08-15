@@ -2,77 +2,171 @@
 
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
 import type { TagData } from "@/components/dashboard/up-next-card";
+import { normalizeEventTags } from "@/lib/event-tags";
 
 export type EventGridItem = {
   title: string;
-  /** "ECSW 2.412 · 08/27/26 · 7:00 PM" */
   meta: string;
   description: string;
-  tags: TagData[];
+  tags: Array<string | TagData>;
   eventId: string;
+  isRsvpd?: boolean;
+  isPast?: boolean;
+  hasAttended?: boolean;
+  missedEvent?: boolean;
 };
 
-/**
- * Event card in the browse grid: photo placeholder, title, schedule, blurb,
- * category tags, and an RSVP button.
- */
-export function EventGridCard({ title, meta, description, tags, eventId }: EventGridItem) {
+export function EventGridCard({ 
+  title, 
+  meta, 
+  description, 
+  tags, 
+  eventId, 
+  isRsvpd = false,
+  isPast = false,
+  hasAttended = false,
+  missedEvent = false,
+}: EventGridItem) {
   const router = useRouter();
   const { isSignedIn } = useAuth();
+  
+  const [hasRsvpd, setHasRsvpd] = useState(isRsvpd);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  
+  const normalizedTags = normalizeEventTags(tags);
 
-  async function handleRsvp() {
+  // Sync state if Next.js fetches new data
+  useEffect(() => {
+    setHasRsvpd(isRsvpd);
+  }, [isRsvpd]);
+
+  async function handleAction(e: React.MouseEvent) {
+    e.preventDefault(); // Prevent triggering parent Link click
     if (!isSignedIn) {
       router.push("/onboarding?mode=login");
       return;
     }
 
+    if (hasRsvpd) {
+      const confirmCancel = window.confirm("Are you sure you want to cancel your RSVP?");
+      if (!confirmCancel) return;
+    }
+
     setIsSubmitting(true);
     setMessage(null);
 
-    const response = await fetch(`/api/events/${eventId}/rsvp`, {
-      method: "POST",
-    });
+    const method = hasRsvpd ? "DELETE" : "POST";
 
-    const payload = await response.json();
-    setMessage(response.ok ? "RSVP created" : payload.error ?? "Unable to RSVP");
-    setIsSubmitting(false);
+    try {
+      const response = await fetch(`/api/events/${eventId}/rsvp`, { method });
+      const payload = await response.json();
+      
+      if (response.ok) {
+        setHasRsvpd(!hasRsvpd);
+        setMessage(hasRsvpd ? "RSVP canceled" : "See you there!");
+        router.refresh(); 
+      } else if (response.status === 409) {
+        setHasRsvpd(true);
+        setMessage(null);
+      } else {
+        setMessage(payload.error ?? "Something went wrong");
+      }
+    } catch {
+      setMessage("Network error");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
-    <div className="flex flex-col rounded-[16px] border border-border-soft bg-white p-[20px]">
-      <div className="flex h-[150px] w-full items-center justify-center rounded-[12px] bg-photo">
+    <Link 
+      href={`/events/${eventId}`}
+      className="flex h-full flex-col rounded-2xl border border-border-soft bg-white p-5 transition-shadow hover:shadow-sm block group"
+    >
+      <div className="flex h-37.5 w-full shrink-0 items-center justify-center rounded-xl bg-photo overflow-hidden">
         <span className="font-mono text-[11px] tracking-[1.5px] text-photo-text">
           PHOTO
         </span>
       </div>
-      <h3 className="mt-[12px] font-display text-[17px] font-semibold leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
-        {title}
-      </h3>
-      <p className="mt-[13px] font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-ink-faint">
-        {meta}
-      </p>
-      <p className="mt-[14px] font-body text-[14px] font-normal leading-[20.3px] text-ink-muted">
-        {description}
-      </p>
-      <div className="mt-[13px] flex items-center justify-between">
-        <div className="flex gap-[8px]">
-          {tags.map((t) => (
+
+      <div className="flex flex-1 flex-col">
+        <h3 className="mt-4 line-clamp-2 font-display text-[18px] font-semibold leading-tight text-ink group-hover:text-brand transition-colors [font-variation-settings:'wdth'_100]">
+          {title}
+        </h3>
+        <p className="mt-1.5 font-mono text-[12px] font-medium tracking-wide text-ink-faint">
+          {meta}
+        </p>
+        <p className="mt-3 line-clamp-3 font-body text-[14px] leading-relaxed text-ink-muted">
+          {description}
+        </p>
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
+        <div className="flex flex-1 flex-wrap gap-1.5">
+          {normalizedTags.map((t) => (
             <Tag key={t.label} label={t.label} bg={t.bg} color={t.color} />
           ))}
         </div>
-        <div className="flex flex-col items-end gap-2">
-          <Button variant="primary" size="sm" onClick={handleRsvp} disabled={isSubmitting}>
-            {isSubmitting ? "Working..." : "RSVP"}
-          </Button>
-          {message ? <p className="text-[11px] text-ink-faint">{message}</p> : null}
+
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          {isPast ? (
+            // Show dynamic attendance status badges for past events
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium">
+              {hasAttended ? (
+                <span className="flex items-center gap-1.5 bg-[#d2ecd9] text-[#2c5d3e] px-3 py-1 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-[#2c5d3e]">
+                    <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
+                  </svg>
+                  Attended
+                </span>
+              ) : missedEvent ? (
+                <span className="flex items-center gap-1.5 bg-[#fdf2f2] text-red-700 px-3 py-1 rounded-full border border-red-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-red-600">
+                    <path fillRule="evenodd" d="M4 10a.75.75 0 01.75-.75h10.5a.75.75 0 010 1.5H4.75A.75.75 0 014 10z" clipRule="evenodd" />
+                  </svg>
+                  Missed Event
+                </span>
+              ) : (
+                <span className="bg-stone-100 text-ink-muted px-3 py-1 rounded-full">
+                  Not RSVP'd
+                </span>
+              )}
+            </div>
+          ) : (
+            // Active RSVP button for upcoming events
+            <Button 
+              variant={hasRsvpd ? "outline" : "primary"}
+              size="sm" 
+              onClick={handleAction} 
+              disabled={isSubmitting} 
+              className="flex items-center gap-1.5 w-[90px] justify-center" 
+            >
+              {isSubmitting ? (
+                "..."
+              ) : hasRsvpd ? (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                    <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
+                  </svg>
+                  RSVP'd
+                </>
+              ) : (
+                "RSVP"
+              )}
+            </Button>
+          )}
+
+          {message && !isPast && (
+            <p className="text-[11px] font-medium text-ink-faint">{message}</p>
+          )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

@@ -18,7 +18,7 @@ function AnnouncementBlock({ item }: { item: Announcement }) {
 
 export function AnnouncementsCard({ items }: { items: [Announcement, Announcement] }) {
   return (
-    <section className="relative min-h-[223px] w-full shrink-0 self-stretch rounded-2xl border border-transparent bg-orange-soft xl:w-[440px]">
+    <section className="relative min-h-[223px] w-full shrink-0 self-stretch rounded-2xl border border-transparent bg-orange-soft xl:w-auto xl:flex-1">
       <div className="absolute inset-x-[26px] top-[26px]">
         <SectionHeader
           title="Announcements"

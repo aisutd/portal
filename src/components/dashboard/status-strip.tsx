@@ -56,12 +56,19 @@ function StatCard({ stat }: { stat: Stat }) {
   );
 }
 
-export function StatusStrip({ stats }: { stats: Stat[] }) {
+export function StatusStrip({ stats, banner }: { stats: Stat[], banner?: React.ReactNode }) {
   return (
-    <section className="flex w-full flex-wrap items-start justify-center gap-[16px]">
-      {stats.map((stat) => (
-        <StatCard key={stat.label} stat={stat} />
-      ))}
-    </section>
+    <div className="flex w-full flex-col gap-[16px]">
+      <section className="flex w-full flex-wrap items-start justify-center gap-[16px]">
+        {stats.map((stat) => (
+          <StatCard key={stat.label} stat={stat} />
+        ))}
+      </section>
+      {banner && (
+        <div className="flex w-full">
+          {banner}
+        </div>
+      )}
+    </div>
   );
 }
