@@ -9,7 +9,7 @@ export function QuickCtaCard() {
         <span className="block">Nothing on your</span>
         <span className="block">calendar this week?</span>
       </h2>
-      <Link href="/events/browse" className="w-full">
+      <Link href="/events" className="w-full">
         <Button variant="accent" size="md" block className="font-black">
           Browse Events →
         </Button>

@@ -163,7 +163,6 @@ model Event {
   createdById      String
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
-  tags             EventTag[]
   createdBy        User        @relation(fields: [createdById], references: [id])
   items            EventItem[]
   rsvps            RSVP[]

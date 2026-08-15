@@ -4,6 +4,7 @@ import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { StatCard } from "@/components/admin/stat-card";
 import { EventRow } from "@/components/admin/event-row";
 import { Button } from "@/components/ui/button";
+import { MobileAdminEvents } from "@/components/mobile/admin/MobileAdminEvents";
 import { prisma } from "@/lib/prisma";
 import type { EventRowData } from "@/components/admin/event-row";
 
@@ -83,6 +84,12 @@ export default async function AdminEventsPage() {
   const data = await getEventViewModel();
 
   return (
+    <>
+      <div className="md:hidden">
+        <MobileAdminEvents stats={data.stats} rows={data.rows} />
+      </div>
+
+      <div className="hidden md:block">
       <div className="flex min-h-screen w-full bg-cream">
         <AdminSidebar active="Events" role="Officer" />
 
@@ -128,5 +135,7 @@ export default async function AdminEventsPage() {
           </div>
         </div>
       </div>
+      </div>
+    </>
   );
 }

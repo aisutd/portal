@@ -5,6 +5,7 @@ import { EventForm } from "@/components/admin/event-form";
 import { CoverPhotoCard } from "@/components/admin/cover-photo-card";
 import { SettingsCard } from "@/components/admin/settings-card";
 import { Button } from "@/components/ui/button";
+import { MobileAdminCreateEvent } from "@/components/mobile/admin/MobileAdminCreateEvent";
 import { eventTags, eventSettings } from "@/lib/data";
 import { createEvent } from "@/app/admin/events/actions";
 
@@ -15,6 +16,12 @@ export const metadata: Metadata = {
 
 export default function CreateEventPage() {
   return (
+    <>
+      <div className="md:hidden">
+        <MobileAdminCreateEvent />
+      </div>
+
+      <div className="hidden md:block">
       <div className="flex min-h-screen w-full bg-cream">
         <AdminSidebar active="Events" role="Officer" />
 
@@ -50,5 +57,7 @@ export default function CreateEventPage() {
           </form>
         </div>
       </div>
+      </div>
+    </>
   );
 }

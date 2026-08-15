@@ -6,19 +6,21 @@ import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
 
 export type Program = {
-  /** Glyph rendered inside the icon chip (◇ ◈ ◆). */
+  /** Glyph rendered inside the icon chip. */
   icon: string;
   iconBg: string;
   iconColor: string;
-  /** Card border colour (orange highlights the featured program). */
+  /** Card border colour. */
   borderColor: string;
   /** Optional pill shown top-right (e.g. "High demand"). */
   badge?: string;
   title: string;
-  description: string;
+  description?: string;
   tags: string[];
-  /** CTA colour — orange for the featured program, blue otherwise. */
+  /** CTA colour. */
   cta: "primary" | "accent";
+  /** Hide the action button when the card is shown as part of a flow. */
+  showActionButton?: boolean;
 };
 
 /**
@@ -31,9 +33,9 @@ export function ProgramCard({
   borderColor,
   badge,
   title,
-  description,
   tags,
   cta,
+  showActionButton = true,
 }: Program) {
   const router = useRouter();
   const { isSignedIn } = useAuth();
@@ -41,7 +43,6 @@ export function ProgramCard({
   const handleApply = () => {
     if (!isSignedIn) {
       router.push("/onboarding?mode=login");
-      return;
     }
   };
 
@@ -56,10 +57,9 @@ export function ProgramCard({
 
   return (
     <div
-      className="flex flex-1 flex-col gap-[14px] self-stretch rounded-[18px] border bg-white p-[27px]"
+      className="flex flex-1 flex-col gap-[8px] self-stretch rounded-[18px] border bg-white px-[23px] pb-[25px] pt-[24px]"
       style={{ borderColor }}
     >
-      {/* Icon (+ optional badge) */}
       {badge ? (
         <div className="flex w-full items-center justify-between">
           {iconChip}
@@ -74,11 +74,8 @@ export function ProgramCard({
       <h3 className="font-display text-[22px] font-semibold leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
         {title}
       </h3>
-      <p className="font-body text-[14px] font-normal leading-[20.3px] text-ink-muted">
-        {description}
-      </p>
 
-      <div className="flex gap-[6px]">
+      <div className="flex flex-wrap gap-[6px]">
         {tags.map((label) => (
           <Tag
             key={label}
@@ -90,9 +87,19 @@ export function ProgramCard({
         ))}
       </div>
 
-      <Button variant={cta} size="md" pill block onClick={handleApply} type="button">
-        Apply Now →
-      </Button>
+      {showActionButton ? (
+        <Button
+          variant={cta}
+          size="md"
+          pill
+          block
+          onClick={handleApply}
+          type="button"
+          className="mt-[2px]"
+        >
+          Apply Now →
+        </Button>
+      ) : null}
     </div>
   );
 }

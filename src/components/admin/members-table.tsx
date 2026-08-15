@@ -8,6 +8,8 @@ export type MemberBadge = {
 };
 
 export type Member = {
+  /** User.id — the row key. NetID is nullable and cannot be used. */
+  id: string;
   name: string;
   netid: string;
   role: MemberBadge;
@@ -54,7 +56,7 @@ export function MembersTable({ members }: { members: Member[] }) {
       {/* Rows */}
       {members.map((m, i) => (
         <div
-          key={m.netid}
+          key={m.id}
           className={`${GRID} h-[65px] items-center ${
             i < members.length - 1 ? "border-b border-table-line" : ""
           }`}
