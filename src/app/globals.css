@@ -65,21 +65,27 @@
   --color-danger-ink: #8c3a49;
   --color-table-line: #ece9e0;
 
-  /* Fonts */
-  --font-sans: var(--font-inter); /* If you removed Inter, change this to var(--font-geist-sans) */
-  --font-mono: var(--font-inter);
+  /* --- FONTS UPDATE --- */
+  /* Replaced old Inter references with Geist for a clean, modern UI */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* Set explicit Tailwind font utilities just in case you need them manually */
+  --font-placard: var(--font-placard);
+  --font-garet: var(--font-garet);
 
   /* AIS Portal brand fonts */
-  --font-mobile-display: var(--font-placard);
+  --font-mobile-display: var(--font-garet); /* Replaced Placard with Garet for mobile headers */
   --font-mobile-body: var(--font-garet);
-  --font-display: var(--font-inter);
-  --font-nav: var(--font-inter);
   
-  /* 1. CHANGED THIS LINE to map the heading token to Placard Next */
-  --font-heading: var(--font-placard); 
+  --font-display: var(--font-geist-sans);
+  --font-nav: var(--font-geist-sans);
   
-  --font-body: var(--font-inter);
-  --font-ibm: var(--font-inter);
+  /* Set all global headings to Geist */
+  --font-heading: var(--font-geist-sans); 
+  
+  --font-body: var(--font-geist-sans);
+  --font-ibm: var(--font-geist-mono);
 }
 
 /* Literal design tokens — plain @theme is fine (and generates the utilities). */
@@ -106,14 +112,18 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  /* Note: If you removed Inter from layout.tsx, you might want to change this to var(--font-geist-sans) */
-  font-family: var(--font-inter), sans-serif;
+  font-family: var(--font-geist-sans), sans-serif;
   overflow-x: hidden;
 }
 
-/* 2. ADDED THIS BLOCK to enforce the heading font on all h1-h6 tags */
 @layer base {
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading);
+  /* 1. Page-level headings get Placard Next */
+  h1, h2 {
+    font-family: var(--font-placard);    
+  }
+  
+  /* 2. Smaller subheadings (like card titles) -> Geist */
+  h3, h4, h5, h6 {
+    font-family: var(--font-geist-sans);
   }
 }
