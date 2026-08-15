@@ -122,18 +122,18 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
           className={cn( 
                 !profile.utdNetId ? "border-red-500 ring-2 ring-red-500 bg-red-50" : "border-transparent"
               )}/>
-          <MobileSelect label="Major" name="major" defaultValue={profile.major} options={UTD_MAJORS} 
+          <MobileSelect label="Major" name="major" defaultValue={profile.major ?? ""} options={UTD_MAJORS} 
           className={cn( 
                 !profile.major ? "border-red-500 ring-2 ring-red-500 bg-red-50" : "border-transparent"
               )}/>
-          <MobileSelect label="Degree" name="degree" defaultValue={profile.degree} options={UTD_DEGREES} 
+          <MobileSelect label="Degree" name="degree" defaultValue={profile.degree ?? ""} options={UTD_DEGREES} 
           className={cn( 
                 !profile.degree ? "border-red-500 ring-2 ring-red-500 bg-red-50" : "border-transparent"
               )}/>
           <MobileSelect
             label="Academic Year"
             name="year"
-            defaultValue={profile.year}
+            defaultValue={profile.year ?? ""}
             options={ACADEMIC_YEARS}
             className={cn( 
                 !profile.year ? "border-red-500 ring-2 ring-red-500 bg-red-50" : "border-transparent"
