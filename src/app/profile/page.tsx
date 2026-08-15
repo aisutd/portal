@@ -173,7 +173,7 @@ export default async function ProfilePage() {
                       <span className="font-[Inter] font-bold text-[14px] text-ink-muted">Preferred Name</span>
                       <input 
                         name="prefName"
-                        defaultValue={profile.prefName}
+                        defaultValue={profile.prefName ?? ""}
                         className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] text-[15px] text-ink focus:outline-none focus:border-brand"
                       />
                     </div>

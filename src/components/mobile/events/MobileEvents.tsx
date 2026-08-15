@@ -1,3 +1,5 @@
+//deprecate
+
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Tag } from "@/components/ui/tag";
@@ -12,6 +14,7 @@ import {
   miniEvent,
   pastTiles,
 } from "@/lib/data";
+import { deprecate } from "util";
 
 export function MobileEvents() {
   const featuredTags = normalizeEventTags(featuredEvent.tags);
@@ -31,7 +34,7 @@ export function MobileEvents() {
         </div>
       </div>
       
-      <Link href="/events/browse">
+      <Link href="/events">
           <Button variant="accent" size="md" block>
             Browse Events →
           </Button>

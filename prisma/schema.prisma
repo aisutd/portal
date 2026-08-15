@@ -157,6 +157,7 @@ model Event {
   capacity         Int?
   visibility       String?
   eligibilityRules Json?
+  isPublished      Boolean    @default(false)
 
   tags             EventTag[]
 

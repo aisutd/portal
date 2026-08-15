@@ -74,7 +74,7 @@ export function MobileDashboard({ userId, userName, nextRsvp, announcements }: M
             <p className="font-mobile-body text-[13px] text-ink-muted">
               Check out upcoming events and RSVP to see them here.
             </p>
-            <Button href="/events/browse" variant="primary" size="sm" pill>
+            <Button href="/events" variant="primary" size="sm" pill>
               Browse Events →
             </Button>
           </div>

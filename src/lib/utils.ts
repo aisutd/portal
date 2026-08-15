@@ -5,3 +5,29 @@
 export function cn(...classes: Array<string | false | null | undefined>): string {
   return classes.filter(Boolean).join(" ");
 }
+
+// Formats date and time in a legible, neat format: Mon, Aug. 20 - 6:00PM
+export function formatEventDate(dateString: string, includeDayOfWeek = false) {
+  const date = new Date(dateString);
+  const now = new Date();
+  
+  const diffTime = date.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const isWithinAWeek = includeDayOfWeek && diffDays >= 0 && diffDays <= 7;
+
+  const options: Intl.DateTimeFormatOptions = {
+    month: "short",
+    day: "numeric",
+    year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
+    hour: "numeric",
+    minute: "2-digit",
+  };
+
+  if (isWithinAWeek) {
+    const weekday = new Intl.DateTimeFormat("en-US", { weekday: "short" }).format(date);
+    const timeDate = new Intl.DateTimeFormat("en-US", options).format(date);
+    return `${weekday}, ${timeDate}`;
+  }
+
+  return new Intl.DateTimeFormat("en-US", options).format(date).replace(", ", " · ");
+}

@@ -161,22 +161,36 @@ export async function getNextUpcomingRsvp(userId: string) {
   // 3. Subtract your 12-hour lookback window from that shifted DB base time
   const twelveHoursAgoDB = new Date(dbNowAhead.getTime() - 12 * 60 * 60 * 1000);
 
+  const liveRsvp = await prisma.rSVP.findFirst({
+    where: {
+      userId,
+      status: "GOING",
+      event: {
+        startTime: { lte: dbNowAhead },
+        endTime: { gte: dbNowAhead }
+      }
+    },
+    include: { event: true }
+  });
+
+  // If a live event is found, inject a flag so the UI knows to render it differently
+  if (liveRsvp) {
+    return { ...liveRsvp, isLive: true };
+  }
   // First attempt: Find an RSVP for an event matching the synchronized database time window
   const upcomingRsvp = await prisma.rSVP.findFirst({
     where: { 
       userId, 
       status: "GOING", 
-      event: { 
-        startTime: { gte: twelveHoursAgoDB } 
-      } 
+      event: { startTime: { gte: twelveHoursAgoDB } } 
     },
     include: { event: true },
     orderBy: { event: { startTime: "asc" } }, // Earliest first
   });
 
-  if (upcomingRsvp) return upcomingRsvp;
+  if (upcomingRsvp) return { ...upcomingRsvp, isLive: false };
 
-  // Fallback: Find an RSVP for an event with an explicit UPCOMING status field
+  // Fallback via explicit UPCOMING status field
   const upcomingStatusRsvp = await prisma.rSVP.findFirst({
     where: { 
       userId, 
@@ -187,12 +201,15 @@ export async function getNextUpcomingRsvp(userId: string) {
     orderBy: { event: { startTime: "asc" } },
   });
 
-  if (upcomingStatusRsvp) return upcomingStatusRsvp;
+  if (upcomingStatusRsvp) return { ...upcomingStatusRsvp, isLive: false };
 
-  // Last fallback: Return the user's most recent GOING RSVP historical record
-  return prisma.rSVP.findFirst({
+  // Last fallback (Historical)
+  const historicalRsvp = await prisma.rSVP.findFirst({
     where: { userId, status: "GOING" },
     include: { event: true },
     orderBy: { createdAt: "desc" },
   });
+
+  return historicalRsvp ? { ...historicalRsvp, isLive: false } : null;
+
 }

@@ -20,9 +20,10 @@ type UpNextProps = {
   tags?: TagData[];
   isEmpty?: boolean;
   qrToken?: string;
+  isLive?: boolean;
 };
 
-export function UpNextCard({ eyebrow, title, dateLines, tags = [], isEmpty = false, qrToken }: UpNextProps) {
+export function UpNextCard({ eyebrow, title, dateLines, tags = [], isEmpty = false, qrToken, isLive = false}: UpNextProps) {
   return (
     <Card className="flex flex-1 flex-col gap-[18px] self-stretch p-[29px]">
       <p className="font-[Inter] text-[12px] uppercase leading-[normal] tracking-[3px] text-ink-faint">
@@ -41,7 +42,7 @@ export function UpNextCard({ eyebrow, title, dateLines, tags = [], isEmpty = fal
           <p className="font-[Inter] text-[13px] text-ink-muted text-center max-w-[280px] leading-tight">
             {dateLines[0] || "You haven't saved any events. Browse what's coming up this semester."}
           </p>
-          <Link href="/events/browse" className="mt-[2px]">
+          <Link href="/events" className="mt-[2px]">
             <Button variant="primary" size="sm" pill className="font-black px-[20px]">
               Browse Events →
             </Button>
@@ -78,11 +79,13 @@ export function UpNextCard({ eyebrow, title, dateLines, tags = [], isEmpty = fal
               </div>
             )}
 
-            <div className="pt-[6px]">
-              <Button variant="primary" size="md" className="font-black">
-                Add to Calendar
-              </Button>
-            </div>
+            {!isLive && (
+              <div className="pt-[6px]">
+                <Button variant="primary" size="md" className="font-black">
+                  Add to Calendar
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* RSVP QR code */}

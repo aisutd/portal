@@ -66,6 +66,10 @@ export async function createEvent(formData: FormData) {
   const tags = parseTags(formData.get("tags"));
   const status = parseStatus(formData.get("status"));
   
+  // Read submission action button value ("publish" vs "draft")
+  const action = String(formData.get("action") ?? "draft");
+  const isPublished = action === "publish";
+
   // Extract and parse event items from the JSON hidden input
   const eventItemsJson = formData.get("eventItems") as string;
   const eventItems: EventItemInput[] = eventItemsJson ? JSON.parse(eventItemsJson) : [];
@@ -94,6 +98,7 @@ export async function createEvent(formData: FormData) {
       capacity: Number.isFinite(capacity) && capacity > 0 ? capacity : null,
       visibility,
       tags,
+      isPublished, // Properly saved as true or false
       createdById: currentUser.id,
 
       items: {
@@ -127,6 +132,9 @@ export async function updateEvent(formData: FormData) {
   const tags = parseTags(formData.get("tags"));
   const status = parseStatus(formData.get("status"));
 
+  // Read action type from edit button ("publish", "unpublish", or default to current database state)
+  const action = String(formData.get("action") ?? "");
+  
   // Extract and parse event items from the JSON hidden input
   const eventItemsJson = formData.get("eventItems") as string;
   const eventItems: EventItemInput[] = eventItemsJson ? JSON.parse(eventItemsJson) : [];
@@ -144,6 +152,19 @@ export async function updateEvent(formData: FormData) {
 
   const capacity = Number(capacityValue ?? 0);
 
+  // Determine isPublished: 
+  // If "publish" was clicked -> true, if "unpublish" -> false, otherwise fetch/keep existing value
+  let isPublished: boolean;
+  if (action === "publish") {
+    isPublished = true;
+  } else if (action === "unpublish") {
+    isPublished = false;
+  } else {
+    // Fallback: fetch current state if generic save was submitted without publish/unpublish buttons
+    const existing = await prisma.event.findUnique({ where: { id }, select: { isPublished: true } });
+    isPublished = existing?.isPublished ?? false;
+  }
+
   await prisma.event.update({
     where: { id },
     data: {
@@ -156,8 +177,8 @@ export async function updateEvent(formData: FormData) {
       capacity: Number.isFinite(capacity) && capacity > 0 ? capacity : null,
       visibility,
       tags,
+      isPublished,
       
-      // Sync items: wipe existing items for this event and replace with the updated list
       items: {
         deleteMany: {},
         create: eventItems.map((item) => ({

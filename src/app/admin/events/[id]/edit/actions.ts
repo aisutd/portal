@@ -13,6 +13,9 @@ type EventItemInput = {
 export async function updateEvent(formData: FormData) {
   const id = formData.get("id") as string;
   
+  // Extract submission action button value ("draft", "publish", "unpublish")
+  const action = String(formData.get("action") ?? "");
+
   // Extract and parse form fields
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
@@ -34,7 +37,22 @@ export async function updateEvent(formData: FormData) {
   const eventItemsJson = formData.get("eventItems") as string;
   const eventItems: EventItemInput[] = eventItemsJson ? JSON.parse(eventItemsJson) : [];
 
-  // Update the event and sync items in a single transaction or clean update flow
+  // Determine isPublished state based on which button was clicked
+  let isPublished: boolean;
+  if (action === "publish") {
+    isPublished = true;
+  } else if (action === "unpublish") {
+    isPublished = false;
+  } else {
+    // Fallback: keep whatever is currently stored in the database if generic "Save changes" was clicked
+    const existing = await prisma.event.findUnique({
+      where: { id },
+      select: { isPublished: true },
+    });
+    isPublished = existing?.isPublished ?? false;
+  }
+
+  // Update the event and sync items
   await prisma.event.update({
     where: { id },
     data: {
@@ -47,9 +65,8 @@ export async function updateEvent(formData: FormData) {
       status: status as any,
       visibility: visibility as any,
       tags: tags as any,
+      isPublished,
       
-      // Sync items: Delete existing ones and recreate the updated set, 
-      // or use nested writes. Deleting and recreating is the cleanest way to handle form arrays.
       items: {
         deleteMany: {}, // Clear out old items for this event
         create: eventItems.map((item) => ({
