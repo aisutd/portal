@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Show, UserButton, useAuth, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 const NAV_ITEMS = ["Events", "Apply", "Dashboard"] as const;
 const ADMIN_LABEL = "Admin" as const;
@@ -28,7 +29,9 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
 
   useEffect(() => {
     if (!isSignedIn) {
-      setRole(null);
+      if (role !== null) {
+        setRole(null);
+      }
       return;
     }
 
@@ -70,12 +73,16 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
       <nav className="flex h-[72px] items-center justify-between px-[38px]">
         {/* Logo */}
         <Link href="/" className="shrink-0 flex items-center">
-            <img 
-              src="/ais_logo_black.png" 
-              alt="AIS Logo" 
-              className="h-[44px] w-auto object-contain" 
-            />
-          </Link>
+          <Image 
+            src="/ais_logo_black.png" 
+            alt="AIS Logo" 
+            width={150}               // Explicit width prevents layout shifts
+            height={44}              // Matches your h-[44px] height constraint
+            className="h-[44px] w-auto object-contain" 
+            priority                 // Loads the logo immediately to improve LCP
+          />
+        </Link>
+
 
         {/* Primary links */}
         <ul className="flex items-center gap-[8px]">

@@ -21,7 +21,7 @@ export function getCurrentSemesterDates() {
 
 export function getPastSemesterDates() {
   const now = new Date();
-  let year = now.getFullYear();
+  const year = now.getFullYear();
   const month = now.getMonth();
 
   if (month >= 7) { // Current is Fall, Past is Spring (skip summer for simplicity or include it?) 
