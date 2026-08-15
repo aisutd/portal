@@ -1,11 +1,12 @@
 "use client";
-//TODO - Make what is required at profile creation consistent accross api and this doc's canNext()
+//TODO - Make what is required at profile creation consistent across api and this doc's canNext()
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FormStepper } from "@/components/apply/form-stepper";
 import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { UTD_DEGREES, UTD_MAJORS, ACADEMIC_YEARS } from "@/lib/utd-data";
 
 const STEPS = ["Personal", "Academic", "Links"];
 const YEARS = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"];
@@ -138,8 +139,8 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
                 onChange={set("year")}
                 className={selectClasses}
               >
-                <option value="">Select year</option>
-                {YEARS.map((y) => (
+                <option value="">Select your year</option>
+                {ACADEMIC_YEARS.map((y) => (
                   <option key={y} value={y}>
                     {y}
                   </option>
@@ -156,8 +157,8 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
                 onChange={set("degree")}
                 className={selectClasses}
               >
-                <option value="">Select degree</option>
-                {DEGREES.map((d) => (
+                <option value="">Select your degree</option>
+                {UTD_DEGREES.map((d) => (
                   <option key={d} value={d}>
                     {d}
                   </option>
@@ -165,12 +166,23 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
               </select>
             </div>
 
-            <Field
-              label="Major"
-              value={form.major}
-              onChange={set("major")}
-              placeholder="Computer Science"
-            />
+            <div className="flex flex-col">
+              <label className="mb-[10px] font-grotesk text-[13px] font-semibold leading-[normal] text-label-ink">
+                Major
+              </label>
+              <select
+                value={form.major}
+                onChange={set("major")}
+                className={selectClasses}
+              >
+                <option value="">Select your major</option>
+                {UTD_MAJORS.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </div>
             <Field
               label="UTD Email"
               value={form.utdEmail}

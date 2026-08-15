@@ -58,7 +58,11 @@ export async function getProfileCompletion(userId: string) {
   const optionalFields = [
     { key: "linkedinUrl", label: "LinkedIn" },
     { key: "githubUrl", label: "GitHub" },
-    { key: "resumeFileId", label: "Resume" }
+    //{ key: "resumeFileId", label: "Resume" },
+    { key: "year", label: "Year"},
+    { key: "degree", label: "Degree"},
+    { key: "major", label: "Major"},
+
   ] as const;
 
   let filled = 0;
@@ -71,9 +75,10 @@ export async function getProfileCompletion(userId: string) {
       missingFields.push(field.label);
     }
   }
+  console.log(missingFields);
 
-  // Base profile gives 70%. Optional fields give 10% each.
-  const percent = 70 + Math.round((filled / optionalFields.length) * 30);
+  // Base profile gives 40%. Optional fields give 10% each. -- with resumeFieldId
+  const percent = 50 + Math.round((filled / optionalFields.length) * 50);
   return { percent, missingFields };
 }
 

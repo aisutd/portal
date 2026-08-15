@@ -73,33 +73,33 @@ export async function POST(req: Request) {
     portfolioUrl,
   } = body;
 
-  if (!firstName?.trim() || !lastName?.trim() || !prefName?.trim()) {
+  if (!firstName?.trim() || !lastName?.trim() /*|| !prefName?.trim()*/) {
     return NextResponse.json(
-      { error: "First name, last name, and preferred name are required." },
+      { error: "First name and last name are required." },
       { status: 400 }
     );
   }
 
-  if (!year || !VALID_YEARS.includes(year)) {
-    return NextResponse.json(
-      { error: "Please select a valid year." },
-      { status: 400 }
-    );
-  }
+  // if (!year || !VALID_YEARS.includes(year)) {
+  //   return NextResponse.json(
+  //     { error: "Please select a valid year." },
+  //     { status: 400 }
+  //   );
+  // }
 
-  if (!degree || !VALID_DEGREES.includes(degree)) {
-    return NextResponse.json(
-      { error: "Please select a valid degree." },
-      { status: 400 }
-    );
-  }
+  // if (!degree || !VALID_DEGREES.includes(degree)) {
+  //   return NextResponse.json(
+  //     { error: "Please select a valid degree." },
+  //     { status: 400 }
+  //   );
+  // }
 
-  if (!major?.trim()) {
-    return NextResponse.json(
-      { error: "Major is required." },
-      { status: 400 }
-    );
-  }
+  // if (!major?.trim()) {
+  //   return NextResponse.json(
+  //     { error: "Major is required." },
+  //     { status: 400 }
+  //   );
+  // }
 
   const profile = await prisma.profile.create({
     data: {

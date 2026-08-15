@@ -11,6 +11,7 @@ import { getProfileCompletion } from "@/lib/dashboard-utils";
 import { revalidatePath } from "next/cache";
 import { MobileProfile } from "@/components/mobile/profile/MobileProfile";
 import { PasswordResetButton } from "@/components/profile/PasswordResetButton";
+import { UTD_MAJORS, UTD_DEGREES, ACADEMIC_YEARS } from "@/lib/utd-data";
 
 export default async function ProfilePage() {
   const clerkUser = await currentUser();
@@ -40,9 +41,11 @@ export default async function ProfilePage() {
       data: {
         firstName: formData.get("firstName") as string,
         lastName: formData.get("lastName") as string,
+        prefName: formData.get("prefName") as string,
         utdEmail: formData.get("utdEmail") as string,
         utdNetId: formData.get("utdNetId") as string,
         major: formData.get("major") as string,
+        degree: formData.get("degree") as string,
         year: formData.get("year") as string,
         linkedinUrl: formData.get("linkedinUrl") as string,
         githubUrl: formData.get("githubUrl") as string,
@@ -142,6 +145,7 @@ export default async function ProfilePage() {
                         name="firstName"
                         defaultValue={profile.firstName}
                         className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] text-[15px] text-ink focus:outline-none focus:border-brand"
+                        readOnly
                       />
                     </div>
                     <div className="flex flex-col gap-[8px]">
@@ -149,6 +153,14 @@ export default async function ProfilePage() {
                       <input 
                         name="lastName"
                         defaultValue={profile.lastName}
+                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] text-[15px] text-ink focus:outline-none focus:border-brand"
+                        readOnly
+                      />
+                    </div><div className="flex flex-col gap-[8px]">
+                      <span className="font-[Inter] font-bold text-[14px] text-ink-muted">Preferred Name</span>
+                      <input 
+                        name="prefName"
+                        defaultValue={profile.prefName}
                         className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] text-[15px] text-ink focus:outline-none focus:border-brand"
                       />
                     </div>
@@ -158,6 +170,7 @@ export default async function ProfilePage() {
                         name="utdEmail"
                         defaultValue={profile.utdEmail || ""}
                         className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] text-[15px] text-ink focus:outline-none focus:border-brand"
+                        readOnly
                       />
                     </div>
                     <div className="flex flex-col gap-[8px]">
@@ -175,12 +188,27 @@ export default async function ProfilePage() {
                         defaultValue={profile.major}
                         className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] text-[15px] text-ink focus:outline-none focus:border-brand"
                       >
-                        <option value="Computer Science">Computer Science</option>
-                        <option value="Software Engineering">Software Engineering</option>
-                        <option value="Data Science">Data Science</option>
-                        <option value="Information Technology">Information Technology</option>
-                        <option value="Cognitive Science">Cognitive Science</option>
-                        <option value="Other">Other</option>
+                        <option value="" disabled>Select your major</option>
+                        {UTD_MAJORS.map((major) => (
+                          <option key={major} value={major}>
+                            {major}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex flex-col gap-[8px]">
+                      <span className="font-[Inter] font-bold text-[14px] text-ink-muted">Degree</span>
+                      <select 
+                        name="degree"
+                        defaultValue={profile.degree}
+                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] text-[15px] text-ink focus:outline-none focus:border-brand"
+                      >
+                        <option value="" disabled>Select your degree</option>
+                        {UTD_DEGREES.map((degree) => (
+                          <option key={degree} value={degree}>
+                            {degree}
+                          </option>
+                        ))}
                       </select>
                     </div>
                     <div className="flex flex-col gap-[8px]">
@@ -190,11 +218,12 @@ export default async function ProfilePage() {
                         defaultValue={profile.year}
                         className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] text-[15px] text-ink focus:outline-none focus:border-brand"
                       >
-                        <option value="Freshman">Freshman</option>
-                        <option value="Sophomore">Sophomore</option>
-                        <option value="Junior">Junior</option>
-                        <option value="Senior">Senior</option>
-                        <option value="Graduate">Graduate</option>
+                        <option value="" disabled>Select your year</option>
+                        {ACADEMIC_YEARS.map((year) => (
+                          <option key={year} value={year}>
+                            {year}
+                          </option>
+                        ))}
                       </select>
                     </div>
                   </div>
