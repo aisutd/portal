@@ -56,11 +56,11 @@ function buildOrderBy(sort: MembersQuery["sort"]): Prisma.UserOrderByWithRelatio
 
 /** Members without a Profile row still need a name in the table. */
 function displayName(
-  profile: { prefName: string; firstName: string; lastName: string } | null,
+  profile: { prefName: string | null ; firstName: string; lastName: string } | null,
   email: string
 ): string {
   if (!profile) return email.split("@")[0];
-  const given = profile.prefName.trim() || profile.firstName;
+  const given = profile.prefName || profile.firstName;
   return `${given} ${profile.lastName}`.trim() || email.split("@")[0];
 }
 
