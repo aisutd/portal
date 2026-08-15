@@ -9,31 +9,39 @@ export const metadata: Metadata = {
 };
 
 async function getEventsData(userId: string | null) {
-  const now = new Date();
-
   const upcomingRaw = await prisma.event.findMany({
     where: { 
-      isPublished: true,
-      startTime: { gte: now } 
+      isPublished: true, 
+      status: { in: ["UPCOMING", "LIVE"] } 
     },
     orderBy: { startTime: "asc" },
     take: 20,
-    include: {
-      rsvps: userId ? { where: { userId: userId, status: "GOING" } } : false,
-    },
+    include: { rsvps: userId ? { where: { userId, status: "GOING" } } : false },
   });
 
-  const pastRaw = await prisma.event.findMany({
-    where: { 
-      isPublished: true, 
-      startTime: { lt: now } 
-    },
-    orderBy: { startTime: "desc" },
-    take: 10,
-    include: {
-      rsvps: userId ? { where: { userId: userId, status: "GOING" }, include: { attendance: true } } : false,
-    },
-  });
+  // Branch the past query completely based on userId presence
+  const pastRaw = userId
+    ? await prisma.event.findMany({
+        where: { isPublished: true, status: { in: ["CLOSED", "ARCHIVED"] } },
+        orderBy: { startTime: "desc" },
+        take: 10,
+        include: { 
+          rsvps: { 
+            where: { userId, status: "GOING" }, 
+            include: { attendance: true } 
+          } 
+        },
+      })
+    : await prisma.event.findMany({
+        where: { isPublished: true, status: { in: ["CLOSED", "ARCHIVED"] } },
+        orderBy: { startTime: "desc" },
+        take: 10,
+        include: { 
+          rsvps: { 
+            where: { status: "GOING" } 
+          } 
+        },
+      });
 
   const mapEvents = (events: typeof upcomingRaw) =>
     events.map((event) => ({
@@ -50,7 +58,9 @@ async function getEventsData(userId: string | null) {
     events.map((event) => {
       const userRsvp = event.rsvps && event.rsvps.length > 0 ? event.rsvps[0] : null;
       const isRsvpd = !!userRsvp;
-      const hasAttended = !!userRsvp?.attendance;
+      
+      // Safely check attendance property handling the union type gracefully
+      const hasAttended = userRsvp && 'attendance' in userRsvp ? !!userRsvp.attendance : false;
       const missedEvent = isRsvpd && !hasAttended;
 
       return {

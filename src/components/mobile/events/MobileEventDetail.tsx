@@ -18,17 +18,25 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
   const user = await getAuthenticatedUser();
   const userId = user?.id ?? null;
 
-  const event = await prisma.event.findUnique({
-    where: { id: eventId },
-    include: {
-      rsvps: userId 
-        ? { 
+  // Branch the query conditionally to keep Prisma's input types strictly valid
+  const event = userId
+    ? await prisma.event.findUnique({
+        where: { id: eventId },
+        include: {
+          rsvps: {
             where: { userId },
-            include: { attendance: true }
-          } 
-        : false,
-    },
-  });
+            include: { attendance: true },
+          },
+        },
+      })
+    : await prisma.event.findUnique({
+        where: { id: eventId },
+        include: {
+          rsvps: {
+            where: { userId: "" }, 
+          },
+        },
+      });
 
   if (!event || !event.isPublished) {
     notFound();
@@ -38,7 +46,9 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
   const isPast = event.startTime < now;
   const userRsvp = userId && Array.isArray(event.rsvps) ? event.rsvps[0] : null;
   const isRsvpd = !!userRsvp && userRsvp.status === "GOING";
-  const attended = !!userRsvp?.attendance;
+  
+  // Safely check attendance using an 'in' check or optional chaining to satisfy the union type
+  const attended = userRsvp && 'attendance' in userRsvp ? !!userRsvp.attendance : false;
 
   const normalizedTags = normalizeEventTags(event.tags);
   const formattedDate = new Intl.DateTimeFormat("en-US", {

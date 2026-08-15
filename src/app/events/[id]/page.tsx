@@ -66,8 +66,8 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   const userRsvp = userId && Array.isArray(event.rsvps) ? event.rsvps[0] : null;
   const isRsvpd = !!userRsvp && userRsvp.status === "GOING";
   
-  const attended = !!userRsvp?.attendance;
-
+  const attended = userRsvp && 'attendance' in userRsvp ? !!userRsvp.attendance : false;
+  
   const normalizedTags = normalizeEventTags(event.tags);
   const formattedDate = new Intl.DateTimeFormat("en-US", {
     month: "short",
