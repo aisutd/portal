@@ -8,6 +8,7 @@ const isPublicRoute = createRouteMatcher([
   '/applications(.*)',
   '/onboarding',
   '/api/webhooks(.*)',
+  '/api/onboarding/profile/(.*)'
 ]);
 
 const isAdminRoute = createRouteMatcher(["/admin(.*)", "/api/admin(.*)"]);

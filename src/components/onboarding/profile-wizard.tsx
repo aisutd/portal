@@ -78,10 +78,11 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
         return;
       }
       router.replace("/dashboard");
-    } catch {
-      setError("Network error. Please try again.");
-      setSubmitting(false);
-    }
+    } catch (err) {
+    console.error("Profile submission error:", err);
+    setError("Failed to save profile. Please check your network and fields.");
+    setSubmitting(false);
+  }
   };
 
   const selectClasses = cn(
