@@ -194,7 +194,7 @@ function AuthCardInner() {
         </form>
 
         <p className="mt-[16px] text-center font-mono-alt text-[11px] leading-[normal] text-helper-ink">
-          we sent a 6-digit code to {email}
+          We sent a 6-digit code to {email}
         </p>
       </div>
     );
