@@ -57,7 +57,7 @@ export default async function DashboardPage() {
           <Navbar />
 
           <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[28px] px-[46px] pb-[46px] pt-[45px]">
-            <h1 className="font-display text-[40px] font-bold leading-[43.2px] tracking-[-0.4px] text-brand [font-variation-settings:'wdth'_100]">
+            <h1 className="style-page-title text-[40px] leading-[43.2px] tracking-[-0.4px] text-brand [font-variation-settings:'wdth'_100]">
               Welcome back, {userName}! :)
             </h1>
 

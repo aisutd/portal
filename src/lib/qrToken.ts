@@ -1,13 +1,11 @@
 import { SignJWT, jwtVerify, type JWTPayload } from "jose";
 import crypto from "crypto";
 
-const secret = process.env.QR_TOKEN_SECRET ?? (process.env.NODE_ENV === "development" ? "dev-qr-token-secret" : undefined);
-
-if (!secret) {
-  throw new Error("QR_TOKEN_SECRET is not set");
+function getSecretKey(): Uint8Array {
+  const secret = process.env.QR_TOKEN_SECRET ?? (process.env.NODE_ENV === "development" ? "dev-qr-token-secret" : "default-build-time-secret");
+  return new TextEncoder().encode(secret);
 }
 
-const SECRET_KEY = new TextEncoder().encode(secret);
 const ALG = "HS256";
 const TTL = 60 * 60 * 24 * 7;
 
@@ -56,14 +54,14 @@ export async function generateQRToken({
     .setProtectedHeader({ alg: ALG })
     .setIssuedAt(now)
     .setExpirationTime(now + ttl)
-    .sign(SECRET_KEY);
+    .sign(getSecretKey());
 }
 
 // Verify the token signature and decode its payload.
 // jwtVerify will throw if the token is invalid, expired,
 // or signed with an unexpected algorithm/secret.
 export async function verifyQRToken(token: string): Promise<VerifiedQRToken> {
-  const { payload } = await jwtVerify<QRTokenPayload>(token, SECRET_KEY, {
+  const { payload } = await jwtVerify<QRTokenPayload>(token, getSecretKey(), {
     algorithms: [ALG],
   });
 

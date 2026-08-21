@@ -18,6 +18,8 @@ type ApplicationResponse = {
     phase: "open" | "upcoming" | "closed";
     draft: { stepIndex: number; isSubmitted: boolean } | null;
     submissionStatus: string | null;
+    submissionId?: string | null;
+    submittedAt?: string | null;
   }>;
 };
 
@@ -31,7 +33,7 @@ type OpenAppRow = {
   statusBadge: React.ReactNode;
   actions: Array<{
     label: string;
-    variant: "primary" | "accent" | "soft" | "ghost";
+    variant: "primary" | "accent" | "soft" | "ghost" | "outline";
     pill?: boolean;
     href?: string;
   }>;
@@ -97,8 +99,8 @@ function buildRow(application: ApplicationResponse["applications"][number]): Ope
   const actions =
     application.phase === "open"
       ? [
-          { label: "Learn more", variant: "soft" as const },
-          { label: "Apply", variant: "primary" as const, href: `/applications/detail?id=${application.id}` },
+          { label: "Learn more", variant: "soft" as const, href: `/applications/detail?id=${application.id}` },
+          { label: "Apply", variant: "primary" as const, href: `/applications/form?id=${application.id}` },
         ]
       : application.phase === "upcoming"
         ? [
@@ -122,6 +124,35 @@ function buildRow(application: ApplicationResponse["applications"][number]): Ope
   };
 }
 
+function buildSubmittedRow(application: ApplicationResponse["applications"][number]): OpenAppRow {
+  const statusBadge = application.submissionStatus ? (
+    getStatusBadge(application.draft, application.submissionStatus)
+  ) : (
+    <Badge label="Submitted" variant="outline" />
+  );
+
+  return {
+    id: application.id,
+    title: application.title,
+    description: application.description,
+    meta: application.submittedAt
+      ? `submitted ${formatDateTime(application.submittedAt)}`
+      : "submitted",
+    borderColor: "#d9d3c7",
+    dim: false,
+    statusBadge,
+    actions: [
+      {
+        label: "View application",
+        variant: "primary" as const,
+        href: application.submissionId
+          ? `/applications/submitted?submissionId=${application.submissionId}`
+          : "/applications/history",
+      },
+    ],
+  };
+}
+
 function ApplicationSkeleton() {
   return (
     <div className="flex flex-col gap-[10px] rounded-[14px] border border-border-soft bg-white p-[16px]">
@@ -131,6 +162,75 @@ function ApplicationSkeleton() {
         <div className="h-[34px] flex-1 animate-pulse rounded-[8px] bg-[#f4f1ea]" />
         <div className="h-[34px] flex-1 animate-pulse rounded-[8px] bg-[#f4f1ea]" />
       </div>
+    </div>
+  );
+}
+
+function ApplicationSection({
+  title,
+  items,
+  loading,
+  emptyMessage,
+  buildRowFn = buildRow,
+}: {
+  title: string;
+  items: ApplicationResponse["applications"];
+  loading: boolean;
+  emptyMessage: string;
+  buildRowFn?: (app: ApplicationResponse["applications"][number]) => OpenAppRow;
+}) {
+  return (
+    <div className="flex flex-col gap-[12px]">
+      <h2 className="font-sans text-[17px] font-bold text-ink">{title}</h2>
+      {loading ? (
+        <div className="flex flex-col gap-[12px]">
+          <ApplicationSkeleton />
+        </div>
+      ) : items.length > 0 ? (
+        items.map((application) => {
+          const app = buildRowFn(application);
+          return (
+            <div
+              key={app.id}
+              className="flex flex-col gap-[12px] rounded-[14px] border bg-white p-[16px]"
+              style={{ borderColor: app.borderColor, opacity: app.dim ? 0.94 : 1 }}
+            >
+              <div className="flex items-start justify-between gap-[8px]">
+                <div>
+                  <h3 className="font-sans text-[15px] font-bold text-ink">
+                    {app.title}
+                  </h3>
+                  <p className="mt-[4px] font-sans text-[13px] font-normal text-ink-muted">
+                    {app.description}
+                  </p>
+                  <p className="mt-[4px] font-sans text-[11px] font-normal text-ink-faint">
+                    {app.meta}
+                  </p>
+                </div>
+                {app.statusBadge}
+              </div>
+              <div className="flex gap-[8px]">
+                {app.actions.map((action) => (
+                  <Button
+                    key={action.label}
+                    variant={action.variant}
+                    size="sm"
+                    pill={action.pill}
+                    href={action.href}
+                    className="flex-1"
+                  >
+                    {action.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          );
+        })
+      ) : (
+        <div className="rounded-[14px] border border-border-soft bg-white p-[16px] style-body-text text-[13px] text-ink-muted">
+          {emptyMessage}
+        </div>
+      )}
     </div>
   );
 }
@@ -167,15 +267,26 @@ export function MobileApply() {
     return () => controller.abort();
   }, []);
 
-  const openApplications = applications.filter((a) => a.phase === "open");
+  const openApplications = applications.filter(
+    (a) => a.phase === "open" && !a.submissionStatus && !a.draft?.isSubmitted
+  );
+  const upcomingApplications = applications.filter(
+    (a) => a.phase === "upcoming" && !a.submissionStatus && !a.draft?.isSubmitted
+  );
+  const closedApplications = applications.filter(
+    (a) => a.phase === "closed" && !a.submissionStatus && !a.draft?.isSubmitted
+  );
+  const submittedApplications = applications.filter(
+    (a) => a.submissionStatus || a.draft?.isSubmitted
+  );
 
   return (
     <MobileScreen>
       <div className="flex flex-col gap-2 pt-4">
-        <h1 className="font-mobile-display text-[36px] font-bold leading-7.5 text-ink">
+        <h1 className="style-page-title text-[36px] leading-tight text-ink">
           Choose Your <span className="text-brand">AIS Path</span>
         </h1>
-        <p className="font-mobile-body text-[14px] text-ink">
+        <p className="style-page-subtitle text-[14px] text-ink-muted">
           Welcome to the enrollment hub. Whether you&apos;re here to learn,
           lead, or build, there&apos;s a place waiting for you.
         </p>
@@ -183,7 +294,7 @@ export function MobileApply() {
 
       {/* How to Begin */}
       <div className="flex flex-col gap-[12px]">
-        <h2 className="font-mobile-display text-[17px] font-bold text-ink">
+        <h2 className="font-sans text-[17px] font-bold text-ink">
           How to Begin
         </h2>
         {applySteps.map((step) => (
@@ -191,16 +302,16 @@ export function MobileApply() {
             key={step.step}
             className="relative flex flex-col gap-[4px] overflow-hidden rounded-[16px] border border-brand bg-white px-[18px] py-[16px]"
           >
-            <p className="font-mono text-[11px] text-brand">{step.step}</p>
-            <h3 className="font-mobile-display text-[16px] font-bold text-ink">
+            <p className="font-sans text-[11px] font-bold text-brand">{step.step}</p>
+            <h3 className="font-sans text-[16px] font-bold text-ink">
               {step.title}
             </h3>
-            <p className="max-w-[230px] font-mobile-body text-[13px] text-ink-muted">
+            <p className="max-w-[230px] font-sans text-[13px] font-normal text-ink-muted">
               {step.description}
             </p>
             <span
               aria-hidden
-              className="pointer-events-none absolute right-[10px] top-[38px] select-none font-mobile-display text-[56px] font-extrabold leading-none text-brand-soft"
+              className="pointer-events-none absolute right-[10px] top-[38px] select-none font-sans text-[56px] font-extrabold leading-none text-brand-soft"
             >
               {step.number}
             </span>
@@ -209,111 +320,92 @@ export function MobileApply() {
       </div>
 
       {/* Programs */}
-      <div className="flex flex-col gap-[12px]">
-        {programs.map((program) => (
-          <div
-            key={program.title}
-            className="flex flex-col gap-[12px] rounded-[16px] border bg-white p-[18px]"
-            style={{ borderColor: program.borderColor }}
-          >
-            <div className="flex items-center justify-between">
-              <span
-                className="flex size-[40px] items-center justify-center rounded-[10px] text-[18px]"
-                style={{ backgroundColor: program.iconBg, color: program.iconColor }}
-              >
-                {program.icon}
-              </span>
-              {program.badge && (
-                <Badge label={program.badge} bg="#fbe3cb" color="#7a4416" />
-              )}
+      <div className="flex flex-col gap-[8px]">
+        {programs.map((program, index) => (
+          <div key={program.title} className="flex flex-col gap-[8px]">
+            <div
+              className="flex flex-col gap-[12px] rounded-[16px] border bg-white p-[18px]"
+              style={{ borderColor: program.borderColor }}
+            >
+              <div className="flex items-center justify-between">
+                <span
+                  className="flex size-[40px] items-center justify-center rounded-[10px] text-[18px]"
+                  style={{ backgroundColor: program.iconBg, color: program.iconColor }}
+                >
+                  {program.icon}
+                </span>
+                {program.badge && (
+                  <Badge label={program.badge} bg="#fbe3cb" color="#7a4416" />
+                )}
+              </div>
+              <h3 className="font-sans text-[19px] font-bold text-ink">
+                {program.title}
+              </h3>
+              <p className="font-sans text-[13px] font-normal text-ink-muted leading-relaxed">
+                {program.description}
+              </p>
+              <div className="flex flex-wrap gap-[6px]">
+                {program.tags.map((label) => (
+                  <Tag
+                    key={label}
+                    label={label}
+                    bg="#efece3"
+                    color="#6a685f"
+                    border="#e2ded2"
+                  />
+                ))}
+              </div>
             </div>
-            <h3 className="font-mobile-display text-[17px] font-bold text-ink">
-              {program.title}
-            </h3>
-            <p className="font-mobile-body text-[13px] text-ink-muted">
-              {program.description}
-            </p>
-            <div className="flex flex-wrap gap-[6px]">
-              {program.tags.map((label) => (
-                <Tag
-                  key={label}
-                  label={label}
-                  bg="#efece3"
-                  color="#6a685f"
-                  border="#e2ded2"
-                />
-              ))}
-            </div>
-            <Button variant={program.cta} size="md" pill block>
-              Apply Now →
-            </Button>
+
+            {/* Downward pointing oval pill connector */}
+            {index < programs.length - 1 && (
+              <div className="flex justify-center py-[2px]">
+                <div className="flex h-[26px] w-[62px] items-center justify-center rounded-full border border-border-soft bg-[#fbfaf7] text-brand shadow-[0px_1px_0px_rgba(0,0,0,0.03)]">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 5v14M19 12l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
 
       {/* Slogan banner (bleeds past the screen padding) */}
-      <div className="-mx-[20px] rotate-[-0.8deg] scale-[1.03] bg-brand py-[14px]">
-        <p className="text-center font-mobile-display text-[15px] tracking-[1px] text-white">
-          JOIN THE MOVEMENT · AIS UTD · BUILD THE FUTURE
-        </p>
+      <div className="-mx-[20px] overflow-x-hidden py-[2px]">
+        <div className="rotate-[-0.8deg] bg-brand py-[12px]">
+          <p className="whitespace-nowrap text-center font-sans text-[11.5px] font-bold tracking-[0.5px] text-white">
+            JOIN THE MOVEMENT · AIS UTD · BUILD THE FUTURE
+          </p>
+        </div>
       </div>
 
-      {/* Open applications */}
-      <div className="flex flex-col gap-[12px]">
-        <h2 className="font-mobile-display text-[17px] font-bold text-ink">
-          Open Applications Right Now
-        </h2>
-        {loading ? (
-          <div className="flex flex-col gap-[12px]">
-            <ApplicationSkeleton />
-            <ApplicationSkeleton />
-          </div>
-        ) : openApplications.length > 0 ? (
-          openApplications.map((application) => {
-            const app = buildRow(application);
-            return (
-              <div
-                key={app.id}
-                className="flex flex-col gap-[12px] rounded-[14px] border bg-white p-[16px]"
-                style={{ borderColor: app.borderColor, opacity: app.dim ? 0.94 : 1 }}
-              >
-                <div className="flex items-start justify-between gap-[8px]">
-                  <div>
-                    <h3 className="font-mobile-display text-[15px] font-bold text-ink">
-                      {app.title}
-                    </h3>
-                    <p className="mt-[4px] font-mobile-body text-[13px] text-ink-muted">
-                      {app.description}
-                    </p>
-                    <p className="mt-[4px] font-mono text-[11px] text-ink-faint">
-                      {app.meta}
-                    </p>
-                  </div>
-                  {app.statusBadge}
-                </div>
-                <div className="flex gap-[8px]">
-                  {app.actions.map((action) => (
-                    <Button
-                      key={action.label}
-                      variant={action.variant}
-                      size="sm"
-                      pill={action.pill}
-                      href={action.href}
-                      className="flex-1"
-                    >
-                      {action.label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <div className="rounded-[14px] border border-border-soft bg-white p-[16px] font-mobile-body text-[13px] text-ink-muted">
-            There are no open applications right now.
-          </div>
-        )}
-      </div>
+      {/* All Application Sections */}
+      <ApplicationSection
+        title="Open Applications"
+        items={openApplications}
+        loading={loading}
+        emptyMessage="There are no open applications right now."
+      />
+      <ApplicationSection
+        title="Upcoming Applications"
+        items={upcomingApplications}
+        loading={loading}
+        emptyMessage="There are no upcoming applications."
+      />
+      <ApplicationSection
+        title="Closed Applications"
+        items={closedApplications}
+        loading={loading}
+        emptyMessage="There are no closed applications to show."
+      />
+      <ApplicationSection
+        title="Submitted Applications"
+        items={submittedApplications}
+        loading={loading}
+        emptyMessage="You have not submitted any applications yet."
+        buildRowFn={buildSubmittedRow}
+      />
 
       <BottomNav />
     </MobileScreen>

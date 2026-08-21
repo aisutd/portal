@@ -26,7 +26,7 @@ type MobileDashboardProps = {
 export function MobileDashboard({ userId, userName, nextRsvp, announcements }: MobileDashboardProps) {
   return (
     <MobileScreen>
-      <h1 className="font-mobile-display text-[36px] font-bold text-brand">
+      <h1 className="style-page-title text-[36px] text-brand">
         Welcome back, {userName}! :)
       </h1>
 

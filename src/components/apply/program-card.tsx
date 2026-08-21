@@ -63,7 +63,7 @@ export function ProgramCard({
       {badge ? (
         <div className="flex w-full items-center justify-between">
           {iconChip}
-          <span className="inline-flex items-center rounded-full bg-orange-soft px-[14px] py-[5px] font-body text-[13px] font-semibold leading-[normal] text-orange-ink">
+          <span className="inline-flex items-center rounded-full bg-orange-soft px-[14px] py-[5px] style-badge-text text-[13px] leading-[normal] text-orange-ink">
             {badge}
           </span>
         </div>
@@ -71,7 +71,7 @@ export function ProgramCard({
         iconChip
       )}
 
-      <h3 className="font-display text-[22px] font-semibold leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
+      <h3 className="style-card-title text-[22px] leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
         {title}
       </h3>
 

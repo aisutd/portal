@@ -26,7 +26,7 @@ export function Badge({
     return (
       <span
         className={cn(
-          "inline-flex items-center rounded-full border border-border-soft bg-white px-[15px] py-[6px] font-body text-[13px] font-semibold leading-[normal] text-ink-muted",
+          "inline-flex items-center rounded-full border border-border-soft bg-white px-[15px] py-[6px] style-badge-text text-[13px] leading-[normal] text-ink-muted",
           className
         )}
       >
@@ -38,7 +38,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-[14px] py-[5px] font-body text-[13px] font-semibold leading-[normal]",
+        "inline-flex items-center rounded-full px-[14px] py-[5px] style-badge-text text-[13px] leading-[normal]",
         className
       )}
       style={{ backgroundColor: bg, color }}

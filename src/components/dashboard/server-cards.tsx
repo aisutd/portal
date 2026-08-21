@@ -193,6 +193,7 @@ export async function DashboardRsvpsCard({ userId }: { userId: string }) {
   const items: RsvpItem[] = rsvps.map((rsvp) => {
     const d = new Date(rsvp.event.startTime);
     return {
+      id: rsvp.id,
       day: d.getDate().toString().padStart(2, "0"),
       title: rsvp.event.title,
       detail: `${d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} · ${rsvp.event.location}`,
@@ -206,6 +207,7 @@ export async function DashboardRecommendedCard({ userId }: { userId: string }) {
   const events = await getUpcomingEvents(2, userId);
 
   const items: RecommendedItem[] = events.map((event) => ({
+    id: event.id,
     title: event.title,
     tags: [
       { label: "Upcoming", bg: "#e1e8ff", color: "#1f3aa3" },

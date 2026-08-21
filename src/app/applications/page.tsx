@@ -209,7 +209,7 @@ function ApplicationSkeleton() {
 
 function ApplicationEmptyState({ message }: { message: string }) {
   return (
-    <div className="rounded-[16px] border border-border-soft bg-white px-[25px] py-[22px] font-body text-[14px] leading-[20.3px] text-ink-muted">
+    <div className="rounded-[16px] border border-border-soft bg-white px-[25px] py-[22px] style-body-text text-[14px] leading-[20.3px] text-ink-muted">
       {message}
     </div>
   );
@@ -368,10 +368,10 @@ export default function ApplyPage() {
 
           <div className="relative w-full pb-[46px] pt-[46px]">
             <section className="px-[46px] pt-[8px]">
-              <h1 className="font-display text-[65px] font-bold leading-[47.52px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+              <h1 className="style-page-title text-[65px] leading-[47.52px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
                 Choose Your <span className="text-brand">AIS Path</span>
               </h1>
-              <p className="mt-[7.76px] max-w-[1000px] pl-[20.94px] font-body text-[20px] font-normal leading-[24px] text-ink">
+              <p className="mt-[7.76px] max-w-[1000px] pl-[20.94px] style-page-subtitle text-[20px] leading-[24px] text-ink">
                 Welcome to the enrollment hub. Whether you&apos;re here to learn,
                 lead, or build, there&apos;s a place waiting for you.
               </p>

@@ -22,7 +22,7 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const base =
-  "inline-flex items-center justify-center border border-transparent font-black text-center transition-colors";
+  "inline-flex items-center justify-center border border-transparent style-button-text text-center transition-colors btn-fun-animation cursor-pointer select-none";
 
 const variantClasses: Record<NonNullable<ButtonProps["variant"]>, string> = {
   primary:

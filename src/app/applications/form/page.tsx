@@ -169,7 +169,7 @@ function LoadingState() {
 
 function NotFoundState({ message }: { message: string }) {
   return (
-    <div className="rounded-[18px] border border-border-soft bg-white p-[35px] font-body text-[14px] leading-[20.3px] text-ink-muted">
+    <div className="rounded-[18px] border border-border-soft bg-white p-[35px] style-body-text text-[14px] leading-[20.3px] text-ink-muted">
       {message}
     </div>
   );
@@ -295,10 +295,10 @@ function ApplyFormContent() {
               <div className="inline-flex w-fit rounded-full bg-[#efece3] px-[14px] py-[6px] text-[12px] font-semibold leading-none text-ink-muted">
                 Already submitted
               </div>
-              <h1 className="font-display text-[32px] font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+              <h1 className="style-page-title text-[32px] leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
                 {applicationTitle ?? "Application"}
               </h1>
-              <p className="max-w-[560px] font-body text-[15px] leading-[21.75px] text-ink-muted">
+              <p className="max-w-[560px] style-page-subtitle text-[15px] leading-[21.75px] text-ink-muted">
                 You have already submitted an application for this program.
               </p>
               <button
@@ -450,7 +450,7 @@ function ApplyFormContent() {
         <div key={label} className="flex flex-col gap-[6px]">
           <label
             htmlFor={inputId}
-            className="font-body text-[14px] font-bold leading-[20.3px] text-ink-muted"
+            className="style-label-text text-[14px] leading-[20.3px] text-ink-muted"
           >
             {label}
           </label>
@@ -586,13 +586,13 @@ function ApplyFormContent() {
         {/* Application card */}
         <div className="w-full max-w-[1346px] rounded-[18px] border border-border-soft bg-white p-[35px] [filter:drop-shadow(0px_8px_11px_rgba(0,0,0,0.04))]">
           <div className="flex flex-col gap-[24px]">
-            <h1 className="font-display text-[32px] font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
-              AIM Mentor Application Â· Fall 2026
+            <h1 className="style-page-title text-[32px] leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+              {applicationTitle ?? "Application"}
             </h1>
 
             <FormStepper steps={applicationSteps} active={activeStep} />
 
-            <p className="font-body text-[14px] font-bold leading-[20.3px] text-ink">
+            <p className="style-body-text text-[14px] leading-[20.3px] text-ink">
               * Please verify that the following information is correct
             </p>
 

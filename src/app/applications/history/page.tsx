@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Navbar } from "@/components/navbar";
 import { Badge } from "@/components/ui/badge";
+import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
+import { BottomNav } from "@/components/mobile/ui/BottomNav";
 
 type ApplicationHistoryResponse = {
   submissions: Array<{
@@ -80,7 +82,7 @@ function LoadingState() {
 
 function EmptyState() {
   return (
-    <div className="rounded-[16px] border border-border-soft bg-white px-[25px] py-[22px] font-body text-[14px] leading-[20.3px] text-ink-muted">
+    <div className="rounded-[16px] border border-border-soft bg-white px-[25px] py-[22px] style-body-text text-[14px] leading-[20.3px] text-ink-muted">
       You have not submitted any applications yet.
     </div>
   );
@@ -126,52 +128,102 @@ export default function ApplicationHistoryPage() {
   }, []);
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-cream">
-      <Navbar active="Apply" />
+    <>
+      <div className="md:hidden">
+        <MobileScreen>
+          <div className="flex flex-col gap-[16px]">
+            <h1 className="style-page-title text-[28px] leading-tight text-ink">
+              Application History
+            </h1>
+            <p className="style-page-subtitle text-[13px] text-ink-muted">
+              Review your past submissions and retention window.
+            </p>
 
-      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[24px] px-[46px] pb-[46px] pt-[45px]">
-        <section className="flex flex-col gap-[8px]">
-          <h1 className="font-display text-[32px] font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
-            Application History
-          </h1>
-          <p className="font-body text-[15px] leading-[21.75px] text-ink-muted">
-            Review your past submissions and retention window.
-          </p>
-        </section>
-
-        {loading ? (
-          <LoadingState />
-        ) : submissions.length > 0 ? (
-          <div className="flex flex-col gap-[14px]">
-            {submissions.map((submission, index) => (
-              <article
-                key={`${submission.application.title}-${submission.submittedAt}-${index}`}
-                className="flex flex-col gap-[14px] rounded-[16px] border border-border-soft bg-white p-[25px]"
-              >
-                <div className="flex flex-col gap-[12px] sm:flex-row sm:items-start sm:justify-between">
-                  <div className="flex min-w-0 flex-col gap-[8px]">
-                    <h2 className="font-display text-[20px] font-semibold leading-[23.56px] text-ink [font-variation-settings:'wdth'_100]">
-                      {submission.application.title}
-                    </h2>
-                    <p className="font-body text-[14px] leading-[20.3px] text-ink-muted">
-                      Submitted {formatDateTime(submission.submittedAt)}
-                    </p>
-                  </div>
-                  <div className="shrink-0">{getStatusBadge(submission.status)}</div>
-                </div>
-
-                {submission.application.retentionUntil ? (
-                  <p className="font-body text-[14px] leading-[20.3px] text-ink-muted">
-                    Retention until {dateFormatter.format(new Date(submission.application.retentionUntil))}
-                  </p>
-                ) : null}
-              </article>
-            ))}
+            {loading ? (
+              <LoadingState />
+            ) : submissions.length > 0 ? (
+              <div className="flex flex-col gap-[12px]">
+                {submissions.map((submission, index) => (
+                  <article
+                    key={`${submission.application.title}-${submission.submittedAt}-${index}`}
+                    className="flex flex-col gap-[12px] rounded-[14px] border border-border-soft bg-white p-[16px]"
+                  >
+                    <div className="flex items-start justify-between gap-[8px]">
+                      <div>
+                        <h2 className="font-sans text-[15px] font-bold text-ink">
+                          {submission.application.title}
+                        </h2>
+                        <p className="mt-[4px] font-sans text-[12px] font-normal text-ink-muted">
+                          Submitted {formatDateTime(submission.submittedAt)}
+                        </p>
+                      </div>
+                      {getStatusBadge(submission.status)}
+                    </div>
+                    {submission.application.retentionUntil ? (
+                      <p className="font-sans text-[11px] font-normal text-ink-faint">
+                        Retention until {dateFormatter.format(new Date(submission.application.retentionUntil))}
+                      </p>
+                    ) : null}
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <EmptyState />
+            )}
           </div>
-        ) : (
-          <EmptyState />
-        )}
+          <BottomNav />
+        </MobileScreen>
       </div>
-    </div>
+
+      <div className="hidden md:block">
+        <div className="flex min-h-screen w-full flex-col bg-cream">
+          <Navbar active="Apply" />
+
+          <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[24px] px-[46px] pb-[46px] pt-[45px]">
+            <section className="flex flex-col gap-[8px]">
+              <h1 className="style-page-title text-[32px] leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+                Application History
+              </h1>
+              <p className="style-page-subtitle text-[15px] leading-[21.75px] text-ink-muted">
+                Review your past submissions and retention window.
+              </p>
+            </section>
+
+            {loading ? (
+              <LoadingState />
+            ) : submissions.length > 0 ? (
+              <div className="flex flex-col gap-[14px]">
+                {submissions.map((submission, index) => (
+                  <article
+                    key={`${submission.application.title}-${submission.submittedAt}-${index}`}
+                    className="flex flex-col gap-[14px] rounded-[16px] border border-border-soft bg-white p-[25px]"
+                  >
+                    <div className="flex flex-col gap-[12px] sm:flex-row sm:items-start sm:justify-between">
+                      <div className="flex min-w-0 flex-col gap-[8px]">
+                        <h2 className="font-display text-[20px] font-semibold leading-[23.56px] text-ink [font-variation-settings:'wdth'_100]">
+                          {submission.application.title}
+                        </h2>
+                        <p className="font-body text-[14px] leading-[20.3px] text-ink-muted">
+                          Submitted {formatDateTime(submission.submittedAt)}
+                        </p>
+                      </div>
+                      <div className="shrink-0">{getStatusBadge(submission.status)}</div>
+                    </div>
+
+                    {submission.application.retentionUntil ? (
+                      <p className="font-body text-[14px] leading-[20.3px] text-ink-muted">
+                        Retention until {dateFormatter.format(new Date(submission.application.retentionUntil))}
+                      </p>
+                    ) : null}
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <EmptyState />
+            )}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

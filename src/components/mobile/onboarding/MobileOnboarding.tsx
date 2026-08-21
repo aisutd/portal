@@ -100,16 +100,19 @@ function MobileOnboardingInner() {
     <div className="flex min-h-[100dvh] w-full flex-col bg-brand font-mobile-body text-ink">
       
       {/* Top Cream Section */}
-      <div className="flex w-full flex-col items-center bg-cream px-6 pb-[5.5rem] pt-12 sm:pt-16">
-        <img
-          className="h-10 shrink-0 object-contain sm:h-12"
-          src="/ais_logo_black.png"
-          alt="AIS Logo"
-        />
-        <h1 className="mt-8 text-center font-mobile-display text-2xl font-bold leading-tight text-ink sm:text-[26px]">
-          Step into the world of{" "}
-          <span className="text-brand">artificial intelligence.</span>
-        </h1>
+      <div className="flex w-full flex-col bg-cream pb-[5.5rem] pt-10 sm:pt-12">
+        <div className="mx-auto flex w-full max-w-[430px] flex-col items-start px-6">
+          <img
+            className="h-14 shrink-0 object-contain"
+            src="/ais_logo_black.png"
+            alt="AIS Logo"
+          />
+          <h1 className="mt-4 text-left font-sans text-[28px] font-bold leading-[1.1] text-ink sm:text-[32px]">
+            Step into the<br />
+            world of <span className="text-brand">artificial</span><br />
+            <span className="text-brand">intelligence</span>
+          </h1>
+        </div>
       </div>
 
       {/* Bottom Content Area */}
@@ -120,10 +123,10 @@ function MobileOnboardingInner() {
           {verifying ? (
             <>
               <div className="text-center">
-                <h2 className="font-mobile-display text-xl font-bold text-ink-card sm:text-2xl">
+                <h2 className="font-sans text-xl font-bold text-ink-card sm:text-2xl">
                   Check your email
                 </h2>
-                <p className="mt-2 font-mobile-body text-sm text-ink-muted">
+                <p className="mt-2 font-sans text-sm font-normal text-ink-muted">
                   We sent a 6-digit code to <br />
                   <span className="font-medium text-ink">{email}</span>
                 </p>
@@ -161,7 +164,7 @@ function MobileOnboardingInner() {
                 onChange={(v) => setTab(v as "Sign up" | "Log in")}
               />
               
-              <h2 className="mt-7 font-mobile-display text-[20px] font-bold text-ink-card">
+              <h2 className="mt-7 font-sans text-[20px] font-bold text-ink-card">
                 {isSignUp ? "Create your account" : "Welcome back"}
               </h2>
               
