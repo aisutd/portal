@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { Show, UserButton, useAuth, useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useAccount } from "@/components/account-provider";
 import Image from "next/image";
 
 const NAV_ITEMS = ["Events", "Apply", "Dashboard"] as const;
@@ -25,48 +25,17 @@ type NavbarProps = {
 export function Navbar({ active = "Dashboard" }: NavbarProps) {
   const { isSignedIn } = useAuth();
   const { user } = useUser();
-  const [role, setRole] = useState<string | null>(null);
+  // Resolved on the server by the root layout, so the name is already in the
+  // initial HTML — no post-mount fetch, no "Profile" flash.
+  const account = useAccount();
 
-  useEffect(() => {
-    if (!isSignedIn) {
-      if (role !== null) {
-        setRole(null);
-      }
-      return;
-    }
-
-    const metadataRole = (user?.publicMetadata as { role?: string } | undefined)?.role;
-    if (metadataRole) {
-      setRole(metadataRole);
-      return;
-    }
-
-    let active = true;
-
-    async function loadRole() {
-      try {
-        const response = await fetch("/api/me");
-        if (!active) return;
-        if (!response.ok) {
-          setRole(null);
-          return;
-        }
-
-        const data = await response.json();
-        setRole(data?.role ?? null);
-      } catch {
-        if (active) setRole(null);
-      }
-    }
-
-    loadRole();
-
-    return () => {
-      active = false;
-    };
-  }, [isSignedIn, user]);
+  const role =
+    account?.role ??
+    (user?.publicMetadata as { role?: string } | undefined)?.role ??
+    null;
 
   const showAdminLink = !!role && ADMIN_ROLES.includes(role as (typeof ADMIN_ROLES)[number]);
+  const accountLabel = account?.firstName?.trim() || user?.firstName?.trim() || "Profile";
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#f0f0f0] bg-white">
@@ -165,7 +134,7 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
         active === "Profile" ? "text-[#2f5fe8]" : "text-[#4b4178]"
       )}
     >
-      Profile
+      {accountLabel}
     </span>
   </Link>
 </Show>

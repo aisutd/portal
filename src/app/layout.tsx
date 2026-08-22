@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from '@clerk/nextjs';
+import { AccountProvider } from "@/components/account-provider";
+import { getNavAccount } from "@/lib/nav-account";
 import { Analytics } from "@vercel/analytics/next";
 import {
   Geist,
@@ -35,11 +37,13 @@ export const metadata: Metadata = {
   description: "AI Society at UT Dallas — member portal",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const account = await getNavAccount();
+
   return (
     <html lang="en">
       <body
@@ -47,7 +51,7 @@ export default function RootLayout({
         className={`${geistSans.className} ${placardNext.variable} ${geistSans.variable} ${geistMono.variable} ${garetStandIn.variable} antialiased`}
       >
         <ClerkProvider>
-          {children}
+          <AccountProvider account={account}>{children}</AccountProvider>
         </ClerkProvider>
         <Analytics />
       </body>

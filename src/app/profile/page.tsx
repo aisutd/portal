@@ -54,6 +54,8 @@ export default async function ProfilePage() {
     });
 
     revalidatePath("/profile");
+    // The navbar name comes from the root layout, so refresh that too.
+    revalidatePath("/", "layout");
   }
 
   return (
