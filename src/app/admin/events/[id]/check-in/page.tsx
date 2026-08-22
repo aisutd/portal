@@ -8,6 +8,7 @@ interface EventQrPageProps {
 }
 
 const TIME_FORMAT = new Intl.DateTimeFormat("en-US", { 
+  timeZone: "America/Chicago", 
   month: "short", 
   day: "numeric", 
   hour: "numeric", 
