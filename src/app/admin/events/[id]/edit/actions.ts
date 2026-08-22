@@ -21,8 +21,29 @@ export async function updateEvent(formData: FormData) {
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
   const location = formData.get("location") as string;
-  const startTime = new Date(formData.get("startTime") as string);
-  const endTime = new Date(formData.get("endTime") as string);
+  const startTimeInput = formData.get("startTime") as string; // e.g., "2026-08-22T09:48"
+  const endTimeInput = formData.get("endTime") as string;
+
+  // Helper to force interpretation of datetime-local as Central Time (America/Chicago)
+  const parseCentralTime = (dateStr: string) => {
+    if (!dateStr) return new Date();
+    
+    // Check if Daylight Saving Time is roughly active (March to November) 
+    // or let's use a standard offset lookup. During CDT (Mar-Nov), it's -05:00. 
+    // For absolute precision, we can append "-05:00" or handle it via a robust helper:
+    const cleanDate = dateStr.replace("Z", "");
+    
+    // Temporary date to check month for DST (rough check or standard US Central offset)
+    // Central Daylight Time (CDT) is UTC-5, Central Standard Time (CST) is UTC-6.
+    const month = new Date(cleanDate).getMonth(); // 0-indexed (2 = March, 10 = November)
+    const isDst = month >= 2 && month <= 10; 
+    const offset = isDst ? "-05:00" : "-06:00";
+
+    return new Date(`${cleanDate}:00${offset}`);
+  };
+
+  const startTime = parseCentralTime(startTimeInput);
+  const endTime = parseCentralTime(endTimeInput);
   
   const capacityStr = formData.get("capacity") as string;
   const capacity = capacityStr ? parseInt(capacityStr, 10) : null;

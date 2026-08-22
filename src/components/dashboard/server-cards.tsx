@@ -213,6 +213,7 @@ export async function DashboardRecommendedCard({ userId }: { userId: string }) {
   const events = await getUpcomingEvents(2, userId);
 
   const items: RecommendedItem[] = events.map((event) => ({
+    id: event.id,
     title: event.title,
     tags: [
       { label: "Upcoming", bg: "#e1e8ff", color: "#1f3aa3" },

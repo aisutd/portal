@@ -148,7 +148,7 @@ export function formatDaysAway(date: Date) {
 }
 
 export function formatEventDate(date: Date) {
-  return date.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+  return date.toLocaleString('en-US', { timeZone: 'America/Chicago', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
 
 export async function getNextUpcomingRsvp(userId: string) {

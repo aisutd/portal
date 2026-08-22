@@ -74,22 +74,22 @@ export const achievements: Achievement[] = [
   { value: "4", label: "LIFETIME EVENTS", bg: "#e9e5f6", color: "#4b4178" },
 ];
 
-export const recommended: RecommendedItem[] = [
-  {
-    title: "Intro to PyTorch",
-    tags: [
-      { label: "workshop", bg: "#cde9e5", color: "#1d6a61" },
-      { label: "learn", bg: "#d3eccf", color: "#356b2e" },
-    ],
-  },
-  {
-    title: "Sponsor Mixer",
-    tags: [
-      { label: "networking", bg: "#d6e2ff", color: "#284b9c" },
-      { label: "industry", bg: "#ded9f4", color: "#463e86" },
-    ],
-  },
-];
+// export const recommended: RecommendedItem[] = [
+//   {
+//     title: "Intro to PyTorch",
+//     tags: [
+//       { label: "workshop", bg: "#cde9e5", color: "#1d6a61" },
+//       { label: "learn", bg: "#d3eccf", color: "#356b2e" },
+//     ],
+//   },
+//   {
+//     title: "Sponsor Mixer",
+//     tags: [
+//       { label: "networking", bg: "#d6e2ff", color: "#284b9c" },
+//       { label: "industry", bg: "#ded9f4", color: "#463e86" },
+//     ],
+//   },
+// ];
 
 export const announcements: [Announcement, Announcement] = [
   {
