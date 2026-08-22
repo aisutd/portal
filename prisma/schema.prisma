@@ -155,6 +155,7 @@ model Event {
   visibility       String?
   eligibilityRules Json?
   isPublished      Boolean    @default(false)
+  checkInToken     String     @unique @default(uuid())
 
   tags             EventTag[]
 

@@ -9,7 +9,8 @@ import { SettingsCard } from "@/components/admin/settings-card";
 import { Button } from "@/components/ui/button";
 import { MobileAdminEditEvent } from "@/components/mobile/admin/MobileAdminEditEvent";
 import { eventTags, eventSettings } from "@/lib/data";
-import { updateEvent } from "./actions";
+import { updateEvent, deleteEvent } from "./actions";
+import { DeleteEventButton } from "@/components/admin/delete-event-button"
 
 export const metadata: Metadata = {
   title: "AIS Admin — Edit Event",
@@ -135,6 +136,10 @@ export default async function EditEventPage({
                       Cancel
                     </Button>
                   </Link>
+
+                  <div className="mt-4 border-t border-border-soft pt-4">
+                    <DeleteEventButton eventId={event.id} deleteAction={deleteEvent} />
+                  </div>
                 </div>
               </div>
             </form>

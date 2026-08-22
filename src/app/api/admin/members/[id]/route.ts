@@ -5,6 +5,7 @@ import { createErrorResponse } from "@/lib/api-error";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { canManageRoles } from "@/lib/roles";
+import { redirect } from "next/navigation";
 
 /**
  * Records that belong to the organisation rather than to the person. Nothing
@@ -153,6 +154,7 @@ export async function DELETE(
   }
 
   revalidatePath("/admin/members");
+  redirect("/admin/members");
 
   return NextResponse.json({ success: true });
 }

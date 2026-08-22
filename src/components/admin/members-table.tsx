@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { MemberRolesEditor } from "@/components/admin/member-roles-editor";
 import { MemberStatusPopover } from "@/components/admin/member-status-popover";
 import type { StatusKey } from "@/lib/members/badges";
+import Link from "next/link";
 
 export type MemberBadge = {
   label: string;
@@ -50,6 +51,7 @@ export type MemberStatusDetail = {
 // Shared 7-column template so the header and every row align exactly.
 const GRID =
   "grid grid-cols-[minmax(0,2fr)_minmax(0,1.1fr)_minmax(0,1.6fr)_minmax(0,0.7fr)_minmax(0,1fr)_minmax(0,0.9fr)_40px] gap-x-[16px] px-[22px]";
+const LINK_GRID = "grid grid-cols-[minmax(0,2fr)_minmax(0,1.1fr)_minmax(0,1.6fr)_minmax(0,0.7fr)_minmax(0,1fr)] gap-x-[16px]";
 
 const HEADERS = ["Name", "NetID", "Roles", "Events", "Joined", "Status", ""];
 
@@ -97,6 +99,8 @@ export function MembersTable({
             i < members.length - 1 ? "border-b border-table-line" : "rounded-b-[14px]"
           }`}
         >
+          <Link href={`/admin/members/${m.id}`}
+           className={`group col-span-5 ${LINK_GRID} items-center min-w-0 h-full`}>
           {/* Name */}
           <div className="flex items-center gap-[12px]">
             <span className="size-[34px] shrink-0 rounded-full border border-border-soft bg-photo" />
@@ -122,6 +126,7 @@ export function MembersTable({
           <span className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-ink-faint">
             {m.joined}
           </span>
+          </Link>
           {/* Status */}
           <div>
             <MemberStatusPopover

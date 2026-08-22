@@ -9,6 +9,7 @@ import { MemberStatusPopover } from "@/components/admin/member-status-popover";
 import type { MemberBadge } from "@/components/admin/members-table";
 import type { MembersQuery } from "@/lib/members/query-params";
 import type { MembersViewModel } from "@/lib/members/view-model";
+import Link from "next/link";
 
 function RoleStatus({ badge }: { badge: MemberBadge }) {
   return badge.outline ? (
@@ -67,11 +68,13 @@ export function MobileAdminMembers({
               className="flex flex-col gap-[10px] rounded-[16px] border border-border-soft bg-white p-[16px]"
             >
               <div className="flex items-center gap-[12px]">
-                <span className="size-[36px] shrink-0 rounded-full border border-border-soft bg-photo" />
-                <div className="min-w-0 flex-1">
-                  <p className="font-mobile-body text-[14px] font-bold text-ink">{m.name}</p>
-                  <p className="font-mono text-[11px] text-ink-faint">{m.netid}</p>
-                </div>
+                <Link href={`/admin/members/${m.id}`} className="group flex min-w-0 flex-1 items-center gap-[12px]">
+                  <span className="size-[36px] shrink-0 rounded-full border border-border-soft bg-photo" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-mobile-body text-[14px] font-bold text-ink group-hover:underline">{m.name}</p>
+                    <p className="font-mono text-[11px] text-ink-faint">{m.netid}</p>
+                  </div>
+                </Link>
                 {editable ? (
                   <MemberRolesEditor
                     memberId={m.id}

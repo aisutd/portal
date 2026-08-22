@@ -96,3 +96,40 @@ export async function updateEvent(formData: FormData) {
   // Redirect back to the events list
   redirect("/admin/events");
 }
+
+export async function deleteEvent(formData: FormData) {
+  const id = formData.get("id") as string;
+  
+  if (!id) throw new Error("Event ID is required for deletion");
+
+  // 1. Delete associated attendance records first
+  await prisma.attendance.deleteMany({
+    where: { rsvp: { eventId: id } },
+  });
+
+  // 2. Delete associated RSVPs
+  await prisma.rSVP.deleteMany({
+    where: { eventId: id },
+  });
+
+  // 3. Delete associated event items (and their scans if needed)
+  const items = await prisma.eventItem.findMany({ where: { eventId: id } });
+  const itemIds = items.map((item) => item.id);
+  
+  if (itemIds.length > 0) {
+    await prisma.itemScan.deleteMany({
+      where: { eventItemId: { in: itemIds } },
+    });
+    await prisma.eventItem.deleteMany({
+      where: { eventId: id },
+    });
+  }
+
+  // 4. Now safe to delete the event
+  await prisma.event.delete({
+    where: { id },
+  });
+
+  revalidatePath("/admin/events");
+  redirect("/admin/events");
+}

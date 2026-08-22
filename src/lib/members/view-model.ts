@@ -183,3 +183,75 @@ export async function getMembersViewModel(query: MembersQuery): Promise<MembersV
     rangeEnd: Math.min(page * PAGE_SIZE, total),
   };
 }
+
+export async function getMemberById(id: string): Promise<Member | null> {
+  const semStart = semesterStart();
+
+  // 1. Fetch the user, profile, and active memberships
+  const user = await prisma.user.findUnique({
+    where: { id },
+    include: {
+      profile: true,
+      memberships: { 
+        where: { activeFlag: true }, 
+        select: { membershipType: true } 
+      },
+    },
+  });
+
+  if (!user) return null;
+
+  // 2. Fetch attendance and countable events in parallel
+  const [attendedRsvps, countableEvents] = await Promise.all([
+    prisma.rSVP.findMany({
+      where: { userId: id, attendance: { isNot: null } },
+      select: { eventId: true },
+    }),
+    prisma.event.findMany({
+      where: { isPublished: true, endTime: { gte: semStart, lte: new Date() } },
+      select: { id: true, title: true, endTime: true, programs: true },
+      orderBy: { endTime: "desc" },
+    }),
+  ]);
+
+  const attendedIds = new Set(attendedRsvps.map((rsvp) => rsvp.eventId));
+  const programs = user.memberships.map((m) => m.membershipType);
+
+  // 3. Filter countable events to only those applicable to this member
+  // (An event is applicable if it's untagged, or if it matches one of their programs)
+  const applicable = countableEvents.filter(
+    (event) =>
+      event.programs.length === 0 ||
+      event.programs.some((program) => programs.includes(program))
+  );
+  
+  const attendedCount = applicable.filter((event) => attendedIds.has(event.id)).length;
+  const statusKey = deriveStatusKey(attendedCount, applicable.length);
+
+  // 4. Map everything exactly to your `Member` type
+  return {
+    id: user.id,
+    name: displayName(user.profile, user.email),
+    netid: user.profile?.utdNetId ?? "—",
+    userRole: user.role,
+    programs,
+    roles: roleBadges(user.role, programs),
+    events: applicable.length ? `${attendedCount}/${applicable.length}` : String(attendedCount),
+    joined: JOINED_FORMAT.format(user.createdAt),
+    status: STATUS_BADGES[statusKey],
+    statusDetail: {
+      statusKey,
+      attended: attendedCount,
+      countable: applicable.length,
+      needed: eventsNeededForActive(attendedCount, applicable.length),
+      programs,
+      events: applicable.map((event) => ({
+        id: event.id,
+        title: event.title,
+        date: EVENT_DATE_FORMAT.format(event.endTime),
+        general: event.programs.length === 0,
+        attended: attendedIds.has(event.id),
+      })),
+    },
+  };
+}

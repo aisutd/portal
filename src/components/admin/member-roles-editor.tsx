@@ -135,6 +135,8 @@ export function MemberRolesEditor({ memberId, memberName, role, programs }: Prop
 
       setOpen(false);
       setBusy(false);
+      
+      router.push("/admin/members");
       router.refresh();
     } catch {
       setError("Couldn't reach the server. Check your connection.");
