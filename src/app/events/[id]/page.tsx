@@ -70,6 +70,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   
   const normalizedTags = normalizeEventTags(event.tags);
   const formattedDate = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
     month: "short",
     day: "numeric",
     year: "numeric",
