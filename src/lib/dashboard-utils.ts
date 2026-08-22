@@ -82,12 +82,12 @@ export async function getProfileCompletion(userId: string) {
   return { percent, missingFields };
 }
 
-export async function getMembership(userId: string) {
-  const membership = await prisma.membership.findFirst({
+/** Every active program, newest first — a member can hold more than one. */
+export async function getMemberships(userId: string) {
+  return prisma.membership.findMany({
     where: { userId, activeFlag: true },
     orderBy: { createdAt: "desc" },
   });
-  return membership;
 }
 
 export async function getApplications(userId: string) {

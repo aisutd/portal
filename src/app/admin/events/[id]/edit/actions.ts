@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { ItemType } from "@prisma/client";
+import { isAssignableProgram } from "@/lib/roles";
 
 type EventItemInput = {
   name: string;
@@ -32,6 +33,15 @@ export async function updateEvent(formData: FormData) {
   // Tags come through as a comma-separated string from the hidden input
   const tagsString = formData.get("tags") as string;
   const tags = tagsString ? tagsString.split(",").filter(Boolean) : [];
+
+  // Programs the event counts toward for member status. Empty = general event.
+  const programsString = formData.get("programs") as string;
+  const programs = programsString
+    ? programsString
+        .split(",")
+        .map((value) => value.trim().toUpperCase())
+        .filter(isAssignableProgram)
+    : [];
 
   // Extract and parse event items from the JSON hidden input
   const eventItemsJson = formData.get("eventItems") as string;
@@ -65,6 +75,7 @@ export async function updateEvent(formData: FormData) {
       status: status as any,
       visibility: visibility as any,
       tags: tags as any,
+      programs,
       isPublished,
       
       items: {
@@ -83,5 +94,42 @@ export async function updateEvent(formData: FormData) {
   revalidatePath(`/admin/events/${id}/scan`);
   
   // Redirect back to the events list
+  redirect("/admin/events");
+}
+
+export async function deleteEvent(formData: FormData) {
+  const id = formData.get("id") as string;
+  
+  if (!id) throw new Error("Event ID is required for deletion");
+
+  // 1. Delete associated attendance records first
+  await prisma.attendance.deleteMany({
+    where: { rsvp: { eventId: id } },
+  });
+
+  // 2. Delete associated RSVPs
+  await prisma.rSVP.deleteMany({
+    where: { eventId: id },
+  });
+
+  // 3. Delete associated event items (and their scans if needed)
+  const items = await prisma.eventItem.findMany({ where: { eventId: id } });
+  const itemIds = items.map((item) => item.id);
+  
+  if (itemIds.length > 0) {
+    await prisma.itemScan.deleteMany({
+      where: { eventItemId: { in: itemIds } },
+    });
+    await prisma.eventItem.deleteMany({
+      where: { eventId: id },
+    });
+  }
+
+  // 4. Now safe to delete the event
+  await prisma.event.delete({
+    where: { id },
+  });
+
+  revalidatePath("/admin/events");
   redirect("/admin/events");
 }
