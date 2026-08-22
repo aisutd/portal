@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { ItemType } from "@prisma/client";
+import { isAssignableProgram } from "@/lib/roles";
 
 type EventItemInput = {
   name: string;
@@ -32,6 +33,15 @@ export async function updateEvent(formData: FormData) {
   // Tags come through as a comma-separated string from the hidden input
   const tagsString = formData.get("tags") as string;
   const tags = tagsString ? tagsString.split(",").filter(Boolean) : [];
+
+  // Programs the event counts toward for member status. Empty = general event.
+  const programsString = formData.get("programs") as string;
+  const programs = programsString
+    ? programsString
+        .split(",")
+        .map((value) => value.trim().toUpperCase())
+        .filter(isAssignableProgram)
+    : [];
 
   // Extract and parse event items from the JSON hidden input
   const eventItemsJson = formData.get("eventItems") as string;
@@ -65,6 +75,7 @@ export async function updateEvent(formData: FormData) {
       status: status as any,
       visibility: visibility as any,
       tags: tags as any,
+      programs,
       isPublished,
       
       items: {

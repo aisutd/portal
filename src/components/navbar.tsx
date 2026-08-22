@@ -4,11 +4,11 @@ import Link from "next/link";
 import { Show, UserButton, useAuth, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { isAdminRole, isKnownRole } from "@/lib/roles";
 import Image from "next/image";
 
 const NAV_ITEMS = ["Events", "Apply", "Dashboard"] as const;
 const ADMIN_LABEL = "Admin" as const;
-const ADMIN_ROLES = ["REVIEWER", "ORGANIZER", "SUPER_ADMIN"] as const;
 
 const NAV_ROUTES: Record<(typeof NAV_ITEMS)[number] | typeof ADMIN_LABEL, string> = {
   Events: "/events",
@@ -35,8 +35,9 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
       return;
     }
 
+    // Unknown values mean stale metadata from an older build — ask the API.
     const metadataRole = (user?.publicMetadata as { role?: string } | undefined)?.role;
-    if (metadataRole) {
+    if (isKnownRole(metadataRole)) {
       setRole(metadataRole);
       return;
     }
@@ -66,7 +67,7 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
     };
   }, [isSignedIn, user]);
 
-  const showAdminLink = !!role && ADMIN_ROLES.includes(role as (typeof ADMIN_ROLES)[number]);
+  const showAdminLink = isAdminRole(role);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#f0f0f0] bg-white">

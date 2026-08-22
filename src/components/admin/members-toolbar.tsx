@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SearchInput } from "@/components/ui/search-input";
 import { membersHref, type MemberFilter, type MembersQuery } from "@/lib/members/query-params";
 import { FILTER_LABELS, NEXT_SORT, SORT_LABELS } from "@/lib/members/labels";
 
@@ -33,13 +34,12 @@ export function MembersToolbar({ query }: { query: MembersQuery }) {
 
   return (
     <div className="flex w-full items-center gap-[12px]">
-      <input
-        type="text"
+      <SearchInput
         value={term}
-        onChange={(event) => setTerm(event.target.value)}
-        placeholder="🔍 search name / netid / email…"
+        onChange={setTerm}
+        placeholder="Search name, NetID or email…"
         aria-label="Search members"
-        className="h-[42px] flex-1 rounded-[8px] bg-search-field px-[14px] font-mono text-[12px] text-search-ink placeholder:text-search-ink focus:outline-none"
+        className="h-[42px] flex-1"
       />
 
       {(Object.keys(FILTER_LABELS) as MemberFilter[]).map((filter) => (
@@ -54,7 +54,11 @@ export function MembersToolbar({ query }: { query: MembersQuery }) {
         </Link>
       ))}
 
-      <Link href={membersHref(query, { sort: NEXT_SORT[query.sort] })} aria-label="Change sort">
+      <Link
+        href={membersHref(query, { sort: NEXT_SORT[query.sort] })}
+        aria-label="Change sort"
+        className="rounded-full transition-colors hover:[&>span]:border-brand hover:[&>span]:bg-brand-soft hover:[&>span]:text-brand-dark focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-soft"
+      >
         <Badge label={SORT_LABELS[query.sort]} variant="outline" />
       </Link>
     </div>

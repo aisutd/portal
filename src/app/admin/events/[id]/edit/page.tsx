@@ -47,6 +47,7 @@ export default async function EditEventPage({
     status: event.status as string,
     visibility: event.visibility as string,
     tags: event.tags as string[],
+    programs: event.programs,
     items: event.items.map((i) => ({
       name: i.name,
       type: i.type as "MEAL" | "DRINK" | "MERCH" | "OTHER",
