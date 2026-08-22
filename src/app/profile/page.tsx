@@ -252,7 +252,7 @@ export default async function ProfilePage() {
 
                 {/* SECURITY CARD */}
                 <Card className="flex flex-col p-[29px] gap-[20px]">
-                  <SectionHeader title="Security & Notifications" />
+                  <SectionHeader title="Security" />
 
                   <div className="flex items-center justify-between rounded-[12px] bg-[var(--color-pill-amber)] p-[20px]">
                     <div className="flex flex-col gap-[4px] pr-4">
@@ -262,16 +262,6 @@ export default async function ProfilePage() {
                     
                     {/* Render the Client Component Button here */}
                     <PasswordResetButton />
-                  </div>
-
-                  <div className="flex items-center justify-between rounded-[12px] bg-coffee p-[20px]">
-                    <div className="flex flex-col gap-[4px] pr-4">
-                      <span className="font-[Inter] font-bold text-[15px] text-[#4b4178]">Email Notifications</span>
-                      <span className="font-[Inter] text-[14px] text-[#4b4178] leading-tight">Receive updates from AIS about events and announcements.</span>
-                    </div>
-                    <div className="relative h-[28px] w-[52px] shrink-0 rounded-full bg-brand p-[2px]">
-                      <div className="absolute right-[2px] top-[2px] size-[24px] rounded-full bg-white shadow-sm" />
-                    </div>
                   </div>
                 </Card>
 

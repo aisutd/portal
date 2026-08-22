@@ -61,7 +61,7 @@ export function BottomNav() {
 
   // 4. Inject Admin route if permissions pass
   if (isSignedIn && isAdmin) {
-    tabs.push({ label: "Admin", href: "/admin/dashboard" });
+    tabs.push({ label: "Admin", href: "/admin/events" });
   }
 
   return (

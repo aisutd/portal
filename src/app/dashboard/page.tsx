@@ -6,7 +6,6 @@ import { getAuthenticatedUser } from "@/lib/auth";
 import { Navbar } from "@/components/navbar";
 import { UpNextCard } from "@/components/dashboard/up-next-card";
 import { QuickCtaCard } from "@/components/dashboard/quick-cta-card";
-import { AnnouncementsCard } from "@/components/dashboard/announcements-card";
 import { MobileDashboard } from "@/components/mobile/dashboard/MobileDashboard";
 import {
   DashboardApplicationsCard,
@@ -18,7 +17,6 @@ import {
 
 // Lib & Data
 import { getNextUpcomingRsvp, formatDaysAway, formatEventDate } from "@/lib/dashboard-utils";
-import { announcements } from "@/lib/data";
 
 export default async function DashboardPage() {
   const user = await getAuthenticatedUser();
@@ -47,7 +45,6 @@ export default async function DashboardPage() {
           userId={user.id} 
           userName={userName} // <-- Passed here
           nextRsvp={nextRsvp} 
-          announcements={announcements} 
         />
       </div>
 
@@ -89,9 +86,8 @@ export default async function DashboardPage() {
               </Suspense>
             </div>
 
-            {/* Row 2 — announcements + rsvps + cta */}
+            {/* Row 2 — rsvps + cta */}
             <div className="flex flex-col gap-[24px] xl:h-[268px] xl:flex-row xl:items-stretch">
-              <AnnouncementsCard items={announcements} />
               <Suspense fallback={<RsvpsCardSkeleton />}>
                 <DashboardRsvpsCard userId={user.id} />
               </Suspense>

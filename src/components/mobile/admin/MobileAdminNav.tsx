@@ -2,7 +2,6 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { label: "Overview", href: "/admin/dashboard" },
   { label: "Applications", href: "/admin/applications/1" },
   { label: "Events", href: "/admin/events" },
   { label: "Members", href: "/admin/members" },
@@ -15,7 +14,7 @@ type MobileAdminNavProps = {
 };
 
 /** Compact top nav replacing the desktop admin sidebar on narrow screens. */
-export function MobileAdminNav({ active = "Overview", role = "Officer" }: MobileAdminNavProps) {
+export function MobileAdminNav({ active = "Applications", role = "Officer" }: MobileAdminNavProps) {
   return (
     <div className="flex flex-col gap-[10px]">
       <div className="flex items-center justify-between">

@@ -43,11 +43,14 @@ function ErrorText({ id, message }: { id: string; message?: string }) {
 function AuthCardInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const initialTab = searchParams.get("mode") === "login" ? "Log in" : "Sign up";
+  const mode = searchParams.get("mode");
+  // ?mode=reset opens the reset flow directly — that's how the profile page's
+  // "Reset Password" button arrives here, having signed the user out first.
+  const initialTab = mode === "login" || mode === "reset" ? "Log in" : "Sign up";
 
   const [tab, setTab] = useState<"Sign up" | "Log in">(initialTab);
-  const [view, setView] = useState<View>("form");
-  const [email, setEmail] = useState("");
+  const [view, setView] = useState<View>(mode === "reset" ? "reset-request" : "form");
+  const [email, setEmail] = useState(searchParams.get("email") ?? "");
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [code, setCode] = useState("");

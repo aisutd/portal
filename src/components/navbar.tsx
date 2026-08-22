@@ -14,7 +14,7 @@ const NAV_ROUTES: Record<(typeof NAV_ITEMS)[number] | typeof ADMIN_LABEL, string
   Events: "/events",
   Apply: "/applications",
   Dashboard: "/dashboard",
-  Admin: "/admin/dashboard",
+  Admin: "/admin/events",
 };
 
 type NavbarProps = {

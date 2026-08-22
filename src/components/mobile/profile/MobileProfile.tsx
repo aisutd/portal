@@ -183,7 +183,7 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
 
         {/* Security */}
         <Card className="flex flex-col gap-[16px] p-[18px]">
-          <Eyebrow>Security & Notifications</Eyebrow>
+          <Eyebrow>Security</Eyebrow>
 
           <div className="flex items-center justify-between gap-[12px] rounded-[12px] bg-row-soft p-[14px]">
             <div>
@@ -195,20 +195,6 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
               </p>
             </div>
             <PasswordResetButton />
-          </div>
-
-          <div className="flex items-center justify-between gap-[12px] rounded-[12px] bg-row-soft p-[14px]">
-            <div>
-              <p className="font-mobile-body text-[13px] font-bold text-ink">
-                Email Notifications
-              </p>
-              <p className="font-mobile-body text-[12px] text-ink-muted">
-                Receive updates from AIS about events and announcements
-              </p>
-            </div>
-            <div className="relative h-[26px] w-[46px] shrink-0 rounded-full bg-brand p-[2px]">
-              <div className="absolute right-[2px] top-[2px] size-[22px] rounded-full bg-white shadow-sm" />
-            </div>
           </div>
         </Card>
 
