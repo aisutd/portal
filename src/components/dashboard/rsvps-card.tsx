@@ -1,15 +1,19 @@
 import { Card } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
+import Link from "next/link";
 
 export type RsvpItem = {
   day: string;
   title: string;
   detail: string;
+  id: string;
 };
 
 function RsvpRow({ item }: { item: RsvpItem }) {
   return (
-    <div className="flex w-full items-center gap-[12px]">
+    <Link
+      href={`/events/${item.id}`}
+      className="flex w-full items-center gap-[12px]">
       <div className="flex size-[46px] shrink-0 items-center justify-center rounded-[14px] bg-brand-soft">
         <span className="font-techno text-[12px] leading-[16.8px] tracking-[1px] text-brand-dark">
           {item.day}
@@ -23,7 +27,7 @@ function RsvpRow({ item }: { item: RsvpItem }) {
           {item.detail}
         </span>
       </div>
-    </div>
+    </Link>
   );
 }
 

@@ -12,9 +12,8 @@ datasource db {
 
 enum UserRole {
   MEMBER
-  REVIEWER
-  ORGANIZER
-  SUPER_ADMIN
+  OFFICER
+  EXECUTIVE
 }
 
 enum ProfileCompletionStatus {
@@ -76,12 +75,10 @@ enum ProgramType {
 }
 
 enum MembershipType {
-  NON_MEMBER
-  AI_STUDENT
   AIM_MENTOR
   AIM_MENTEE
-  AI_INNOVATOR
-  ALUMNUS
+  AI_ACADEMY
+  INNOVATION_LABS
 }
 
 // -----------------------------------------------------------------------------
@@ -116,10 +113,10 @@ model Profile {
   firstName               String
   lastName                String
   middleName              String
-  prefName                String
-  year                    String
-  degree                  String
-  major                   String
+  prefName                String?
+  year                    String?
+  degree                  String?
+  major                   String?
   utdEmail                String?
   utdNetId                String?
   githubUrl               String?
@@ -157,8 +154,14 @@ model Event {
   capacity         Int?
   visibility       String?
   eligibilityRules Json?
+  isPublished      Boolean    @default(false)
+  checkInToken     String     @unique @default(uuid())
 
   tags             EventTag[]
+
+  /// Which programs this event counts toward for member status. Empty means a
+  /// general event that counts for everyone.
+  programs         MembershipType[]
 
   createdById      String
   createdAt        DateTime    @default(now())

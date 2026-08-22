@@ -21,7 +21,7 @@ export function getCurrentSemesterDates() {
 
 export function getPastSemesterDates() {
   const now = new Date();
-  let year = now.getFullYear();
+  const year = now.getFullYear();
   const month = now.getMonth();
 
   if (month >= 7) { // Current is Fall, Past is Spring (skip summer for simplicity or include it?) 
@@ -58,7 +58,11 @@ export async function getProfileCompletion(userId: string) {
   const optionalFields = [
     { key: "linkedinUrl", label: "LinkedIn" },
     { key: "githubUrl", label: "GitHub" },
-    { key: "resumeFileId", label: "Resume" }
+    //{ key: "resumeFileId", label: "Resume" },
+    { key: "year", label: "Year"},
+    { key: "degree", label: "Degree"},
+    { key: "major", label: "Major"},
+
   ] as const;
 
   let filled = 0;
@@ -71,18 +75,19 @@ export async function getProfileCompletion(userId: string) {
       missingFields.push(field.label);
     }
   }
+  console.log(missingFields);
 
-  // Base profile gives 70%. Optional fields give 10% each.
-  const percent = 70 + Math.round((filled / optionalFields.length) * 30);
+  // Base profile gives 40%. Optional fields give 10% each. -- with resumeFieldId
+  const percent = 50 + Math.round((filled / optionalFields.length) * 50);
   return { percent, missingFields };
 }
 
-export async function getMembership(userId: string) {
-  const membership = await prisma.membership.findFirst({
+/** Every active program, newest first — a member can hold more than one. */
+export async function getMemberships(userId: string) {
+  return prisma.membership.findMany({
     where: { userId, activeFlag: true },
     orderBy: { createdAt: "desc" },
   });
-  return membership;
 }
 
 export async function getApplications(userId: string) {
@@ -143,7 +148,7 @@ export function formatDaysAway(date: Date) {
 }
 
 export function formatEventDate(date: Date) {
-  return date.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+  return date.toLocaleString('en-US', { timeZone: 'America/Chicago', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
 
 export async function getNextUpcomingRsvp(userId: string) {
@@ -156,22 +161,36 @@ export async function getNextUpcomingRsvp(userId: string) {
   // 3. Subtract your 12-hour lookback window from that shifted DB base time
   const twelveHoursAgoDB = new Date(dbNowAhead.getTime() - 12 * 60 * 60 * 1000);
 
+  const liveRsvp = await prisma.rSVP.findFirst({
+    where: {
+      userId,
+      status: "GOING",
+      event: {
+        startTime: { lte: dbNowAhead },
+        endTime: { gte: dbNowAhead }
+      }
+    },
+    include: { event: true }
+  });
+
+  // If a live event is found, inject a flag so the UI knows to render it differently
+  if (liveRsvp) {
+    return { ...liveRsvp, isLive: true };
+  }
   // First attempt: Find an RSVP for an event matching the synchronized database time window
   const upcomingRsvp = await prisma.rSVP.findFirst({
     where: { 
       userId, 
       status: "GOING", 
-      event: { 
-        startTime: { gte: twelveHoursAgoDB } 
-      } 
+      event: { startTime: { gte: twelveHoursAgoDB } } 
     },
     include: { event: true },
     orderBy: { event: { startTime: "asc" } }, // Earliest first
   });
 
-  if (upcomingRsvp) return upcomingRsvp;
+  if (upcomingRsvp) return { ...upcomingRsvp, isLive: false };
 
-  // Fallback: Find an RSVP for an event with an explicit UPCOMING status field
+  // Fallback via explicit UPCOMING status field
   const upcomingStatusRsvp = await prisma.rSVP.findFirst({
     where: { 
       userId, 
@@ -182,12 +201,15 @@ export async function getNextUpcomingRsvp(userId: string) {
     orderBy: { event: { startTime: "asc" } },
   });
 
-  if (upcomingStatusRsvp) return upcomingStatusRsvp;
+  if (upcomingStatusRsvp) return { ...upcomingStatusRsvp, isLive: false };
 
-  // Last fallback: Return the user's most recent GOING RSVP historical record
-  return prisma.rSVP.findFirst({
+  // Last fallback (Historical)
+  const historicalRsvp = await prisma.rSVP.findFirst({
     where: { userId, status: "GOING" },
     include: { event: true },
     orderBy: { createdAt: "desc" },
   });
+
+  return historicalRsvp ? { ...historicalRsvp, isLive: false } : null;
+
 }

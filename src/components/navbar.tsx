@@ -4,10 +4,11 @@ import Link from "next/link";
 import { Show, UserButton, useAuth, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { isAdminRole, isKnownRole } from "@/lib/roles";
+import Image from "next/image";
 
 const NAV_ITEMS = ["Events", "Apply", "Dashboard"] as const;
 const ADMIN_LABEL = "Admin" as const;
-const ADMIN_ROLES = ["REVIEWER", "ORGANIZER", "SUPER_ADMIN"] as const;
 
 const NAV_ROUTES: Record<(typeof NAV_ITEMS)[number] | typeof ADMIN_LABEL, string> = {
   Events: "/events",
@@ -28,12 +29,15 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
 
   useEffect(() => {
     if (!isSignedIn) {
-      setRole(null);
+      if (role !== null) {
+        setRole(null);
+      }
       return;
     }
 
+    // Unknown values mean stale metadata from an older build — ask the API.
     const metadataRole = (user?.publicMetadata as { role?: string } | undefined)?.role;
-    if (metadataRole) {
+    if (isKnownRole(metadataRole)) {
       setRole(metadataRole);
       return;
     }
@@ -63,19 +67,23 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
     };
   }, [isSignedIn, user]);
 
-  const showAdminLink = !!role && ADMIN_ROLES.includes(role as (typeof ADMIN_ROLES)[number]);
+  const showAdminLink = isAdminRole(role);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#f0f0f0] bg-white">
       <nav className="flex h-[72px] items-center justify-between px-[38px]">
         {/* Logo */}
         <Link href="/" className="shrink-0 flex items-center">
-            <img 
-              src="/ais_logo_black.png" 
-              alt="AIS Logo" 
-              className="h-[44px] w-auto object-contain" 
-            />
-          </Link>
+          <Image 
+            src="/ais_logo_black.png" 
+            alt="AIS Logo" 
+            width={150}               // Explicit width prevents layout shifts
+            height={44}              // Matches your h-[44px] height constraint
+            className="h-[44px] w-auto object-contain" 
+            priority                 // Loads the logo immediately to improve LCP
+          />
+        </Link>
+
 
         {/* Primary links */}
         <ul className="flex items-center gap-[8px]">

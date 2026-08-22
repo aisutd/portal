@@ -1,92 +1,92 @@
 export const dynamic = "force-dynamic";
+
 import type { Metadata } from "next";
 import { getAuthenticatedUser } from "@/lib/auth";
-import { Navbar } from "@/components/navbar";
-import { Tag } from "@/components/ui/tag";
-import { EventGridCard } from "@/components/events/event-grid-card";
-import { MobileEventsBrowse } from "@/components/mobile/events/MobileEventsBrowse";
-import { eventFilterTags } from "@/lib/data";
 import { prisma } from "@/lib/prisma";
+import { EventsBrowseClient } from "@/components/events/events-browse-client";
 
 export const metadata: Metadata = {
   title: "Events — Browse",
-  description: "Browse upcoming AIS events by tag.",
+  description: "Browse upcoming and past AIS events by tag.",
 };
 
-async function getEvents(userId: string | null) {
-  return prisma.event.findMany({
+async function getEventsData(userId: string | null) {
+  const now = new Date();
+
+  // Fetch upcoming events (ascending order: soonest first)
+  const upcomingRaw = await prisma.event.findMany({
+    where: { 
+      isPublished: true,
+      startTime: { gte: now } 
+    },
     orderBy: { startTime: "asc" },
     take: 20,
     include: {
       rsvps: userId
-        ? {
-            where: {
-              userId: userId,
-              status: "GOING",
-            },
+        ? { where: { userId: userId, status: "GOING" } }
+        : false,
+    },
+  });
+
+  // Fetch past events (descending order: most recent past first)
+  const pastRaw = await prisma.event.findMany({
+    where: { 
+      isPublished: true, 
+      startTime: { lt: now } 
+    },
+    orderBy: { startTime: "desc" },
+    take: 10,
+    include: {
+      rsvps: userId
+        ? { 
+            where: { userId: userId, status: "GOING" },
+            include: { attendance: true },
           }
         : false,
     },
   });
+
+  const mapEvents = (events: typeof upcomingRaw) =>
+    events.map((event) => ({
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      location: event.location,
+      startTime: event.startTime.toISOString(),
+      tags: event.tags || [],
+      isRsvpd: !!(event.rsvps && event.rsvps.length > 0),
+    }));
+  
+  const mapPastEvents = (events: typeof pastRaw) =>
+    events.map((event) => {
+      const userRsvp = event.rsvps && event.rsvps.length > 0 ? event.rsvps[0] : null;
+      const isRsvpd = !!userRsvp;
+      const hasAttended = userRsvp && 'attendance' in userRsvp ? !!userRsvp.attendance : false;
+      const missedEvent = isRsvpd && !hasAttended;
+
+      return {
+        id: event.id,
+        title: event.title,
+        description: event.description,
+        location: event.location,
+        startTime: event.startTime.toISOString(),
+        tags: event.tags || [],
+        isRsvpd,
+        hasAttended,
+        missedEvent,
+      };
+    });
+
+  return {
+    upcomingEvents: mapEvents(upcomingRaw),
+    pastEvents: mapPastEvents(pastRaw),
+  };
 }
 
 export default async function EventsBrowsePage() {
   const user = await getAuthenticatedUser();
   const userId = user?.id ?? null;
-  const events = await getEvents(userId);
+  const { upcomingEvents, pastEvents } = await getEventsData(userId);
 
-  // Map events to include userIsGoing flag for client-side use
-  const initialEvents = events.map((event) => ({
-    id: event.id,
-    title: event.title,
-    description: event.description,
-    location: event.location,
-    startTime: event.startTime.toISOString(), // Ensure ISO string format for client dates
-    tags: event.tags,
-    isRsvpd: !!(event.rsvps && event.rsvps.length > 0),
-  }));
-
-  return (
-    <>
-      <div className="md:hidden">
-        <MobileEventsBrowse initialEvents={initialEvents} />
-      </div>
-
-      <div className="hidden md:block">
-        <div className="flex min-h-screen w-full flex-col bg-cream">
-          <Navbar active="Events" />
-          <div className="flex w-full flex-col md:flex-row md:items-stretch">
-            {/* Tag filter sidebar */}
-            <aside className="flex flex-col gap-[10px] border-b border-border-soft px-[26px] py-[32px] md:w-[219px] md:shrink-0 md:border-b-0 md:border-r">
-              <p className="font-techno text-[12px] uppercase leading-[normal] tracking-[3px] text-ink-faint">
-                Tags
-              </p>
-              <div className="flex flex-wrap gap-[10px] md:flex-col md:items-start">
-                {eventFilterTags.map((t) => (
-                  <Tag key={t.label} label={t.label} bg={t.bg} color={t.color} />
-                ))}
-              </div>
-            </aside>
-
-            {/* Event grid */}
-            <div className="min-w-px flex-1 p-[46px]">
-              <div className="grid grid-cols-1 gap-[24px] lg:grid-cols-2">
-                {initialEvents.map((event) => (
-                  <EventGridCard
-                    key={event.id}
-                    title={event.title}
-                    meta={`${event.location} · ${new Date(event.startTime).toLocaleString()}`}
-                    description={event.description}
-                    tags={event.tags}
-                    eventId={event.id}
-                    isRsvpd={event.isRsvpd}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
+  return <EventsBrowseClient upcomingEvents={upcomingEvents} pastEvents={pastEvents} />;
 }

@@ -1,26 +1,37 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { getAuthenticatedUser } from "@/lib/auth";
 
 const NAV_ITEMS = [
   { label: "Overview", href: "/admin/dashboard" },
   { label: "Applications", href: "/admin/applications/1" },
   { label: "Events", href: "/admin/events" },
-  { label: "Members", href: "/admin/users/1" },
-  { label: "Exit Admin", href: "/dashboard"},
+  { label: "Members", href: "/admin/members" },
+  { label: "Exit Admin", href: "/dashboard" },
 ] as const;
 
 type MobileAdminNavProps = {
   active?: (typeof NAV_ITEMS)[number]["label"];
-  role?: string;
 };
 
 /** Compact top nav replacing the desktop admin sidebar on narrow screens. */
-export function MobileAdminNav({ active = "Overview", role = "Officer" }: MobileAdminNavProps) {
+export async function MobileAdminNav({ active = "Overview" }: MobileAdminNavProps) {
+  // Fetch the authenticated user to determine their actual role
+  const user = await getAuthenticatedUser();
+  
+  // Format role nicely (e.g., fallback to "Officer" or capitalize if it's "ADMIN", "OFFICER", etc.)
+  const rawRole = user?.role || "Officer";
+  const role = rawRole.charAt(0).toUpperCase() + rawRole.slice(1).toLowerCase();
+
   return (
-    <div className="flex flex-col gap-[10px]">
+    <div className="flex flex-col gap-[12px]">
       <div className="flex items-center justify-between">
-        <h1 className="font-mobile-display text-[16px] font-bold text-ink">AIS Admin</h1>
-        <span className="font-mono text-[11px] text-ink-faint">Role: {role}</span>
+        <div className="flex items-center gap-[8px]">
+          <h1 className="font-mobile-display text-[16px] font-bold text-ink">AIS Admin</h1>
+          <span className="rounded-full bg-brand-soft px-[8px] py-[2px] font-mono text-[10px] font-bold uppercase tracking-[0.5px] text-brand">
+            {role}
+          </span>
+        </div>
       </div>
       <div className="-mx-[20px] flex gap-1 overflow-x-auto px-[20px] pb-[2px]">
         {NAV_ITEMS.map((item) => {

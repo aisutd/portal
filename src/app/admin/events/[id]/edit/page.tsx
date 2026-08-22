@@ -9,7 +9,8 @@ import { SettingsCard } from "@/components/admin/settings-card";
 import { Button } from "@/components/ui/button";
 import { MobileAdminEditEvent } from "@/components/mobile/admin/MobileAdminEditEvent";
 import { eventTags, eventSettings } from "@/lib/data";
-import { updateEvent } from "./actions";
+import { updateEvent, deleteEvent } from "./actions";
+import { DeleteEventButton } from "@/components/admin/delete-event-button"
 
 export const metadata: Metadata = {
   title: "AIS Admin — Edit Event",
@@ -25,7 +26,7 @@ export default async function EditEventPage({
 
   const event = await prisma.event.findUnique({
     where: { id },
-    include: {items: true },
+    include: { items: true },
   });
 
   if (!event) return notFound();
@@ -47,6 +48,7 @@ export default async function EditEventPage({
     status: event.status as string,
     visibility: event.visibility as string,
     tags: event.tags as string[],
+    programs: event.programs,
     items: event.items.map((i) => ({
       name: i.name,
       type: i.type as "MEAL" | "DRINK" | "MERCH" | "OTHER",
@@ -56,12 +58,14 @@ export default async function EditEventPage({
   return (
     <>
       <div className="md:hidden">
-        <MobileAdminEditEvent eventId={event.id} defaultValues={defaultValues} />
+        <MobileAdminEditEvent 
+        eventId={event.id} 
+        defaultValues={defaultValues} 
+        isPublished={event.isPublished} />
       </div>
 
       <div className="hidden md:block">
         <div className="flex min-h-screen w-full bg-cream">
-          {/* Keeps the exact same sidebar/navbar */}
           <AdminSidebar active="Events" role="Officer" />
 
           <div className="flex h-full flex-1 flex-col gap-[20px] p-[46px]">
@@ -83,21 +87,59 @@ export default async function EditEventPage({
               {/* Hidden input to pass the event ID to the server action */}
               <input type="hidden" name="id" value={event.id} />
 
-              {/* Reusing the exact same EventForm with pre-filled defaultValues */}
               <EventForm tags={eventTags} defaultValues={defaultValues} />
 
               <div className="flex w-full flex-col gap-[20px] lg:w-[382px] lg:shrink-0">
                 <CoverPhotoCard />
                 <SettingsCard items={eventSettings} />
-                <div className="flex gap-[10px]">
-                  <Link href="/admin/events">
-                    <Button type="button" variant="ghost" size="md">
+                
+                <div className="flex flex-col gap-[10px]">
+                  <div className="flex gap-[10px]">
+                    <Button 
+                      type="submit" 
+                      name="action" 
+                      value="draft" 
+                      variant="ghost" 
+                      size="md" 
+                      className="flex-1"
+                    >
+                      Save changes
+                    </Button>
+
+                    {event.isPublished ? (
+                      <Button 
+                        type="submit" 
+                        name="action" 
+                        value="unpublish" 
+                        variant="accent" 
+                        size="md"
+                        className="flex-1"
+                      >
+                        Unpublish
+                      </Button>
+                    ) : (
+                      <Button 
+                        type="submit" 
+                        name="action" 
+                        value="publish" 
+                        variant="primary" 
+                        size="md"
+                        className="flex-1"
+                      >
+                        Publish
+                      </Button>
+                    )}
+                  </div>
+
+                  <Link href="/admin/events" className="w-full">
+                    <Button type="button" variant="ghost" size="md" className="w-full text-ink-faint">
                       Cancel
                     </Button>
                   </Link>
-                  <Button type="submit" variant="primary" size="md">
-                    Save Changes
-                  </Button>
+
+                  <div className="mt-4 border-t border-border-soft pt-4">
+                    <DeleteEventButton eventId={event.id} deleteAction={deleteEvent} />
+                  </div>
                 </div>
               </div>
             </form>

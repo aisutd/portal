@@ -12,7 +12,6 @@ import type { Applicant } from "@/components/admin/applicant-list-item";
 import type { ApplicantDetailData } from "@/components/admin/applicant-detail";
 import type { SettingRow } from "@/components/admin/settings-card";
 import type { StatCardData } from "@/components/admin/stat-card";
-import type { Member } from "@/components/admin/members-table";
 import type { EventRowData } from "@/components/admin/event-row";
 import type { Role } from "@/components/apply/role-card";
 import type { FeaturedEvent } from "@/components/events/featured-event-card";
@@ -48,26 +47,26 @@ export const upNextTags: TagData[] = [
   { label: "learn", bg: "#d3eccf", color: "#356b2e" },
 ];
 
-export const applications: ApplicationItem[] = [
-  {
-    title: "AIM Mentor · Fall 2026",
-    status: { variant: "solid", label: "Active", bg: "#e1e8ff", color: "#1f3aa3" },
-    percent: 70,
-    fillColor: "#2f5fe8",
-  },
-  {
-    title: "AIS Tech Officer",
-    status: { variant: "outline", label: "Draft" },
-    percent: 30,
-    fillColor: "#4f7bff",
-  },
-];
+// export const applications: ApplicationItem[] = [
+//   {
+//     title: "AIM Mentor · Fall 2026",
+//     status: { variant: "solid", label: "Active", bg: "#e1e8ff", color: "#1f3aa3" },
+//     percent: 70,
+//     fillColor: "#2f5fe8",
+//   },
+//   {
+//     title: "AIS Tech Officer",
+//     status: { variant: "outline", label: "Draft" },
+//     percent: 30,
+//     fillColor: "#4f7bff",
+//   },
+// ];
 
-export const rsvps: RsvpItem[] = [
-  { day: "27", title: "Fall Kickoff", detail: "7:00 PM · ECSW 1.315" },
-  { day: "03", title: "Intro to PyTorch", detail: "6:00 PM · ECSW 1.355" },
-  { day: "17", title: "AIM Social", detail: "6:00 PM · ECSW 1.315" },
-];
+// export const rsvps: RsvpItem[] = [
+//   { day: "27", title: "Fall Kickoff", detail: "7:00 PM · ECSW 1.315" },
+//   { day: "03", title: "Intro to PyTorch", detail: "6:00 PM · ECSW 1.355" },
+//   { day: "17", title: "AIM Social", detail: "6:00 PM · ECSW 1.315" },
+// ];
 
 export const achievements: Achievement[] = [
   { value: "★", label: "RANK · NOVICE", bg: "#fbe3cb", color: "#7a4416" },
@@ -75,22 +74,22 @@ export const achievements: Achievement[] = [
   { value: "4", label: "LIFETIME EVENTS", bg: "#e9e5f6", color: "#4b4178" },
 ];
 
-export const recommended: RecommendedItem[] = [
-  {
-    title: "Intro to PyTorch",
-    tags: [
-      { label: "workshop", bg: "#cde9e5", color: "#1d6a61" },
-      { label: "learn", bg: "#d3eccf", color: "#356b2e" },
-    ],
-  },
-  {
-    title: "Sponsor Mixer",
-    tags: [
-      { label: "networking", bg: "#d6e2ff", color: "#284b9c" },
-      { label: "industry", bg: "#ded9f4", color: "#463e86" },
-    ],
-  },
-];
+// export const recommended: RecommendedItem[] = [
+//   {
+//     title: "Intro to PyTorch",
+//     tags: [
+//       { label: "workshop", bg: "#cde9e5", color: "#1d6a61" },
+//       { label: "learn", bg: "#d3eccf", color: "#356b2e" },
+//     ],
+//   },
+//   {
+//     title: "Sponsor Mixer",
+//     tags: [
+//       { label: "networking", bg: "#d6e2ff", color: "#284b9c" },
+//       { label: "industry", bg: "#ded9f4", color: "#463e86" },
+//     ],
+//   },
+// ];
 
 export const announcements: [Announcement, Announcement] = [
   {
@@ -163,41 +162,41 @@ export const programs: Program[] = [
   },
 ];
 
-export const openApps: OpenApp[] = [
-  {
-    title: "AIM Mentor Application · Fall 2026",
-    description: "Mentor students in building an AI/ML project",
-    meta: "closes June 25, 2026 · 11:59 PM CT",
-    borderColor: "#2f5fe8",
-    metaMedium: true,
-    actions: [
-      { label: "Learn more", variant: "soft" },
-      { label: "Apply", variant: "primary", href: "/applications/detail" },
-    ],
-  },
-  {
-    title: "AIS Tech Team Officer · 2026–2027",
-    description: "Design & develop AIS technical infrastructure",
-    meta: "closes June 1, 2026 · 11:59 PM CT",
-    borderColor: "#e7e2d4",
-    metaMedium: true,
-    actions: [
-      { label: "Learn more", variant: "ghost" },
-      { label: "Apply", variant: "primary", href: "/applications/detail" },
-    ],
-  },
-  {
-    title: "AI Academy Application · 2026–2027",
-    description: "AI workshops to help you build your 1ˢᵗ AI project",
-    meta: "opens May 25, 2026",
-    borderColor: "#e7e2d4",
-    dim: true,
-    actions: [
-      { label: "Learn more", variant: "ghost" },
-      { label: "Remind me", variant: "accent", pill: false },
-    ],
-  },
-];
+// export const openApps: OpenApp[] = [
+//   {
+//     title: "AIM Mentor Application · Fall 2026",
+//     description: "Mentor students in building an AI/ML project",
+//     meta: "closes June 25, 2026 · 11:59 PM CT",
+//     borderColor: "#2f5fe8",
+//     metaMedium: true,
+//     actions: [
+//       { label: "Learn more", variant: "soft" },
+//       { label: "Apply", variant: "primary", href: "/applications/detail" },
+//     ],
+//   },
+//   {
+//     title: "AIS Tech Team Officer · 2026–2027",
+//     description: "Design & develop AIS technical infrastructure",
+//     meta: "closes June 1, 2026 · 11:59 PM CT",
+//     borderColor: "#e7e2d4",
+//     metaMedium: true,
+//     actions: [
+//       { label: "Learn more", variant: "ghost" },
+//       { label: "Apply", variant: "primary", href: "/applications/detail" },
+//     ],
+//   },
+//   {
+//     title: "AI Academy Application · 2026–2027",
+//     description: "AI workshops to help you build your 1ˢᵗ AI project",
+//     meta: "opens May 25, 2026",
+//     borderColor: "#e7e2d4",
+//     dim: true,
+//     actions: [
+//       { label: "Learn more", variant: "ghost" },
+//       { label: "Remind me", variant: "accent", pill: false },
+//     ],
+//   },
+// ];
 
 /* -------------------------------------------------------- Admin · Apply page */
 
@@ -289,45 +288,6 @@ export const eventSettings: SettingRow[] = [
   { label: "Require check-in QR", type: "toggle", on: true },
   { label: "Members only", type: "toggle", on: false },
   { label: "Visibility", type: "badge", badge: "Draft" },
-];
-
-/* ---------------------------------------------------------- Admin · Members */
-
-export const memberStats: StatCardData[] = [
-  { value: "109", label: "total members" },
-  { value: "28", label: "officers" },
-  { value: "63", label: "active this sem" },
-  { value: "12", label: "new this month", highlight: true },
-];
-
-export const memberFilters: FilterChip[] = [
-  { label: "All", active: true },
-  { label: "Officers" },
-  { label: "Mentors" },
-  { label: "Mentees" },
-];
-
-const ROLE = {
-  officer: { label: "Officer", bg: "#e1e8ff", color: "#1f3aa3" },
-  mentor: { label: "Mentor", bg: "#e9e5f6", color: "#4b4178" },
-  mentee: { label: "Mentee", outline: true },
-} as const;
-
-const STATUS = {
-  active: { label: "Active", bg: "#d3eccf", color: "#356b2e" },
-  atRisk: { label: "At risk", bg: "#fbe3cb", color: "#7a4416" },
-  inactive: { label: "Inactive", bg: "#efece3", color: "#6a685f" },
-} as const;
-
-export const members: Member[] = [
-  { name: "Ava Johnson", netid: "aja210", role: ROLE.officer, events: "14", joined: "Aug 2024", status: STATUS.active },
-  { name: "Bilal Khan", netid: "bxk190", role: ROLE.mentor, events: "9", joined: "Sep 2024", status: STATUS.active },
-  { name: "Carmen Ruiz", netid: "cmr204", role: ROLE.mentee, events: "6", joined: "Jan 2025", status: STATUS.active },
-  { name: "Devon Lee", netid: "dpl217", role: ROLE.mentee, events: "3", joined: "Feb 2025", status: STATUS.atRisk },
-  { name: "Emma Novak", netid: "env188", role: ROLE.mentor, events: "11", joined: "Aug 2024", status: STATUS.active },
-  { name: "Felix Adeyemi", netid: "fxa176", role: ROLE.officer, events: "18", joined: "Aug 2023", status: STATUS.active },
-  { name: "Grace Park", netid: "gxp201", role: ROLE.mentee, events: "1", joined: "Mar 2025", status: STATUS.inactive },
-  { name: "Henry Osei", netid: "hxo199", role: ROLE.mentor, events: "7", joined: "Sep 2024", status: STATUS.active },
 ];
 
 /* --------------------------------------------------------- Admin · Overview */

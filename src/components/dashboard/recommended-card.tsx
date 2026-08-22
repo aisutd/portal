@@ -9,6 +9,7 @@ import { Tag } from "@/components/ui/tag";
 import type { TagData } from "@/components/dashboard/up-next-card";
 
 export type RecommendedItem = {
+  id: string;
   title: string;
   tags: TagData[];
 };
@@ -66,7 +67,7 @@ export function RecommendedCard({ items }: { items: RecommendedItem[] }) {
         </div>
       ) : (
         items.map((item) => (
-          <RecommendedRow key={item.title} item={item} />
+          <RecommendedRow key={item.id} item={item} />
         ))
       )}
     </Card>
