@@ -15,8 +15,8 @@ export const metadata: Metadata = {
 };
 
 // --- Formatters ---
-const DATE_FORMAT = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" });
-const TIME_FORMAT = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+const DATE_FORMAT = new Intl.DateTimeFormat("en-US", { timeZone: "America/Chicago", month: "short", day: "numeric", year: "numeric" });
+const TIME_FORMAT = new Intl.DateTimeFormat("en-US", { timeZone: "America/Chicago", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 
 function formatDisplayString(str: string | null | undefined): string {
   return str && str.trim().length > 0 ? str : "—";
