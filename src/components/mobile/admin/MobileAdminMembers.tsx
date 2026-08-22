@@ -4,6 +4,8 @@ import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { MobileAdminNav } from "@/components/mobile/admin/MobileAdminNav";
 import { MobileMembersToolbar } from "@/components/mobile/admin/MobileMembersToolbar";
 import { MembersPagination } from "@/components/admin/members-pagination";
+import { MemberRolesEditor } from "@/components/admin/member-roles-editor";
+import { MemberStatusPopover } from "@/components/admin/member-status-popover";
 import type { MemberBadge } from "@/components/admin/members-table";
 import type { MembersQuery } from "@/lib/members/query-params";
 import type { MembersViewModel } from "@/lib/members/view-model";
@@ -19,9 +21,12 @@ function RoleStatus({ badge }: { badge: MemberBadge }) {
 export function MobileAdminMembers({
   query,
   view,
+  editable = false,
 }: {
   query: MembersQuery;
   view: MembersViewModel;
+  /** Executives get an editable row menu; everyone else gets an inert one. */
+  editable?: boolean;
 }) {
   return (
     <MobileScreen withBottomNavPadding={false}>
@@ -67,17 +72,28 @@ export function MobileAdminMembers({
                   <p className="font-mobile-body text-[14px] font-bold text-ink">{m.name}</p>
                   <p className="font-mono text-[11px] text-ink-faint">{m.netid}</p>
                 </div>
-                <button
-                  type="button"
-                  aria-label={`Actions for ${m.name}`}
-                  className="text-[16px] leading-none text-ink-faint"
-                >
-                  ⋯
-                </button>
+                {editable ? (
+                  <MemberRolesEditor
+                    memberId={m.id}
+                    memberName={m.name}
+                    role={m.userRole}
+                    programs={m.programs}
+                  />
+                ) : (
+                  <span aria-hidden className="text-[16px] leading-none text-ink-faint">
+                    ⋯
+                  </span>
+                )}
               </div>
               <div className="flex flex-wrap items-center gap-[8px]">
-                <RoleStatus badge={m.role} />
-                <RoleStatus badge={m.status} />
+                {m.roles.map((badge) => (
+                  <RoleStatus key={badge.label} badge={badge} />
+                ))}
+                <MemberStatusPopover
+                  memberName={m.name}
+                  badge={m.status}
+                  detail={m.statusDetail}
+                />
                 <span className="font-mono text-[11px] text-ink-faint">
                   {m.events} events · joined {m.joined}
                 </span>

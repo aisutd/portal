@@ -14,10 +14,23 @@ export function StatCard({ value, label, highlight }: StatCardData) {
   return (
     <div
       className={cn(
-        "flex flex-1 flex-col gap-[5px] self-stretch rounded-[14px] border bg-white px-[23px] py-[21px]",
-        highlight ? "border-brand" : "border-border-soft"
+        "group relative flex flex-1 flex-col gap-[5px] self-stretch overflow-hidden rounded-[14px] border px-[23px] py-[21px]",
+        "transition-[border-color,box-shadow,transform] duration-150",
+        "hover:-translate-y-[2px] hover:shadow-[0_10px_24px_-14px_rgba(22,22,28,0.35)]",
+        highlight
+          ? "border-brand bg-gradient-to-b from-brand-soft/60 to-white"
+          : "border-border-soft bg-white hover:border-ink-faint/40"
       )}
     >
+      {/* Accent rail: colour without competing with the number. */}
+      <span
+        aria-hidden
+        className={cn(
+          "absolute inset-y-0 left-0 w-[3px]",
+          highlight ? "bg-brand" : "bg-border-soft group-hover:bg-brand/40"
+        )}
+      />
+
       <span
         className={cn(
           "font-display text-[34px] font-bold leading-[34px] [font-variation-settings:'wdth'_100]",
@@ -26,7 +39,7 @@ export function StatCard({ value, label, highlight }: StatCardData) {
       >
         {value}
       </span>
-      <span className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-ink-faint">
+      <span className="font-techno text-[11px] uppercase leading-[16px] tracking-[1.1px] text-ink-faint">
         {label}
       </span>
     </div>
