@@ -117,10 +117,10 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
               {totalFilteredCount === 0 ? (
                 <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-border-soft bg-white p-[40px] text-center shadow-sm">
                   <p className="font-mobile-display text-[16px] font-bold text-ink">
-                    No events found
+                    No events found.
                   </p>
                   <p className="mt-[6px] font-mobile-body text-[14px] text-ink-muted">
-                    We couldn't find any events matching the selected filters.
+                    We didn't have any events with selected filters. Look out in the near future!
                   </p>
                   {selectedTags.length > 0 && (
                     <button

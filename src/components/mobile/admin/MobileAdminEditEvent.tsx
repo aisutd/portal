@@ -6,7 +6,8 @@ import { SettingsCard } from "@/components/admin/settings-card";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { MobileAdminNav } from "@/components/mobile/admin/MobileAdminNav";
 import { eventTags, eventSettings } from "@/lib/data";
-import { updateEvent } from "@/app/admin/events/[id]/edit/actions";
+import { updateEvent, deleteEvent } from "@/app/admin/events/[id]/edit/actions";
+import { DeleteEventButton } from "@/components/admin/delete-event-button";
 
 type EventDefaultValues = {
   title: string;
@@ -91,6 +92,10 @@ export function MobileAdminEditEvent({ eventId, defaultValues, isPublished }: Mo
               Cancel
             </Button>
           </Link>
+          
+          <div className="mt-2 border-t border-border-soft pt-4">
+            <DeleteEventButton eventId={eventId} deleteAction={deleteEvent} />
+          </div>
         </div>
       </form>
     </MobileScreen>

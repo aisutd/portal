@@ -21,7 +21,7 @@ export function getCurrentSemesterDates() {
 
 export function getPastSemesterDates() {
   const now = new Date();
-  let year = now.getFullYear();
+  const year = now.getFullYear();
   const month = now.getMonth();
 
   if (month >= 7) { // Current is Fall, Past is Spring (skip summer for simplicity or include it?) 
@@ -82,12 +82,12 @@ export async function getProfileCompletion(userId: string) {
   return { percent, missingFields };
 }
 
-export async function getMembership(userId: string) {
-  const membership = await prisma.membership.findFirst({
+/** Every active program, newest first — a member can hold more than one. */
+export async function getMemberships(userId: string) {
+  return prisma.membership.findMany({
     where: { userId, activeFlag: true },
     orderBy: { createdAt: "desc" },
   });
-  return membership;
 }
 
 export async function getApplications(userId: string) {
@@ -148,7 +148,7 @@ export function formatDaysAway(date: Date) {
 }
 
 export function formatEventDate(date: Date) {
-  return date.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+  return date.toLocaleString('en-US', { timeZone: 'America/Chicago', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
 
 export async function getNextUpcomingRsvp(userId: string) {

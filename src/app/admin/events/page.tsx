@@ -38,8 +38,10 @@ function mapEventToRow(event: any): EventRowData {
     progress,
     progressFill: now > event.endTime ? "#8a8a93" : "#2f5fe8",
     actions: [
+      { label: "QR", variant: "primary", href: `/admin/events/${event.id}/check-in` },
+      { label: "Scan", variant: "primary", href: `/admin/events/${event.id}/scan` },
+      { label: "RSVPs", variant: "accent", href: `/admin/events/${event.id}/rsvps` },
       { label: "Edit", variant: "ghost", href: `/admin/events/${event.id}/edit` }, 
-      { label: "Scan", variant: "primary", href: `/admin/events/${event.id}/scan` }, 
     ],
   };
 }

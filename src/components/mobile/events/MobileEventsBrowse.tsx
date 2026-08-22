@@ -242,7 +242,7 @@ const filterList = (list: EventRecord[]) =>
               No events found
             </p>
             <p className="mt-[6px] font-mobile-body text-[14px] text-ink-muted">
-              We couldn't find any events matching the selected filters.
+              We didn't have any events with selected filters. Look out in the near future!
             </p>
             {selectedTags.length > 0 && (
               <button
