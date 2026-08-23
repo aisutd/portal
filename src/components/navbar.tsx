@@ -5,6 +5,7 @@ import { Show, UserButton, useAuth, useUser } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import { useAccount } from "@/components/account-provider";
 import Image from "next/image";
+import { isAdminRole } from "@/lib/roles";
 
 const NAV_ITEMS = ["Events", "Apply", "Dashboard"] as const;
 const ADMIN_LABEL = "Admin" as const;
@@ -33,7 +34,7 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
     (user?.publicMetadata as { role?: string } | undefined)?.role ??
     null;
 
-  const showAdminLink = !!role && ADMIN_ROLES.includes(role as (typeof ADMIN_ROLES)[number]);
+  const showAdminLink = role ? isAdminRole(role) : false;
   const accountLabel = account?.firstName?.trim() || user?.firstName?.trim() || "Profile";
 
   return (
