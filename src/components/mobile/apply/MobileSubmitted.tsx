@@ -203,16 +203,33 @@ export function MobileSubmitted() {
           ) : null}
 
           <div className="flex flex-col gap-[14px]">
-            {personalFields.map((label) => (
-              <FormField
-                key={label}
-                label={label}
-                value={fieldValues[label]}
-                readOnly
-                tabIndex={-1}
-                className="cursor-default"
-              />
-            ))}
+            {personalFields.map((label) =>
+              label === "Resume *" ? (
+                <div key={label} className="flex flex-col gap-[6px]">
+                  <label className="font-mobile-body text-[13px] font-bold text-ink">
+                    {label}
+                  </label>
+                  <a
+                    href="/api/profile/resume/download"
+                    className="flex h-[40px] items-center rounded-[10px] bg-field px-[13px] font-mono text-[11px] text-ink transition-colors hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/40"
+                    title={fieldValues[label]}
+                  >
+                    <span className="truncate">
+                      {fieldValues[label] || "Download resume"}
+                    </span>
+                  </a>
+                </div>
+              ) : (
+                <FormField
+                  key={label}
+                  label={label}
+                  value={fieldValues[label]}
+                  readOnly
+                  tabIndex={-1}
+                  className="cursor-default"
+                />
+              ),
+            )}
           </div>
         </div>
       ) : null}

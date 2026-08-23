@@ -587,7 +587,7 @@ function ApplyFormContent() {
         <div className="w-full max-w-[1346px] rounded-[18px] border border-border-soft bg-white p-[35px] [filter:drop-shadow(0px_8px_11px_rgba(0,0,0,0.04))]">
           <div className="flex flex-col gap-[24px]">
             <h1 className="font-display text-[32px] font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
-              AIM Mentor Application Â· Fall 2026
+              AIM Mentor Application Fall 2026
             </h1>
 
             <FormStepper steps={applicationSteps} active={activeStep} />
