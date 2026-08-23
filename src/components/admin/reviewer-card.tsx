@@ -18,16 +18,16 @@ export function ReviewerCard({ name, score, tone, comment }: Reviewer) {
   return (
     <div className="flex w-full flex-col gap-[7px] rounded-[16px] border border-border-soft bg-white p-[19px]">
       <div className="flex items-center justify-between">
-        <p className="font-body text-[15px] font-bold leading-[22.5px] text-ink">
+        <p className="style-body-text leading-[22.5px] text-ink">
           {name}
         </p>
         <span
-          className={`inline-flex items-center rounded-full px-[14px] py-[5px] font-body text-[13px] font-semibold leading-[normal] ${pill}`}
+          className={`inline-flex items-center rounded-full px-[14px] py-[5px] style-body-text leading-[normal] ${pill}`}
         >
           {score}
         </span>
       </div>
-      <p className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-ink-faint">
+      <p className="style-caption leading-[16.8px] tracking-[0.2px] text-ink-faint">
         {comment}
       </p>
     </div>

@@ -132,10 +132,10 @@ export function EventForm({ tags, defaultValues }: EventFormProps) {
       <div className="flex flex-col gap-3 border-t border-border-soft pt-5">
         <div className="flex items-center justify-between">
           <div>
-            <span className="font-body text-[14px] font-bold leading-[20.3px] text-ink">
+            <span className="style-body-text leading-[20.3px] text-ink">
               Event Items / Perks (Meals, Drinks, Merch)
             </span>
-            <p className="font-mono text-xs text-ink-faint">
+            <p className="style-caption text-xs text-ink-faint">
               Configure items that can be scanned/claimed during the event.
             </p>
           </div>
@@ -153,13 +153,13 @@ export function EventForm({ tags, defaultValues }: EventFormProps) {
                   placeholder="Item Name (e.g. Pizza Slice, T-Shirt)"
                   value={item.name}
                   onChange={(e) => updateItem(index, "name", e.target.value)}
-                  className="flex-1 rounded-lg border border-border-soft bg-white px-3 py-2 font-mono text-sm text-ink outline-none focus:border-brand"
+                  className="flex-1 rounded-lg border border-border-soft bg-white px-3 py-2 style-caption text-sm text-ink outline-none focus:border-brand"
                   required
                 />
                 <select
                   value={item.type}
                   onChange={(e) => updateItem(index, "type", e.target.value as EventItemInput["type"])}
-                  className="rounded-lg border border-border-soft bg-white px-3 py-2 font-mono text-sm text-ink outline-none focus:border-brand"
+                  className="rounded-lg border border-border-soft bg-white px-3 py-2 style-caption text-sm text-ink outline-none focus:border-brand"
                 >
                   <option value="MEAL">MEAL</option>
                   <option value="DRINK">DRINK</option>
@@ -184,10 +184,10 @@ export function EventForm({ tags, defaultValues }: EventFormProps) {
       {/* Programs Section — drives member status: attendance is measured
           against the events tagged for a member's programs. */}
       <div className="flex w-full flex-col gap-[7px] border-t border-border-soft pt-5">
-        <span className="font-body text-[14px] font-bold leading-[20.3px] text-ink-muted">
+        <span className="style-body-text leading-[20.3px] text-ink-muted">
           Counts toward
         </span>
-        <span className="font-body text-[12.5px] leading-[18px] text-ink-faint">
+        <span className="style-body-text leading-[18px] text-ink-faint">
           Leave empty for a general event that counts for every member.
         </span>
         <div className="mt-[4px] flex flex-wrap gap-[8px]">
@@ -200,7 +200,7 @@ export function EventForm({ tags, defaultValues }: EventFormProps) {
                 type="button"
                 onClick={() => toggleProgram(program)}
                 aria-pressed={isActive}
-                className={`cursor-pointer rounded-full border px-[14px] py-[7px] font-body text-[13px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-soft ${
+                className={`cursor-pointer rounded-full border px-[14px] py-[7px] style-body-text transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-soft ${
                   isActive
                     ? "border-transparent"
                     : "border-border-soft bg-white text-ink-muted hover:bg-row-soft"
@@ -221,7 +221,7 @@ export function EventForm({ tags, defaultValues }: EventFormProps) {
 
       {/* Tags Section */}
       <div className="flex w-full flex-col gap-[7px] border-t border-border-soft pt-5">
-        <span className="font-body text-[14px] font-bold leading-[20.3px] text-ink-muted">
+        <span className="style-body-text leading-[20.3px] text-ink-muted">
           Tags
         </span>
         <div className="flex flex-wrap gap-[8px]">

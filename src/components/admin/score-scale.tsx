@@ -19,7 +19,7 @@ export function ScoreScale({ selected, max = 5 }: ScoreScaleProps) {
           <span
             key={n}
             className={cn(
-              "flex size-[24px] items-center justify-center rounded-[12px] border text-center font-mono text-[11px] leading-[normal]",
+              "flex size-[24px] items-center justify-center rounded-[12px] border text-center style-caption leading-[normal]",
               isOn
                 ? "border-brand bg-brand text-white"
                 : "border-border-soft text-ink-faint"

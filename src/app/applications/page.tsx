@@ -193,15 +193,15 @@ function buildSubmittedRow(
 
 function ApplicationSkeleton() {
   return (
-    <div className="flex w-full flex-col items-start gap-[16px] rounded-[16px] border border-border-soft bg-white p-[25px] sm:flex-row sm:items-center sm:justify-between sm:gap-[24px]">
-      <div className="min-w-0 flex-1 animate-pulse">
-        <div className="h-[21px] w-[280px] rounded-full bg-[#efece3]" />
-        <div className="mt-[10px] h-[14px] w-[440px] max-w-full rounded-full bg-[#f4f1ea]" />
-        <div className="mt-[10px] h-[12px] w-[240px] rounded-full bg-[#f4f1ea]" />
+    <div className="flex w-full flex-col items-start gap-4 rounded-[16px] border border-border-soft bg-white/80 p-6 sm:flex-row sm:items-center sm:justify-between sm:gap-6 shadow-xs">
+      <div className="min-w-0 flex-1 animate-pulse space-y-2.5">
+        <div className="h-5 w-64 rounded-full bg-[#efece3]" />
+        <div className="h-3.5 w-full max-w-lg rounded-full bg-[#f4f1ea]" />
+        <div className="h-3 w-48 rounded-full bg-[#f4f1ea]" />
       </div>
-      <div className="flex shrink-0 gap-[10px]">
-        <div className="h-[38px] w-[112px] rounded-[10px] bg-[#f4f1ea]" />
-        <div className="h-[38px] w-[98px] rounded-[10px] bg-[#f4f1ea]" />
+      <div className="flex shrink-0 gap-2.5">
+        <div className="h-9 w-24 rounded-lg bg-[#f4f1ea] animate-pulse" />
+        <div className="h-9 w-20 rounded-lg bg-[#f4f1ea] animate-pulse" />
       </div>
     </div>
   );
@@ -209,7 +209,7 @@ function ApplicationSkeleton() {
 
 function ApplicationEmptyState({ message }: { message: string }) {
   return (
-    <div className="rounded-[16px] border border-border-soft bg-white px-[25px] py-[22px] font-body text-[14px] leading-[20.3px] text-ink-muted">
+    <div className="rounded-[16px] border border-border-soft/80 bg-white/60 px-6 py-6 style-body-text leading-relaxed text-ink-muted transition-colors">
       {message}
     </div>
   );
@@ -233,15 +233,15 @@ function ApplicationSection({
   ) => OpenApp;
 }) {
   return (
-    <section className="mt-[22.05px] flex flex-col gap-[16px] px-[46px]">
+    <section className="mt-8 flex flex-col gap-4 px-8 lg:px-12">
       <SectionHeader title={title} action={action} />
       {loading ? (
-        <div className="flex flex-col gap-[14px]">
+        <div className="flex flex-col gap-3.5">
           <ApplicationSkeleton />
           <ApplicationSkeleton />
         </div>
       ) : items.length > 0 ? (
-        <div className="flex flex-col gap-[14px]">
+        <div className="flex flex-col gap-3.5">
           {items.map((application) => (
             <OpenAppRow key={application.id} {...buildRow(application)} />
           ))}
@@ -296,10 +296,10 @@ function ProgramFlowArrow() {
       className="flex shrink-0 items-center justify-center text-brand"
       aria-hidden="true"
     >
-      <span className="flex h-[44px] w-[44px] items-center justify-center rounded-full border border-border-soft bg-[#fbfaf7] text-[20px] leading-none shadow-[0px_1px_0px_rgba(0,0,0,0.03)] lg:hidden">
+      <span className="flex h-11 w-11 items-center justify-center rounded-full border border-border-soft bg-[#fbfaf7] text-lg font-medium shadow-xs transition-transform hover:scale-105 lg:hidden">
         ↓
       </span>
-      <span className="hidden h-full w-[48px] items-center justify-center rounded-full border border-border-soft bg-[#fbfaf7] text-[22px] leading-none shadow-[0px_1px_0px_rgba(0,0,0,0.03)] lg:flex">
+      <span className="hidden h-11 w-11 items-center justify-center rounded-full border border-border-soft bg-[#fbfaf7] text-xl font-medium shadow-xs transition-transform hover:scale-105 lg:flex">
         →
       </span>
     </div>
@@ -363,81 +363,91 @@ export default function ApplyPage() {
 
       {/* --- DESKTOP LAYOUT --- */}
       <div className="hidden md:block">
-        <div className="flex min-h-screen w-full flex-col bg-cream">
+        <div className="flex min-h-screen w-full flex-col bg-cream antialiased">
           <Navbar active="Apply" />
 
-          <div className="relative w-full pb-[46px] pt-[46px]">
-            <section className="px-[46px] pt-[8px]">
-              <h1 className="font-display text-[65px] font-bold leading-[47.52px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+          <main className="relative w-full pb-16 pt-8">
+            {/* Header Hero Section */}
+            <section className="px-8 lg:px-12 pt-4">
+              <h1 className="font-display style-page-title lg: font-bold leading-[1.05] tracking-[-0.02em] text-ink [font-variation-settings:'wdth'_100]">
                 Choose Your <span className="text-brand">AIS Path</span>
               </h1>
-              <p className="mt-[7.76px] max-w-[1000px] pl-[20.94px] font-body text-[20px] font-normal leading-[24px] text-ink">
+              <p className="mt-3 max-w-4xl style-page-subtitle lg: font-normal leading-relaxed text-ink/80">
                 Welcome to the enrollment hub. Whether you&apos;re here to learn,
                 lead, or build, there&apos;s a place waiting for you.
               </p>
             </section>
 
-            <section className="mt-[55.76px] flex flex-col gap-[16px] px-[46px]">
+            {/* How to Begin Steps */}
+            {/* <section className="mt-12 flex flex-col gap-4 px-8 lg:px-12">
               <SectionHeader
                 title="How to Begin"
-                titleClassName="text-[30px] leading-[25.96px]"
+                titleClassName=" lg: leading-tight font-semibold"
               />
-              <div className="flex flex-col gap-[20px] lg:flex-row lg:items-stretch">
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-stretch">
                 {applySteps.map((step) => (
                   <StepCard key={step.step} {...step} />
                 ))}
               </div>
-            </section>
+            </section> */}
 
-            <section className="mt-[31.49px] px-[46px]">
-              <div className="flex flex-col gap-[20px] lg:flex-row lg:items-stretch">
+            {/* Program Workflow */}
+            <section className="mt-10 px-8 lg:px-12">
+              <SectionHeader title="Our Pipeline" titleClassName=" pb-6" />
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-center">
                 {programs.map((program, index) => (
                   <Fragment key={program.title}>
-                    <ProgramCard {...program} showActionButton={false} />
+                    <div className="flex-1">
+                      <ProgramCard {...program} showActionButton={false} />
+                    </div>
                     {index < programs.length - 1 ? <ProgramFlowArrow /> : null}
                   </Fragment>
                 ))}
               </div>
             </section>
 
-            <div className="mt-[29.59px]">
-              <Marquee text="JOIN THE MOVEMENT · AIS UTD · BUILD THE FUTURE · AIS UTD" />
+            {/* Marquee Divider */}
+            <div className="overflow-visible mt-10">
+              <Marquee text="JOIN THE MOVEMENT · AIS UTD · BUILD THE FUTURE" />
             </div>
 
-            <ApplicationSection
-              title="Open Applications"
-              items={openApplications}
-              loading={loading}
-              emptyMessage="There are no open applications right now."
-              buildRow={buildOpenRow}
-            />
-            <ApplicationSection
-              title="Upcoming Applications"
-              items={upcomingApplications}
-              loading={loading}
-              emptyMessage="There are no upcoming applications."
-              buildRow={buildOpenRow}
-            />
-            <ApplicationSection
-              title="Closed Applications"
-              items={closedApplications}
-              loading={loading}
-              emptyMessage="There are no closed applications to show."
-              buildRow={buildOpenRow}
-            />
-            <ApplicationSection
-              title="Submitted Applications"
-              items={submittedApplications}
-              loading={loading}
-              emptyMessage="You have not submitted any applications yet."
-              action={
-                <Button href="/applications/history" variant="ghost" size="sm">
-                  View history
-                </Button>
-              }
-              buildRow={buildSubmittedRow}
-            />
-          </div>
+            {/* Application List Sections */}
+            <div className="space-y-4">
+              <ApplicationSection
+                title="Open Applications"
+                items={openApplications}
+                loading={loading}
+                emptyMessage="There are no open applications right now."
+                buildRow={buildOpenRow}
+              />
+              <ApplicationSection
+                title="Upcoming Applications"
+                items={upcomingApplications}
+                loading={loading}
+                emptyMessage="There are no upcoming applications."
+                buildRow={buildOpenRow}
+              />
+              <ApplicationSection
+                title="Closed Applications"
+                items={closedApplications}
+                loading={loading}
+                emptyMessage="There are no closed applications to show."
+                buildRow={buildOpenRow}
+              />
+              <ApplicationSection
+                title="Submitted Applications"
+                items={submittedApplications}
+                loading={loading}
+                emptyMessage="You have not submitted any applications yet."
+                action={
+                  <Button href="/applications/history" variant="ghost" size="sm">
+                    View history
+                  </Button>
+                }
+                buildRow={buildSubmittedRow}
+              />
+            </div>
+          </main>
         </div>
       </div>
     </>

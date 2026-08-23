@@ -38,7 +38,7 @@ export default async function EventScanPage({
       <div className="hidden md:block">
         <div className="flex h-full flex-1 flex-col gap-5 p-[46px]">
           <div>
-            <Link href="/admin/events" className="font-mono text-xs text-brand tracking-wide">
+            <Link href="/admin/events" className="style-caption text-xs text-brand tracking-wide">
               ← Back to Events
             </Link>
             <h2 className="mt-2 font-display text-3xl font-bold text-ink">

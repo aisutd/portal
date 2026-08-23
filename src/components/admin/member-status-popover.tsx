@@ -119,17 +119,17 @@ export function MemberStatusPopover({ memberName, badge, detail }: Props) {
           >
             <div>
               <p
-                className="font-techno text-[9.5px] uppercase tracking-[1.2px]"
+                className="font-techno  uppercase tracking-[1.2px]"
                 style={{ color: theme.text }}
               >
                 {badge.label}
               </p>
-              <p className="font-display text-[20px] font-bold leading-[22px] text-ink">
+              <p className="style-section-header leading-[22px] text-ink">
                 {attended}
                 <span className="text-ink-faint">/{countable}</span>
               </p>
             </div>
-            <p className="font-mono text-[10px]" style={{ color: theme.text }}>
+            <p className="style-caption " style={{ color: theme.text }}>
               {countable === 0 ? "—" : `${percent}% of 50%`}
             </p>
           </div>
@@ -145,17 +145,17 @@ export function MemberStatusPopover({ memberName, badge, detail }: Props) {
           </div>
 
           <div className="flex flex-col gap-[9px] p-[13px]">
-            <p className="font-body text-[12px] leading-[16px] text-ink-muted">{summary}</p>
+            <p className="style-body-text leading-[16px] text-ink-muted">{summary}</p>
 
             {needed > 0 && (
-              <p className="rounded-[8px] bg-brand-soft px-[10px] py-[6px] font-body text-[12px] font-semibold text-brand-dark">
+              <p className="rounded-[8px] bg-brand-soft px-[10px] py-[6px] style-body-text text-brand-dark">
                 Attend the next {needed} to reach Active.
               </p>
             )}
 
             {events.length > 0 && (
               <div>
-                <p className="font-techno text-[9.5px] uppercase tracking-[1.2px] text-ink-faint">
+                <p className="font-techno  uppercase tracking-[1.2px] text-ink-faint">
                   {programs.length > 0
                     ? `${programs.map((p) => PROGRAM_LABELS[p]).join(" + ")} + general`
                     : "General events"}
@@ -169,7 +169,7 @@ export function MemberStatusPopover({ memberName, badge, detail }: Props) {
                     >
                       <span
                         aria-hidden
-                        className="flex size-[14px] shrink-0 items-center justify-center rounded-full text-[8.5px] font-bold text-white"
+                        className="flex size-[14px] shrink-0 items-center justify-center rounded-full  font-bold text-white"
                         style={{
                           backgroundColor: event.attended ? THEME.active.bar : "#d8d3c4",
                         }}
@@ -177,7 +177,7 @@ export function MemberStatusPopover({ memberName, badge, detail }: Props) {
                         {event.attended ? "✓" : "✕"}
                       </span>
                       <span
-                        className={`min-w-0 flex-1 truncate font-body text-[12px] ${
+                        className={`min-w-0 flex-1 truncate style-body-text ${
                           event.attended ? "text-ink" : "text-ink-muted"
                         }`}
                         title={event.title}
@@ -185,11 +185,11 @@ export function MemberStatusPopover({ memberName, badge, detail }: Props) {
                         {event.title}
                       </span>
                       {!event.general && (
-                        <span className="shrink-0 rounded-full bg-purple-soft px-[6px] py-[1px] font-mono text-[9.5px] text-purple-ink">
+                        <span className="shrink-0 rounded-full bg-purple-soft px-[6px] py-[1px] style-caption text-purple-ink">
                           program
                         </span>
                       )}
-                      <span className="shrink-0 font-mono text-[10px] text-ink-faint">
+                      <span className="shrink-0 style-caption text-ink-faint">
                         {event.date}
                       </span>
                       <span className="sr-only">

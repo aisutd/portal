@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export function CoverPhotoCard() {
   return (
     <div className="flex w-full flex-col items-center gap-[12px] rounded-[16px] border border-border-soft bg-white px-[25px] pb-[25px] pt-[24px]">
-      <h3 className="w-full font-display text-[17px] font-semibold leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
+      <h3 className="w-full style-section-header leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
         Cover photo
       </h3>
 
@@ -18,7 +18,7 @@ export function CoverPhotoCard() {
             "repeating-linear-gradient(45deg, #e6e3da 0 6px, #efece3 6px 12px)",
         }}
       >
-        <span className="font-mono text-[11px] tracking-[1.5px] text-photo-text">
+        <span className="style-caption tracking-[1.5px] text-photo-text">
           DRAG IMAGE OR BROWSE
         </span>
       </div>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export type ApplicationItem = {
+  id?: string;
   title: string;
   status: { label: string } & (
     | { variant: "solid"; bg: string; color: string }
@@ -19,7 +20,7 @@ function ApplicationRow({ item }: { item: ApplicationItem }) {
   return (
     <div className="flex w-full flex-col gap-[10px]">
       <div className="flex items-center justify-between">
-        <span className="font-[Inter] text-[15px] font-bold leading-[22.5px] text-ink">
+        <span className="style-card-title  leading-[22.5px] text-ink">
           {item.title}
         </span>
         {item.status.variant === "outline" ? (
@@ -51,7 +52,7 @@ export function ApplicationsCard({ items }: { items: ApplicationItem[] }) {
         action={
           <a
             href="#"
-            className="font-[Inter] text-[12px] leading-[16.8px] tracking-[0.2px] text-brand"
+            className="style-meta-text  leading-[16.8px] tracking-[0.2px] text-brand"
           >
             View all
           </a>
@@ -65,8 +66,8 @@ export function ApplicationsCard({ items }: { items: ApplicationItem[] }) {
               <path d="m15 5 4 4"></path>
             </svg>
           </div>
-          <h2 className="font-[Inter] text-[16px] font-bold text-ink">No applications</h2>
-          <p className="font-[Inter] text-[13px] text-ink-muted text-center max-w-[280px] leading-tight">
+          <h2 className="style-card-title  text-ink">No applications</h2>
+          <p className="style-body-text  text-ink-muted text-center max-w-[280px] leading-tight">
             When you apply to a team or program, it'll show up here.
           </p>
           <Link href="/applications" className="mt-[2px]">
@@ -77,7 +78,7 @@ export function ApplicationsCard({ items }: { items: ApplicationItem[] }) {
         </div>
       ) : (
         items.map((item, index) => (
-          <div key={item.title} className={index === 0 ? "w-full" : "w-full pt-[8px]"}>
+          <div key={item.id ?? `${item.title}-${index}`} className={index === 0 ? "w-full" : "w-full pt-[8px]"}>
             <ApplicationRow item={item} />
           </div>
         ))

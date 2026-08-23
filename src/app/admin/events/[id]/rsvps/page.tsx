@@ -16,7 +16,7 @@ const TIME_FORMAT = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: 
 // --- Inline UI Components ---
 function StatusBadge({ label, bg, color }: { label: string; bg: string; color: string }) {
   return (
-    <span className={`inline-flex items-center rounded-full px-[8px] py-[2px] font-mono text-[10px] md:text-[11px] font-bold uppercase tracking-[0.5px] ${bg} ${color}`}>
+    <span className={`inline-flex items-center rounded-full px-[8px] py-[2px] style-caption md: font-bold uppercase tracking-[0.5px] ${bg} ${color}`}>
       {label}
     </span>
   );
@@ -89,15 +89,15 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
         <div className="flex items-center gap-[12px] md:gap-[16px]">
           <div className="size-[36px] md:size-[40px] shrink-0 rounded-full border border-border-soft bg-gray-200" />
           <div className="flex flex-col">
-            <span className="font-body text-[14px] md:text-[15px] font-bold text-ink">{name}</span>
-            <span className="font-mono text-[11px] md:text-[12px] text-ink-faint">{rsvp.user.email}</span>
+            <span className="style-body-text md: font-bold text-ink">{name}</span>
+            <span className="style-caption md: text-ink-faint">{rsvp.user.email}</span>
           </div>
         </div>
         <div className="flex flex-col items-end gap-[4px]">
           {isAttended ? (
             <>
               <StatusBadge label="Checked In" bg="bg-green-50" color="text-green-700" />
-              <span className="font-mono text-[10px] md:text-[11px] text-ink-faint">
+              <span className="style-caption md: text-ink-faint">
                 {TIME_FORMAT.format(rsvp.attendance.checkedInAt)}
               </span>
             </>
@@ -128,8 +128,8 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
               <span aria-hidden>←</span>
             </Link>
             <div className="flex flex-col">
-              <h2 className="font-mobile-display text-[20px] font-bold text-ink leading-tight truncate w-[250px]">{event.title}</h2>
-              <span className="font-mono text-[11px] text-ink-faint">Attendance Dashboard</span>
+              <h2 className="style-mobile-title text-ink leading-tight truncate w-[250px]">{event.title}</h2>
+              <span className="style-caption text-ink-faint">Attendance Dashboard</span>
             </div>
           </div>
 
@@ -137,16 +137,16 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
             {/* Mobile Stats Grid */}
             <div className="grid grid-cols-3 gap-[8px]">
               <div className="flex flex-col rounded-[12px] border border-border-soft bg-white p-[12px] text-center shadow-sm">
-                <span className="font-body text-[20px] font-bold text-ink">{stats.totalRsvps}</span>
-                <span className="font-mono text-[10px] text-ink-faint">Total RSVPs</span>
+                <span className="style-body-text text-ink">{stats.totalRsvps}</span>
+                <span className="style-caption text-ink-faint">Total RSVPs</span>
               </div>
               <div className="flex flex-col rounded-[12px] border border-border-soft bg-white p-[12px] text-center shadow-sm">
-                <span className="font-body text-[20px] font-bold text-green-700">{stats.totalAttended}</span>
-                <span className="font-mono text-[10px] text-ink-faint">Attended</span>
+                <span className="style-body-text text-green-700">{stats.totalAttended}</span>
+                <span className="style-caption text-ink-faint">Attended</span>
               </div>
               <div className="flex flex-col rounded-[12px] border border-border-soft bg-brand p-[12px] text-center shadow-sm">
-                <span className="font-body text-[20px] font-bold text-white">{stats.ratio}%</span>
-                <span className="font-mono text-[10px] text-white/80">Turnout</span>
+                <span className="style-body-text text-white">{stats.ratio}%</span>
+                <span className="style-caption text-white/80">Turnout</span>
               </div>
             </div>
 
@@ -154,13 +154,13 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
             {Object.keys(itemStats).length > 0 && (
               <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
                 <div className="bg-row-soft border-b border-table-line p-[16px]">
-                  <h2 className="font-techno text-[11px] uppercase tracking-[1px] text-ink-faint">Items Scanned</h2>
+                  <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">Items Scanned</h2>
                 </div>
                 <div className="grid grid-cols-2 gap-y-[12px] p-[16px]">
                   {Object.entries(itemStats).map(([type, count]) => (
                     <div key={type} className="flex flex-col">
-                      <span className="font-mono text-[11px] text-ink-faint">{type}</span>
-                      <span className="font-body text-[16px] font-bold text-ink">{count}</span>
+                      <span className="style-caption text-ink-faint">{type}</span>
+                      <span className="style-body-text text-ink">{count}</span>
                     </div>
                   ))}
                 </div>
@@ -170,14 +170,14 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
             {/* Mobile Attended List */}
             <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
               <div className="bg-row-soft border-b border-table-line p-[16px] flex justify-between items-center">
-                <h2 className="font-techno text-[11px] uppercase tracking-[1px] text-ink-faint">Checked In</h2>
-                <span className="font-mono text-[11px] font-bold text-green-700">{attended.length}</span>
+                <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">Checked In</h2>
+                <span className="style-caption font-bold text-green-700">{attended.length}</span>
               </div>
               <div className="flex flex-col">
                 {attended.length > 0 ? (
                   attended.map(r => <UserRow key={r.id} rsvp={r} isAttended={true} />)
                 ) : (
-                  <div className="p-[20px] text-center font-mono text-[12px] text-ink-muted">No check-ins yet.</div>
+                  <div className="p-[20px] text-center style-caption text-ink-muted">No check-ins yet.</div>
                 )}
               </div>
             </div>
@@ -185,16 +185,16 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
             {/* Mobile Unattended List */}
             <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
               <div className="bg-row-soft border-b border-table-line p-[16px] flex justify-between items-center">
-                <h2 className="font-techno text-[11px] uppercase tracking-[1px] text-ink-faint">
+                <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">
                   {stats.isPast ? "Missed" : "Pending"}
                 </h2>
-                <span className="font-mono text-[11px] font-bold text-ink-muted">{unattended.length}</span>
+                <span className="style-caption font-bold text-ink-muted">{unattended.length}</span>
               </div>
               <div className="flex flex-col">
                 {unattended.length > 0 ? (
                   unattended.map(r => <UserRow key={r.id} rsvp={r} isAttended={false} />)
                 ) : (
-                  <div className="p-[20px] text-center font-mono text-[12px] text-ink-muted">Everyone checked in!</div>
+                  <div className="p-[20px] text-center style-caption text-ink-muted">Everyone checked in!</div>
                 )}
               </div>
             </div>
@@ -212,10 +212,10 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <Link href={`/admin/events`} className="font-mono text-[12px] text-brand hover:underline">
+              <Link href={`/admin/events`} className="style-caption text-brand hover:underline">
                 ← Back to Events
               </Link>
-              <h2 className="mt-[6px] font-display text-[32px] font-bold leading-[1.1] tracking-[-0.4px] text-ink">
+              <h2 className="mt-[6px] style-section-header leading-[1.1] tracking-[-0.4px] text-ink">
                 {event.title} <span className="text-ink-faint font-normal">— RSVPs</span>
               </h2>
             </div>
@@ -229,21 +229,21 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
               {/* Core Metrics */}
               <div className="flex flex-col rounded-[14px] border border-border-soft bg-white overflow-hidden shadow-sm">
                 <div className="border-b border-table-line p-[20px]">
-                  <h2 className="font-techno text-[12px] uppercase tracking-[1px] text-ink-faint">Attendance Overview</h2>
+                  <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">Attendance Overview</h2>
                 </div>
                 <div className="flex flex-col p-[20px] gap-[16px]">
                   <div className="flex justify-between items-end">
-                    <span className="font-mono text-[13px] text-ink-muted">Total RSVPs</span>
-                    <span className="font-body text-[24px] font-bold text-ink leading-none">{stats.totalRsvps}</span>
+                    <span className="style-caption text-ink-muted">Total RSVPs</span>
+                    <span className="style-body-text text-ink leading-none">{stats.totalRsvps}</span>
                   </div>
                   <div className="flex justify-between items-end">
-                    <span className="font-mono text-[13px] text-ink-muted">Checked In</span>
-                    <span className="font-body text-[24px] font-bold text-green-700 leading-none">{stats.totalAttended}</span>
+                    <span className="style-caption text-ink-muted">Checked In</span>
+                    <span className="style-body-text text-green-700 leading-none">{stats.totalAttended}</span>
                   </div>
                   <div className="h-[1px] w-full bg-border-soft" />
                   <div className="flex justify-between items-end">
-                    <span className="font-mono text-[13px] text-ink-muted">Turnout Ratio</span>
-                    <span className="font-body text-[32px] font-bold text-brand leading-none">{stats.ratio}%</span>
+                    <span className="style-caption text-ink-muted">Turnout Ratio</span>
+                    <span className="style-body-text text-brand leading-none">{stats.ratio}%</span>
                   </div>
                 </div>
               </div>
@@ -252,13 +252,13 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
               {Object.keys(itemStats).length > 0 && (
                 <div className="flex flex-col rounded-[14px] border border-border-soft bg-white overflow-hidden shadow-sm">
                   <div className="border-b border-table-line p-[20px]">
-                    <h2 className="font-techno text-[12px] uppercase tracking-[1px] text-ink-faint">Items Dispensed</h2>
+                    <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">Items Dispensed</h2>
                   </div>
                   <div className="flex flex-col p-[20px] gap-[12px]">
                     {Object.entries(itemStats).map(([type, count]) => (
                       <div key={type} className="flex justify-between items-center">
-                        <span className="font-mono text-[13px] text-ink-muted">{type}</span>
-                        <span className="font-body text-[16px] font-bold text-ink">{count}</span>
+                        <span className="style-caption text-ink-muted">{type}</span>
+                        <span className="style-body-text text-ink">{count}</span>
                       </div>
                     ))}
                   </div>
@@ -272,14 +272,14 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
               {/* Attended List */}
               <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
                 <div className="flex items-center justify-between border-b border-table-line p-[20px] bg-row-soft">
-                  <h2 className="font-techno text-[12px] uppercase tracking-[1px] text-ink-faint">Checked In</h2>
+                  <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">Checked In</h2>
                   <StatusBadge label={`${attended.length} Members`} bg="bg-green-50" color="text-green-700" />
                 </div>
                 <div className="flex flex-col">
                   {attended.length > 0 ? (
                     attended.map(r => <UserRow key={r.id} rsvp={r} isAttended={true} />)
                   ) : (
-                    <div className="p-[40px] text-center font-body text-[15px] text-ink-muted">No one has checked in yet.</div>
+                    <div className="p-[40px] text-center style-body-text text-ink-muted">No one has checked in yet.</div>
                   )}
                 </div>
               </div>
@@ -287,7 +287,7 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
               {/* Unattended List */}
               <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
                 <div className="flex items-center justify-between border-b border-table-line p-[20px] bg-row-soft">
-                  <h2 className="font-techno text-[12px] uppercase tracking-[1px] text-ink-faint">
+                  <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">
                     {stats.isPast ? "Missed Event" : "Pending Check-in"}
                   </h2>
                   <StatusBadge label={`${unattended.length} Members`} bg="bg-gray-100" color="text-gray-600" />
@@ -296,7 +296,7 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
                   {unattended.length > 0 ? (
                     unattended.map(r => <UserRow key={r.id} rsvp={r} isAttended={false} />)
                   ) : (
-                    <div className="p-[40px] text-center font-body text-[15px] text-ink-muted">
+                    <div className="p-[40px] text-center style-body-text text-ink-muted">
                       {stats.totalRsvps > 0 ? "Everyone who RSVP'd checked in!" : "No RSVPs for this event."}
                     </div>
                   )}
