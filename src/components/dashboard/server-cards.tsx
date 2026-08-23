@@ -2,10 +2,11 @@ import { Suspense } from "react";
 import { StatusStrip, Stat } from "./status-strip";
 import { ApplicationsCard, ApplicationItem } from "./applications-card";
 import { RsvpsCard, RsvpItem } from "./rsvps-card";
-import { getDashboardStats, getProfileCompletion, getMembership, getApplications, getRSVPs, getUpcomingEvents } from "@/lib/dashboard-utils";
+import { getDashboardStats, getProfileCompletion, getMemberships, getApplications, getRSVPs, getUpcomingEvents } from "@/lib/dashboard-utils";
 import { RecommendedCard, RecommendedItem } from "./recommended-card";
 import { Card } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
+import { PROGRAM_LABELS } from "@/lib/roles";
 
 /* --- Skeletons --- */
 
@@ -66,20 +67,25 @@ export function RsvpsCardSkeleton() {
 /* --- Async Server Components --- */
 
 export async function DashboardStatusStrip({ userId }: { userId: string }) {
-  const [stats, profile, membership] = await Promise.all([
+  const [stats, profile, memberships] = await Promise.all([
     getDashboardStats(userId),
     getProfileCompletion(userId),
-    getMembership(userId),
+    getMemberships(userId),
   ]);
+
+  const since = (date: Date) =>
+    new Date(date).toLocaleDateString([], { month: "short", year: "2-digit" });
 
   const statusStats: Stat[] = [
     {
       kind: "dot",
       label: "Membership",
-      value: membership
-        ? `${membership.membershipType.replace("_", " ")} (${new Date(membership.startDate).toLocaleDateString([], { month: 'short', year: '2-digit' })} - ${membership.endDate ? new Date(membership.endDate).toLocaleDateString([], { month: 'short', year: '2-digit' }) : 'Present'})`
-        : "Non Member",
-      dotColor: membership ? "#356b2e" : "#8a8a93",
+      value: memberships.length
+        ? memberships
+            .map((m) => `${PROGRAM_LABELS[m.membershipType]} (${since(m.startDate)} - Present)`)
+            .join(", ")
+        : "Member",
+      dotColor: memberships.length ? "#356b2e" : "#8a8a93",
     },
     {
       kind: "progress",
@@ -196,6 +202,7 @@ export async function DashboardRsvpsCard({ userId }: { userId: string }) {
       day: d.getDate().toString().padStart(2, "0"),
       title: rsvp.event.title,
       detail: `${d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} · ${rsvp.event.location}`,
+      id: rsvp.eventId
     };
   });
 
@@ -206,6 +213,7 @@ export async function DashboardRecommendedCard({ userId }: { userId: string }) {
   const events = await getUpcomingEvents(2, userId);
 
   const items: RecommendedItem[] = events.map((event) => ({
+    id: event.id,
     title: event.title,
     tags: [
       { label: "Upcoming", bg: "#e1e8ff", color: "#1f3aa3" },

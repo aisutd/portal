@@ -6,7 +6,8 @@ import { SettingsCard } from "@/components/admin/settings-card";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { MobileAdminNav } from "@/components/mobile/admin/MobileAdminNav";
 import { eventTags, eventSettings } from "@/lib/data";
-import { updateEvent } from "@/app/admin/events/[id]/edit/actions";
+import { updateEvent, deleteEvent } from "@/app/admin/events/[id]/edit/actions";
+import { DeleteEventButton } from "@/components/admin/delete-event-button";
 
 type EventDefaultValues = {
   title: string;
@@ -24,9 +25,10 @@ type EventDefaultValues = {
 type MobileAdminEditEventProps = {
   eventId: string;
   defaultValues: EventDefaultValues;
+  isPublished: boolean;
 };
 
-export function MobileAdminEditEvent({ eventId, defaultValues }: MobileAdminEditEventProps) {
+export function MobileAdminEditEvent({ eventId, defaultValues, isPublished }: MobileAdminEditEventProps) {
   return (
     <MobileScreen withBottomNavPadding={false}>
       <MobileAdminNav active="Events" />
@@ -47,15 +49,53 @@ export function MobileAdminEditEvent({ eventId, defaultValues }: MobileAdminEdit
         <CoverPhotoCard />
         <SettingsCard items={eventSettings} />
 
-        <div className="flex gap-[10px]">
-          <Link href="/admin/events" className="flex-1">
-            <Button type="button" variant="ghost" size="md" className="w-full">
+        <div className="flex flex-col gap-[10px]">
+          <div className="flex gap-[10px]">
+            <Button 
+              type="submit" 
+              name="action" 
+              value="draft" 
+              variant="ghost" 
+              size="md" 
+              className="flex-1"
+            >
+              Save changes
+            </Button>
+
+            {isPublished ? (
+              <Button 
+                type="submit" 
+                name="action" 
+                value="unpublish" 
+                variant="accent" 
+                size="md"
+                className="flex-1"
+              >
+                Unpublish
+              </Button>
+            ) : (
+              <Button 
+                type="submit" 
+                name="action" 
+                value="publish" 
+                variant="primary" 
+                size="md"
+                className="flex-1"
+              >
+                Publish
+              </Button>
+            )}
+          </div>
+
+          <Link href="/admin/events" className="w-full">
+            <Button type="button" variant="ghost" size="md" className="w-full text-ink-faint">
               Cancel
             </Button>
           </Link>
-          <Button type="submit" variant="primary" size="md" className="flex-1">
-            Save Changes
-          </Button>
+          
+          <div className="mt-2 border-t border-border-soft pt-4">
+            <DeleteEventButton eventId={eventId} deleteAction={deleteEvent} />
+          </div>
         </div>
       </form>
     </MobileScreen>

@@ -2,7 +2,8 @@ import { Webhook } from 'svix';
 import { headers } from 'next/headers';
 import { WebhookEvent } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
-import { UserRole } from '@prisma/client'; 
+import { UserRole } from '@prisma/client';
+import { isAllowedEmail } from '@/lib/email-domains';
 
 export async function POST(req: Request) {
   console.log('--- WEBHOOK REQUEST RECEIVED ---');
@@ -48,6 +49,14 @@ export async function POST(req: Request) {
     if (!primaryEmail) {
       console.error("User has no email address");
       return new Response('Error: User has no email address', { status: 400 });
+    }
+
+    // Portal accounts are UTD/AIS only. Ack with 200 so Clerk stops retrying —
+    // the Clerk user still exists, it just never gets a row in our database, so
+    // it can't complete onboarding or reach the dashboard.
+    if (!isAllowedEmail(primaryEmail)) {
+      console.warn(`Ignoring user.created for disallowed email domain: ${primaryEmail}`);
+      return new Response('', { status: 200 });
     }
 
     try {

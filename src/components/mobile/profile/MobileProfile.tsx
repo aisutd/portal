@@ -9,6 +9,7 @@ import { BottomNav } from "@/components/mobile/ui/BottomNav";
 import { MobileEyebrow as Eyebrow } from "@/components/mobile/ui/MobileEyebrow";
 import { SignOutButton } from "@clerk/nextjs";
 import { PasswordResetButton } from "@/components/profile/PasswordResetButton";
+import { UTD_MAJORS, UTD_DEGREES, ACADEMIC_YEARS } from "@/lib/utd-data";
 
 type MobileProfileProps = {
   profile: Profile;
@@ -21,11 +22,13 @@ function MobileSelect({
   name,
   defaultValue,
   options,
+  className,
 }: {
   label: string;
   name: string;
   defaultValue: string;
   options: string[];
+  className: string;
 }) {
   return (
     <div className="flex flex-col gap-[6px]">
@@ -33,8 +36,11 @@ function MobileSelect({
       <select
         name={name}
         defaultValue={defaultValue}
-        className="w-full rounded-[10px] border border-transparent bg-field px-[13px] py-[11px] font-mobile-body text-[14px] text-ink focus:outline-none focus:ring-2 focus:ring-brand/40"
+        className={cn( "w-full rounded-[10px] border border-transparent bg-field px-[13px] py-[11px] font-mobile-body text-[14px] text-ink focus:outline-none focus:ring-2 focus:ring-brand/40", 
+          className
+        )}
       >
+        <option value="">Select {label.toLowerCase()}</option>
         {options.map((o) => (
           <option key={o} value={o}>
             {o}
@@ -45,25 +51,13 @@ function MobileSelect({
   );
 }
 
-const MAJOR_OPTIONS = [
-  "Computer Science",
-  "Software Engineering",
-  "Data Science",
-  "Information Technology",
-  "Cognitive Science",
-  "Other",
-];
-
-const YEAR_OPTIONS = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"];
-
 export function MobileProfile({ profile, completion, updateProfile }: MobileProfileProps) {
   return (
     <MobileScreen>
       {completion.percent < 100 && (
         <div className="rounded-[8px] bg-[#f9d5d3] px-[16px] py-[12px]">
           <span className="font-mobile-body text-[13px] font-bold text-[#9a3b36]">
-            Your profile is {completion.percent}% complete. Fill in the highlighted fields to
-            reach 100%.
+            Your profile is {completion.percent}% complete. Fill in the highlighted fields to reach 100%.
           </span>
         </div>
       )}
@@ -86,12 +80,28 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
               name="linkedinUrl"
               defaultValue={profile.linkedinUrl || ""}
               placeholder="linkedin.com/in/…"
+              className={cn( 
+                !profile.linkedinUrl ? "border-red-500 ring-2 ring-red-500 bg-red-50" : "border-transparent"
+              )}
             />
             <MobileField
               label="Github"
               name="githubUrl"
               defaultValue={profile.githubUrl || ""}
               placeholder="github.com/…"
+              className={cn( 
+                !profile.githubUrl ? "border-red-500 ring-2 ring-red-500 bg-red-50" : "border-transparent"
+              )}
+            />
+            <MobileField
+              label="Portfolio"
+              name="portfolioUrl"
+              defaultValue={profile.portfolioUrl || ""}
+              placeholder="https://..."
+              className={cn( 
+                /*!profile.portfolioUrl ? "border-red-500 ring-2 ring-red-500 bg-red-50" :*/ 
+                "border-transparent"
+              )}
             />
           </Card>
         </div>
@@ -101,19 +111,33 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
           <Eyebrow>Personal Info</Eyebrow>
           <MobileField label="First Name" name="firstName" defaultValue={profile.firstName} />
           <MobileField label="Last Name" name="lastName" defaultValue={profile.lastName} />
+          <MobileField label="Preferred Name" name="prefName" defaultValue={profile.prefName || ""} />
           <MobileField
-            label="Email"
+            label="UTD Email"
             name="utdEmail"
             type="email"
             defaultValue={profile.utdEmail || ""}
           />
-          <MobileField label="UTD ID" name="utdNetId" defaultValue={profile.utdNetId || ""} />
-          <MobileSelect label="Major" name="major" defaultValue={profile.major} options={MAJOR_OPTIONS} />
+          <MobileField label="UTD ID" name="utdNetId" defaultValue={profile.utdNetId || ""} 
+          className={cn( 
+                !profile.utdNetId ? "border-red-500 ring-2 ring-red-500 bg-red-50" : "border-transparent"
+              )}/>
+          <MobileSelect label="Major" name="major" defaultValue={profile.major ?? ""} options={UTD_MAJORS} 
+          className={cn( 
+                !profile.major ? "border-red-500 ring-2 ring-red-500 bg-red-50" : "border-transparent"
+              )}/>
+          <MobileSelect label="Degree" name="degree" defaultValue={profile.degree ?? ""} options={UTD_DEGREES} 
+          className={cn( 
+                !profile.degree ? "border-red-500 ring-2 ring-red-500 bg-red-50" : "border-transparent"
+              )}/>
           <MobileSelect
             label="Academic Year"
             name="year"
-            defaultValue={profile.year}
-            options={YEAR_OPTIONS}
+            defaultValue={profile.year ?? ""}
+            options={ACADEMIC_YEARS}
+            className={cn( 
+                !profile.year ? "border-red-500 ring-2 ring-red-500 bg-red-50" : "border-transparent"
+              )}
           />
         </Card>
 
@@ -159,7 +183,7 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
 
         {/* Security */}
         <Card className="flex flex-col gap-[16px] p-[18px]">
-          <Eyebrow>Security</Eyebrow>
+          <Eyebrow>Security & Notifications</Eyebrow>
 
           <div className="flex items-center justify-between gap-[12px] rounded-[12px] bg-row-soft p-[14px]">
             <div>
@@ -189,31 +213,29 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
         </Card>
 
         {/* Footer actions */}
-        
         <div className="flex gap-[12px]">
-          
           <Button type="reset" variant="soft" className="flex-1" block>
             Cancel
           </Button>
           <Button type="submit" variant="primary" className="flex-1" block>
             Apply Changes
           </Button>
-          
         </div>
       </form>
-        <div className="flex items-center w-full">
+
+      <div className="flex items-center w-full mt-2">
         {/* SIGN OUT BUTTON */}
-                <SignOutButton redirectUrl="/">
-                  <Button 
-                    type="button" 
-                    variant="ghost" 
-                    size="lg" 
-                    className="mr-auto font-black text-red-600 hover:text-red-700 hover:bg-red-50"
-                  >
-                    Sign Out
-                  </Button>
-                </SignOutButton>
-        </div>
+        <SignOutButton redirectUrl="/">
+          <Button 
+            type="button" 
+            variant="ghost" 
+            size="lg" 
+            className="mr-auto font-black text-red-600 hover:text-red-700 hover:bg-red-50"
+          >
+            Sign Out
+          </Button>
+        </SignOutButton>
+      </div>
 
       <BottomNav />
     </MobileScreen>
