@@ -14,7 +14,7 @@ type MobileAdminNavProps = {
 };
 
 /** Compact top nav replacing the desktop admin sidebar on narrow screens. */
-export async function MobileAdminNav({ active = "Overview" }: MobileAdminNavProps) {
+export async function MobileAdminNav({ active = "Events" }: MobileAdminNavProps) {
   // Fetch the authenticated user to determine their actual role
   const user = await getAuthenticatedUser();
   
