@@ -14,10 +14,15 @@
   /* - Size: 14px, 16px, 20px, 32px, 48px, etc.                           */
   /* ==================================================================== */
 
-  /* Main Page Titles (Big headers at the top of pages) */
-  --font-page-title: var(--font-inter), sans-serif;
-  --weight-page-title: 700;
-  --size-page-title: 40px;
+  /* Premium display headings — the only place using the placard-style treatment */
+  --font-page-title: var(--font-placard), sans-serif;
+  --weight-page-title: 800;
+  --size-page-title: 42px;
+
+  /* Mobile title scale */
+  --font-mobile-display: var(--font-placard), sans-serif;
+  --weight-mobile-display: 800;
+  --size-mobile-display: 34px;
 
   /* Subtitles*/
   --font-page-subtitle: var(--font-inter), sans-serif;
@@ -25,14 +30,14 @@
   --size-page-subtitle: 16px;
 
   /* Section Headers ("How to Begin", "Open Applications", etc.) */
-  --font-section-header: var(--font-inter), sans-serif;
-  --weight-section-header: 600;
-  --size-section-header: 23px;
+  --font-section-header: var(--font-placard), sans-serif;
+  --weight-section-header: 700;
+  --size-section-header: 24px;
 
   /* Card Titles (Program names, Event titles, Step titles) */
-  --font-card-title: var(--font-inter), sans-serif;
-  --weight-card-title: 700;
-  --size-card-title: 20px;
+  --font-card-title: var(--font-placard), sans-serif;
+  --weight-card-title: 800;
+  --size-card-title: 22px;
 
   /* Buttons ("Apply", "Sign Up", "Learn More") */
   --font-button: var(--font-inter), sans-serif;
@@ -63,6 +68,11 @@
   --font-body-text: var(--font-inter), sans-serif;
   --weight-body-text: 400;
   --size-body-text: 14px;
+
+  /* Mobile body copy */
+  --font-mobile-body: var(--font-inter), sans-serif;
+  --weight-mobile-body: 400;
+  --size-mobile-body: 14px;
 
   /* Steps, Dates, Timestamps, etc */
   --font-meta-text: var(--font-inter), sans-serif;
@@ -179,7 +189,8 @@ body {
   h1 {
     font-family: var(--font-page-title) !important;
     font-weight: var(--weight-page-title) !important;
-    letter-spacing: -0.4px;
+    letter-spacing: -0.08em;
+    line-height: 0.96;
   }
 
   h2,
@@ -189,6 +200,8 @@ body {
   h6 {
     font-family: var(--font-section-header) !important;
     font-weight: var(--weight-section-header) !important;
+    letter-spacing: -0.05em;
+    line-height: 1.08;
   }
 
   button {
@@ -209,6 +222,8 @@ body {
     font-family: var(--font-page-title) !important;
     font-weight: var(--weight-page-title) !important;
     font-size: var(--size-page-title, inherit);
+    line-height: 0.96;
+    letter-spacing: -0.08em;
   }
 
   .style-page-subtitle {
@@ -221,12 +236,16 @@ body {
     font-family: var(--font-section-header) !important;
     font-weight: var(--weight-section-header) !important;
     font-size: var(--size-section-header, inherit);
+    line-height: 1.08;
+    letter-spacing: -0.05em;
   }
 
   .style-card-title {
     font-family: var(--font-card-title) !important;
     font-weight: var(--weight-card-title) !important;
     font-size: var(--size-card-title, inherit);
+    line-height: 1.08;
+    letter-spacing: -0.05em;
   }
 
   .style-button-text {
@@ -263,6 +282,24 @@ body {
     font-family: var(--font-body-text) !important;
     font-weight: var(--weight-body-text) !important;
     font-size: var(--size-body-text, inherit);
+  }
+
+  .style-mobile-title {
+    font-family: var(--font-mobile-display) !important;
+    font-weight: var(--weight-mobile-display) !important;
+    font-size: var(--size-mobile-display, inherit);
+  }
+
+  .style-mobile-body {
+    font-family: var(--font-mobile-body) !important;
+    font-weight: var(--weight-mobile-body) !important;
+    font-size: var(--size-mobile-body, inherit);
+  }
+
+  .style-caption {
+    font-family: var(--font-body-text) !important;
+    font-weight: var(--weight-meta-text) !important;
+    font-size: var(--size-meta-text, inherit);
   }
 
   .style-meta-text {

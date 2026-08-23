@@ -38,13 +38,13 @@ export function FeaturedEventCard({
   return (
     <div className="flex min-h-[300px] flex-1 flex-col justify-between self-stretch overflow-hidden rounded-[16px] border border-border-soft bg-brand-soft p-[28px]">
       <div>
-        <span className="inline-flex rounded-full bg-orange-soft px-[14px] py-[5px] style-badge-text text-[13px] leading-[normal] text-orange-ink">
+        <span className="inline-flex rounded-full bg-orange-soft px-[14px] py-[5px] style-badge-text  leading-[normal] text-orange-ink">
           {badge}
         </span>
-        <h2 className="mt-[13px] style-card-title text-[30px] leading-[32.4px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+        <h2 className="mt-[13px] style-card-title  leading-[32.4px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
           {title}
         </h2>
-        <p className="mt-[14px] style-body-text text-[14px] leading-[20.3px] text-ink-muted">
+        <p className="mt-[14px] style-body-text  leading-[20.3px] text-ink-muted">
           {description}
         </p>
       </div>

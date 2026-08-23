@@ -75,7 +75,7 @@ export function BottomNav() {
               <Link
                 key={tab.href}
                 href={tab.href}
-                className={`rounded-full px-3.5 py-1.5 style-nav-link text-[13.5px] transition-colors ${
+                className={`rounded-full px-3.5 py-1.5 style-nav-link  transition-colors ${
                   active ? "bg-purple-soft text-brand" : "text-ink-muted hover:text-ink"
                 }`}
               >

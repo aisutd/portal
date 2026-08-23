@@ -90,19 +90,19 @@ export function EventGridCard({
       className="flex h-full flex-col rounded-2xl border border-border-soft bg-white p-5 transition-shadow hover:shadow-sm block group"
     >
       <div className="flex h-37.5 w-full shrink-0 items-center justify-center rounded-xl bg-photo overflow-hidden">
-        <span className="font-mono text-[11px] tracking-[1.5px] text-photo-text">
+        <span className="style-caption tracking-[1.5px] text-photo-text">
           PHOTO
         </span>
       </div>
 
       <div className="flex flex-1 flex-col">
-        <h3 className="mt-4 line-clamp-2 font-display text-[18px] font-semibold leading-tight text-ink group-hover:text-brand transition-colors [font-variation-settings:'wdth'_100]">
+        <h3 className="mt-4 line-clamp-2 style-card-title leading-tight text-ink group-hover:text-brand transition-colors [font-variation-settings:'wdth'_100]">
           {title}
         </h3>
-        <p className="mt-1.5 style-meta-text text-[12px] tracking-wide text-ink-faint">
+        <p className="mt-1.5 style-meta-text tracking-wide text-ink-faint">
           {meta}
         </p>
-        <p className="mt-3 line-clamp-3 style-body-text text-[14px] leading-relaxed text-ink-muted">
+        <p className="mt-3 line-clamp-3 style-body-text leading-relaxed text-ink-muted">
           {description}
         </p>
       </div>
@@ -119,8 +119,8 @@ export function EventGridCard({
             // Show dynamic attendance status badges for past events
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium">
               {hasAttended ? (
-                <span className="flex items-center gap-1.5 bg-[#d2ecd9] text-[#2c5d3e] px-3 py-1 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-[#2c5d3e]">
+                <span className="flex items-center gap-1.5 bg-[#d2ecd9]  px-3 py-1 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 ">
                     <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
                   </svg>
                   Attended
@@ -163,7 +163,7 @@ export function EventGridCard({
           )}
 
           {message && !isPast && (
-            <p className="text-[11px] font-medium text-ink-faint">{message}</p>
+            <p className="style-body-text text-ink-faint">{message}</p>
           )}
         </div>
       </div>

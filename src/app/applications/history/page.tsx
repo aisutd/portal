@@ -85,7 +85,7 @@ function LoadingState() {
 
 function EmptyState() {
   return (
-    <div className="rounded-[16px] border border-border-soft bg-white px-[25px] py-[22px] style-body-text text-[14px] leading-[20.3px] text-ink-muted">
+    <div className="rounded-[16px] border border-border-soft bg-white px-[25px] py-[22px] style-body-text  leading-[20.3px] text-ink-muted">
       You have not submitted any applications yet.
     </div>
   );
@@ -140,10 +140,10 @@ export default function ApplicationHistoryPage() {
               Back to Applications
             </Button>
 
-            <h1 className="style-page-title text-[28px] leading-tight text-ink">
+            <h1 className="style-page-title  leading-tight text-ink">
               Application History
             </h1>
-            <p className="style-page-subtitle text-[13px] text-ink-muted">
+            <p className="style-page-subtitle  text-ink-muted">
               Review your past submissions and retention window.
             </p>
 
@@ -160,17 +160,17 @@ export default function ApplicationHistoryPage() {
                     <article className="flex flex-col gap-[12px]">
                       <div className="flex items-start justify-between gap-[8px]">
                         <div>
-                          <h2 className="font-sans text-[15px] font-bold text-ink">
+                          <h2 className="font-sans  font-bold text-ink">
                             {submission.application.title}
                           </h2>
-                          <p className="mt-[4px] font-sans text-[12px] font-normal text-ink-muted">
+                          <p className="mt-[4px] font-sans  font-normal text-ink-muted">
                             Submitted {formatDateTime(submission.submittedAt)}
                           </p>
                         </div>
                         {getStatusBadge(submission.status)}
                       </div>
                       {submission.application.retentionUntil ? (
-                        <p className="font-sans text-[11px] font-normal text-ink-faint">
+                        <p className="font-sans  font-normal text-ink-faint">
                           Retention until {dateFormatter.format(new Date(submission.application.retentionUntil))}
                         </p>
                       ) : null}
@@ -198,10 +198,10 @@ export default function ApplicationHistoryPage() {
               </Button>
 
               <section className="flex flex-col gap-[8px]">
-                <h1 className="style-page-title text-[32px] leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+                <h1 className="style-page-title  leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
                   Application History
                 </h1>
-                <p className="style-page-subtitle text-[15px] leading-[21.75px] text-ink-muted">
+                <p className="style-page-subtitle  leading-[21.75px] text-ink-muted">
                   Review your past submissions and retention window.
                 </p>
               </section>
@@ -221,10 +221,10 @@ export default function ApplicationHistoryPage() {
                     <article className="flex flex-col gap-[14px]">
                       <div className="flex flex-col gap-[12px] sm:flex-row sm:items-start sm:justify-between">
                         <div className="flex min-w-0 flex-col gap-[8px]">
-                          <h2 className="font-display text-[20px] font-semibold leading-[23.56px] text-ink [font-variation-settings:'wdth'_100]">
+                          <h2 className="style-section-header leading-[23.56px] text-ink [font-variation-settings:'wdth'_100]">
                             {submission.application.title}
                           </h2>
-                          <p className="font-body text-[14px] leading-[20.3px] text-ink-muted">
+                          <p className="style-body-text leading-[20.3px] text-ink-muted">
                             Submitted {formatDateTime(submission.submittedAt)}
                           </p>
                         </div>
@@ -232,7 +232,7 @@ export default function ApplicationHistoryPage() {
                       </div>
 
                       {submission.application.retentionUntil ? (
-                        <p className="font-body text-[14px] leading-[20.3px] text-ink-muted">
+                        <p className="style-body-text leading-[20.3px] text-ink-muted">
                           Retention until {dateFormatter.format(new Date(submission.application.retentionUntil))}
                         </p>
                       ) : null}

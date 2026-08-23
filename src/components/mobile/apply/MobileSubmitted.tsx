@@ -101,7 +101,7 @@ function LoadingState() {
 
 function NotFoundState({ message }: { message: string }) {
   return (
-    <div className="rounded-[16px] border border-border-soft bg-white p-[20px] font-mobile-body text-[13px] text-ink-muted">
+    <div className="rounded-[16px] border border-border-soft bg-white p-[20px] style-mobile-body text-ink-muted">
       {message}
     </div>
   );
@@ -169,10 +169,10 @@ export function MobileSubmitted() {
   return (
     <MobileScreen>
       <div className="flex flex-col gap-[6px]">
-        <h1 className="font-mobile-display text-[20px] font-bold text-ink">
+        <h1 className="style-mobile-title text-ink">
           Submitted Application
         </h1>
-        <p className="font-mobile-body text-[13px] text-ink-muted">
+        <p className="style-mobile-body text-ink-muted">
           View your submitted answers in read-only form.
         </p>
       </div>
@@ -185,18 +185,18 @@ export function MobileSubmitted() {
         <div className="flex flex-col gap-[16px] rounded-[16px] border border-border-soft bg-white p-[20px]">
           <div className="flex flex-col gap-[8px]">
             <div className="flex items-start justify-between gap-[10px]">
-              <h2 className="font-mobile-display text-[16px] font-bold text-ink">
+              <h2 className="style-mobile-title text-ink">
                 {submission.application.title}
               </h2>
               <div className="shrink-0">{getStatusBadge(submission.status)}</div>
             </div>
-            <p className="font-mobile-body text-[12px] text-ink-muted">
+            <p className="style-mobile-body text-ink-muted">
               Submitted {formatDateTime(submission.submittedAt)}
             </p>
           </div>
 
           {submission.application.retentionUntil ? (
-            <p className="font-mobile-body text-[12px] text-ink-muted">
+            <p className="style-mobile-body text-ink-muted">
               Retention until{" "}
               {dateFormatter.format(new Date(submission.application.retentionUntil))}
             </p>
@@ -206,12 +206,12 @@ export function MobileSubmitted() {
             {personalFields.map((label) =>
               label === "Resume *" ? (
                 <div key={label} className="flex flex-col gap-[6px]">
-                  <label className="font-mobile-body text-[13px] font-bold text-ink">
+                  <label className="style-mobile-body font-bold text-ink">
                     {label}
                   </label>
                   <a
                     href="/api/profile/resume/download"
-                    className="flex h-[40px] items-center rounded-[10px] bg-field px-[13px] font-mono text-[11px] text-ink transition-colors hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/40"
+                    className="flex h-[40px] items-center rounded-[10px] bg-field px-[13px] style-caption text-ink transition-colors hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/40"
                     title={fieldValues[label]}
                   >
                     <span className="truncate">

@@ -1,12 +1,22 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from '@clerk/nextjs';
 import { Analytics } from "@vercel/analytics/next";
-import { Inter } from "next/font/google";
+import { Inter, Bricolage_Grotesque } from "next/font/google";
+import localFont from 'next/font/local';
+
 import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+});
+
+const placard = localFont({
+  src: '../../public/fonts/PlacardNextRegular.ttf',
+  display: 'swap',
+  variable: "--font-placard",
+  //subsets: ["latin"],
+  //weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -22,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} antialiased`}
+        className={`${inter.variable} ${placard.variable} antialiased`}
       >
         <ClerkProvider>
           {children}

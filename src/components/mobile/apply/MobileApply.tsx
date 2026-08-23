@@ -181,7 +181,7 @@ function ApplicationSection({
 }) {
   return (
     <div className="flex flex-col gap-[12px]">
-      <h2 className="font-sans text-[17px] font-bold text-ink">{title}</h2>
+      <h2 className="font-sans  font-bold text-ink">{title}</h2>
       {loading ? (
         <div className="flex flex-col gap-[12px]">
           <ApplicationSkeleton />
@@ -197,13 +197,13 @@ function ApplicationSection({
             >
               <div className="flex items-start justify-between gap-[8px]">
                 <div>
-                  <h3 className="font-sans text-[15px] font-bold text-ink">
+                  <h3 className="font-sans  font-bold text-ink">
                     {app.title}
                   </h3>
-                  <p className="mt-[4px] font-sans text-[13px] font-normal text-ink-muted">
+                  <p className="mt-[4px] font-sans  font-normal text-ink-muted">
                     {app.description}
                   </p>
-                  <p className="mt-[4px] font-sans text-[11px] font-normal text-ink-faint">
+                  <p className="mt-[4px] font-sans  font-normal text-ink-faint">
                     {app.meta}
                   </p>
                 </div>
@@ -227,7 +227,7 @@ function ApplicationSection({
           );
         })
       ) : (
-        <div className="rounded-[14px] border border-border-soft bg-white p-[16px] style-body-text text-[13px] text-ink-muted">
+        <div className="rounded-[14px] border border-border-soft bg-white p-[16px] style-body-text  text-ink-muted">
           {emptyMessage}
         </div>
       )}
@@ -283,10 +283,10 @@ export function MobileApply() {
   return (
     <MobileScreen>
       <div className="flex flex-col gap-2 pt-4">
-        <h1 className="style-page-title text-[36px] leading-tight text-ink">
+        <h1 className="style-page-title  leading-tight text-ink">
           Choose Your <span className="text-brand">AIS Path</span>
         </h1>
-        <p className="style-page-subtitle text-[14px] text-ink-muted">
+        <p className="style-page-subtitle  text-ink-muted">
           Welcome to the enrollment hub. Whether you&apos;re here to learn,
           lead, or build, there&apos;s a place waiting for you.
         </p>
@@ -294,7 +294,7 @@ export function MobileApply() {
 
       {/* How to Begin
       <div className="flex flex-col gap-[12px]">
-        <h2 className="font-sans text-[17px] font-bold text-ink">
+        <h2 className="font-sans  font-bold text-ink">
           How to Begin
         </h2>
         {applySteps.map((step) => (
@@ -302,16 +302,16 @@ export function MobileApply() {
             key={step.step}
             className="relative flex flex-col gap-[4px] overflow-hidden rounded-[16px] border border-brand bg-white px-[18px] py-[16px]"
           >
-            <p className="font-sans text-[11px] font-bold text-brand">{step.step}</p>
-            <h3 className="font-sans text-[16px] font-bold text-ink">
+            <p className="font-sans  font-bold text-brand">{step.step}</p>
+            <h3 className="font-sans  font-bold text-ink">
               {step.title}
             </h3>
-            <p className="max-w-[230px] font-sans text-[13px] font-normal text-ink-muted">
+            <p className="max-w-[230px] font-sans  font-normal text-ink-muted">
               {step.description}
             </p>
             <span
               aria-hidden
-              className="pointer-events-none absolute right-[10px] top-[38px] select-none font-sans text-[56px] font-extrabold leading-none text-brand-soft"
+              className="pointer-events-none absolute right-[10px] top-[38px] select-none font-sans  font-extrabold leading-none text-brand-soft"
             >
               {step.number}
             </span>
@@ -329,7 +329,7 @@ export function MobileApply() {
             >
               <div className="flex items-center justify-between">
                 <span
-                  className="flex size-[40px] items-center justify-center rounded-[10px] text-[18px]"
+                  className="flex size-[40px] items-center justify-center rounded-[10px] "
                   style={{ backgroundColor: program.iconBg, color: program.iconColor }}
                 >
                   {program.icon}
@@ -338,10 +338,10 @@ export function MobileApply() {
                   <Badge label={program.badge} bg="#fbe3cb" color="#7a4416" />
                 )}
               </div>
-              <h3 className="font-sans text-[19px] font-bold text-ink">
+              <h3 className="font-sans  font-bold text-ink">
                 {program.title}
               </h3>
-              <p className="font-sans text-[13px] font-normal text-ink-muted leading-relaxed">
+              <p className="font-sans  font-normal text-ink-muted leading-relaxed">
                 {program.description}
               </p>
               <div className="flex flex-wrap gap-[6px]">
@@ -374,7 +374,7 @@ export function MobileApply() {
       {/* Slogan banner (bleeds past the screen padding) */}
       <div className="-mx-[20px] overflow-x-hidden py-[2px]">
         <div className="rotate-[-0.8deg] bg-brand py-[12px]">
-          <p className="whitespace-nowrap text-center font-sans text-[11.5px] font-bold tracking-[0.5px] text-white">
+          <p className="whitespace-nowrap text-center font-sans  font-bold tracking-[0.5px] text-white">
             JOIN THE MOVEMENT · AIS UTD · BUILD THE FUTURE
           </p>
         </div>

@@ -49,7 +49,7 @@ export function ProgramCard({
 
   const iconChip = (
     <span
-      className="flex size-[46px] items-center justify-center rounded-[12px] pb-[12px] pt-[9px] text-center text-[20px]"
+      className="flex size-[46px] items-center justify-center rounded-[12px] pb-[12px] pt-[9px] text-center "
       style={{ backgroundColor: iconBg, color: iconColor }}
     >
       {icon}
@@ -64,7 +64,7 @@ export function ProgramCard({
       {badge ? (
         <div className="flex w-full items-center justify-between">
           {iconChip}
-          <span className="inline-flex items-center rounded-full bg-orange-soft px-[14px] py-[5px] style-badge-text text-[13px] leading-[normal] text-orange-ink">
+          <span className="inline-flex items-center rounded-full bg-orange-soft px-[14px] py-[5px] style-badge-text  leading-[normal] text-orange-ink">
             {badge}
           </span>
         </div>
@@ -72,7 +72,7 @@ export function ProgramCard({
         iconChip
       )}
 
-      <h3 className="font-display text-[22px] font-semibold leading-snug text-ink [font-variation-settings:'wdth'_100]">
+      <h3 className="style-card-title leading-snug text-ink [font-variation-settings:'wdth'_100]">
         {title}
       </h3>
 
@@ -89,7 +89,7 @@ export function ProgramCard({
       </div>
 
       {description && (
-        <p className="mt-1 flex-1 font-body text-[14px] leading-relaxed text-ink/75">
+        <p className="mt-1 flex-1 style-body-text leading-relaxed text-ink/75">
           {description}
         </p>
       )}

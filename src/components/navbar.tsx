@@ -98,8 +98,8 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
                       : NAV_ROUTES[label]
                   }
                   className={cn(
-                    "style-nav-link text-[15px] tracking-[0.5px] px-[24px] py-[10px] rounded-full transition-colors flex items-center justify-center",
-                    isActive ? "bg-[#e1e8ff] text-[#2f5fe8]" : "text-[#4b4178] hover:bg-gray-100"
+                    "style-nav-link  tracking-[0.5px] px-[24px] py-[10px] rounded-full transition-colors flex items-center justify-center",
+                    isActive ? "bg-[#e1e8ff] " : " hover:bg-gray-100"
                   )}
                 >
                   {label}
@@ -113,8 +113,8 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
               <Link
                 href={NAV_ROUTES.Admin}
                 className={cn(
-                  "style-nav-link text-[15px] tracking-[0.5px] px-[24px] py-[10px] rounded-full transition-colors flex items-center justify-center",
-                  active === ADMIN_LABEL ? "bg-[#e1e8ff] text-[#2f5fe8]" : "text-[#4b4178] hover:bg-gray-100"
+                  "style-nav-link  tracking-[0.5px] px-[24px] py-[10px] rounded-full transition-colors flex items-center justify-center",
+                  active === ADMIN_LABEL ? "bg-[#e1e8ff] " : " hover:bg-gray-100"
                 )}
               >
                 Admin
@@ -128,13 +128,13 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
           <Show when="signed-out">
             <Link
               href="/onboarding?mode=login"
-              className="style-nav-link text-[15px] text-ink-muted"
+              className="style-nav-link  text-ink-muted"
             >
               Sign In
             </Link>
             <Link
               href="/onboarding?mode=signup"
-              className="rounded-[10px] border border-brand bg-brand px-[15px] py-[9px] style-nav-link text-[15px] text-white"
+              className="rounded-[10px] border border-brand bg-brand px-[15px] py-[9px] style-nav-link  text-white"
             >
               Sign Up
             </Link>
@@ -162,8 +162,8 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
     </div>
     <span
       className={cn(
-        "whitespace-nowrap style-nav-link text-[15px]",
-        active === "Profile" ? "text-[#2f5fe8]" : "text-[#4b4178]"
+        "whitespace-nowrap style-nav-link ",
+        active === "Profile" ? "" : ""
       )}
     >
       Profile

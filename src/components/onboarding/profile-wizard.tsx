@@ -87,7 +87,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
 
   const selectClasses = cn(
     "w-full rounded-[7px] border border-transparent bg-field px-[13px] py-[12px]",
-    "font-mono-alt text-[13px] leading-[normal] text-ink-card",
+    "font-mono-alt  leading-[normal] text-ink-card",
     "focus:outline-none focus:ring-2 focus:ring-brand/40"
   );
 
@@ -132,7 +132,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
         {step === 1 && (
           <div className="flex flex-col gap-[16px]">
             <div className="flex flex-col">
-              <label className="mb-[10px] font-grotesk text-[13px] font-semibold leading-[normal] text-label-ink">
+              <label className="mb-[10px] font-grotesk  font-semibold leading-[normal] text-label-ink">
                 Year
               </label>
               <select
@@ -150,7 +150,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
             </div>
 
             <div className="flex flex-col">
-              <label className="mb-[10px] font-grotesk text-[13px] font-semibold leading-[normal] text-label-ink">
+              <label className="mb-[10px] font-grotesk  font-semibold leading-[normal] text-label-ink">
                 Degree
               </label>
               <select
@@ -168,7 +168,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
             </div>
 
             <div className="flex flex-col">
-              <label className="mb-[10px] font-grotesk text-[13px] font-semibold leading-[normal] text-label-ink">
+              <label className="mb-[10px] font-grotesk  font-semibold leading-[normal] text-label-ink">
                 Major
               </label>
               <select
@@ -205,7 +205,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
         {/* Step 3 — Links */}
         {step === 2 && (
           <div className="flex flex-col gap-[16px]">
-            <p className="font-body text-[14px] leading-[20.3px] text-ink-muted">
+            <p className="style-body-text leading-[20.3px] text-ink-muted">
               These are all optional — you can always add them later from your
               profile.
             </p>
@@ -231,7 +231,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
         )}
 
         {error && (
-          <p className="mt-[12px] text-[12px] text-red-600">{error}</p>
+          <p className="mt-[12px]  text-red-600">{error}</p>
         )}
 
         {/* Navigation */}

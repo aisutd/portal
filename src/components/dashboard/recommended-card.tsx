@@ -61,7 +61,7 @@ function RecommendedRow({
       <div className="flex items-center gap-[12px]">
         <div className="size-[52px] shrink-0 rounded-xl bg-photo" />
         <div className="flex flex-col">
-          <span className="style-card-title text-[15px] leading-[22.5px] text-ink">
+          <span className="style-card-title  leading-[22.5px] text-ink">
             {item.title}
           </span>
           <div className="flex gap-[6px] pt-[1px]">
@@ -102,7 +102,7 @@ export function RecommendedCard({ items }: { items: RecommendedItem[] }) {
         action={
           <a
             href="#"
-            className="style-meta-text text-[12px] leading-[16.8px] tracking-[0.2px] text-brand"
+            className="style-meta-text  leading-[16.8px] tracking-[0.2px] text-brand"
           >
             Refresh
           </a>
@@ -110,7 +110,7 @@ export function RecommendedCard({ items }: { items: RecommendedItem[] }) {
       />
       {displayItems.length === 0 ? (
         <div className="flex h-[160px] w-full items-center justify-center rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6]">
-          <span className="style-body-text text-[14px] text-ink-faint">No upcoming events.</span>
+          <span className="style-body-text  text-ink-faint">No upcoming events.</span>
         </div>
       ) : (
         displayItems.map((item, index) => (

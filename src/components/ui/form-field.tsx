@@ -22,7 +22,7 @@ export function FormField({
     <div className="flex w-full flex-col gap-[7px]">
       <label
         htmlFor={inputId}
-        className="style-label-text text-[14px] leading-[20.3px] text-ink-muted"
+        className="style-label-text  leading-[20.3px] text-ink-muted"
       >
         {label}
       </label>
@@ -30,7 +30,7 @@ export function FormField({
         id={inputId}
         style={{ height }}
         className={cn(
-          "w-full rounded-[8px] bg-search-field px-[14px] style-input-text text-[12px] text-search-ink",
+          "w-full rounded-[8px] bg-search-field px-[14px] style-input-text  text-search-ink",
           "placeholder:text-search-ink focus:outline-none focus:ring-2 focus:ring-brand/40",
           className
         )}
@@ -58,7 +58,7 @@ export function FormTextarea({
     <div className="flex w-full flex-col gap-[7px]">
       <label
         htmlFor={inputId}
-        className="style-label-text text-[14px] leading-[20.3px] text-ink-muted"
+        className="style-label-text  leading-[20.3px] text-ink-muted"
       >
         {label}
       </label>
@@ -66,7 +66,7 @@ export function FormTextarea({
         id={inputId}
         className={cn(
           "h-[96px] w-full resize-none rounded-[10px] border border-border-soft bg-white px-[14px] py-[10px]",
-          "style-input-text text-[12px] text-ink placeholder:text-search-ink focus:outline-none focus:ring-2 focus:ring-brand/40",
+          "style-input-text  text-ink placeholder:text-search-ink focus:outline-none focus:ring-2 focus:ring-brand/40",
           className
         )}
         {...props}

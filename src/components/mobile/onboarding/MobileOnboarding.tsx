@@ -11,7 +11,7 @@ function MobileOnboardingInner() {
   const initialMode = searchParams.get("mode") === "login" ? "login" : "signup";
 
   return (
-    <div className="flex min-h-[100dvh] w-full flex-col bg-brand font-mobile-body text-ink">
+    <div className="flex min-h-[100dvh] w-full flex-col bg-brand style-mobile-body text-ink">
       
       {/* Top Cream Section */}
       <div className="flex w-full flex-col bg-cream pb-[5.5rem] pt-10 sm:pt-12">
@@ -21,7 +21,7 @@ function MobileOnboardingInner() {
             src="/ais_logo_black.png"
             alt="AIS Logo"
           />
-          <h1 className="mt-4 text-left font-sans text-[28px] font-bold leading-[1.1] text-ink sm:text-[32px]">
+          <h1 className="mt-4 text-left font-sans  font-bold leading-[1.1] text-ink sm:">
             Step into the<br />
             world of <span className="text-brand">artificial</span><br />
             <span className="text-brand">intelligence</span>
