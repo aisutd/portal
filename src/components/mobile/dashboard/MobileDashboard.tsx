@@ -25,7 +25,7 @@ export function MobileDashboard({ userId, userName, nextRsvp }: MobileDashboardP
   return (
     <MobileScreen>
       <h1 className="font-mobile-display text-[36px] font-bold text-brand">
-        Welcome back, {userName}! :)
+        Welcome back, {userName}!
       </h1>
 
       {/* Up Next */}
