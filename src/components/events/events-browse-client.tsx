@@ -114,7 +114,15 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
 
             {/* Event sections (Distinct Sections with Flags) */}
             <div className="min-w-px flex-1 p-[46px] flex flex-col gap-[40px]">
-              <h1 className="style-page-title text-brand">Pick Your Next Sidequest</h1>
+              <div>
+                <h1 className="style-page-title text-brand mb-3">
+                  Pick Your Next Sidequest
+                </h1>
+                <p className="style-page-subtitle  text-ink-muted">
+                  Join us to learn, build, and connect with the AIS community
+                </p>
+              </div>
+              
               {totalFilteredCount === 0 ? (
                 <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-border-soft bg-white p-[40px] text-center shadow-sm">
                   <p className="style-mobile-title text-ink">
@@ -137,7 +145,7 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
                 <>
                   {/* Upcoming Events Section */}
                   <section className="flex flex-col gap-[20px]">
-                    <h2 className="font-grotesk  font-bold text-ink">
+                    <h2 className="font-grotesk style-section-header font-bold text-ink">
                       Upcoming Events
                     </h2>
                     {filteredUpcoming.length === 0 ? (
@@ -163,7 +171,7 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
                   {/* Past Events Section */}
                   {filteredPast.length > 0 && (
                     <section className="flex flex-col gap-[20px]">
-                      <h2 className="font-grotesk  font-bold text-ink-muted">
+                      <h2 className="font-grotesk style-section-header font-bold text-ink-muted">
                         Past Events
                       </h2>
                       <div className="grid grid-cols-1 gap-[24px] lg:grid-cols-2 opacity-80">

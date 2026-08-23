@@ -372,7 +372,7 @@ export default function ApplyPage() {
               <h1 className="font-display style-page-title lg: font-bold leading-[1.05] tracking-[-0.02em] text-ink [font-variation-settings:'wdth'_100]">
                 Choose Your <span className="text-brand">AIS Path</span>
               </h1>
-              <p className="mt-3 max-w-4xl style-body-text lg: font-normal leading-relaxed text-ink/80">
+              <p className="mt-3 max-w-4xl style-page-subtitle lg: font-normal leading-relaxed text-ink/80">
                 Welcome to the enrollment hub. Whether you&apos;re here to learn,
                 lead, or build, there&apos;s a place waiting for you.
               </p>
