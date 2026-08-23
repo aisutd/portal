@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import { getAuthenticatedUser } from "@/lib/auth";
 
 const NAV_ITEMS = [
-  { label: "Overview", href: "/admin/dashboard" },
   { label: "Applications", href: "/admin/applications/1" },
   { label: "Events", href: "/admin/events" },
   { label: "Members", href: "/admin/members" },

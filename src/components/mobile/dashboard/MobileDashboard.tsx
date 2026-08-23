@@ -3,7 +3,6 @@ import QRCode from "react-qr-code";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AnnouncementsCard, type Announcement } from "@/components/dashboard/announcements-card";
 import { QuickCtaCard } from "@/components/dashboard/quick-cta-card";
 import {
   DashboardApplicationsCard,
@@ -20,10 +19,9 @@ type MobileDashboardProps = {
   userId: string;
   userName: string; // <-- Added this
   nextRsvp: Awaited<ReturnType<typeof getNextUpcomingRsvp>>;
-  announcements: [Announcement, Announcement];
 };
 
-export function MobileDashboard({ userId, userName, nextRsvp, announcements }: MobileDashboardProps) {
+export function MobileDashboard({ userId, userName, nextRsvp }: MobileDashboardProps) {
   return (
     <MobileScreen>
       <h1 className="style-mobile-title text-brand">
@@ -105,8 +103,6 @@ export function MobileDashboard({ userId, userName, nextRsvp, announcements }: M
       >
         <DashboardRecommendedCard userId={userId} />
       </Suspense>
-
-      <AnnouncementsCard items={announcements} />
 
       <BottomNav />
     </MobileScreen>
