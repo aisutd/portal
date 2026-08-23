@@ -93,7 +93,7 @@ export function UpNextCard({ eyebrow, title, dateLines, tags = [], isEmpty = fal
             {qrToken ? (
               <QRCode value={qrToken} size={200} level="H" />
             ) : (
-              <span className="font-mono  uppercase tracking-[1.5px] text-ink-faint">
+              <span className="style-caption uppercase tracking-[1.5px] text-ink-faint">
                 QR
               </span>
             )}

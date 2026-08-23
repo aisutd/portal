@@ -209,7 +209,7 @@ function ApplicationSkeleton() {
 
 function ApplicationEmptyState({ message }: { message: string }) {
   return (
-    <div className="rounded-[16px] border border-border-soft/80 bg-white/60 px-6 py-6 font-body  leading-relaxed text-ink-muted transition-colors">
+    <div className="rounded-[16px] border border-border-soft/80 bg-white/60 px-6 py-6 style-body-text leading-relaxed text-ink-muted transition-colors">
       {message}
     </div>
   );
@@ -372,7 +372,7 @@ export default function ApplyPage() {
               <h1 className="font-display  lg: font-bold leading-[1.05] tracking-[-0.02em] text-ink [font-variation-settings:'wdth'_100]">
                 Choose Your <span className="text-brand">AIS Path</span>
               </h1>
-              <p className="mt-3 max-w-4xl font-body  lg: font-normal leading-relaxed text-ink/80">
+              <p className="mt-3 max-w-4xl style-body-text lg: font-normal leading-relaxed text-ink/80">
                 Welcome to the enrollment hub. Whether you&apos;re here to learn,
                 lead, or build, there&apos;s a place waiting for you.
               </p>

@@ -177,14 +177,14 @@ export function MemberRolesEditor({ memberId, memberName, role, programs }: Prop
           }`}
         >
           <div className="sticky top-0 z-10 shrink-0 border-b border-border-soft bg-row-soft px-[14px] py-[10px]">
-            <p className="truncate font-body  font-bold text-ink">{memberName}</p>
+            <p className="truncate style-body-text text-ink">{memberName}</p>
             {/* Current server state, so it is clear what is assigned today. */}
             <div className="mt-[5px] flex flex-wrap items-center gap-[4px]">
               {currentBadges.length > 0 ? (
                 currentBadges.map((badge) => (
                   <span
                     key={badge.label}
-                    className="rounded-full px-[7px] py-[2px] font-mono "
+                    className="rounded-full px-[7px] py-[2px] style-caption "
                     style={{
                       backgroundColor: badge.bg ?? "#fff",
                       color: badge.color ?? "#55555f",
@@ -195,17 +195,17 @@ export function MemberRolesEditor({ memberId, memberName, role, programs }: Prop
                   </span>
                 ))
               ) : (
-                <span className="font-mono  text-ink-faint">Member · no programs</span>
+                <span className="style-caption text-ink-faint">Member · no programs</span>
               )}
             </div>
           </div>
 
           {confirmRemove ? (
             <div className="flex flex-col gap-[10px] p-[14px]">
-              <p className="font-body  leading-[17px] text-ink">
+              <p className="style-body-text leading-[17px] text-ink">
                 Remove <span className="font-bold">{memberName}</span> from the portal?
               </p>
-              <p className="font-body  leading-[16px] text-ink-faint">
+              <p className="style-body-text leading-[16px] text-ink-faint">
                 Deletes their profile, program memberships, RSVPs
                 <span className="font-semibold text-danger-ink"> and their login</span>.
                 They are signed out everywhere and would have to sign up from
@@ -215,7 +215,7 @@ export function MemberRolesEditor({ memberId, memberName, role, programs }: Prop
               {error && (
                 <p
                   role="alert"
-                  className="rounded-[8px] bg-danger-ink/10 px-[10px] py-[7px] font-body  leading-[16px] text-danger-ink"
+                  className="rounded-[8px] bg-danger-ink/10 px-[10px] py-[7px] style-body-text leading-[16px] text-danger-ink"
                 >
                   {error}
                 </p>
@@ -246,7 +246,7 @@ export function MemberRolesEditor({ memberId, memberName, role, programs }: Prop
                         type="button"
                         onClick={() => setDraftRole(option)}
                         aria-pressed={selected}
-                        className={`flex cursor-pointer items-center justify-between rounded-[9px] border px-[11px] py-[7px] text-left font-body  transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-soft ${
+                        className={`flex cursor-pointer items-center justify-between rounded-[9px] border px-[11px] py-[7px] text-left style-body-text transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-soft ${
                           selected
                             ? "border-brand bg-brand-soft font-bold text-brand-dark"
                             : "border-transparent text-ink hover:bg-row-soft"
@@ -278,7 +278,7 @@ export function MemberRolesEditor({ memberId, memberName, role, programs }: Prop
                         type="button"
                         onClick={() => toggleProgram(program)}
                         aria-pressed={selected}
-                        className={`cursor-pointer rounded-full border px-[11px] py-[5px] font-body  font-semibold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-soft ${
+                        className={`cursor-pointer rounded-full border px-[11px] py-[5px] style-body-text transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-soft ${
                           selected
                             ? "border-transparent"
                             : "border-border-soft bg-white text-ink-muted hover:bg-row-soft"
@@ -303,7 +303,7 @@ export function MemberRolesEditor({ memberId, memberName, role, programs }: Prop
               {saved && (
                 <p
                   role="status"
-                  className="rounded-[8px] bg-[#eaf4e8] px-[10px] py-[7px] font-body  font-semibold "
+                  className="rounded-[8px] bg-[#eaf4e8] px-[10px] py-[7px] style-body-text "
                 >
                   ✓ Saved — the row now shows these badges.
                 </p>
@@ -312,7 +312,7 @@ export function MemberRolesEditor({ memberId, memberName, role, programs }: Prop
               {error && (
                 <p
                   role="alert"
-                  className="rounded-[8px] bg-danger-ink/10 px-[10px] py-[7px] font-body  leading-[16px] text-danger-ink"
+                  className="rounded-[8px] bg-danger-ink/10 px-[10px] py-[7px] style-body-text leading-[16px] text-danger-ink"
                 >
                   {error}
                 </p>
@@ -325,7 +325,7 @@ export function MemberRolesEditor({ memberId, memberName, role, programs }: Prop
                     setError(null);
                     setConfirmRemove(true);
                   }}
-                  className="cursor-pointer rounded-[6px] px-[2px] font-body  font-semibold text-danger-ink underline-offset-2 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-danger-ink/25"
+                  className="cursor-pointer rounded-[6px] px-[2px] style-body-text text-danger-ink underline-offset-2 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-danger-ink/25"
                 >
                   Remove
                 </button>

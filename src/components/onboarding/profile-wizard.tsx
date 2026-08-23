@@ -205,7 +205,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
         {/* Step 3 — Links */}
         {step === 2 && (
           <div className="flex flex-col gap-[16px]">
-            <p className="font-body  leading-[20.3px] text-ink-muted">
+            <p className="style-body-text leading-[20.3px] text-ink-muted">
               These are all optional — you can always add them later from your
               profile.
             </p>

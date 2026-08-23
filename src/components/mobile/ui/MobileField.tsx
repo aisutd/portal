@@ -25,7 +25,7 @@ export function MobileField({ label, id, className, ...props }: MobileFieldProps
         id={inputId}
         className={cn(
           "w-full rounded-[10px] border px-[13px] py-[11px]",
-          "font-mobile-body  text-ink",
+          "style-mobile-body text-ink",
           "placeholder:text-field-ink focus:outline-none focus:ring-2",
           "border-transparent bg-field focus:ring-brand/40",
           className

@@ -33,7 +33,7 @@ export function StatCard({ value, label, highlight }: StatCardData) {
 
       <span
         className={cn(
-          "font-display  font-bold leading-[34px] [font-variation-settings:'wdth'_100]",
+          "style-section-header leading-[34px] [font-variation-settings:'wdth'_100]",
           highlight ? "text-brand" : "text-ink"
         )}
       >

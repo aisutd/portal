@@ -33,7 +33,7 @@ function ErrorText({ id, message }: { id: string; message?: string }) {
     <p
       id={id}
       role="alert"
-      className="mt-[8px] font-body  leading-[16.8px] text-red-600"
+      className="mt-[8px] style-body-text leading-[16.8px] text-red-600"
     >
       {message}
     </p>
@@ -361,7 +361,7 @@ function AuthCardInner() {
         <h2 className="mt-[17px] font-chakra  font-bold leading-[normal] text-ink-card">
           Reset your password
         </h2>
-        <p className="mt-[8px] font-body  font-normal leading-[19px] text-ink-muted">
+        <p className="mt-[8px] style-body-text leading-[19px] text-ink-muted">
           We&apos;ll email you a 6-digit code to set a new password.
         </p>
 
@@ -411,7 +411,7 @@ function AuthCardInner() {
         <h2 className="mt-[17px] font-chakra  font-bold leading-[normal] text-ink-card">
           Choose a new password
         </h2>
-        <p className="mt-[8px] font-body  font-normal leading-[19px] text-ink-muted">
+        <p className="mt-[8px] style-body-text leading-[19px] text-ink-muted">
           Enter the code we sent to {email}, then pick a new password.
         </p>
 
@@ -437,7 +437,7 @@ function AuthCardInner() {
             {notice && (
               <p
                 role="status"
-                className="mt-[8px] font-body  leading-[16.8px] text-green"
+                className="mt-[8px] style-body-text leading-[16.8px] text-green"
               >
                 {notice}
               </p>

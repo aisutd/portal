@@ -32,10 +32,10 @@ export default async function SetupPage() {
         />
       </div>
 
-      <h1 className="mt-[24px] font-display  font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+      <h1 className="mt-[24px] style-section-header leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
         Complete Your Profile
       </h1>
-      <p className="mt-[8px] max-w-[420px] text-center font-body  font-normal leading-[22.5px] text-ink-muted">
+      <p className="mt-[8px] max-w-[420px] text-center style-body-text leading-[22.5px] text-ink-muted">
         Tell us a bit about yourself so we can personalize your AIS experience.
       </p>
 

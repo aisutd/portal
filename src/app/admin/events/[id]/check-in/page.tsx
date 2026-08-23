@@ -47,14 +47,14 @@ export default async function EventQrPage({ params }: EventQrPageProps) {
       <div className="absolute top-6 left-6">
         <Link
           href={`/admin/events`}
-          className="font-mono  text-brand hover:underline"
+          className="style-caption text-brand hover:underline"
         >
           ← Back to Events
         </Link>
       </div>
 
       <div className="w-full max-w-md rounded-3xl bg-white p-8 text-center shadow-lg border border-border-soft">
-        <span className="rounded-full bg-brand-soft px-3 py-1 font-mono  font-bold uppercase tracking-wider text-brand">
+        <span className="rounded-full bg-brand-soft px-3 py-1 style-caption font-bold uppercase tracking-wider text-brand">
           Live Check-In
         </span>
         
@@ -81,7 +81,7 @@ export default async function EventQrPage({ params }: EventQrPageProps) {
               <AdminQrDisplay url={checkInUrl} />
             </div>
 
-            <div className="rounded-xl bg-cream-muted p-3 font-mono  text-ink-faint break-all">
+            <div className="rounded-xl bg-cream-muted p-3 style-caption text-ink-faint break-all">
               {checkInUrl}
             </div>
           </>

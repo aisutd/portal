@@ -309,7 +309,7 @@ function ApplyDetailContent() {
         {/* TODO: Convert this route to /applications/detail/[id] once the page becomes dynamic. */}
         <Link
           href="/applications"
-          className="font-mono  leading-[16.8px] tracking-[0.2px] text-brand"
+          className="style-caption leading-[16.8px] tracking-[0.2px] text-brand"
         >
           ← Back to Apply
         </Link>
@@ -317,17 +317,17 @@ function ApplyDetailContent() {
         {loading ? (
           <DetailSkeleton />
         ) : error ? (
-          <div className="rounded-[16px] border border-border-soft bg-white p-[29px] font-body  leading-[21.75px] text-ink-muted">
+          <div className="rounded-[16px] border border-border-soft bg-white p-[29px] style-body-text leading-[21.75px] text-ink-muted">
             {error}
           </div>
         ) : application ? (
           <>
             <div className="flex flex-col gap-[16px] sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-col gap-[8px]">
-                <h1 className="font-display  font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+                <h1 className="style-section-header leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
                   {application.application.title}
                 </h1>
-                <p className="font-body  font-normal leading-[21.75px] text-ink-muted">
+                <p className="style-body-text leading-[21.75px] text-ink-muted">
                   {formatDecisionDate(application.application.decisionDate)}
                 </p>
               </div>
@@ -353,7 +353,7 @@ function ApplyDetailContent() {
             </div>
 
             {alreadySubmitted ? (
-              <div className="rounded-[16px] border border-border-soft bg-[#fbfaf7] px-[20px] py-[16px] font-body  leading-[20.3px] text-ink-muted">
+              <div className="rounded-[16px] border border-border-soft bg-[#fbfaf7] px-[20px] py-[16px] style-body-text leading-[20.3px] text-ink-muted">
                 You have already submitted an application for this program.
               </div>
             ) : null}
@@ -361,19 +361,19 @@ function ApplyDetailContent() {
             <div className="rounded-[16px] border border-border-soft bg-white p-[29px]">
               <div className="flex flex-col gap-[20px]">
                 <div className="flex flex-col gap-[8px]">
-                  <h2 className="font-display  font-semibold leading-[23.56px] text-ink [font-variation-settings:'wdth'_100]">
+                  <h2 className="style-section-header leading-[23.56px] text-ink [font-variation-settings:'wdth'_100]">
                     Description
                   </h2>
-                  <p className="font-body  font-normal leading-[20.3px] text-ink-muted">
+                  <p className="style-body-text leading-[20.3px] text-ink-muted">
                     {application.application.description}
                   </p>
                 </div>
 
                 <div className="flex flex-col gap-[8px]">
-                  <h2 className="font-display  font-semibold leading-[23.56px] text-ink [font-variation-settings:'wdth'_100]">
+                  <h2 className="style-section-header leading-[23.56px] text-ink [font-variation-settings:'wdth'_100]">
                     Eligibility
                   </h2>
-                  <ul className="flex list-disc flex-col gap-[8px] pl-[18px] font-body  leading-[20.3px] text-ink-muted">
+                  <ul className="flex list-disc flex-col gap-[8px] pl-[18px] style-body-text leading-[20.3px] text-ink-muted">
                     {application.application.eligibility.map((item) => (
                       <li key={item}>{item}</li>
                     ))}
@@ -383,7 +383,7 @@ function ApplyDetailContent() {
             </div>
 
             <div className="flex items-center gap-[12px] pt-[6px]">
-              <h2 className="font-display  font-semibold leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
+              <h2 className="style-section-header leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
                 Roles
               </h2>
               <span className="h-[1.5px] min-w-px flex-1 bg-border-soft" />

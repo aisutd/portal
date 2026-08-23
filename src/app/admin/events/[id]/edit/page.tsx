@@ -73,11 +73,11 @@ export default async function EditEventPage({
               <div>
                 <Link
                   href="/admin/events"
-                  className="font-mono  leading-[16.8px] tracking-[0.2px] text-brand"
+                  className="style-caption leading-[16.8px] tracking-[0.2px] text-brand"
                 >
                   ← Back to Events
                 </Link>
-                <h2 className="mt-[6px] font-display  font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+                <h2 className="mt-[6px] style-section-header leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
                   Edit Event
                 </h2>
               </div>

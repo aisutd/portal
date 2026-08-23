@@ -45,10 +45,10 @@ export function ApplicantDetail({
       <div className="flex items-center gap-[16px]">
         <span className="size-[56px] shrink-0 rounded-full border border-border-soft bg-photo" />
         <div className="min-w-0 flex-1">
-          <h2 className="font-display  font-semibold leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
+          <h2 className="style-section-header leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
             {name}
           </h2>
-          <p className="font-mono  leading-[16.8px] tracking-[0.2px] text-ink-faint">
+          <p className="style-caption leading-[16.8px] tracking-[0.2px] text-ink-faint">
             {netid} ·{" "}
             <a href={`mailto:${email}`} className=" underline">
               {email}
@@ -56,10 +56,10 @@ export function ApplicantDetail({
             · {phone}
           </p>
         </div>
-        <span className="inline-flex shrink-0 items-center rounded-full bg-orange-soft px-[14px] py-[5px] font-body  font-semibold leading-[normal] text-orange-ink">
+        <span className="inline-flex shrink-0 items-center rounded-full bg-orange-soft px-[14px] py-[5px] style-body-text leading-[normal] text-orange-ink">
           {roleBadge}
         </span>
-        <span className="inline-flex shrink-0 items-center rounded-full bg-brand-soft px-[14px] py-[5px] font-body  font-semibold leading-[normal] text-brand-dark">
+        <span className="inline-flex shrink-0 items-center rounded-full bg-brand-soft px-[14px] py-[5px] style-body-text leading-[normal] text-brand-dark">
           {statusBadge}
         </span>
       </div>
@@ -77,7 +77,7 @@ export function ApplicantDetail({
             GitHub ↗
           </Button>
         </div>
-        <p className="font-mono  leading-[16.8px] tracking-[0.2px] text-ink-faint">
+        <p className="style-caption leading-[16.8px] tracking-[0.2px] text-ink-faint">
           {appliedAt}
         </p>
       </div>
@@ -88,7 +88,7 @@ export function ApplicantDetail({
       <div className="flex flex-col gap-[8px]">
         {questions.map((q) => (
           <div key={q.prompt} className="flex flex-col gap-[8px]">
-            <h3 className="font-display  font-semibold leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
+            <h3 className="style-section-header leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
               {q.prompt}
             </h3>
             {q.lines.map((w, i) => (
@@ -107,17 +107,17 @@ export function ApplicantDetail({
         {/* Rubric */}
         <div className="flex flex-1 flex-col gap-[12px] self-stretch rounded-[14px] bg-row-soft p-[22px]">
           <div className="flex items-center justify-between">
-            <h3 className="font-display  font-semibold leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
+            <h3 className="style-section-header leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
               Scoring rubric
             </h3>
-            <span className="font-mono  leading-[16.8px] tracking-[0.2px] text-ink-faint">
+            <span className="style-caption leading-[16.8px] tracking-[0.2px] text-ink-faint">
               your scores
             </span>
           </div>
 
           {rubric.map((c) => (
             <div key={c.label} className="flex items-center justify-between">
-              <span className="font-body  font-normal leading-[20.3px] text-ink-muted">
+              <span className="style-body-text leading-[20.3px] text-ink-muted">
                 {c.label}
               </span>
               <ScoreScale selected={c.selected} />
@@ -127,10 +127,10 @@ export function ApplicantDetail({
           <div className="h-px w-full bg-border-soft" />
 
           <div className="flex items-center justify-between">
-            <span className="font-body  font-bold leading-[22.5px] text-ink">
+            <span className="style-body-text leading-[22.5px] text-ink">
               Your overall
             </span>
-            <span className="font-body  font-bold leading-[22.5px] text-ink">
+            <span className="style-body-text leading-[22.5px] text-ink">
               {overall}
             </span>
           </div>
@@ -142,10 +142,10 @@ export function ApplicantDetail({
             <ReviewerCard key={r.name} {...r} />
           ))}
           <div className="flex items-center justify-between rounded-[16px] border border-brand bg-brand-soft px-[21px] py-[17px]">
-            <span className="font-body  font-bold leading-[22.5px] text-brand-dark">
+            <span className="style-body-text leading-[22.5px] text-brand-dark">
               Combined avg
             </span>
-            <span className="font-display  font-semibold leading-[25.96px] text-brand-dark [font-variation-settings:'wdth'_100]">
+            <span className="style-section-header leading-[25.96px] text-brand-dark [font-variation-settings:'wdth'_100]">
               {combinedAvg}
             </span>
           </div>

@@ -72,7 +72,7 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
                   type="button"
                   aria-pressed={selectedTags.length === 0}
                   onClick={() => setSelectedTags([])}
-                  className={`rounded-full px-[14px] py-[6px] font-mobile-body  font-bold transition-all duration-200 ${
+                  className={`rounded-full px-[14px] py-[6px] style-mobile-body font-bold transition-all duration-200 ${
                     selectedTags.length === 0
                       ? "bg-brand text-white shadow-sm"
                       : "border border-border-soft bg-white text-ink-muted hover:bg-stone-soft"
@@ -116,17 +116,17 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
             <div className="min-w-px flex-1 p-[46px] flex flex-col gap-[40px]">
               {totalFilteredCount === 0 ? (
                 <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-border-soft bg-white p-[40px] text-center shadow-sm">
-                  <p className="font-mobile-display  font-bold text-ink">
+                  <p className="style-mobile-title text-ink">
                     No events found.
                   </p>
-                  <p className="mt-[6px] font-mobile-body  text-ink-muted">
+                  <p className="mt-[6px] style-mobile-body text-ink-muted">
                     We didn't have any events with selected filters. Look out in the near future!
                   </p>
                   {selectedTags.length > 0 && (
                     <button
                       type="button"
                       onClick={() => setSelectedTags([])}
-                      className="mt-[16px] rounded-full bg-brand-soft px-[16px] py-[8px] font-mobile-body  font-bold text-brand transition-colors hover:bg-brand hover:text-white"
+                      className="mt-[16px] rounded-full bg-brand-soft px-[16px] py-[8px] style-mobile-body font-bold text-brand transition-colors hover:bg-brand hover:text-white"
                     >
                       Clear Filters
                     </button>

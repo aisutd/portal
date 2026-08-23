@@ -22,7 +22,7 @@ export function PastTile(props: PastTileData) {
 
   return (
     <div className="flex h-[150px] items-center justify-center rounded-[12px] bg-photo">
-      <span className="font-mono  tracking-[1.5px] text-photo-text">
+      <span className="style-caption tracking-[1.5px] text-photo-text">
         {props.label}
       </span>
     </div>

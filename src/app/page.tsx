@@ -37,10 +37,10 @@ export default function EventsPage() {
             {/* Hero */}
             <div className="flex flex-col gap-[16px] px-[46px] pt-[45px] lg:flex-row lg:items-start lg:justify-between">
               <div className="flex flex-col gap-[10px]">
-                <h1 className="font-logo  leading-[53.76px] tracking-[-0.5px] text-brand">
+                <h1 className="style-page-title leading-[53.76px] tracking-[-0.5px] text-brand">
                   {eventsHero.title}
                 </h1>
-                <p className="max-w-[560px] font-body  font-normal leading-[24px] text-ink">
+                <p className="max-w-[560px] style-body-text leading-[24px] text-ink">
                   {eventsHero.subtitle}
                 </p>
                 <div className="flex gap-[8px]">
@@ -51,7 +51,7 @@ export default function EventsPage() {
 
               <Link
                 href="/events"
-                className="flex h-[75px] w-full items-center justify-center rounded-full bg-orange px-[21px] font-body  font-semibold leading-none text-orange-ink [filter:drop-shadow(0px_5px_7px_rgba(242,169,104,0.34))] lg:w-[300px]"
+                className="flex h-[75px] w-full items-center justify-center rounded-full bg-orange px-[21px] style-button-text leading-none text-orange-ink [filter:drop-shadow(0px_5px_7px_rgba(242,169,104,0.34))] lg:w-[300px]"
               >
                 Browse Events →
               </Link>
@@ -69,10 +69,10 @@ export default function EventsPage() {
             {/* Host promo */}
             <div className="mt-[28px] flex flex-col gap-[24px] rounded-[16px] bg-brand p-[33px] mx-[46px] sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-col gap-[8px]">
-                <h2 className="font-display  font-bold leading-[34.56px] tracking-[-0.4px] text-white [font-variation-settings:'wdth'_100]">
+                <h2 className="style-section-header leading-[34.56px] tracking-[-0.4px] text-white [font-variation-settings:'wdth'_100]">
                   Wanna host an event?
                 </h2>
-                <p className="font-body  font-normal leading-[20.3px] ">
+                <p className="style-body-text leading-[20.3px] text-white/90">
                   The AIS platform belongs to the community. Propose your
                   workshop or social idea today.
                 </p>
@@ -90,12 +90,12 @@ export default function EventsPage() {
             {/* Past adventures */}
             <div className="mt-[18px] flex flex-col gap-[16px] px-[46px]">
               <div className="flex items-center justify-between">
-                <h2 className="font-display  font-semibold leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
+                <h2 className="style-section-header leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
                   Past Adventures
                 </h2>
                 <a
                   href="#"
-                  className="font-mono  leading-[16.8px] tracking-[0.2px] text-brand"
+                  className="style-meta-text leading-[16.8px] tracking-[0.2px] text-brand"
                 >
                   View Full Gallery →
                 </a>

@@ -100,7 +100,7 @@ export default async function AdminEventsPage() {
 
         <div className="flex h-full flex-1 flex-col gap-[28px] p-[46px]">
           <div className="flex items-center justify-between">
-            <h2 className="font-display  font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+            <h2 className="style-section-header leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
               Events
             </h2>
             <div className="flex items-center gap-[10px]">
@@ -127,14 +127,14 @@ export default async function AdminEventsPage() {
           {/* Published Events Section */}
           <div className="flex flex-col gap-[12px]">
             <div className="flex items-center justify-between">
-              <h3 className="font-display  font-semibold text-ink">
+              <h3 className="style-section-header text-ink">
                 Published Events ({data.publishedRows.length})
               </h3>
             </div>
             {data.publishedRows.length > 0 ? (
               data.publishedRows.map((e) => <EventRow key={e.id} {...e} />)
             ) : (
-              <p className="rounded-xl border border-dashed border-border-soft p-4 text-center font-mono  text-ink-faint">
+              <p className="rounded-xl border border-dashed border-border-soft p-4 text-center style-caption text-ink-faint">
                 No published events yet.
               </p>
             )}
@@ -143,24 +143,24 @@ export default async function AdminEventsPage() {
           {/* Draft Events Section */}
           <div className="flex flex-col gap-[12px] pt-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-display  font-semibold text-ink">
+              <h3 className="style-section-header text-ink">
                 Drafts ({data.draftRows.length})
               </h3>
             </div>
             {data.draftRows.length > 0 ? (
               data.draftRows.map((e) => <EventRow key={e.id} {...e} />)
             ) : (
-              <p className="rounded-xl border border-dashed border-border-soft p-4 text-center font-mono  text-ink-faint">
+              <p className="rounded-xl border border-dashed border-border-soft p-4 text-center style-caption text-ink-faint">
                 No draft events saved.
               </p>
             )}
           </div>
 
           <div className="flex w-full items-center justify-between rounded-[16px] bg-brand px-[23px] py-[21px] mt-2">
-            <span className="font-display  font-semibold leading-[21.25px] text-white [font-variation-settings:'wdth'_100]">
+            <span className="style-section-header leading-[21.25px] text-white [font-variation-settings:'wdth'_100]">
               + Create a new event
             </span>
-            <span className="font-mono  leading-[16.8px] tracking-[0.2px] ">
+            <span className="style-caption leading-[16.8px] tracking-[0.2px] ">
               title · date · location · capacity · tags
             </span>
           </div>

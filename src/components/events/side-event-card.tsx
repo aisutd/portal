@@ -17,7 +17,7 @@ export function SideEventCard({ date, title, description, tag }: SideEvent) {
   return (
     <div className="flex flex-col rounded-[16px] border border-border-soft bg-white p-[22px]">
       <div className="flex h-[96px] w-full items-center justify-center rounded-[12px] bg-photo">
-        <span className="font-mono  tracking-[1.5px] text-photo-text">
+        <span className="style-caption tracking-[1.5px] text-photo-text">
           FLYER
         </span>
       </div>

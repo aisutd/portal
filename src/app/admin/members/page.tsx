@@ -40,7 +40,7 @@ export default async function AdminMembersPage({
       <div className="flex h-full flex-1 flex-col gap-[20px] p-[46px]">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h2 className="font-display  font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+          <h2 className="style-section-header leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
             Members
           </h2>
           <div className="flex gap-[10px]">
@@ -67,7 +67,7 @@ export default async function AdminMembersPage({
         {view.rows.length > 0 ? (
           <MembersTable members={view.rows} canManageRoles={editable} />
         ) : (
-          <div className="w-full rounded-[14px] border border-border-soft bg-white px-[22px] py-[40px] text-center font-body  text-ink-muted">
+          <div className="w-full rounded-[14px] border border-border-soft bg-white px-[22px] py-[40px] text-center style-body-text text-ink-muted">
             No members match this search.
           </div>
         )}

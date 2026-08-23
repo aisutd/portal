@@ -90,19 +90,19 @@ export function EventGridCard({
       className="flex h-full flex-col rounded-2xl border border-border-soft bg-white p-5 transition-shadow hover:shadow-sm block group"
     >
       <div className="flex h-37.5 w-full shrink-0 items-center justify-center rounded-xl bg-photo overflow-hidden">
-        <span className="font-mono  tracking-[1.5px] text-photo-text">
+        <span className="style-caption tracking-[1.5px] text-photo-text">
           PHOTO
         </span>
       </div>
 
       <div className="flex flex-1 flex-col">
-        <h3 className="mt-4 line-clamp-2 font-display  font-semibold leading-tight text-ink group-hover:text-brand transition-colors [font-variation-settings:'wdth'_100]">
+        <h3 className="mt-4 line-clamp-2 style-card-title leading-tight text-ink group-hover:text-brand transition-colors [font-variation-settings:'wdth'_100]">
           {title}
         </h3>
-        <p className="mt-1.5 style-meta-text  tracking-wide text-ink-faint">
+        <p className="mt-1.5 style-meta-text tracking-wide text-ink-faint">
           {meta}
         </p>
-        <p className="mt-3 line-clamp-3 style-body-text  leading-relaxed text-ink-muted">
+        <p className="mt-3 line-clamp-3 style-body-text leading-relaxed text-ink-muted">
           {description}
         </p>
       </div>
@@ -163,7 +163,7 @@ export function EventGridCard({
           )}
 
           {message && !isPast && (
-            <p className=" font-medium text-ink-faint">{message}</p>
+            <p className="style-body-text text-ink-faint">{message}</p>
           )}
         </div>
       </div>

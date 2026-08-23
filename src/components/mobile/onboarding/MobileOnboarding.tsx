@@ -11,7 +11,7 @@ function MobileOnboardingInner() {
   const initialMode = searchParams.get("mode") === "login" ? "login" : "signup";
 
   return (
-    <div className="flex min-h-[100dvh] w-full flex-col bg-brand font-mobile-body text-ink">
+    <div className="flex min-h-[100dvh] w-full flex-col bg-brand style-mobile-body text-ink">
       
       {/* Top Cream Section */}
       <div className="flex w-full flex-col bg-cream pb-[5.5rem] pt-10 sm:pt-12">

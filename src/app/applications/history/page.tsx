@@ -221,10 +221,10 @@ export default function ApplicationHistoryPage() {
                     <article className="flex flex-col gap-[14px]">
                       <div className="flex flex-col gap-[12px] sm:flex-row sm:items-start sm:justify-between">
                         <div className="flex min-w-0 flex-col gap-[8px]">
-                          <h2 className="font-display  font-semibold leading-[23.56px] text-ink [font-variation-settings:'wdth'_100]">
+                          <h2 className="style-section-header leading-[23.56px] text-ink [font-variation-settings:'wdth'_100]">
                             {submission.application.title}
                           </h2>
-                          <p className="font-body  leading-[20.3px] text-ink-muted">
+                          <p className="style-body-text leading-[20.3px] text-ink-muted">
                             Submitted {formatDateTime(submission.submittedAt)}
                           </p>
                         </div>
@@ -232,7 +232,7 @@ export default function ApplicationHistoryPage() {
                       </div>
 
                       {submission.application.retentionUntil ? (
-                        <p className="font-body  leading-[20.3px] text-ink-muted">
+                        <p className="style-body-text leading-[20.3px] text-ink-muted">
                           Retention until {dateFormatter.format(new Date(submission.application.retentionUntil))}
                         </p>
                       ) : null}

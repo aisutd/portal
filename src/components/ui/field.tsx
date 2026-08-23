@@ -16,7 +16,7 @@ export function Field({ label, id, className, required, ...props }: FieldProps) 
     <div className="flex flex-col">
       <label
         htmlFor={inputId}
-        className="mb-[10px] font-grotesk  font-semibold leading-[normal] text-label-ink"
+        className="mb-[10px] style-label-text leading-[normal] text-label-ink"
       >
         {label}
         {required && <span className="ml-1 text-red-500">*</span>}
@@ -26,7 +26,7 @@ export function Field({ label, id, className, required, ...props }: FieldProps) 
         required={required}
         className={cn(
           "w-full rounded-[7px] border border-transparent bg-field px-[13px] py-[12px]",
-          "font-mono-alt  leading-[normal] text-ink-card",
+          "style-input-text leading-[normal] text-ink-card",
           "placeholder:text-field-ink focus:outline-none focus:ring-2 focus:ring-brand/40",
           className
         )}

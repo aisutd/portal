@@ -27,7 +27,7 @@ export function StepCard({ step, title, description, number }: Step) {
 
       <span
         aria-hidden
-        className="pointer-events-none absolute right-[14px] top-[80px] select-none font-display  font-extrabold leading-[74px] text-brand-soft [font-variation-settings:'wdth'_100]"
+        className="pointer-events-none absolute right-[14px] top-[80px] select-none style-page-title leading-[74px] text-brand-soft [font-variation-settings:'wdth'_100]"
       >
         {number}
       </span>

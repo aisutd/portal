@@ -34,10 +34,10 @@ export function MobileAdminEditEvent({ eventId, defaultValues, isPublished }: Mo
       <MobileAdminNav active="Events" />
 
       <div>
-        <Link href="/admin/events" className="font-mono  text-brand">
+        <Link href="/admin/events" className="style-caption text-brand">
           ← Back to Events
         </Link>
-        <h2 className="mt-[6px] font-mobile-display  font-bold text-ink">
+        <h2 className="mt-[6px] style-mobile-title text-ink">
           Edit Event
         </h2>
       </div>

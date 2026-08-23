@@ -27,7 +27,7 @@ export default function AdminOverviewPage() {
         <AdminSidebar active="Overview" role="Officer" />
 
         <div className="flex h-full flex-1 flex-col gap-[24px] p-[46px]">
-          <h2 className="font-display  font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+          <h2 className="style-section-header leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
             Overview
           </h2>
 
@@ -50,12 +50,12 @@ export default function AdminOverviewPage() {
             {/* Review CTA */}
             <div className="flex flex-1 flex-col gap-[12px] self-stretch rounded-[16px] bg-orange-soft p-[25px]">
               <div className="flex items-center justify-between">
-                <h3 className="font-display  font-semibold leading-[21.25px] text-orange-ink [font-variation-settings:'wdth'_100]">
+                <h3 className="style-card-title leading-[21.25px] text-orange-ink [font-variation-settings:'wdth'_100]">
                   AIM Mentor
                 </h3>
                 <Badge label="5 new" bg="#fbe3cb" color="#7a4416" />
               </div>
-              <p className="font-body  font-normal leading-[20.3px] text-orange-ink">
+              <p className="style-body-text leading-[20.3px] text-orange-ink">
                 Applications waiting on your review.
               </p>
               <div>
@@ -67,7 +67,7 @@ export default function AdminOverviewPage() {
 
             {/* Recent activity */}
             <div className="flex flex-1 flex-col gap-[12px] self-stretch rounded-[16px] border border-border-soft bg-white px-[25px] pb-[29px] pt-[24px]">
-              <h3 className="font-display  font-semibold leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
+              <h3 className="style-card-title leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
                 Recent activity
               </h3>
               <div className="flex flex-col gap-[8px]">

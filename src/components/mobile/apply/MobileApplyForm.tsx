@@ -160,7 +160,7 @@ function LoadingState() {
 
 function NotFoundState({ message }: { message: string }) {
   return (
-    <div className="rounded-[16px] border border-border-soft bg-white p-[20px] font-mobile-body  text-ink-muted">
+    <div className="rounded-[16px] border border-border-soft bg-white p-[20px] style-mobile-body text-ink-muted">
       {message}
     </div>
   );
@@ -428,7 +428,7 @@ export function MobileApplyForm() {
             >
               Upload file
             </button>
-            <span className="font-mono  text-ink-muted truncate max-w-[200px]">
+            <span className="style-caption text-ink-muted truncate max-w-[200px]">
               {value || "No file selected"}
             </span>
           </div>
@@ -476,7 +476,7 @@ export function MobileApplyForm() {
           <FormTextarea {...commonProps} />
         )}
         {errorMessage ? (
-          <p className="font-mobile-body  ">{errorMessage}</p>
+          <p className="style-mobile-body ">{errorMessage}</p>
         ) : null}
       </div>
     );
@@ -485,13 +485,13 @@ export function MobileApplyForm() {
   return (
     <MobileScreen>
       <div className="flex flex-col gap-[18px] rounded-[16px] border border-border-soft bg-white p-[20px] [filter:drop-shadow(0px_8px_11px_rgba(0,0,0,0.04))]">
-        <h1 className="font-mobile-display  font-bold text-ink">
+        <h1 className="style-mobile-title text-ink">
           {applicationTitle || "Application Form"}
         </h1>
 
         <FormStepper steps={applicationSteps} active={activeStep} />
 
-        <p className="font-mobile-body  font-bold text-ink">
+        <p className="style-mobile-body font-bold text-ink">
           * Please verify that the following information is correct
         </p>
 
@@ -518,7 +518,7 @@ export function MobileApplyForm() {
             <div className="flex w-full justify-between">
               <button
                 type="button"
-                className="flex h-[42px] items-center justify-center rounded-[11px] border border-border-soft bg-white px-[16px] font-mobile-body  font-bold text-ink-muted disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-[42px] items-center justify-center rounded-[11px] border border-border-soft bg-white px-[16px] style-mobile-body font-bold text-ink-muted disabled:cursor-not-allowed disabled:opacity-50"
                 onClick={handleBackStep}
                 disabled={activeStep === 0 || submitting}
               >

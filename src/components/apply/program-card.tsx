@@ -72,7 +72,7 @@ export function ProgramCard({
         iconChip
       )}
 
-      <h3 className="font-display  font-semibold leading-snug text-ink [font-variation-settings:'wdth'_100]">
+      <h3 className="style-card-title leading-snug text-ink [font-variation-settings:'wdth'_100]">
         {title}
       </h3>
 
@@ -89,7 +89,7 @@ export function ProgramCard({
       </div>
 
       {description && (
-        <p className="mt-1 flex-1 font-body  leading-relaxed text-ink/75">
+        <p className="mt-1 flex-1 style-body-text leading-relaxed text-ink/75">
           {description}
         </p>
       )}

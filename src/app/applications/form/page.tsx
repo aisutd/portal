@@ -507,20 +507,20 @@ function ApplyFormContent() {
           <div className="flex flex-col gap-[8px] sm:flex-row sm:items-center">
             <button
               type="button"
-              className="flex h-[42px] items-center justify-center rounded-[8px] border border-border-soft bg-white px-[14px] font-body  font-semibold leading-none text-ink shadow-sm transition-colors hover:bg-[#fbfaf7]"
+              className="flex h-[42px] items-center justify-center rounded-[8px] border border-border-soft bg-white px-[14px] style-body-text leading-none text-ink shadow-sm transition-colors hover:bg-[#fbfaf7]"
               onClick={() => resumeInputRef.current?.click()}
             >
               Upload file
             </button>
-            <span className="font-mono  leading-[16.8px] tracking-[0.2px] text-ink-muted">
+            <span className="style-caption leading-[16.8px] tracking-[0.2px] text-ink-muted">
               {value || "No file selected"}
             </span>
           </div>
-          <p className="font-body  leading-[17px] text-ink-muted">
+          <p className="style-body-text leading-[17px] text-ink-muted">
             Accepted formats: .doc, .docx, .pdf
           </p>
           {errorMessage ? (
-            <p className="font-body  leading-[17px] ">
+            <p className="style-body-text leading-[17px] ">
               {errorMessage}
             </p>
           ) : null}
@@ -564,7 +564,7 @@ function ApplyFormContent() {
           <FormTextarea {...commonProps} />
         )}
         {errorMessage ? (
-          <p className="font-body  leading-[17px] ">
+          <p className="style-body-text leading-[17px] ">
             {errorMessage}
           </p>
         ) : null}
@@ -610,7 +610,7 @@ function ApplyFormContent() {
                 </div>
 
                 {submitError ? (
-                  <p className="font-body  leading-[18px] ">
+                  <p className="style-body-text leading-[18px] ">
                     {submitError}
                   </p>
                 ) : null}
@@ -619,7 +619,7 @@ function ApplyFormContent() {
                 <div className="flex w-full justify-between">
                   <button
                     type="button"
-                    className="flex h-[44px] items-center justify-center rounded-[11px] border border-border-soft bg-white px-[18px] font-body  font-semibold leading-none text-ink-muted disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-[44px] items-center justify-center rounded-[11px] border border-border-soft bg-white px-[18px] style-body-text leading-none text-ink-muted disabled:cursor-not-allowed disabled:opacity-50"
                     onClick={handleBackStep}
                     disabled={activeStep === 0}
                   >

@@ -193,7 +193,7 @@ const filterList = (list: EventRecord[]) =>
           <>
             {filteredUpcoming.length > 0 && (
               <div className="flex flex-col gap-[16px]">
-                <h2 className="font-mobile-display  font-bold text-ink">
+                <h2 className="style-mobile-title text-ink">
                   Upcoming Events
                 </h2>
                 <div className="grid grid-cols-1 gap-[16px]">
@@ -215,7 +215,7 @@ const filterList = (list: EventRecord[]) =>
 
             {filteredPast.length > 0 && (
               <div className="flex flex-col gap-[16px]">
-                <h2 className="font-mobile-display  font-bold text-ink-muted">
+                <h2 className="style-mobile-title text-ink-muted">
                   Past Events
                 </h2>
                 <div className="grid grid-cols-1 gap-[16px] opacity-80">

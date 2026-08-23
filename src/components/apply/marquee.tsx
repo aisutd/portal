@@ -7,7 +7,7 @@ export function Marquee({ text }: { text: string }) {
   return (
     <div className="relative z-20 w-full overflow-visible py-4">
       <div className="-mx-4 w-[calc(100%+2rem)] -rotate-1 scale-[1.04] bg-brand py-[18px] shadow-sm">
-        <p className="text-center font-logo  font-medium leading-normal tracking-[1.5px] text-white">
+        <p className="text-center style-button-text leading-normal tracking-[1.5px] text-white">
           {text}
         </p>
       </div>

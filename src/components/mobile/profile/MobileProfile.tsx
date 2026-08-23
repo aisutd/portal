@@ -37,7 +37,7 @@ function MobileSelect({
       <select
         name={name}
         defaultValue={defaultValue}
-        className={cn( "w-full rounded-[10px] border border-transparent bg-field px-[13px] py-[11px] font-mobile-body  text-ink focus:outline-none focus:ring-2 focus:ring-brand/40", 
+        className={cn( "w-full rounded-[10px] border border-transparent bg-field px-[13px] py-[11px] style-mobile-body text-ink focus:outline-none focus:ring-2 focus:ring-brand/40", 
           className
         )}
       >
@@ -57,7 +57,7 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
     <MobileScreen>
       {completion.percent < 100 && (
         <div className="rounded-[8px] bg-[#f9d5d3] px-[16px] py-[12px]">
-          <span className="font-mobile-body  font-bold ">
+          <span className="style-mobile-body font-bold ">
             Your profile is {completion.percent}% complete. Fill in the highlighted fields to reach 100%.
           </span>
         </div>

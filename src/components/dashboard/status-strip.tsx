@@ -20,9 +20,9 @@ type ProgressStat = {
 export type Stat = DotStat | ProgressStat;
 
 const labelClass =
-  "font-techno  uppercase leading-[normal] tracking-[3px] text-ink-faint whitespace-nowrap";
+  "style-caption uppercase leading-[normal] tracking-[3px] text-ink-faint whitespace-nowrap";
 const valueClass =
-  "font-body  font-bold leading-[22.5px] text-ink whitespace-nowrap";
+  "style-body-text leading-[22.5px] text-ink whitespace-nowrap";
 
 function StatCard({ stat }: { stat: Stat }) {
   if (stat.kind === "dot") {

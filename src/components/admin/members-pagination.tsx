@@ -34,7 +34,7 @@ export function MembersPagination({
 }: Props) {
   return (
     <div className="flex w-full items-center justify-between">
-      <span className="font-mono  leading-[16.8px] tracking-[0.2px] text-ink-faint">
+      <span className="style-caption leading-[16.8px] tracking-[0.2px] text-ink-faint">
         Showing {rangeStart}–{rangeEnd} of {total}
       </span>
 
