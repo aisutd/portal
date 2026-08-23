@@ -22,20 +22,35 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const base =
-  "inline-flex items-center justify-center border border-transparent font-black text-center transition-colors";
+  "inline-flex cursor-pointer items-center justify-center gap-[8px] border border-transparent font-black text-center " +
+  "transition-[background-color,border-color,color,box-shadow,transform] duration-150 " +
+  "focus-visible:outline-none focus-visible:ring-4 " +
+  "disabled:pointer-events-none disabled:opacity-45";
 
+// Each variant carries its own hover / active / focus-ring treatment so every
+// button in the app responds to the pointer the same way.
 const variantClasses: Record<NonNullable<ButtonProps["variant"]>, string> = {
   primary:
-    "font-body bg-brand text-white [filter:drop-shadow(0px_5px_7px_rgba(47,95,232,0.3))]",
+    "font-body bg-brand text-white [filter:drop-shadow(0px_5px_7px_rgba(47,95,232,0.3))] " +
+    "hover:bg-brand-mid active:bg-brand-dark focus-visible:ring-brand-soft",
   accent:
-    "font-body bg-orange text-orange-ink [filter:drop-shadow(0px_5px_7px_rgba(242,169,104,0.34))]",
-  auth: "font-grotesk bg-brand-button text-white rounded-[8px] px-[13px] pb-[14px] pt-[13px] text-[15px] leading-[normal]",
-  soft: "font-body bg-purple-soft border-purple-border text-purple-ink",
+    "font-body bg-orange text-orange-ink [filter:drop-shadow(0px_5px_7px_rgba(242,169,104,0.34))] " +
+    "hover:bg-orange-soft active:bg-orange focus-visible:ring-orange-soft",
+  auth:
+    "font-grotesk bg-brand-button text-white rounded-[8px] px-[13px] pb-[14px] pt-[13px] text-[15px] leading-[normal] " +
+    "hover:bg-brand-mid active:bg-brand-dark focus-visible:ring-brand-soft",
+  soft:
+    "font-body bg-purple-soft border-purple-border text-purple-ink " +
+    "hover:bg-purple-border hover:border-purple-ink/25 focus-visible:ring-purple-soft",
   ghost:
-    "font-body bg-white border-border-soft text-ink [filter:drop-shadow(0px_1px_0px_rgba(0,0,0,0.03))]",
+    "font-body bg-white border-border-soft text-ink [filter:drop-shadow(0px_1px_0px_rgba(0,0,0,0.03))] " +
+    "hover:bg-row-soft hover:border-ink-faint/50 focus-visible:ring-brand-soft",
   danger:
-    "font-body bg-white border-danger-border text-danger-ink [filter:drop-shadow(0px_1px_0px_rgba(0,0,0,0.03))]",
-  outline: "font-body bg-transparent border-ink text-ink",
+    "font-body bg-white border-danger-border text-danger-ink [filter:drop-shadow(0px_1px_0px_rgba(0,0,0,0.03))] " +
+    "hover:bg-danger-ink/10 focus-visible:ring-danger-ink/25",
+  outline:
+    "font-body bg-transparent border-ink text-ink " +
+    "hover:bg-ink hover:text-white focus-visible:ring-ink/20",
 };
 
 // Padding + type scale per size (radius handled separately to avoid clashes).

@@ -69,16 +69,6 @@ export async function POST(
       },
     });
 
-    if (!draft) {
-      return { error: createErrorResponse("Draft not found", "BAD_REQUEST", 400) } as const;
-    }
-
-    if (draft.isSubmitted) {
-      return {
-        error: createErrorResponse("Application already submitted", "ALREADY_SUBMITTED", 409),
-      } as const;
-    }
-
     const latestSubmission = await tx.applicationSubmission.findFirst({
       where: {
         applicationId: id,
@@ -91,6 +81,26 @@ export async function POST(
         versionNumber: true,
       },
     });
+
+    if (!draft) {
+      if (latestSubmission) {
+        return {
+          error: createErrorResponse(
+            "Application already submitted",
+            "ALREADY_SUBMITTED",
+            409,
+          ),
+        } as const;
+      }
+
+      return { error: createErrorResponse("Draft not found", "BAD_REQUEST", 400) } as const;
+    }
+
+    if (draft.isSubmitted) {
+      return {
+        error: createErrorResponse("Application already submitted", "ALREADY_SUBMITTED", 409),
+      } as const;
+    }
 
     if (latestSubmission) {
       return {
@@ -120,15 +130,12 @@ export async function POST(
       },
     });
 
-    await tx.applicationDraft.update({
+    await tx.applicationDraft.delete({
       where: {
         applicationId_userId: {
           applicationId: id,
           userId: currentUser.userId,
         },
-      },
-      data: {
-        isSubmitted: true,
       },
     });
 

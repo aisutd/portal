@@ -49,6 +49,7 @@ export async function GET() {
   }
 
   const now = new Date();
+  const retentionWindowMs = 14 * 24 * 60 * 60 * 1000;
 
   const applications = await prisma.programApplication.findMany({
     where: {
@@ -73,7 +74,24 @@ export async function GET() {
     },
   });
 
-  const applicationIds = applications.map((application) => application.id);
+  const applicationsWithPhase = applications.map((application) => ({
+    ...application,
+    phase: getPhase(application.openAt, application.closeAt, now),
+  }));
+
+  const visibleApplications = applicationsWithPhase.filter((application) => {
+    if (application.phase !== "closed") {
+      return true;
+    }
+
+    const retentionUntil =
+      application.retentionUntil ??
+      new Date(application.closeAt.getTime() + retentionWindowMs);
+
+    return now <= retentionUntil;
+  });
+
+  const applicationIds = visibleApplications.map((application) => application.id);
 
   const [drafts, submissions] = await Promise.all([
     prisma.applicationDraft.findMany({
@@ -143,9 +161,8 @@ export async function GET() {
   }
 
   return NextResponse.json({
-    applications: applications.map((application) => ({
+    applications: visibleApplications.map((application) => ({
       ...application,
-      phase: getPhase(application.openAt, application.closeAt, now),
       draft: draftByApplicationId.get(application.id) ?? null,
       submissionStatus: submissionByApplicationId.get(application.id)?.status ?? null,
       submissionId: submissionByApplicationId.get(application.id)?.id ?? null,

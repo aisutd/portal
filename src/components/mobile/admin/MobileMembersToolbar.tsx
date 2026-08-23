@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { SearchInput } from "@/components/ui/search-input";
 import { membersHref, type MemberFilter, type MembersQuery } from "@/lib/members/query-params";
 import { FILTER_LABELS } from "@/lib/members/labels";
 
@@ -31,13 +32,12 @@ export function MobileMembersToolbar({ query }: { query: MembersQuery }) {
 
   return (
     <div className="flex flex-col gap-[10px]">
-      <input
-        type="text"
+      <SearchInput
         value={term}
-        onChange={(event) => setTerm(event.target.value)}
-        placeholder="🔍 search name / netid / email…"
+        onChange={setTerm}
+        placeholder="Search name, NetID or email…"
         aria-label="Search members"
-        className="h-[40px] w-full rounded-[8px] bg-search-field px-[12px] font-mono text-[12px] text-search-ink placeholder:text-search-ink focus:outline-none"
+        className="h-[40px] w-full"
       />
       <div className="-mx-[20px] flex items-center gap-[8px] overflow-x-auto px-[20px]">
         {(Object.keys(FILTER_LABELS) as MemberFilter[]).map((filter) => (

@@ -34,6 +34,7 @@ export function ProgramCard({
   badge,
   title,
   tags,
+  description,
   cta,
   showActionButton = true,
 }: Program) {
@@ -57,7 +58,7 @@ export function ProgramCard({
 
   return (
     <div
-      className="flex flex-1 flex-col gap-[8px] self-stretch rounded-[18px] border bg-white px-[23px] pb-[25px] pt-[24px]"
+      className="flex flex-1 flex-col gap-3 self-stretch rounded-[18px] border bg-white px-[23px] pb-[25px] pt-[24px]"
       style={{ borderColor }}
     >
       {badge ? (
@@ -71,7 +72,7 @@ export function ProgramCard({
         iconChip
       )}
 
-      <h3 className="font-display text-[22px] font-semibold leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
+      <h3 className="font-display text-[22px] font-semibold leading-snug text-ink [font-variation-settings:'wdth'_100]">
         {title}
       </h3>
 
@@ -87,6 +88,12 @@ export function ProgramCard({
         ))}
       </div>
 
+      {description && (
+        <p className="mt-1 flex-1 font-body text-[14px] leading-relaxed text-ink/75">
+          {description}
+        </p>
+      )}
+
       {showActionButton ? (
         <Button
           variant={cta}
@@ -95,7 +102,7 @@ export function ProgramCard({
           block
           onClick={handleApply}
           type="button"
-          className="mt-[2px]"
+          className="mt-2"
         >
           Apply Now →
         </Button>

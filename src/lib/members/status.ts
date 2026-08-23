@@ -1,17 +1,32 @@
 import type { StatusKey } from "./badges";
 
-/** Check-ins this semester needed to read as Active. */
-export const ACTIVE_MIN_CHECK_INS = 3;
-/** Check-ins this semester needed to read as At risk rather than Inactive. */
-export const AT_RISK_MIN_CHECK_INS = 1;
+/** Share of a member's countable events they must attend to read as Active. */
+export const ACTIVE_ATTENDANCE_RATIO = 0.5;
 
 /**
- * Participation heuristic. `checkIns` is every attendance timestamp for the
- * member; only those on or after `since` count.
+ * Participation status, measured against the events that actually applied to
+ * this member: those tagged for one of their programs, plus general untagged
+ * events. Only events that have already ended count, so an upcoming event
+ * never drags anyone down.
+ *
+ * - no countable events yet   -> Active (nothing to have missed)
+ * - attended none of them     -> Inactive
+ * - attended under half       -> At risk
+ * - otherwise                 -> Active
  */
-export function deriveStatusKey(checkIns: Date[], since: Date): StatusKey {
-  const recent = checkIns.filter((date) => date >= since).length;
-  if (recent >= ACTIVE_MIN_CHECK_INS) return "active";
-  if (recent >= AT_RISK_MIN_CHECK_INS) return "atRisk";
-  return "inactive";
+export function deriveStatusKey(attended: number, countable: number): StatusKey {
+  if (countable <= 0) return "active";
+  if (attended <= 0) return "inactive";
+  return attended / countable < ACTIVE_ATTENDANCE_RATIO ? "atRisk" : "active";
+}
+
+/**
+ * How many further events the member must attend to reach Active.
+ *
+ * Attending an upcoming event raises both sides of the ratio, so this is not
+ * simply the gap to 50%. Solving (attended + k) / (countable + k) >= 1/2 gives
+ * k >= countable - 2 * attended.
+ */
+export function eventsNeededForActive(attended: number, countable: number): number {
+  return Math.max(0, countable - 2 * attended);
 }

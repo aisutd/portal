@@ -52,6 +52,7 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
 
   const normalizedTags = normalizeEventTags(event.tags);
   const formattedDate = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
     month: "short",
     day: "numeric",
     year: "numeric",
