@@ -3,7 +3,6 @@ import { SectionHeader } from "@/components/ui/section-header";
 import Link from "next/link";
 
 export type RsvpItem = {
-  id?: string;
   day: string;
   title: string;
   detail: string;

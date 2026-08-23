@@ -203,7 +203,7 @@ export async function DashboardRsvpsCard({ userId }: { userId: string }) {
       day: d.getDate().toString().padStart(2, "0"),
       title: rsvp.event.title,
       detail: `${d.toLocaleTimeString([], { timeZone: 'America/Chicago', hour: 'numeric', minute: '2-digit' })} · ${rsvp.event.location}`,
-      id: rsvp.eventId
+      eventId: rsvp.eventId
     };
   });
 
