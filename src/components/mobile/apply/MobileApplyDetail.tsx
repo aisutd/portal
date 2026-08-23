@@ -140,28 +140,28 @@ export function MobileApplyDetail() {
 
   return (
     <MobileScreen>
-      <a href="/applications" className="font-mono text-[12px] text-brand">
+      <a href="/applications" className="style-caption text-brand">
         ← Back to Apply
       </a>
 
       {loading ? (
         <DetailSkeleton />
       ) : error ? (
-        <div className="rounded-[16px] border border-border-soft bg-white p-[20px] font-mobile-body text-[14px] text-ink-muted">
+        <div className="rounded-[16px] border border-border-soft bg-white p-[20px] style-mobile-body text-ink-muted">
           {error}
         </div>
       ) : application ? (
         <>
           <div className="flex flex-col gap-[12px] rounded-[16px] border border-border-soft bg-white p-[20px]">
-            <h1 className="font-mobile-display text-[19px] font-bold text-ink">
+            <h1 className="style-mobile-title text-ink">
               {application.application.title}
             </h1>
-            <p className="font-mobile-body text-[13px] text-ink-muted">
+            <p className="style-mobile-body text-ink-muted">
               {formatDecisionDate(application.application.decisionDate)}
             </p>
             <div className="flex items-center gap-[10px]">
               {getStatusBadge(application.draft, application.submissionStatus)}
-              <Button href="/applications/form" size="sm">
+              <Button href={`/applications/form?id=${application.application.id}`} size="sm">
                 Apply
               </Button>
             </div>
@@ -169,19 +169,19 @@ export function MobileApplyDetail() {
 
           <div className="flex flex-col gap-[16px] rounded-[16px] border border-border-soft bg-white p-[20px]">
             <div className="flex flex-col gap-[6px]">
-              <h2 className="font-mobile-display text-[15px] font-bold text-ink">
+              <h2 className="style-mobile-title text-ink">
                 Description
               </h2>
-              <p className="font-mobile-body text-[13px] text-ink-muted">
+              <p className="style-mobile-body text-ink-muted">
                 {application.application.description}
               </p>
             </div>
 
             <div className="flex flex-col gap-[6px]">
-              <h2 className="font-mobile-display text-[15px] font-bold text-ink">
+              <h2 className="style-mobile-title text-ink">
                 Eligibility
               </h2>
-              <ul className="flex list-disc flex-col gap-[4px] pl-[16px] font-mobile-body text-[13px] text-ink-muted">
+              <ul className="flex list-disc flex-col gap-[4px] pl-[16px] style-mobile-body text-ink-muted">
                 {application.application.eligibility.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
@@ -190,7 +190,7 @@ export function MobileApplyDetail() {
           </div>
 
           <div className="flex items-center gap-[10px]">
-            <h2 className="font-mobile-display text-[15px] font-bold text-ink">Roles</h2>
+            <h2 className="style-mobile-title text-ink">Roles</h2>
             <span className="h-[1.5px] min-w-px flex-1 bg-border-soft" />
           </div>
 
@@ -199,10 +199,10 @@ export function MobileApplyDetail() {
               key={role.title}
               className="flex flex-col gap-[10px] rounded-[16px] border border-border-soft bg-white p-[18px]"
             >
-              <h3 className="font-mobile-display text-[14px] font-bold text-ink">
+              <h3 className="style-mobile-title text-ink">
                 {role.title}
               </h3>
-              <p className="font-mobile-body text-[13px] text-ink-muted">
+              <p className="style-mobile-body text-ink-muted">
                 {role.description}
               </p>
               <div className="flex flex-col gap-[6px]">

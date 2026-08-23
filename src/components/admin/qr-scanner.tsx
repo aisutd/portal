@@ -52,7 +52,7 @@ export function QRScannerClient({
     <div className="flex w-full max-w-md flex-col gap-5">
       {/* Mode Selector */}
       <div className="flex flex-col gap-2 rounded-xl bg-white p-4 border border-border-soft shadow-sm">
-        <label className="font-mono text-xs text-ink-faint">SCAN MODE:</label>
+        <label className="style-caption text-xs text-ink-faint">SCAN MODE:</label>
         <div className="flex gap-2">
           <Button 
             size="sm" 
@@ -74,7 +74,7 @@ export function QRScannerClient({
 
         {scanType === "item" && (
           <select 
-            className="mt-2 rounded-lg border border-border-soft p-2 font-mono text-sm bg-background"
+            className="mt-2 rounded-lg border border-border-soft p-2 style-caption text-sm bg-background"
             value={selectedItemId}
             onChange={(e) => setSelectedItemId(e.target.value)}
           >
@@ -109,7 +109,7 @@ export function QRScannerClient({
       </div>
 
       <div className="flex flex-col items-center gap-2">
-        <p className="font-mono text-sm text-ink-faint">
+        <p className="style-caption text-sm text-ink-faint">
           {status === "idle" ? `Ready to scan for ${scanType === "attendance" ? "Check-in" : "Item"}` : message}
         </p>
         

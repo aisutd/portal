@@ -13,7 +13,7 @@ export function MobileAdminOverview() {
     <MobileScreen withBottomNavPadding={false}>
       <MobileAdminNav active="Overview" />
 
-      <h2 className="font-mobile-display text-[20px] font-bold text-ink">Overview</h2>
+      <h2 className="style-mobile-title text-ink">Overview</h2>
 
       <div className="grid grid-cols-2 gap-[12px]">
         {[...overviewStatsPrimary, ...overviewStatsSecondary].map((s) => (
@@ -24,25 +24,25 @@ export function MobileAdminOverview() {
             }`}
           >
             <span
-              className={`font-mobile-display text-[24px] font-bold ${
+              className={`style-mobile-title ${
                 s.highlight ? "text-brand" : "text-ink"
               }`}
             >
               {s.value}
             </span>
-            <span className="font-mono text-[11px] text-ink-faint">{s.label}</span>
+            <span className="style-caption text-ink-faint">{s.label}</span>
           </div>
         ))}
       </div>
 
       <div className="flex flex-col gap-[12px] rounded-[16px] bg-orange-soft p-[18px]">
         <div className="flex items-center justify-between">
-          <h3 className="font-mobile-display text-[15px] font-bold text-orange-ink">
+          <h3 className="style-mobile-title text-orange-ink">
             AIM Mentor
           </h3>
           <Badge label="5 new" bg="#fbe3cb" color="#7a4416" />
         </div>
-        <p className="font-mobile-body text-[13px] text-orange-ink">
+        <p className="style-mobile-body text-orange-ink">
           Applications waiting on your review.
         </p>
         <Button href="/admin/applications/1" variant="primary" size="sm" className="self-start rounded-[8px]">
@@ -51,7 +51,7 @@ export function MobileAdminOverview() {
       </div>
 
       <div className="flex flex-col gap-[12px] rounded-[16px] border border-border-soft bg-white p-[18px]">
-        <h3 className="font-mobile-display text-[15px] font-bold text-ink">Recent activity</h3>
+        <h3 className="style-mobile-title text-ink">Recent activity</h3>
         <div className="flex flex-col gap-[8px]">
           {recentActivityWidths.map((w, i) => (
             <span key={i} className="h-[10px] rounded-[6px] bg-skeleton" style={{ width: w }} />

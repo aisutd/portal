@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { createErrorResponse } from "@/lib/api-error";
+import { getDownloadUrl } from "@/lib/r2";
 import { prisma } from "@/lib/prisma";
 
 async function getCurrentUser() {
@@ -18,6 +19,16 @@ async function getCurrentUser() {
     },
     select: {
       id: true,
+      profile: {
+        select: {
+          resumeFile: {
+            select: {
+              fileName: true,
+              storageKey: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -27,7 +38,7 @@ async function getCurrentUser() {
     } as const;
   }
 
-  return { userId: user.id } as const;
+  return { user } as const;
 }
 
 export async function GET() {
@@ -36,27 +47,17 @@ export async function GET() {
     return currentUser.error;
   }
 
-  const submissions = await prisma.applicationSubmission.findMany({
-    where: {
-      userId: currentUser.userId,
-    },
-    orderBy: {
-      submittedAt: "desc",
-    },
-    select: {
-      id: true,
-      status: true,
-      submittedAt: true,
-      application: {
-        select: {
-          title: true,
-          retentionUntil: true,
-        },
-      },
-    },
-  });
+  const resumeFile = currentUser.user.profile?.resumeFile;
 
-  return NextResponse.json({
-    submissions,
-  });
+  if (!resumeFile) {
+    return createErrorResponse("Resume not found", "NOT_FOUND", 404);
+  }
+
+  const downloadUrl = await getDownloadUrl(
+    resumeFile.storageKey,
+    3600,
+    resumeFile.fileName,
+  );
+
+  return NextResponse.redirect(downloadUrl);
 }

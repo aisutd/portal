@@ -18,7 +18,7 @@ const CARD =
   "flex min-h-[500px] w-full max-w-[400px] flex-col rounded-[14px] bg-white p-[30px] shadow-auth-card";
 
 /** Small centred link used for the secondary actions under a card's button. */
-const CARD_LINK = "font-mono-alt text-[11px] leading-[normal] hover:underline";
+const CARD_LINK = "font-mono-alt  leading-[normal] hover:underline";
 
 /**
  * Which screen the card is showing. Sign-up verification and password reset are
@@ -33,7 +33,7 @@ function ErrorText({ id, message }: { id: string; message?: string }) {
     <p
       id={id}
       role="alert"
-      className="mt-[8px] font-body text-[12px] leading-[16.8px] text-red-600"
+      className="mt-[8px] style-body-text leading-[16.8px] text-red-600"
     >
       {message}
     </p>
@@ -317,7 +317,7 @@ function AuthCardInner() {
   if (view === "verify-signup") {
     return (
       <div className={CARD}>
-        <h2 className="mt-[17px] font-chakra text-[23px] font-bold leading-[normal] text-ink-card">
+        <h2 className="mt-[17px] font-chakra  font-bold leading-[normal] text-ink-card">
           Check your email
         </h2>
 
@@ -348,7 +348,7 @@ function AuthCardInner() {
           </Button>
         </form>
 
-        <p className="mt-[16px] text-center font-mono-alt text-[11px] leading-[normal] text-helper-ink">
+        <p className="mt-[16px] text-center font-mono-alt  leading-[normal] text-helper-ink">
           We sent a 6-digit code to {email}
         </p>
       </div>
@@ -358,10 +358,10 @@ function AuthCardInner() {
   if (view === "reset-request") {
     return (
       <div className={CARD}>
-        <h2 className="mt-[17px] font-chakra text-[23px] font-bold leading-[normal] text-ink-card">
+        <h2 className="mt-[17px] font-chakra  font-bold leading-[normal] text-ink-card">
           Reset your password
         </h2>
-        <p className="mt-[8px] font-body text-[13px] font-normal leading-[19px] text-ink-muted">
+        <p className="mt-[8px] style-body-text leading-[19px] text-ink-muted">
           We&apos;ll email you a 6-digit code to set a new password.
         </p>
 
@@ -408,10 +408,10 @@ function AuthCardInner() {
   if (view === "reset-code") {
     return (
       <div className={CARD}>
-        <h2 className="mt-[17px] font-chakra text-[23px] font-bold leading-[normal] text-ink-card">
+        <h2 className="mt-[17px] font-chakra  font-bold leading-[normal] text-ink-card">
           Choose a new password
         </h2>
-        <p className="mt-[8px] font-body text-[13px] font-normal leading-[19px] text-ink-muted">
+        <p className="mt-[8px] style-body-text leading-[19px] text-ink-muted">
           Enter the code we sent to {email}, then pick a new password.
         </p>
 
@@ -437,7 +437,7 @@ function AuthCardInner() {
             {notice && (
               <p
                 role="status"
-                className="mt-[8px] font-body text-[12px] leading-[16.8px] text-green"
+                className="mt-[8px] style-body-text leading-[16.8px] text-green"
               >
                 {notice}
               </p>
@@ -505,7 +505,7 @@ function AuthCardInner() {
         }}
       />
 
-      <h2 className="mt-[25px] font-chakra text-[23px] font-bold leading-[normal] text-ink-card">
+      <h2 className="mt-[25px] font-chakra  font-bold leading-[normal] text-ink-card">
         {isSignUp ? "Create your account" : "Welcome back"}
       </h2>
 
@@ -576,7 +576,7 @@ function AuthCardInner() {
         </Button>
       </form>
 
-      <p className="mt-[16px] text-center font-mono-alt text-[11px] leading-[normal] text-helper-ink">
+      <p className="mt-[16px] text-center font-mono-alt  leading-[normal] text-helper-ink">
         {isSignUp
           ? "we'll email you a 6-digit code to verify your account"
           : "welcome back to AIS"}

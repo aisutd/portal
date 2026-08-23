@@ -26,7 +26,7 @@ type MobileDashboardProps = {
 export function MobileDashboard({ userId, userName, nextRsvp, announcements }: MobileDashboardProps) {
   return (
     <MobileScreen>
-      <h1 className="font-mobile-display text-[36px] font-bold text-brand">
+      <h1 className="style-mobile-title text-brand">
         Welcome back, {userName}!
       </h1>
 
@@ -36,19 +36,19 @@ export function MobileDashboard({ userId, userName, nextRsvp, announcements }: M
           <>
             <div className="flex flex-col gap-[4px]">
               <div className="mb-[4px] flex items-center justify-between">
-                <p className="font-mono text-[11px] uppercase tracking-[2px] text-ink-faint">
+                <p className="style-caption uppercase tracking-[2px] text-ink-faint">
                   Up next · {formatDaysAway(nextRsvp.event.startTime)}
                 </p>
                 <Badge label="RSVP'd" bg="#e1e8ff" color="#1f3aa3" />
               </div>
               
-              <h3 className="font-mobile-display text-[20px] font-bold text-ink">
+              <h3 className="style-mobile-title text-ink">
                 {nextRsvp.event.title}
               </h3>
-              <p className="font-mobile-body text-[14px] text-ink-muted">
+              <p className="style-mobile-body text-ink-muted">
                 {formatEventDate(nextRsvp.event.startTime)}
               </p>
-              <p className="font-mobile-body text-[14px] text-ink-muted">
+              <p className="style-mobile-body text-ink-muted">
                 {nextRsvp.event.location}
               </p>
             </div>
@@ -68,10 +68,10 @@ export function MobileDashboard({ userId, userName, nextRsvp, announcements }: M
           </>
         ) : (
           <div className="flex flex-col items-center gap-[8px] rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6] p-[16px] text-center">
-            <h3 className="font-mobile-display text-[15px] font-bold text-ink">
+            <h3 className="style-mobile-title text-ink">
               No RSVPs yet
             </h3>
-            <p className="font-mobile-body text-[13px] text-ink-muted">
+            <p className="style-mobile-body text-ink-muted">
               Check out upcoming events and RSVP to see them here.
             </p>
             <Button href="/events" variant="primary" size="sm" pill>
@@ -97,7 +97,7 @@ export function MobileDashboard({ userId, userName, nextRsvp, announcements }: M
       <Suspense
         fallback={
           <div className="flex min-h-[150px] items-center justify-center rounded-2xl bg-white">
-            <span className="font-mobile-body text-[13px] text-ink-muted">
+            <span className="style-mobile-body text-ink-muted">
               Loading recommendations...
             </span>
           </div>

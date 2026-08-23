@@ -74,23 +74,23 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
     <MobileScreen>
       <Link 
         href="/events" 
-        className="inline-flex items-center py-1 font-mono text-[13px] font-bold text-brand transition-opacity hover:opacity-80"
+        className="inline-flex items-center py-1 style-caption font-bold text-brand transition-opacity hover:opacity-80"
       >
         ← All Events
       </Link>
 
       <div className="flex h-55 w-full shrink-0 items-center justify-center rounded-2xl bg-photo shadow-sm overflow-hidden">
-        <span className="font-mono text-[12px] font-medium tracking-[2px] text-photo-text">
+        <span className="style-caption font-medium tracking-[2px] text-photo-text">
           PHOTO
         </span>
       </div>
 
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <h1 className="font-mobile-display text-[26px] font-bold leading-tight text-ink">
+          <h1 className="style-mobile-title leading-tight text-ink">
             {event.title}
           </h1>
-          <p className="font-mono text-[13px] font-medium text-ink-muted">
+          <p className="style-caption font-medium text-ink-muted">
             {formattedDate} · {event.location}
           </p>
         </div>
@@ -101,7 +101,7 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
           ))}
         </div>
 
-        <p className="font-mobile-body text-[15px] leading-relaxed text-ink-muted">
+        <p className="style-mobile-body leading-relaxed text-ink-muted">
           {event.description}
         </p>
       </div>
@@ -109,13 +109,13 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
       <div className={`mt-2 flex flex-col items-center justify-center gap-[16px] rounded-[20px] p-[24px] shadow-sm ${cardStyle}`}>
         {isPast ? (
           <>
-            <h2 className={`font-mobile-display text-[22px] font-bold ${
-              attended ? "text-[#2c5d3e]" : isRsvpd ? "text-red-700" : "text-ink"
+            <h2 className={`style-mobile-title ${
+              attended ? "" : isRsvpd ? "text-red-700" : "text-ink"
             }`}>
               {attended ? "Attended" : isRsvpd ? "Missed Event" : "Event Passed"}
             </h2>
 
-            <p className="text-center font-mobile-body text-[13px] text-ink-muted">
+            <p className="text-center style-mobile-body text-ink-muted">
               {attended
                 ? "Thanks for joining us at this event!"
                 : isRsvpd
@@ -124,7 +124,7 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
             </p>
 
             <div className="mt-1 flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium bg-white/60 border border-border-soft">
-              <span className="font-mono text-ink-faint">RSVP Status:</span>
+              <span className="style-caption text-ink-faint">RSVP Status:</span>
               <span className={isRsvpd ? "text-emerald-700 font-semibold" : "text-ink-muted"}>
                 {isRsvpd ? "Yes (Going)" : "No RSVP"}
               </span>
@@ -132,13 +132,13 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
           </>
         ) : isRsvpd ? (
           <>
-            <h2 className="font-mobile-display text-[22px] font-bold text-ink">
+            <h2 className="style-mobile-title text-ink">
               You're Going!
             </h2>
 
             <EventQRCode value={userRsvp?.qrToken ?? `checkin-${userId}-${event.id}`} />
 
-            <p className="text-center font-mono text-[11px] text-ink-faint">
+            <p className="text-center style-caption text-ink-faint">
               Scan QR at the door to check in
             </p>
 
@@ -146,11 +146,11 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
           </>
         ) : (
           <>
-            <h2 className="font-mobile-display text-[22px] font-bold text-ink">
+            <h2 className="style-mobile-title text-ink">
               Join This Event
             </h2>
             
-            <p className="text-center font-mobile-body text-[13px] text-ink-muted">
+            <p className="text-center style-mobile-body text-ink-muted">
               RSVP to secure your spot and unlock your check-in QR code.
             </p>
 

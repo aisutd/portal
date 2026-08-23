@@ -72,6 +72,7 @@ enum ProgramType {
   AI_INNOVATION
   AI_MENTORSHIP_MENTOR
   AI_MENTORSHIP_MENTEE
+  OFFICER
 }
 
 enum MembershipType {

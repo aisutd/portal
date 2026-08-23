@@ -12,9 +12,20 @@ const r2 = new S3Client({
 
 const BUCKET_NAME = process.env.R2_BUCKET_NAME!;
 
-// Generate an expiration URL to view/download a file safely
-export async function getDownloadUrl(key: string, expiresInSeconds = 3600) {
-  const command = new GetObjectCommand({ Bucket: BUCKET_NAME, Key: key });
+// Generate an expiration URL to view/download a file safely.
+// The optional filename nudges browsers to download instead of inline-open.
+export async function getDownloadUrl(
+  key: string,
+  expiresInSeconds = 3600,
+  filename?: string,
+) {
+  const command = new GetObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: key,
+    ResponseContentDisposition: filename
+      ? `attachment; filename="${filename.replace(/["\\]/g, "_")}"`
+      : "attachment",
+  });
   return await getSignedUrl(r2, command, { expiresIn: expiresInSeconds });
 }
 

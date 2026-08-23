@@ -15,15 +15,15 @@ function RsvpRow({ item }: { item: RsvpItem }) {
       href={`/events/${item.id}`}
       className="flex w-full items-center gap-[12px]">
       <div className="flex size-[46px] shrink-0 items-center justify-center rounded-[14px] bg-brand-soft">
-        <span className="font-techno text-[12px] leading-[16.8px] tracking-[1px] text-brand-dark">
+        <span className="style-meta-text  leading-[16.8px] tracking-[1px] text-brand-dark">
           {item.day}
         </span>
       </div>
       <div className="flex flex-col">
-        <span className="font-body text-[15px] font-bold leading-[22.5px] text-ink">
+        <span className="style-card-title  leading-[22.5px] text-ink">
           {item.title}
         </span>
-        <span className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-ink-faint">
+        <span className="style-meta-text  leading-[16.8px] tracking-[0.2px] text-ink-faint">
           {item.detail}
         </span>
       </div>
@@ -38,11 +38,11 @@ export function RsvpsCard({ items }: { items: RsvpItem[] }) {
       <div className="flex flex-1 flex-col gap-[20px] overflow-y-auto pr-1">
         {items.length === 0 ? (
           <div className="flex h-[170px] w-full items-center justify-center rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6]">
-            <span className="font-[Inter] text-[14px] text-ink-faint">No upcoming RSVPs.</span>
+            <span className="style-body-text  text-ink-faint">No upcoming RSVPs.</span>
           </div>
         ) : (
-          items.map((item) => (
-            <RsvpRow key={item.title} item={item} />
+          items.map((item, index) => (
+            <RsvpRow key={item.id ?? `${item.title}-${index}`} item={item} />
           ))
         )}
       </div>

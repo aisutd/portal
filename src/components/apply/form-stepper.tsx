@@ -26,7 +26,7 @@ export function FormStepper({ steps, active = 0 }: FormStepperProps) {
           >
             <span
               className={cn(
-                "font-display text-[15px] font-semibold leading-[normal] [font-variation-settings:'wdth'_100]",
+                "style-caption leading-[normal] [font-variation-settings:'wdth'_100]",
                 isActive ? "text-white" : "text-ink-muted"
               )}
             >

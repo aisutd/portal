@@ -154,9 +154,9 @@ export const programs: Program[] = [
     iconBg: "#e9e5f6",
     iconColor: "#4b4178",
     borderColor: "#e7e2d4",
-    title: "Officer",
+    title: "Innovation Labs",
     description:
-      "Join the AIS Development Team and contribute to tech, operations, marketing, and the Innovation Lab.",
+      "Selected teams deepen their AIM project in a lab/research setting, providing niche ML/AI experience.",
     tags: ["Advanced", "Project based"],
     cta: "primary",
   },
