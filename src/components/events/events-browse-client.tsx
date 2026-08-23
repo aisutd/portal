@@ -114,6 +114,7 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
 
             {/* Event sections (Distinct Sections with Flags) */}
             <div className="min-w-px flex-1 p-[46px] flex flex-col gap-[40px]">
+              <h1 className="style-page-title text-brand">Pick Your Next Sidequest</h1>
               {totalFilteredCount === 0 ? (
                 <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-border-soft bg-white p-[40px] text-center shadow-sm">
                   <p className="style-mobile-title text-ink">

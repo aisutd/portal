@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { ClerkProvider } from '@clerk/nextjs';
 import { Analytics } from "@vercel/analytics/next";
 import { Inter, Bricolage_Grotesque } from "next/font/google";
+import localFont from 'next/font/local';
+
 import "./globals.css";
 
 const inter = Inter({
@@ -9,10 +11,12 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-const placard = Bricolage_Grotesque({
+const placard = localFont({
+  src: '../../public/fonts/PlacardNextRegular.ttf',
+  display: 'swap',
   variable: "--font-placard",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  //subsets: ["latin"],
+  //weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
