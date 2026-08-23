@@ -10,9 +10,10 @@ import { MobileEyebrow as Eyebrow } from "@/components/mobile/ui/MobileEyebrow";
 import { SignOutButton } from "@clerk/nextjs";
 import { PasswordResetButton } from "@/components/profile/PasswordResetButton";
 import { UTD_MAJORS, UTD_DEGREES, ACADEMIC_YEARS } from "@/lib/utd-data";
+import { ResumeUploadButton } from "@/components/profile/ResumeUploadButton";
 
 type MobileProfileProps = {
-  profile: Profile;
+  profile: Profile & { resumeFile?: { fileName: string } | null };
   completion: { percent: number; missingFields: string[] };
   updateProfile: (formData: FormData) => Promise<void>;
 };
@@ -32,7 +33,7 @@ function MobileSelect({
 }) {
   return (
     <div className="flex flex-col gap-[6px]">
-      <label className="font-mobile-body text-[13px] font-bold text-ink">{label}</label>
+      <label className="style-label-text text-[13px] text-ink">{label}</label>
       <select
         name={name}
         defaultValue={defaultValue}
@@ -67,7 +68,7 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
         <div className="flex gap-[12px]">
           <Card className="flex flex-[3] flex-col items-center gap-[10px] p-[18px]">
             <div className="size-[64px] rounded-full bg-photo" />
-            <p className="font-mobile-display text-[15px] font-bold uppercase tracking-[0.5px] text-ink">
+            <p className="style-card-title text-[15px] uppercase tracking-[0.5px] text-ink">
               {profile.firstName} {profile.lastName}
             </p>
             <Badge label={`${profile.major} · ${profile.year}`} bg="#fbe3cb" color="#7a4416" />
@@ -168,16 +169,19 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
               </svg>
             </div>
             <div className="flex-1">
-              <p className="font-mobile-body text-[13px] font-bold text-ink">
+              <p className="style-card-title text-[13px] text-ink">
                 Upload New Resume
               </p>
-              <p className="font-mono text-[11px] text-ink-faint">
+              <p className="style-meta-text text-[11px] text-ink-faint">
                 PDF, DOCX, UP TO 5MB.
               </p>
             </div>
-            <Button type="button" variant="primary" size="sm">
-              Select File
-            </Button>
+            <ResumeUploadButton
+              initialFileName={profile.resumeFile?.fileName}
+              hasResume={!!profile.resumeFileId}
+              size="sm"
+              variant="mobile"
+            />
           </div>
         </Card>
 
@@ -187,10 +191,10 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
 
           <div className="flex items-center justify-between gap-[12px] rounded-[12px] bg-row-soft p-[14px]">
             <div>
-              <p className="font-mobile-body text-[13px] font-bold text-ink">
+              <p className="style-card-title text-[13px] text-ink">
                 Change Password
               </p>
-              <p className="font-mobile-body text-[12px] text-ink-muted">
+              <p className="style-body-text text-[12px] text-ink-muted">
                 Update your account password
               </p>
             </div>
@@ -199,10 +203,10 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
 
           <div className="flex items-center justify-between gap-[12px] rounded-[12px] bg-row-soft p-[14px]">
             <div>
-              <p className="font-mobile-body text-[13px] font-bold text-ink">
+              <p className="style-card-title text-[13px] text-ink">
                 Email Notifications
               </p>
-              <p className="font-mobile-body text-[12px] text-ink-muted">
+              <p className="style-body-text text-[12px] text-ink-muted">
                 Receive updates from AIS about events and announcements
               </p>
             </div>

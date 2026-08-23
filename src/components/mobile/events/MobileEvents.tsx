@@ -22,10 +22,10 @@ export function MobileEvents() {
   return (
     <MobileScreen>
       <div className="flex flex-col gap-[10px]">
-        <h1 className="font-mobile-display text-[24px] font-bold text-brand">
+        <h1 className="font-sans text-[30px] font-bold text-brand">
           {eventsHero.title}
         </h1>
-        <p className="font-mobile-body text-[14px] text-ink">
+        <p className="font-sans text-[14px] font-normal text-ink-muted">
           {eventsHero.subtitle}
         </p>
         <div className="flex gap-[8px]">
@@ -44,15 +44,15 @@ export function MobileEvents() {
       <div className="flex flex-col gap-[16px] overflow-hidden rounded-[16px] border border-border-soft bg-brand-soft p-[20px]">
         <div>
           <Badge label={featuredEvent.badge} bg="#fbe3cb" color="#7a4416" />
-          <h2 className="mt-[10px] font-mobile-display text-[19px] font-bold text-ink">
+          <h2 className="mt-[10px] font-sans text-[19px] font-bold text-ink">
             {featuredEvent.title}
           </h2>
-          <p className="mt-[8px] font-mobile-body text-[13px] text-ink-muted">
+          <p className="mt-[8px] font-sans text-[13px] font-normal text-ink-muted">
             {featuredEvent.description}
           </p>
         </div>
         <div className="flex h-[120px] items-center justify-center rounded-[12px] bg-photo">
-          <span className="font-mono text-[11px] tracking-[1.5px] text-photo-text">
+          <span className="font-sans text-[11px] font-bold tracking-[1.5px] text-photo-text">
             PHOTO
           </span>
         </div>
@@ -72,17 +72,17 @@ export function MobileEvents() {
       <div className="flex flex-col gap-[12px]">
         <div className="rounded-[16px] border border-border-soft bg-white p-[16px]">
           <div className="flex h-[90px] items-center justify-center rounded-[10px] bg-photo">
-            <span className="font-mono text-[11px] tracking-[1.5px] text-photo-text">
+            <span className="font-sans text-[11px] font-bold tracking-[1.5px] text-photo-text">
               FLYER
             </span>
           </div>
-          <p className="mt-[9px] font-mono text-[11px] text-brand">
+          <p className="mt-[9px] font-sans text-[11px] font-bold text-brand">
             {sideEvent.date}
           </p>
-          <h3 className="font-mobile-display text-[15px] font-bold text-ink">
+          <h3 className="font-sans text-[15px] font-bold text-ink">
             {sideEvent.title}
           </h3>
-          <p className="mt-[6px] font-mobile-body text-[13px] text-ink-muted">
+          <p className="mt-[6px] font-sans text-[13px] font-normal text-ink-muted">
             {sideEvent.description}
           </p>
           <div className="mt-[10px] flex items-center justify-between">
@@ -98,13 +98,13 @@ export function MobileEvents() {
             {miniEvent.icon}
           </div>
           <div className="min-w-px flex-1">
-            <p className="font-mono text-[11px] text-purple-ink">
+            <p className="font-sans text-[11px] font-bold text-purple-ink">
               {miniEvent.date}
             </p>
-            <h3 className="font-mobile-display text-[14px] font-bold text-ink">
+            <h3 className="font-sans text-[14px] font-bold text-ink">
               {miniEvent.title}
             </h3>
-            <p className="font-mobile-body text-[12px] text-ink-muted">
+            <p className="font-sans text-[12px] font-normal text-ink-muted">
               {miniEvent.description}
             </p>
           </div>
@@ -113,19 +113,21 @@ export function MobileEvents() {
       </div>
 
       {/* Slogan banner (bleeds past the screen padding) */}
-      <div className="-mx-[20px] rotate-[-0.8deg] scale-[1.03] bg-brand py-[12px]">
-        <p className="text-center font-mobile-display text-[14px] tracking-[1px] text-white">
-          BUILD THE FUTURE · AIS UTD · JOIN THE MOVEMENT
-        </p>
+      <div className="-mx-[20px] overflow-x-hidden py-[2px]">
+        <div className="rotate-[-0.8deg] bg-brand py-[12px]">
+          <p className="whitespace-nowrap text-center font-sans text-[11.5px] font-bold tracking-[0.5px] text-white">
+            BUILD THE FUTURE · AIS UTD · JOIN THE MOVEMENT
+          </p>
+        </div>
       </div>
 
       {/* Past Adventures */}
       <div className="flex flex-col gap-[12px]">
         <div className="flex items-center justify-between">
-          <h2 className="font-mobile-display text-[17px] font-bold text-ink">
+          <h2 className="font-sans text-[17px] font-bold text-ink">
             Past Adventures
           </h2>
-          <a href="#" className="font-mono text-[11px] text-brand">
+          <a href="#" className="font-sans text-[11px] font-bold text-brand">
             View Full Gallery →
           </a>
         </div>
@@ -136,10 +138,10 @@ export function MobileEvents() {
                 key={i}
                 className="flex h-[100px] flex-col items-center justify-center rounded-[14px] border border-border-soft bg-orange-soft"
               >
-                <span className="font-mobile-display text-[22px] font-bold text-orange-ink">
+                <span className="font-sans text-[22px] font-bold text-orange-ink">
                   {tile.stat}
                 </span>
-                <span className="font-mono text-[10px] tracking-[0.2px] text-orange-ink">
+                <span className="font-sans text-[10px] font-bold tracking-[0.2px] text-orange-ink">
                   {tile.label}
                 </span>
               </div>
@@ -148,7 +150,7 @@ export function MobileEvents() {
                 key={i}
                 className="flex h-[100px] items-center justify-center rounded-[14px] bg-photo"
               >
-                <span className="font-mono text-[10px] tracking-[1px] text-photo-text">
+                <span className="font-sans text-[10px] font-bold tracking-[1px] text-photo-text">
                   {tile.label}
                 </span>
               </div>

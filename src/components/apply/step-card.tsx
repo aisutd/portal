@@ -15,13 +15,13 @@ export type Step = {
 export function StepCard({ step, title, description, number }: Step) {
   return (
     <div className="relative flex flex-1 flex-col gap-[6px] self-stretch overflow-hidden rounded-[18px] border border-brand bg-white px-[23px] pb-[25px] pt-[24px]">
-      <p className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-brand">
+      <p className="style-meta-text text-[12px] leading-[16.8px] tracking-[0.2px] text-brand">
         {step}
       </p>
-      <h3 className="font-display text-[22px] font-semibold leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
+      <h3 className="style-card-title text-[22px] leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
         {title}
       </h3>
-      <p className="max-w-[230px] font-body text-[14px] font-normal leading-[20.3px] text-ink-muted">
+      <p className="max-w-[230px] style-body-text text-[14px] leading-[20.3px] text-ink-muted">
         {description}
       </p>
 

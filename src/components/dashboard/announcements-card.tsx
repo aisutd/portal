@@ -6,10 +6,10 @@ export type Announcement = { title: string; body: string };
 function AnnouncementBlock({ item }: { item: Announcement }) {
   return (
     <div className="flex flex-col gap-[6px]">
-      <p className="font-body text-[15px] font-bold leading-[22.5px] text-orange-ink">
+      <p className="style-card-title text-[15px] leading-[22.5px] text-orange-ink">
         {item.title}
       </p>
-      <p className="font-body text-[14px] font-normal leading-[20.3px] text-orange-ink">
+      <p className="style-body-text text-[14px] leading-[20.3px] text-orange-ink">
         {item.body}
       </p>
     </div>

@@ -21,13 +21,13 @@ export function SideEventCard({ date, title, description, tag }: SideEvent) {
           FLYER
         </span>
       </div>
-      <p className="mt-[9px] font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-brand">
+      <p className="mt-[9px] style-meta-text text-[12px] leading-[16.8px] tracking-[0.2px] text-brand">
         {date}
       </p>
-      <h3 className="mt-[9px] font-display text-[17px] font-semibold leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
+      <h3 className="mt-[9px] style-card-title text-[17px] leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
         {title}
       </h3>
-      <p className="mt-[11px] font-body text-[14px] font-normal leading-[20.3px] text-ink-muted">
+      <p className="mt-[11px] style-body-text text-[14px] leading-[20.3px] text-ink-muted">
         {description}
       </p>
       <div className="mt-[10px] flex items-center justify-between">

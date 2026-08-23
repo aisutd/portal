@@ -199,6 +199,7 @@ export async function DashboardRsvpsCard({ userId }: { userId: string }) {
   const items: RsvpItem[] = rsvps.map((rsvp) => {
     const d = new Date(rsvp.event.startTime);
     return {
+      id: rsvp.id,
       day: d.getDate().toString().padStart(2, "0"),
       title: rsvp.event.title,
       detail: `${d.toLocaleTimeString([], { timeZone: 'America/Chicago', hour: 'numeric', minute: '2-digit' })} · ${rsvp.event.location}`,

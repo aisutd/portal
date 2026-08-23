@@ -161,7 +161,7 @@ export function MobileApplyDetail() {
             </p>
             <div className="flex items-center gap-[10px]">
               {getStatusBadge(application.draft, application.submissionStatus)}
-              <Button href="/applications/form" size="sm">
+              <Button href={`/applications/form?id=${application.application.id}`} size="sm">
                 Apply
               </Button>
             </div>

@@ -64,7 +64,7 @@ export function ProgramCard({
       {badge ? (
         <div className="flex w-full items-center justify-between">
           {iconChip}
-          <span className="inline-flex items-center rounded-full bg-orange-soft px-[14px] py-[5px] font-body text-[13px] font-semibold leading-[normal] text-orange-ink">
+          <span className="inline-flex items-center rounded-full bg-orange-soft px-[14px] py-[5px] style-badge-text text-[13px] leading-[normal] text-orange-ink">
             {badge}
           </span>
         </div>

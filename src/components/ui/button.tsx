@@ -22,8 +22,8 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const base =
-  "inline-flex cursor-pointer items-center justify-center gap-[8px] border border-transparent font-black text-center " +
-  "transition-[background-color,border-color,color,box-shadow,transform] duration-150 " +
+  "inline-flex cursor-pointer items-center justify-center gap-[8px] border border-transparent " +
+  "style-button-text text-center transition-[background-color,border-color,color,box-shadow,transform] duration-150 btn-fun-animation select-none " +
   "focus-visible:outline-none focus-visible:ring-4 " +
   "disabled:pointer-events-none disabled:opacity-45";
 

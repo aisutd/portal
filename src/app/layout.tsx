@@ -1,32 +1,11 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from '@clerk/nextjs';
 import { Analytics } from "@vercel/analytics/next";
-import {
-  Geist,
-  Geist_Mono,
-  Nunito_Sans,
-} from "next/font/google";
-import localFont from 'next/font/local';
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const placardNext = localFont({
-  src: '../../public/fonts/PlacardNextRegular.ttf',
-  display: 'swap',
-  variable: '--font-placard',
-});
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const garetStandIn = Nunito_Sans({
-  variable: "--font-garet",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -43,8 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        // geistSans.className sets Geist as the default body font
-        className={`${geistSans.className} ${placardNext.variable} ${geistSans.variable} ${geistMono.variable} ${garetStandIn.variable} antialiased`}
+        className={`${inter.variable} antialiased`}
       >
         <ClerkProvider>
           {children}

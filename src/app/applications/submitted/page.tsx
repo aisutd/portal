@@ -130,7 +130,7 @@ function LoadingState() {
 
 function NotFoundState({ message }: { message: string }) {
   return (
-    <div className="rounded-[18px] border border-border-soft bg-white p-[35px] font-body text-[14px] leading-[20.3px] text-ink-muted">
+    <div className="rounded-[18px] border border-border-soft bg-white p-[35px] style-body-text text-[14px] leading-[20.3px] text-ink-muted">
       {message}
     </div>
   );
@@ -260,7 +260,7 @@ function SubmittedContent() {
                 <h1 className="font-display text-[32px] font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
                   Submitted Application
                 </h1>
-                <p className="font-body text-[15px] leading-[21.75px] text-ink-muted">
+                <p className="style-page-subtitle text-[15px] leading-[21.75px] text-ink-muted">
                   View your submitted answers in read-only form.
                 </p>
               </div>

@@ -10,10 +10,10 @@ export function PastTile(props: PastTileData) {
   if (props.variant === "stat") {
     return (
       <div className="flex h-[150px] flex-col items-center justify-center rounded-[16px] border border-border-soft bg-orange-soft">
-        <span className="font-display text-[32px] font-bold leading-[34.56px] tracking-[-0.4px] text-orange-ink [font-variation-settings:'wdth'_100]">
+        <span className="style-card-title text-[32px] leading-[34.56px] tracking-[-0.4px] text-orange-ink [font-variation-settings:'wdth'_100]">
           {props.stat}
         </span>
-        <span className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-orange-ink">
+        <span className="style-meta-text text-[12px] leading-[16.8px] tracking-[0.2px] text-orange-ink">
           {props.label}
         </span>
       </div>

@@ -15,13 +15,13 @@ export function MiniEventCard({ icon, date, title, description }: MiniEvent) {
         {icon}
       </div>
       <div className="min-w-px flex-1">
-        <p className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-purple-ink">
+        <p className="style-meta-text text-[12px] leading-[16.8px] tracking-[0.2px] text-purple-ink">
           {date}
         </p>
-        <h3 className="font-display text-[17px] font-semibold leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
+        <h3 className="style-card-title text-[17px] leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
           {title}
         </h3>
-        <p className="font-body text-[14px] font-normal leading-[20.3px] text-ink-muted">
+        <p className="style-body-text text-[14px] leading-[20.3px] text-ink-muted">
           {description}
         </p>
       </div>

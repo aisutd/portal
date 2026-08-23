@@ -124,20 +124,21 @@ const filterList = (list: EventRecord[]) =>
   return (
     <MobileScreen>
       <div className="flex flex-col gap-[6px]">
-        <h1 className="font-mobile-display text-[24px] font-bold tracking-tight text-ink">
+        <h1 className="style-page-title text-[36px] leading-tight tracking-tight text-brand">
           Pick Your Next Sidequest
         </h1>
-        <p className="font-mobile-body text-[14px] text-ink-muted">
-          Join us to learn, build, and connect with the AIS community.
+        <p className="style-page-subtitle text-[14px] text-ink-muted">
+          Join us to learn, build, and connect with the AIS community
         </p>
       </div>
 
-      <div className="-mx-[20px] flex snap-x snap-mandatory gap-[8px] overflow-x-auto px-[20px] py-[4px] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex snap-x snap-mandatory gap-[8px] overflow-x-auto py-[6px] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        {/* All Events resets selection state completely */}
         <button
           type="button"
           aria-pressed={selectedTags.length === 0}
           onClick={() => setSelectedTags([])}
-          className={`shrink-0 snap-start rounded-full px-[16px] py-[8px] font-mobile-body text-[13px] font-bold transition-all duration-200 ${
+          className={`shrink-0 snap-start rounded-full px-[16px] py-[8px] font-sans text-[13px] font-bold transition-all duration-200 ${
             selectedTags.length === 0
               ? "bg-brand text-white shadow-sm"
               : "border border-border-soft bg-white text-ink-muted hover:bg-stone-soft"
@@ -185,8 +186,8 @@ const filterList = (list: EventRecord[]) =>
           </div>
         ) : error && totalFilteredCount === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-danger-border bg-white p-[32px] text-center">
-            <p className="font-mobile-display text-[16px] font-bold text-danger-ink">Oops!</p>
-            <p className="mt-[4px] font-mobile-body text-[14px] text-ink-muted">{error}</p>
+            <p className="font-sans text-[16px] font-bold text-danger-ink">Oops!</p>
+            <p className="mt-[4px] font-sans text-[14px] font-normal text-ink-muted">{error}</p>
           </div>
         ) : totalFilteredCount > 0 ? (
           <>
@@ -238,16 +239,16 @@ const filterList = (list: EventRecord[]) =>
           </>
         ) : (
           <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-border-soft bg-white p-[40px] text-center shadow-sm">
-            <p className="font-mobile-display text-[16px] font-bold text-ink">
+            <p className="font-sans text-[16px] font-bold text-ink">
               No events found
             </p>
-            <p className="mt-[6px] font-mobile-body text-[14px] text-ink-muted">
-              We didn't have any events with selected filters. Look out in the near future!
+            <p className="mt-[6px] font-sans text-[14px] text-ink-muted">
+              We didn't have any events with the selected filters. Look out in the near future!
             </p>
             {selectedTags.length > 0 && (
               <button
                 onClick={() => setSelectedTags([])}
-                className="mt-[16px] rounded-full bg-brand-soft px-[16px] py-[8px] font-mobile-body text-[13px] font-bold text-brand transition-colors hover:bg-brand hover:text-white"
+                className="mt-[16px] rounded-full bg-brand-soft px-[16px] py-[8px] font-sans text-[13px] font-bold text-brand transition-colors hover:bg-brand hover:text-white"
               >
                 Clear Filters
               </button>

@@ -99,10 +99,10 @@ export function EventGridCard({
         <h3 className="mt-4 line-clamp-2 font-display text-[18px] font-semibold leading-tight text-ink group-hover:text-brand transition-colors [font-variation-settings:'wdth'_100]">
           {title}
         </h3>
-        <p className="mt-1.5 font-mono text-[12px] font-medium tracking-wide text-ink-faint">
+        <p className="mt-1.5 style-meta-text text-[12px] tracking-wide text-ink-faint">
           {meta}
         </p>
-        <p className="mt-3 line-clamp-3 font-body text-[14px] leading-relaxed text-ink-muted">
+        <p className="mt-3 line-clamp-3 style-body-text text-[14px] leading-relaxed text-ink-muted">
           {description}
         </p>
       </div>

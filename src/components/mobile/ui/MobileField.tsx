@@ -15,7 +15,7 @@ export function MobileField({ label, id, className, ...props }: MobileFieldProps
     <div className="flex flex-col gap-[6px]">
       <label
         htmlFor={inputId}
-        className="font-mobile-body text-[13px] font-bold text-ink"
+        className="style-label-text text-[13px] text-ink"
       >
         {label}
       </label>
