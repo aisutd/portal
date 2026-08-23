@@ -19,19 +19,19 @@ export default async function CheckInPage({ searchParams }: CheckInProps) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-cream p-6 text-center">
         <div className="w-full max-w-[420px] rounded-[16px] bg-white p-[36px] border border-border-soft shadow-sm">
-          <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-red-600">
+          <span className="font-mono  font-semibold uppercase tracking-wider text-red-600">
             Error
           </span>
-          <h1 className="mt-[12px] font-display text-[22px] font-semibold text-ink">
+          <h1 className="mt-[12px] font-display  font-semibold text-ink">
             Invalid Check-In Link
           </h1>
-          <p className="mt-[8px] font-body text-[14px] text-ink-muted leading-[20px]">
+          <p className="mt-[8px] font-body  text-ink-muted leading-[20px]">
             The check-in link appears to be malformed or missing a security token.
           </p>
           <div className="mt-[24px]">
             <Link
               href="/events"
-              className="inline-flex w-full items-center justify-center rounded-[10px] bg-brand px-4 py-[12px] font-mono text-[12px] font-medium text-white transition-colors hover:bg-brand-dark"
+              className="inline-flex w-full items-center justify-center rounded-[10px] bg-brand px-4 py-[12px] font-mono  font-medium text-white transition-colors hover:bg-brand-dark"
             >
               ← Back to Events
             </Link>
@@ -55,19 +55,19 @@ export default async function CheckInPage({ searchParams }: CheckInProps) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-cream p-6 text-center">
         <div className="w-full max-w-[420px] rounded-[16px] bg-white p-[36px] border border-border-soft shadow-sm">
-          <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
+          <span className="font-mono  font-semibold uppercase tracking-wider text-ink-muted">
             Not Found
           </span>
-          <h1 className="mt-[12px] font-display text-[22px] font-semibold text-ink">
+          <h1 className="mt-[12px] font-display  font-semibold text-ink">
             Event Not Found
           </h1>
-          <p className="mt-[8px] font-body text-[14px] text-ink-muted leading-[20px]">
+          <p className="mt-[8px] font-body  text-ink-muted leading-[20px]">
             We couldn't locate an event matching this check-in token.
           </p>
           <div className="mt-[24px]">
             <Link
               href="/events"
-              className="inline-flex w-full items-center justify-center rounded-[10px] bg-brand px-4 py-[12px] font-mono text-[12px] font-medium text-white transition-colors hover:bg-brand-dark"
+              className="inline-flex w-full items-center justify-center rounded-[10px] bg-brand px-4 py-[12px] font-mono  font-medium text-white transition-colors hover:bg-brand-dark"
             >
               ← Back to Events
             </Link>
@@ -83,19 +83,19 @@ export default async function CheckInPage({ searchParams }: CheckInProps) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-cream p-6 text-center">
         <div className="w-full max-w-[420px] rounded-[16px] bg-[#f4f1ea] p-[36px] border border-border-soft">
-          <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-ink-faint">
+          <span className="font-mono  font-semibold uppercase tracking-wider text-ink-faint">
             Ended
           </span>
-          <h1 className="mt-[12px] font-display text-[22px] font-semibold text-ink">
+          <h1 className="mt-[12px] font-display  font-semibold text-ink">
             Check-In Closed
           </h1>
-          <p className="mt-[8px] font-body text-[14px] text-ink-muted leading-[20px]">
+          <p className="mt-[8px] font-body  text-ink-muted leading-[20px]">
             <span className="font-semibold text-ink">{event.title}</span> has already concluded. Attendance tracking is no longer active.
           </p>
           <div className="mt-[24px]">
             <Link
               href={redirectTo}
-              className="inline-flex w-full items-center justify-center rounded-[10px] bg-brand px-4 py-[12px] font-mono text-[12px] font-medium text-white transition-colors hover:bg-brand-dark"
+              className="inline-flex w-full items-center justify-center rounded-[10px] bg-brand px-4 py-[12px] font-mono  font-medium text-white transition-colors hover:bg-brand-dark"
             >
               ← Return to Dashboard
             </Link>
@@ -161,20 +161,20 @@ export default async function CheckInPage({ searchParams }: CheckInProps) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-cream p-6 text-center">
       <div className="w-full max-w-[420px] rounded-[16px] bg-[#d2ecd9] p-[36px] border border-[#b8dfc3]">
-        <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-[#2c5d3e]">
+        <span className="font-mono  font-semibold uppercase tracking-wider ">
           Verified
         </span>
-        <h1 className="mt-[12px] font-display text-[26px] font-semibold text-[#2c5d3e]">
+        <h1 className="mt-[12px] font-display  font-semibold ">
           Checked In
         </h1>
-        <p className="mt-[8px] font-body text-[14px] text-[#2c5d3e]/80 leading-[20px]">
-          You're all set for <span className="font-semibold text-[#2c5d3e]">{event.title}</span>. We automatically registered your spot and checked you in!
+        <p className="mt-[8px] font-body  /80 leading-[20px]">
+          You're all set for <span className="font-semibold ">{event.title}</span>. We automatically registered your spot and checked you in!
         </p>
 
         <div className="mt-[28px]">
           <Link
             href={redirectTo}
-            className="inline-flex w-full items-center justify-center rounded-[10px] bg-[#2c5d3e] px-4 py-[12px] font-mono text-[12px] font-medium text-white transition-colors hover:bg-[#234b31]"
+            className="inline-flex w-full items-center justify-center rounded-[10px] bg-[#2c5d3e] px-4 py-[12px] font-mono  font-medium text-white transition-colors hover:bg-[#234b31]"
           >
             ← Return to Dashboard
           </Link>

@@ -34,7 +34,7 @@ export function MobileAdminMembers({
       <MobileAdminNav active="Members" />
 
       <div className="flex items-center justify-between">
-        <h2 className="font-mobile-display text-[20px] font-bold text-ink">Members</h2>
+        <h2 className="font-mobile-display  font-bold text-ink">Members</h2>
         <Button variant="primary" size="sm">+ Invite</Button>
       </div>
 
@@ -47,13 +47,13 @@ export function MobileAdminMembers({
             }`}
           >
             <span
-              className={`font-mobile-display text-[22px] font-bold ${
+              className={`font-mobile-display  font-bold ${
                 s.highlight ? "text-brand" : "text-ink"
               }`}
             >
               {s.value}
             </span>
-            <span className="font-mono text-[11px] text-ink-faint">{s.label}</span>
+            <span className="font-mono  text-ink-faint">{s.label}</span>
           </div>
         ))}
       </div>
@@ -71,8 +71,8 @@ export function MobileAdminMembers({
                 <Link href={`/admin/members/${m.id}`} className="group flex min-w-0 flex-1 items-center gap-[12px]">
                   <span className="size-[36px] shrink-0 rounded-full border border-border-soft bg-photo" />
                   <div className="min-w-0 flex-1">
-                    <p className="font-mobile-body text-[14px] font-bold text-ink group-hover:underline">{m.name}</p>
-                    <p className="font-mono text-[11px] text-ink-faint">{m.netid}</p>
+                    <p className="font-mobile-body  font-bold text-ink group-hover:underline">{m.name}</p>
+                    <p className="font-mono  text-ink-faint">{m.netid}</p>
                   </div>
                 </Link>
                 {editable ? (
@@ -83,7 +83,7 @@ export function MobileAdminMembers({
                     programs={m.programs}
                   />
                 ) : (
-                  <span aria-hidden className="text-[16px] leading-none text-ink-faint">
+                  <span aria-hidden className=" leading-none text-ink-faint">
                     ⋯
                   </span>
                 )}
@@ -97,7 +97,7 @@ export function MobileAdminMembers({
                   badge={m.status}
                   detail={m.statusDetail}
                 />
-                <span className="font-mono text-[11px] text-ink-faint">
+                <span className="font-mono  text-ink-faint">
                   {m.events} events · joined {m.joined}
                 </span>
               </div>
@@ -105,7 +105,7 @@ export function MobileAdminMembers({
           ))}
         </div>
       ) : (
-        <div className="w-full rounded-[16px] border border-border-soft bg-white px-[16px] py-[28px] text-center font-mobile-body text-[14px] text-ink-muted">
+        <div className="w-full rounded-[16px] border border-border-soft bg-white px-[16px] py-[28px] text-center font-mobile-body  text-ink-muted">
           No members match this search.
         </div>
       )}

@@ -37,7 +37,7 @@ const variantClasses: Record<NonNullable<ButtonProps["variant"]>, string> = {
     "font-body bg-orange text-orange-ink [filter:drop-shadow(0px_5px_7px_rgba(242,169,104,0.34))] " +
     "hover:bg-orange-soft active:bg-orange focus-visible:ring-orange-soft",
   auth:
-    "font-grotesk bg-brand-button text-white rounded-[8px] px-[13px] pb-[14px] pt-[13px] text-[15px] leading-[normal] " +
+    "font-grotesk bg-brand-button text-white rounded-[8px] px-[13px] pb-[14px] pt-[13px]  leading-[normal] " +
     "hover:bg-brand-mid active:bg-brand-dark focus-visible:ring-brand-soft",
   soft:
     "font-body bg-purple-soft border-purple-border text-purple-ink " +
@@ -55,9 +55,9 @@ const variantClasses: Record<NonNullable<ButtonProps["variant"]>, string> = {
 
 // Padding + type scale per size (radius handled separately to avoid clashes).
 const sizeClasses: Record<NonNullable<ButtonProps["size"]>, string> = {
-  md: "px-[21px] py-[13px] text-[15px] leading-[15px]",
-  sm: "px-[15px] py-[9px] text-[13px] leading-[13px]",
-  lg: "px-[29px] py-[16px] text-[17px] leading-[17px]",
+  md: "px-[21px] py-[13px]  leading-[15px]",
+  sm: "px-[15px] py-[9px]  leading-[13px]",
+  lg: "px-[29px] py-[16px]  leading-[17px]",
 };
 
 export function Button({

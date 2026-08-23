@@ -33,11 +33,11 @@ function MobileSelect({
 }) {
   return (
     <div className="flex flex-col gap-[6px]">
-      <label className="style-label-text text-[13px] text-ink">{label}</label>
+      <label className="style-label-text  text-ink">{label}</label>
       <select
         name={name}
         defaultValue={defaultValue}
-        className={cn( "w-full rounded-[10px] border border-transparent bg-field px-[13px] py-[11px] font-mobile-body text-[14px] text-ink focus:outline-none focus:ring-2 focus:ring-brand/40", 
+        className={cn( "w-full rounded-[10px] border border-transparent bg-field px-[13px] py-[11px] font-mobile-body  text-ink focus:outline-none focus:ring-2 focus:ring-brand/40", 
           className
         )}
       >
@@ -57,7 +57,7 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
     <MobileScreen>
       {completion.percent < 100 && (
         <div className="rounded-[8px] bg-[#f9d5d3] px-[16px] py-[12px]">
-          <span className="font-mobile-body text-[13px] font-bold text-[#9a3b36]">
+          <span className="font-mobile-body  font-bold ">
             Your profile is {completion.percent}% complete. Fill in the highlighted fields to reach 100%.
           </span>
         </div>
@@ -68,7 +68,7 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
         <div className="flex gap-[12px]">
           <Card className="flex flex-[3] flex-col items-center gap-[10px] p-[18px]">
             <div className="size-[64px] rounded-full bg-photo" />
-            <p className="style-card-title text-[15px] uppercase tracking-[0.5px] text-ink">
+            <p className="style-card-title  uppercase tracking-[0.5px] text-ink">
               {profile.firstName} {profile.lastName}
             </p>
             <Badge label={`${profile.major} · ${profile.year}`} bg="#fbe3cb" color="#7a4416" />
@@ -169,10 +169,10 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
               </svg>
             </div>
             <div className="flex-1">
-              <p className="style-card-title text-[13px] text-ink">
+              <p className="style-card-title  text-ink">
                 Upload New Resume
               </p>
-              <p className="style-meta-text text-[11px] text-ink-faint">
+              <p className="style-meta-text  text-ink-faint">
                 PDF, DOCX, UP TO 5MB.
               </p>
             </div>
@@ -191,10 +191,10 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
 
           <div className="flex items-center justify-between gap-[12px] rounded-[12px] bg-row-soft p-[14px]">
             <div>
-              <p className="style-card-title text-[13px] text-ink">
+              <p className="style-card-title  text-ink">
                 Change Password
               </p>
-              <p className="style-body-text text-[12px] text-ink-muted">
+              <p className="style-body-text  text-ink-muted">
                 Update your account password
               </p>
             </div>
@@ -203,10 +203,10 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
 
           <div className="flex items-center justify-between gap-[12px] rounded-[12px] bg-row-soft p-[14px]">
             <div>
-              <p className="style-card-title text-[13px] text-ink">
+              <p className="style-card-title  text-ink">
                 Email Notifications
               </p>
-              <p className="style-body-text text-[12px] text-ink-muted">
+              <p className="style-body-text  text-ink-muted">
                 Receive updates from AIS about events and announcements
               </p>
             </div>

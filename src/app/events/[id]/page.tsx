@@ -92,7 +92,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
             {/* Back link */}
             <Link
               href="/events"
-              className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-brand"
+              className="font-mono  leading-[16.8px] tracking-[0.2px] text-brand"
             >
               ← All Events
             </Link>
@@ -101,21 +101,21 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               {/* Event body */}
               <div className="flex min-w-px flex-1 flex-col">
                 <div className="flex h-[300px] w-full items-center justify-center rounded-[12px] bg-photo overflow-hidden">
-                  <span className="font-mono text-[11px] tracking-[1.5px] text-photo-text">
+                  <span className="font-mono  tracking-[1.5px] text-photo-text">
                     PHOTO
                   </span>
                 </div>
                 
-                <h1 className="mt-[20px] font-display text-[38px] font-bold leading-[41px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+                <h1 className="mt-[20px] font-display  font-bold leading-[41px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
                   {event.title}
                 </h1>
 
                 {/* Date, Time, Location moved up right under title with a slightly bigger, cleaner aesthetic */}
-                <p className="mt-[10px] font-mono text-[14px] font-medium leading-[20px] tracking-[0.2px] text-ink-muted">
+                <p className="mt-[10px] font-mono  font-medium leading-[20px] tracking-[0.2px] text-ink-muted">
                   {formattedDate} · {event.location}
                 </p>
 
-                <p className="mt-[20px] max-w-[640px] font-body text-[16px] font-normal leading-[24px] text-ink">
+                <p className="mt-[20px] max-w-[640px] font-body  font-normal leading-[24px] text-ink">
                   {event.description}
                 </p>
 
@@ -143,14 +143,14 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                   {isPast ? (
                     <>
                       <h2
-                        className={`font-display text-[22px] font-semibold leading-[25.96px] [font-variation-settings:'wdth'_100] ${
-                          attended ? "text-[#2c5d3e]" : isRsvpd ? "text-red-700" : "text-ink"
+                        className={`font-display  font-semibold leading-[25.96px] [font-variation-settings:'wdth'_100] ${
+                          attended ? "" : isRsvpd ? "text-red-700" : "text-ink"
                         }`}
                       >
                         {attended ? "Attended" : isRsvpd ? "Missed Event" : "Event Passed"}
                       </h2>
 
-                      <p className="text-center font-body text-[14px] text-ink-muted">
+                      <p className="text-center font-body  text-ink-muted">
                         {attended
                           ? "Thanks for joining us at this event!"
                           : isRsvpd
@@ -168,14 +168,14 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                     </>
                   ) : isRsvpd ? (
                   <>
-                    <h2 className="font-display text-[22px] font-semibold leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
+                    <h2 className="font-display  font-semibold leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
                       You're Going!
                     </h2>
 
                     {/* Real scannable QR code component (Only shows when RSVP'd) */}
                     <EventQRCode value={userRsvp?.qrToken ?? `checkin-${userId}-${event.id}`} />
 
-                    <p className="text-center font-mono text-[11px] text-ink-faint">
+                    <p className="text-center font-mono  text-ink-faint">
                       Scan QR at the door to check in
                     </p>
 
@@ -184,11 +184,11 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                   </>
                 ) : (
                   <>
-                    <h2 className="font-display text-[22px] font-semibold leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
+                    <h2 className="font-display  font-semibold leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
                       Join This Event
                     </h2>
                     
-                    <p className="text-center font-body text-[14px] text-ink-muted">
+                    <p className="text-center font-body  text-ink-muted">
                       RSVP to secure your spot and unlock your check-in QR code.
                     </p>
 

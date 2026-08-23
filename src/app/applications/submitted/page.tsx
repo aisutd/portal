@@ -130,7 +130,7 @@ function LoadingState() {
 
 function NotFoundState({ message }: { message: string }) {
   return (
-    <div className="rounded-[18px] border border-border-soft bg-white p-[35px] style-body-text text-[14px] leading-[20.3px] text-ink-muted">
+    <div className="rounded-[18px] border border-border-soft bg-white p-[35px] style-body-text  leading-[20.3px] text-ink-muted">
       {message}
     </div>
   );
@@ -162,12 +162,12 @@ function renderReadOnlyField(label: string, value: string) {
   if (label === "Resume *") {
     return (
       <div key={label} className="flex w-full flex-col gap-[7px]">
-        <label className="font-body text-[14px] font-bold leading-[20.3px] text-ink-muted">
+        <label className="font-body  font-bold leading-[20.3px] text-ink-muted">
           {label}
         </label>
         <a
           href="/api/profile/resume/download"
-          className="flex h-[42px] w-full items-center rounded-[8px] bg-search-field px-[14px] font-mono text-[12px] text-search-ink transition-colors hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/40"
+          className="flex h-[42px] w-full items-center rounded-[8px] bg-search-field px-[14px] font-mono  text-search-ink transition-colors hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/40"
           title={value}
         >
           <span className="truncate">{value || "Download resume"}</span>
@@ -257,10 +257,10 @@ function SubmittedContent() {
           <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[24px] px-[46px] pb-[46px] pt-[45px]">
             <section className="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
               <div className="flex flex-col gap-[8px]">
-                <h1 className="font-display text-[32px] font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+                <h1 className="font-display  font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
                   Submitted Application
                 </h1>
-                <p className="style-page-subtitle text-[15px] leading-[21.75px] text-ink-muted">
+                <p className="style-page-subtitle  leading-[21.75px] text-ink-muted">
                   View your submitted answers in read-only form.
                 </p>
               </div>
@@ -282,10 +282,10 @@ function SubmittedContent() {
               <div className="flex flex-col gap-[20px] rounded-[18px] border border-border-soft bg-white p-[35px]">
                 <div className="flex flex-col gap-[12px] sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex flex-col gap-[6px]">
-                    <h2 className="font-display text-[24px] font-semibold leading-[28px] text-ink [font-variation-settings:'wdth'_100]">
+                    <h2 className="font-display  font-semibold leading-[28px] text-ink [font-variation-settings:'wdth'_100]">
                       {submission.application.title}
                     </h2>
-                    <p className="font-body text-[14px] leading-[20.3px] text-ink-muted">
+                    <p className="font-body  leading-[20.3px] text-ink-muted">
                       Submitted {formatDateTime(submission.submittedAt)}
                     </p>
                   </div>
@@ -295,7 +295,7 @@ function SubmittedContent() {
                 </div>
 
                 {submission.application.retentionUntil ? (
-                  <p className="font-body text-[14px] leading-[20.3px] text-ink-muted">
+                  <p className="font-body  leading-[20.3px] text-ink-muted">
                     Retention until{" "}
                     {dateFormatter.format(
                       new Date(submission.application.retentionUntil),

@@ -160,7 +160,7 @@ function LoadingState() {
 
 function NotFoundState({ message }: { message: string }) {
   return (
-    <div className="rounded-[16px] border border-border-soft bg-white p-[20px] font-mobile-body text-[13px] text-ink-muted">
+    <div className="rounded-[16px] border border-border-soft bg-white p-[20px] font-mobile-body  text-ink-muted">
       {message}
     </div>
   );
@@ -379,7 +379,7 @@ export function MobileApplyForm() {
     if (label.startsWith("Resume")) {
       return (
         <div key={label} className="flex flex-col gap-[6px]">
-          <label className="font-sans text-[13px] font-bold text-ink">
+          <label className="font-sans  font-bold text-ink">
             {label}
           </label>
           <input
@@ -423,20 +423,20 @@ export function MobileApplyForm() {
           <div className="flex items-center gap-[10px]">
             <button
               type="button"
-              className="flex h-[38px] items-center justify-center rounded-[8px] border border-border-soft bg-white px-[14px] font-sans text-[13px] font-bold text-ink shadow-xs transition-colors hover:bg-[#fbfaf7]"
+              className="flex h-[38px] items-center justify-center rounded-[8px] border border-border-soft bg-white px-[14px] font-sans  font-bold text-ink shadow-xs transition-colors hover:bg-[#fbfaf7]"
               onClick={() => resumeInputRef.current?.click()}
             >
               Upload file
             </button>
-            <span className="font-mono text-[12px] text-ink-muted truncate max-w-[200px]">
+            <span className="font-mono  text-ink-muted truncate max-w-[200px]">
               {value || "No file selected"}
             </span>
           </div>
-          <p className="font-sans text-[11px] text-ink-faint">
+          <p className="font-sans  text-ink-faint">
             Accepted formats: .pdf, .doc, .docx
           </p>
           {errorMessage ? (
-            <p className="font-sans text-[11px] text-[#9a3b36]">{errorMessage}</p>
+            <p className="font-sans  ">{errorMessage}</p>
           ) : null}
         </div>
       );
@@ -476,7 +476,7 @@ export function MobileApplyForm() {
           <FormTextarea {...commonProps} />
         )}
         {errorMessage ? (
-          <p className="font-mobile-body text-[11px] text-[#9a3b36]">{errorMessage}</p>
+          <p className="font-mobile-body  ">{errorMessage}</p>
         ) : null}
       </div>
     );
@@ -485,18 +485,18 @@ export function MobileApplyForm() {
   return (
     <MobileScreen>
       <div className="flex flex-col gap-[18px] rounded-[16px] border border-border-soft bg-white p-[20px] [filter:drop-shadow(0px_8px_11px_rgba(0,0,0,0.04))]">
-        <h1 className="font-mobile-display text-[17px] font-bold text-ink">
+        <h1 className="font-mobile-display  font-bold text-ink">
           {applicationTitle || "Application Form"}
         </h1>
 
         <FormStepper steps={applicationSteps} active={activeStep} />
 
-        <p className="font-mobile-body text-[12px] font-bold text-ink">
+        <p className="font-mobile-body  font-bold text-ink">
           * Please verify that the following information is correct
         </p>
 
         {alreadySubmitted && (
-          <div className="rounded-[12px] bg-[#fbfaf7] border border-border-soft p-[12px] font-sans text-[12px] text-ink-muted">
+          <div className="rounded-[12px] bg-[#fbfaf7] border border-border-soft p-[12px] font-sans  text-ink-muted">
             You have already submitted an application for this program.
           </div>
         )}
@@ -512,13 +512,13 @@ export function MobileApplyForm() {
             </div>
 
             {submitError && (
-              <p className="font-sans text-[12px] text-[#9a3b36]">{submitError}</p>
+              <p className="font-sans  ">{submitError}</p>
             )}
 
             <div className="flex w-full justify-between">
               <button
                 type="button"
-                className="flex h-[42px] items-center justify-center rounded-[11px] border border-border-soft bg-white px-[16px] font-mobile-body text-[13px] font-bold text-ink-muted disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-[42px] items-center justify-center rounded-[11px] border border-border-soft bg-white px-[16px] font-mobile-body  font-bold text-ink-muted disabled:cursor-not-allowed disabled:opacity-50"
                 onClick={handleBackStep}
                 disabled={activeStep === 0 || submitting}
               >
@@ -527,7 +527,7 @@ export function MobileApplyForm() {
               <button
                 type="button"
                 aria-label={activeStep >= applicationSteps.length - 1 ? "Submit application" : "Next step"}
-                className="flex h-[42px] min-w-[88px] items-center justify-center rounded-[11px] bg-brand px-[16px] text-[13px] font-bold leading-none text-white disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-[42px] min-w-[88px] items-center justify-center rounded-[11px] bg-brand px-[16px]  font-bold leading-none text-white disabled:cursor-not-allowed disabled:opacity-50"
                 onClick={activeStep >= applicationSteps.length - 1 ? handleSubmitApplication : handleNextStep}
                 disabled={submitting}
                 onBlur={() => {

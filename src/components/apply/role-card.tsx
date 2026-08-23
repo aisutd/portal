@@ -16,10 +16,10 @@ export function RoleCard({ title, description, tagRows }: Role) {
   return (
     <div className="flex w-full flex-col gap-[16px] rounded-[16px] border border-border-soft bg-white p-[29px] sm:flex-row sm:items-start sm:justify-between">
       <div className="flex min-w-px flex-1 flex-col gap-[10px]">
-        <h3 className="style-card-title text-[17px] leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
+        <h3 className="style-card-title  leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
           {title}
         </h3>
-        <p className="style-body-text text-[14px] leading-[20.3px] text-ink-muted">
+        <p className="style-body-text  leading-[20.3px] text-ink-muted">
           {description}
         </p>
       </div>

@@ -23,15 +23,15 @@ export function ApplicantListItem({ name, meta, score, active }: Applicant) {
     >
       <span className="size-[36px] shrink-0 rounded-full border border-border-soft bg-photo" />
       <div className="min-w-0 flex-1">
-        <p className="font-body text-[15px] font-bold leading-[22.5px] text-ink">
+        <p className="font-body  font-bold leading-[22.5px] text-ink">
           {name}
         </p>
-        <p className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-ink-faint">
+        <p className="font-mono  leading-[16.8px] tracking-[0.2px] text-ink-faint">
           {meta}
         </p>
       </div>
       {score && (
-        <span className="inline-flex shrink-0 items-center rounded-full bg-purple-soft px-[14px] py-[5px] font-body text-[13px] font-semibold leading-[normal] text-purple-ink">
+        <span className="inline-flex shrink-0 items-center rounded-full bg-purple-soft px-[14px] py-[5px] font-body  font-semibold leading-[normal] text-purple-ink">
           {score}
         </span>
       )}

@@ -26,7 +26,7 @@ type UpNextProps = {
 export function UpNextCard({ eyebrow, title, dateLines, tags = [], isEmpty = false, qrToken, isLive = false}: UpNextProps) {
   return (
     <Card className="flex flex-1 flex-col gap-[18px] self-stretch p-[29px]">
-      <p className="style-meta-text text-[12px] uppercase leading-[normal] tracking-[3px] text-ink-faint">
+      <p className="style-meta-text  uppercase leading-[normal] tracking-[3px] text-ink-faint">
         {eyebrow}
       </p>
 
@@ -38,8 +38,8 @@ export function UpNextCard({ eyebrow, title, dateLines, tags = [], isEmpty = fal
               <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
           </div>
-          <h2 className="style-card-title text-[16px] text-ink">{title || "No RSVPs yet"}</h2>
-          <p className="style-body-text text-[13px] text-ink-muted text-center max-w-[280px] leading-tight">
+          <h2 className="style-card-title  text-ink">{title || "No RSVPs yet"}</h2>
+          <p className="style-body-text  text-ink-muted text-center max-w-[280px] leading-tight">
             {dateLines[0] || "You haven't saved any events. Browse what's coming up this semester."}
           </p>
           <Link href="/events" className="mt-[2px]">
@@ -52,18 +52,18 @@ export function UpNextCard({ eyebrow, title, dateLines, tags = [], isEmpty = fal
         <div className="flex flex-wrap gap-[24px]">
           {/* Photo placeholder */}
           <div className="flex h-[170px] w-[240px] shrink-0 items-center justify-center rounded-xl bg-photo">
-            <span className="style-meta-text text-[11px] tracking-[1.5px] text-photo-text">
+            <span className="style-meta-text  tracking-[1.5px] text-photo-text">
               PHOTO
             </span>
           </div>
 
           {/* Details */}
           <div className="flex min-w-px flex-1 flex-col justify-center gap-[10px] self-stretch">
-            <h3 className="style-card-title text-[32px] leading-[34.56px] tracking-[-0.4px] text-ink">
+            <h3 className="style-card-title  leading-[34.56px] tracking-[-0.4px] text-ink">
               {title}
             </h3>
 
-            <p className="style-body-text text-[14px] leading-[20.3px] text-ink-muted">
+            <p className="style-body-text  leading-[20.3px] text-ink-muted">
               {dateLines.map((line) => (
                 <span key={line} className="block">
                   {line}
@@ -93,7 +93,7 @@ export function UpNextCard({ eyebrow, title, dateLines, tags = [], isEmpty = fal
             {qrToken ? (
               <QRCode value={qrToken} size={200} level="H" />
             ) : (
-              <span className="font-mono text-[11px] uppercase tracking-[1.5px] text-ink-faint">
+              <span className="font-mono  uppercase tracking-[1.5px] text-ink-faint">
                 QR
               </span>
             )}

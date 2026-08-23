@@ -21,7 +21,7 @@ function MobileOnboardingInner() {
             src="/ais_logo_black.png"
             alt="AIS Logo"
           />
-          <h1 className="mt-4 text-left font-sans text-[28px] font-bold leading-[1.1] text-ink sm:text-[32px]">
+          <h1 className="mt-4 text-left font-sans  font-bold leading-[1.1] text-ink sm:">
             Step into the<br />
             world of <span className="text-brand">artificial</span><br />
             <span className="text-brand">intelligence</span>

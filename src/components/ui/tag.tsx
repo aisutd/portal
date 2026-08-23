@@ -19,7 +19,7 @@ export function Tag({ label, bg, color, border, className }: TagProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-[13px] py-[6px] style-badge-text text-[11.5px] leading-[normal] tracking-[0.3px]",
+        "inline-flex items-center rounded-full border px-[13px] py-[6px] style-caption leading-[normal] tracking-[0.3px]",
         className
       )}
       style={{

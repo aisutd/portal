@@ -30,11 +30,11 @@ export default function CreateEventPage() {
               <div>
                 <Link
                   href="/admin/events"
-                  className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-brand"
+                  className="font-mono  leading-[16.8px] tracking-[0.2px] text-brand"
                 >
                   ← Back to Events
                 </Link>
-                <h2 className="mt-[6px] font-display text-[32px] font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+                <h2 className="mt-[6px] font-display  font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
                   Create Event
                 </h2>
               </div>

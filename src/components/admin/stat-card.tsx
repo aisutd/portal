@@ -33,13 +33,13 @@ export function StatCard({ value, label, highlight }: StatCardData) {
 
       <span
         className={cn(
-          "font-display text-[34px] font-bold leading-[34px] [font-variation-settings:'wdth'_100]",
+          "font-display  font-bold leading-[34px] [font-variation-settings:'wdth'_100]",
           highlight ? "text-brand" : "text-ink"
         )}
       >
         {value}
       </span>
-      <span className="font-techno text-[11px] uppercase leading-[16px] tracking-[1.1px] text-ink-faint">
+      <span className="font-techno  uppercase leading-[16px] tracking-[1.1px] text-ink-faint">
         {label}
       </span>
     </div>

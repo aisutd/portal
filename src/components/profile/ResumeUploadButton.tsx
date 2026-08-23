@@ -93,7 +93,7 @@ export function ResumeUploadButton({
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4b4178" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
-          <span className="font-sans text-[11px] text-[#4b4178] font-bold truncate max-w-[200px]">
+          <span className="font-sans   font-bold truncate max-w-[200px]">
             {fileName}
           </span>
         </div>

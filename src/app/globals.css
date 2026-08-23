@@ -265,6 +265,12 @@ body {
     font-size: var(--size-body-text, inherit);
   }
 
+  .style-caption {
+    font-family: var(--font-body-text) !important;
+    font-weight: var(--weight-meta-text) !important;
+    font-size: var(--size-meta-text, inherit);
+  }
+
   .style-meta-text {
     font-family: var(--font-meta-text) !important;
     font-weight: var(--weight-meta-text) !important;

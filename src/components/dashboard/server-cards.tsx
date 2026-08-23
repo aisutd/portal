@@ -121,10 +121,10 @@ export async function DashboardStatusStrip({ userId }: { userId: string }) {
   if (profile.missingFields.length > 0) {
     banner = (
       <div className="flex w-full items-center justify-between rounded-[8px] bg-[#f9d5d3] px-[21px] py-[12px]">
-        <span className="font-body text-[14px] text-[#9a3b36]">
+        <span className="font-body  ">
           Your profile is incomplete. Missing: {profile.missingFields.join(", ")}.
         </span>
-        <a href="/profile" className="font-mono text-[12px] font-bold text-[#9a3b36] hover:underline">
+        <a href="/profile" className="font-mono  font-bold  hover:underline">
           Complete Profile →
         </a>
       </div>

@@ -74,13 +74,13 @@ export default async function ProfilePage() {
           <Navbar active="Profile" />
 
           <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[28px] px-[46px] pb-[46px] pt-[45px]">
-            <h1 className="style-page-title text-[40px] leading-[43.2px] tracking-[-0.4px] text-brand">
+            <h1 className="style-page-title  leading-[43.2px] tracking-[-0.4px] text-brand">
               Profile
             </h1>
 
             {completion.percent < 100 && (
               <div className="flex w-full items-center justify-between rounded-[8px] bg-[#f9d5d3] px-[21px] py-[16px] mt-[16px]">
-                <span className="style-body-text text-[15px] font-bold text-[#9a3b36]">
+                <span className="style-body-text  font-bold ">
                   Your profile is {completion.percent}% complete. Please complete the highlighted fields to reach 100%!
                 </span>
               </div>
@@ -93,13 +93,13 @@ export default async function ProfilePage() {
                 {/* USER INFO CARD */}
                 <Card className="flex flex-col items-center justify-center p-[40px] gap-[20px]">
                   <div className="flex size-[140px] shrink-0 items-center justify-center rounded-full bg-photo">
-                    <span className="style-meta-text text-[12px] tracking-[1.5px] text-photo-text">PHOTO</span>
+                    <span className="style-meta-text  tracking-[1.5px] text-photo-text">PHOTO</span>
                   </div>
-                  <h2 className="style-card-title text-[24px] tracking-[-0.4px] text-ink uppercase">
+                  <h2 className="style-card-title  tracking-[-0.4px] text-ink uppercase">
                     {profile.firstName} {profile.lastName}
                   </h2>
                   <div className="rounded-full bg-pill-amber px-[20px] py-[6px]">
-                    <span className="style-badge-text text-orange-text text-[13px] tracking-widest uppercase">
+                    <span className="style-badge-text text-orange-text  tracking-widest uppercase">
                       {profile.major} · {profile.year}
                     </span>
                   </div>
@@ -111,39 +111,39 @@ export default async function ProfilePage() {
                   
                   <div className="flex flex-col gap-[16px]">
                     <div className="flex items-center gap-[16px]">
-                      <span className="style-label-text text-[15px] text-ink w-[80px]">LinkedIn</span>
+                      <span className="style-label-text  text-ink w-[80px]">LinkedIn</span>
                       <input 
                         name="linkedinUrl"
                         defaultValue={profile.linkedinUrl || ""}
                         placeholder="https://linkedin.com/in/..."
                         className={cn(
-                          "h-[40px] flex-1 rounded-[8px] bg-field border px-[16px] style-input-text text-[14px] text-ink focus:outline-none focus:border-brand",
+                          "h-[40px] flex-1 rounded-[8px] bg-field border px-[16px] style-input-text  text-ink focus:outline-none focus:border-brand",
                           !profile.linkedinUrl ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
                         )}
                       />
                     </div>
 
                     <div className="flex items-center gap-[16px]">
-                      <span className="style-label-text text-[15px] text-ink w-[80px]">Github</span>
+                      <span className="style-label-text  text-ink w-[80px]">Github</span>
                       <input 
                         name="githubUrl"
                         defaultValue={profile.githubUrl || ""}
                         placeholder="https://github.com/..."
                         className={cn(
-                          "h-[40px] flex-1 rounded-[8px] bg-field border px-[16px] style-input-text text-[14px] text-ink focus:outline-none focus:border-brand",
+                          "h-[40px] flex-1 rounded-[8px] bg-field border px-[16px] style-input-text  text-ink focus:outline-none focus:border-brand",
                           !profile.githubUrl ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
                         )}
                       />
                     </div>
                   </div>
                   <div className="flex items-center gap-[16px]">
-                      <span className="font-[Inter] font-bold text-[15px] text-ink w-[80px]">Portfolio</span>
+                      <span className="font-[Inter] font-bold  text-ink w-[80px]">Portfolio</span>
                       <input 
                         name="portfolioUrl"
                         defaultValue={profile.portfolioUrl || ""}
                         placeholder="https://..."
                         className={cn(
-                          "h-[40px] flex-1 rounded-[8px] bg-field border px-[16px] text-[14px] text-ink focus:outline-none focus:border-brand",
+                          "h-[40px] flex-1 rounded-[8px] bg-field border px-[16px]  text-ink focus:outline-none focus:border-brand",
                           !profile.portfolioUrl ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
                         )}
                       />
@@ -160,54 +160,54 @@ export default async function ProfilePage() {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-[32px] gap-y-[20px]">
                     <div className="flex flex-col gap-[8px]">
-                      <span className="style-label-text text-[14px] text-ink-muted">First Name</span>
+                      <span className="style-label-text  text-ink-muted">First Name</span>
                       <input 
                         name="firstName"
                         defaultValue={profile.firstName}
-                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] text-[15px] text-ink focus:outline-none focus:border-brand"
+                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px]  text-ink focus:outline-none focus:border-brand"
                         readOnly
                       />
                     </div>
                     <div className="flex flex-col gap-[8px]">
-                      <span className="style-label-text text-[14px] text-ink-muted">Last Name</span>
+                      <span className="style-label-text  text-ink-muted">Last Name</span>
                       <input 
                         name="lastName"
                         defaultValue={profile.lastName}
-                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] text-[15px] text-ink focus:outline-none focus:border-brand"
+                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px]  text-ink focus:outline-none focus:border-brand"
                         readOnly
                       />
                     </div><div className="flex flex-col gap-[8px]">
-                      <span className="font-[Inter] font-bold text-[14px] text-ink-muted">Preferred Name</span>
+                      <span className="font-[Inter] font-bold  text-ink-muted">Preferred Name</span>
                       <input 
                         name="prefName"
                         defaultValue={profile.prefName ?? ""}
-                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] text-[15px] text-ink focus:outline-none focus:border-brand"
+                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px]  text-ink focus:outline-none focus:border-brand"
                       />
                     </div>
                     <div className="flex flex-col gap-[8px]">
-                      <span className="style-label-text text-[14px] text-ink-muted">Email</span>
+                      <span className="style-label-text  text-ink-muted">Email</span>
                       <input 
                         name="utdEmail"
                         defaultValue={profile.utdEmail || ""}
-                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] text-[15px] text-ink focus:outline-none focus:border-brand"
+                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px]  text-ink focus:outline-none focus:border-brand"
                         readOnly
                       />
                     </div>
                     <div className="flex flex-col gap-[8px]">
-                      <span className="style-label-text text-[14px] text-ink-muted">UTD ID</span>
+                      <span className="style-label-text  text-ink-muted">UTD ID</span>
                       <input 
                         name="utdNetId"
                         defaultValue={profile.utdNetId || ""}
-                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] style-input-text text-[15px] text-ink focus:outline-none focus:border-brand"
+                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] style-input-text  text-ink focus:outline-none focus:border-brand"
                       />
                     </div>
                     <div className="flex flex-col gap-[8px]">
-                      <span className="style-label-text text-[14px] text-ink-muted">Major</span>
+                      <span className="style-label-text  text-ink-muted">Major</span>
                       <select 
                         name="major"
                         defaultValue={profile.major ?? ""}
                         className={cn(
-                          "h-[44px] rounded-[8px] bg-field border px-[16px] text-[14px] text-ink focus:outline-none focus:border-brand",
+                          "h-[44px] rounded-[8px] bg-field border px-[16px]  text-ink focus:outline-none focus:border-brand",
                           !profile.major ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
                         )}
                       >
@@ -220,12 +220,12 @@ export default async function ProfilePage() {
                       </select>
                     </div>
                     <div className="flex flex-col gap-[8px]">
-                      <span className="font-[Inter] font-bold text-[14px] text-ink-muted">Degree</span>
+                      <span className="font-[Inter] font-bold  text-ink-muted">Degree</span>
                       <select 
                         name="degree"
                         defaultValue={profile.degree ?? ""}
                         className={cn(
-                          "h-[44px] rounded-[8px] bg-field border px-[16px] text-[14px] text-ink focus:outline-none focus:border-brand",
+                          "h-[44px] rounded-[8px] bg-field border px-[16px]  text-ink focus:outline-none focus:border-brand",
                           !profile.degree ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
                         )}                      >
                         <option value="">Select your degree</option>
@@ -237,12 +237,12 @@ export default async function ProfilePage() {
                       </select>
                     </div>
                     <div className="flex flex-col gap-[8px]">
-                      <span className="style-label-text text-[14px] text-ink-muted">Academic Year</span>
+                      <span className="style-label-text  text-ink-muted">Academic Year</span>
                       <select 
                         name="year"
                         defaultValue={profile.year ?? ""}
                         className={cn(
-                          "h-[44px] rounded-[8px] bg-field border px-[16px] text-[14px] text-ink focus:outline-none focus:border-brand",
+                          "h-[44px] rounded-[8px] bg-field border px-[16px]  text-ink focus:outline-none focus:border-brand",
                           !profile.year ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
                         )}
                       >
@@ -263,8 +263,8 @@ export default async function ProfilePage() {
 
                   <div className="flex items-center justify-between rounded-[12px] bg-[var(--color-pill-amber)] p-[20px]">
                     <div className="flex flex-col gap-[4px] pr-4">
-                      <span className="style-card-title text-[15px] text-orange-text">Change Password</span>
-                      <span className="style-body-text text-[14px] text-orange-text leading-tight">Update your account password safely.</span>
+                      <span className="style-card-title  text-orange-text">Change Password</span>
+                      <span className="style-body-text  text-orange-text leading-tight">Update your account password safely.</span>
                     </div>
                     
                     {/* Render the Client Component Button here */}
@@ -273,8 +273,8 @@ export default async function ProfilePage() {
 
                   <div className="flex items-center justify-between rounded-[12px] bg-coffee p-[20px]">
                     <div className="flex flex-col gap-[4px] pr-4">
-                      <span className="style-card-title text-[15px] text-[#4b4178]">Email Notifications</span>
-                      <span className="style-body-text text-[14px] text-[#4b4178] leading-tight">Receive updates from AIS about events and announcements.</span>
+                      <span className="style-card-title  ">Email Notifications</span>
+                      <span className="style-body-text   leading-tight">Receive updates from AIS about events and announcements.</span>
                     </div>
                     <div className="relative h-[28px] w-[52px] shrink-0 rounded-full bg-brand p-[2px]">
                       <div className="absolute right-[2px] top-[2px] size-[24px] rounded-full bg-white shadow-sm" />
@@ -300,8 +300,8 @@ export default async function ProfilePage() {
                         </svg>
                       </div>
                       <div className="flex flex-col gap-[4px]">
-                        <span className="style-card-title text-[16px] text-ink">Upload New Resume</span>
-                        <span className="style-meta-text text-[12px] text-ink-muted uppercase tracking-wide">PDF, DOC, DOCX, UP TO 10MB.</span>
+                        <span className="style-card-title  text-ink">Upload New Resume</span>
+                        <span className="style-meta-text  text-ink-muted uppercase tracking-wide">PDF, DOC, DOCX, UP TO 10MB.</span>
                       </div>
                     </div>
                     <ResumeUploadButton

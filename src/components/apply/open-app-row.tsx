@@ -54,15 +54,15 @@ export function OpenAppRow({
     >
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-start gap-[10px]">
-          <h3 className="style-card-title text-[17px] leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
+          <h3 className="style-card-title  leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
             {title}
           </h3>
           {statusBadge ? <div className="shrink-0">{statusBadge}</div> : null}
         </div>
-        <p className="mt-[6px] style-body-text text-[14px] leading-[20.3px] text-ink-muted">
+        <p className="mt-[6px] style-body-text  leading-[20.3px] text-ink-muted">
           {description}
         </p>
-        <p className="mt-[5px] style-meta-text text-[12px] leading-[16.8px] tracking-[0.2px] text-ink-faint">
+        <p className="mt-[5px] style-meta-text  leading-[16.8px] tracking-[0.2px] text-ink-faint">
           {meta}
         </p>
       </div>

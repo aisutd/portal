@@ -27,8 +27,8 @@ export async function MobileAdminNav({ active = "Overview" }: MobileAdminNavProp
     <div className="flex flex-col gap-[12px]">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-[8px]">
-          <h1 className="font-mobile-display text-[16px] font-bold text-ink">AIS Admin</h1>
-          <span className="rounded-full bg-brand-soft px-[8px] py-[2px] font-mono text-[10px] font-bold uppercase tracking-[0.5px] text-brand">
+          <h1 className="font-mobile-display  font-bold text-ink">AIS Admin</h1>
+          <span className="rounded-full bg-brand-soft px-[8px] py-[2px] font-mono  font-bold uppercase tracking-[0.5px] text-brand">
             {role}
           </span>
         </div>
@@ -41,7 +41,7 @@ export async function MobileAdminNav({ active = "Overview" }: MobileAdminNavProp
               key={item.label}
               href={item.href}
               className={cn(
-                "shrink-0 rounded-full px-[14px] py-[6px] font-mobile-body text-[12px] font-bold",
+                "shrink-0 rounded-full px-[14px] py-[6px] font-mobile-body  font-bold",
                 isActive ? "bg-brand-soft text-brand-dark" : "text-ink-muted"
               )}
             >

@@ -56,17 +56,17 @@ export function EventRow({
       {/* Title + schedule */}
       <div className="flex min-w-[250px] shrink-0 flex-col gap-[5px]">
         <div className="flex items-center gap-[10px]">
-          <span className="font-body text-[15px] font-bold leading-[22.5px] text-ink">
+          <span className="font-body  font-bold leading-[22.5px] text-ink">
             {title}
           </span>
           <span
-            className="rounded-[6px] px-[9px] py-[3px] font-mono text-[10.5px] font-medium uppercase leading-[normal] tracking-[0.5px]"
+            className="rounded-[6px] px-[9px] py-[3px] font-mono  font-medium uppercase leading-[normal] tracking-[0.5px]"
             style={{ backgroundColor: status.bg, color: status.color }}
           >
             {status.label}
           </span>
         </div>
-        <span className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-ink-faint">
+        <span className="font-mono  leading-[16.8px] tracking-[0.2px] text-ink-faint">
           {meta}
         </span>
       </div>
@@ -74,10 +74,10 @@ export function EventRow({
       {/* Progress */}
       <div className="flex min-w-px flex-1 flex-col gap-[8px]">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-ink-faint">
+          <span className="font-mono  leading-[16.8px] tracking-[0.2px] text-ink-faint">
             {leftInfo}
           </span>
-          <span className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-ink-faint">
+          <span className="font-mono  leading-[16.8px] tracking-[0.2px] text-ink-faint">
             {rightInfo}
           </span>
         </div>

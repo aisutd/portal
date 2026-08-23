@@ -20,7 +20,7 @@ function ApplicationRow({ item }: { item: ApplicationItem }) {
   return (
     <div className="flex w-full flex-col gap-[10px]">
       <div className="flex items-center justify-between">
-        <span className="style-card-title text-[15px] leading-[22.5px] text-ink">
+        <span className="style-card-title  leading-[22.5px] text-ink">
           {item.title}
         </span>
         {item.status.variant === "outline" ? (
@@ -52,7 +52,7 @@ export function ApplicationsCard({ items }: { items: ApplicationItem[] }) {
         action={
           <a
             href="#"
-            className="style-meta-text text-[12px] leading-[16.8px] tracking-[0.2px] text-brand"
+            className="style-meta-text  leading-[16.8px] tracking-[0.2px] text-brand"
           >
             View all
           </a>
@@ -66,8 +66,8 @@ export function ApplicationsCard({ items }: { items: ApplicationItem[] }) {
               <path d="m15 5 4 4"></path>
             </svg>
           </div>
-          <h2 className="style-card-title text-[16px] text-ink">No applications</h2>
-          <p className="style-body-text text-[13px] text-ink-muted text-center max-w-[280px] leading-tight">
+          <h2 className="style-card-title  text-ink">No applications</h2>
+          <p className="style-body-text  text-ink-muted text-center max-w-[280px] leading-tight">
             When you apply to a team or program, it'll show up here.
           </p>
           <Link href="/applications" className="mt-[2px]">

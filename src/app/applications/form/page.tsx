@@ -169,7 +169,7 @@ function LoadingState() {
 
 function NotFoundState({ message }: { message: string }) {
   return (
-    <div className="rounded-[18px] border border-border-soft bg-white p-[35px] style-body-text text-[14px] leading-[20.3px] text-ink-muted">
+    <div className="rounded-[18px] border border-border-soft bg-white p-[35px] style-body-text  leading-[20.3px] text-ink-muted">
       {message}
     </div>
   );
@@ -292,18 +292,18 @@ function ApplyFormContent() {
         <div className="flex w-full flex-1 items-center justify-center px-[24px] py-[40px]">
           <div className="w-full max-w-[720px] rounded-[18px] border border-border-soft bg-white p-[32px] shadow-sm">
             <div className="flex flex-col gap-[14px]">
-              <div className="inline-flex w-fit rounded-full bg-[#efece3] px-[14px] py-[6px] text-[12px] font-semibold leading-none text-ink-muted">
+              <div className="inline-flex w-fit rounded-full bg-[#efece3] px-[14px] py-[6px]  font-semibold leading-none text-ink-muted">
                 Already submitted
               </div>
-              <h1 className="style-page-title text-[32px] leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+              <h1 className="style-page-title  leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
                 {applicationTitle ?? "Application"}
               </h1>
-              <p className="max-w-[560px] style-page-subtitle text-[15px] leading-[21.75px] text-ink-muted">
+              <p className="max-w-[560px] style-page-subtitle  leading-[21.75px] text-ink-muted">
                 You have already submitted an application for this program.
               </p>
               <button
                 type="button"
-                className="inline-flex h-[44px] w-fit items-center justify-center rounded-[11px] bg-brand px-[18px] text-[14px] font-bold leading-none text-white"
+                className="inline-flex h-[44px] w-fit items-center justify-center rounded-[11px] bg-brand px-[18px]  font-bold leading-none text-white"
                 onClick={() => router.push("/applications")}
               >
                 Back to applications
@@ -450,7 +450,7 @@ function ApplyFormContent() {
         <div key={label} className="flex flex-col gap-[6px]">
           <label
             htmlFor={inputId}
-            className="style-label-text text-[14px] leading-[20.3px] text-ink-muted"
+            className="style-label-text  leading-[20.3px] text-ink-muted"
           >
             {label}
           </label>
@@ -507,20 +507,20 @@ function ApplyFormContent() {
           <div className="flex flex-col gap-[8px] sm:flex-row sm:items-center">
             <button
               type="button"
-              className="flex h-[42px] items-center justify-center rounded-[8px] border border-border-soft bg-white px-[14px] font-body text-[13px] font-semibold leading-none text-ink shadow-sm transition-colors hover:bg-[#fbfaf7]"
+              className="flex h-[42px] items-center justify-center rounded-[8px] border border-border-soft bg-white px-[14px] font-body  font-semibold leading-none text-ink shadow-sm transition-colors hover:bg-[#fbfaf7]"
               onClick={() => resumeInputRef.current?.click()}
             >
               Upload file
             </button>
-            <span className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-ink-muted">
+            <span className="font-mono  leading-[16.8px] tracking-[0.2px] text-ink-muted">
               {value || "No file selected"}
             </span>
           </div>
-          <p className="font-body text-[12px] leading-[17px] text-ink-muted">
+          <p className="font-body  leading-[17px] text-ink-muted">
             Accepted formats: .doc, .docx, .pdf
           </p>
           {errorMessage ? (
-            <p className="font-body text-[12px] leading-[17px] text-[#9a3b36]">
+            <p className="font-body  leading-[17px] ">
               {errorMessage}
             </p>
           ) : null}
@@ -564,7 +564,7 @@ function ApplyFormContent() {
           <FormTextarea {...commonProps} />
         )}
         {errorMessage ? (
-          <p className="font-body text-[12px] leading-[17px] text-[#9a3b36]">
+          <p className="font-body  leading-[17px] ">
             {errorMessage}
           </p>
         ) : null}
@@ -586,13 +586,13 @@ function ApplyFormContent() {
         {/* Application card */}
         <div className="w-full max-w-[1346px] rounded-[18px] border border-border-soft bg-white p-[35px] [filter:drop-shadow(0px_8px_11px_rgba(0,0,0,0.04))]">
           <div className="flex flex-col gap-[24px]">
-            <h1 className="style-page-title text-[32px] leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+            <h1 className="style-page-title  leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
               {applicationTitle ?? "Application"}
             </h1>
 
             <FormStepper steps={applicationSteps} active={activeStep} />
 
-            <p className="style-body-text text-[14px] leading-[20.3px] text-ink">
+            <p className="style-body-text  leading-[20.3px] text-ink">
               * Please verify that the following information is correct
             </p>
 
@@ -610,7 +610,7 @@ function ApplyFormContent() {
                 </div>
 
                 {submitError ? (
-                  <p className="font-body text-[13px] leading-[18px] text-[#9a3b36]">
+                  <p className="font-body  leading-[18px] ">
                     {submitError}
                   </p>
                 ) : null}
@@ -619,7 +619,7 @@ function ApplyFormContent() {
                 <div className="flex w-full justify-between">
                   <button
                     type="button"
-                    className="flex h-[44px] items-center justify-center rounded-[11px] border border-border-soft bg-white px-[18px] font-body text-[14px] font-semibold leading-none text-ink-muted disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-[44px] items-center justify-center rounded-[11px] border border-border-soft bg-white px-[18px] font-body  font-semibold leading-none text-ink-muted disabled:cursor-not-allowed disabled:opacity-50"
                     onClick={handleBackStep}
                     disabled={activeStep === 0}
                   >
@@ -632,7 +632,7 @@ function ApplyFormContent() {
                         ? "Submit application"
                         : "Next step"
                     }
-                    className="flex h-[44px] min-w-[96px] items-center justify-center rounded-[11px] bg-brand px-[18px] text-[14px] font-bold leading-none text-white disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-[44px] min-w-[96px] items-center justify-center rounded-[11px] bg-brand px-[18px]  font-bold leading-none text-white disabled:cursor-not-allowed disabled:opacity-50"
                     onClick={
                       activeStep >= applicationSteps.length - 1
                         ? handleSubmitApplication

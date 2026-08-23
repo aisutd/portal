@@ -16,10 +16,10 @@ export function MobileAdminScan({ eventTitle, eventId, items }: MobileAdminScanP
       <MobileAdminNav active="Events" />
 
       <div>
-        <Link href="/admin/events" className="font-mono text-[11px] text-brand">
+        <Link href="/admin/events" className="font-mono  text-brand">
           ← Back to Events
         </Link>
-        <h2 className="mt-[6px] font-mobile-display text-[18px] font-bold text-ink">
+        <h2 className="mt-[6px] font-mobile-display  font-bold text-ink">
           Scanner: {eventTitle}
         </h2>
       </div>

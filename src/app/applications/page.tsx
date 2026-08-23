@@ -209,7 +209,7 @@ function ApplicationSkeleton() {
 
 function ApplicationEmptyState({ message }: { message: string }) {
   return (
-    <div className="rounded-[16px] border border-border-soft/80 bg-white/60 px-6 py-6 font-body text-[14px] leading-relaxed text-ink-muted transition-colors">
+    <div className="rounded-[16px] border border-border-soft/80 bg-white/60 px-6 py-6 font-body  leading-relaxed text-ink-muted transition-colors">
       {message}
     </div>
   );
@@ -369,10 +369,10 @@ export default function ApplyPage() {
           <main className="relative w-full pb-16 pt-8">
             {/* Header Hero Section */}
             <section className="px-8 lg:px-12 pt-4">
-              <h1 className="font-display text-[56px] lg:text-[65px] font-bold leading-[1.05] tracking-[-0.02em] text-ink [font-variation-settings:'wdth'_100]">
+              <h1 className="font-display  lg: font-bold leading-[1.05] tracking-[-0.02em] text-ink [font-variation-settings:'wdth'_100]">
                 Choose Your <span className="text-brand">AIS Path</span>
               </h1>
-              <p className="mt-3 max-w-4xl font-body text-[18px] lg:text-[20px] font-normal leading-relaxed text-ink/80">
+              <p className="mt-3 max-w-4xl font-body  lg: font-normal leading-relaxed text-ink/80">
                 Welcome to the enrollment hub. Whether you&apos;re here to learn,
                 lead, or build, there&apos;s a place waiting for you.
               </p>
@@ -382,7 +382,7 @@ export default function ApplyPage() {
             {/* <section className="mt-12 flex flex-col gap-4 px-8 lg:px-12">
               <SectionHeader
                 title="How to Begin"
-                titleClassName="text-[28px] lg:text-[30px] leading-tight font-semibold"
+                titleClassName=" lg: leading-tight font-semibold"
               />
               <div className="flex flex-col gap-5 lg:flex-row lg:items-stretch">
                 {applySteps.map((step) => (
@@ -393,7 +393,7 @@ export default function ApplyPage() {
 
             {/* Program Workflow */}
             <section className="mt-10 px-8 lg:px-12">
-              <SectionHeader title="Our Pipeline" titleClassName="text-[28px] pb-6" />
+              <SectionHeader title="Our Pipeline" titleClassName=" pb-6" />
               <div className="flex flex-col gap-5 lg:flex-row lg:items-center">
                 {programs.map((program, index) => (
                   <Fragment key={program.title}>

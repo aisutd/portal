@@ -18,7 +18,7 @@ export function MobileAdminEvents({ stats, publishedRows, draftRows }: MobileAdm
       <MobileAdminNav active="Events" />
 
       <div className="flex items-center justify-between">
-        <h2 className="font-mobile-display text-[20px] font-bold text-ink">Events</h2>
+        <h2 className="font-mobile-display  font-bold text-ink">Events</h2>
         <Link href="/admin/events/new">
           <Button variant="primary" size="sm">+ New Event</Button>
         </Link>
@@ -33,20 +33,20 @@ export function MobileAdminEvents({ stats, publishedRows, draftRows }: MobileAdm
             }`}
           >
             <span
-              className={`font-mobile-display text-[22px] font-bold ${
+              className={`font-mobile-display  font-bold ${
                 s.highlight ? "text-brand" : "text-ink"
               }`}
             >
               {s.value}
             </span>
-            <span className="font-mono text-[11px] text-ink-faint">{s.label}</span>
+            <span className="font-mono  text-ink-faint">{s.label}</span>
           </div>
         ))}
       </div>
 
       {/* Published Events Section */}
       <div className="flex flex-col gap-[12px]">
-        <h3 className="font-mobile-display text-[15px] font-semibold text-ink">
+        <h3 className="font-mobile-display  font-semibold text-ink">
           Published Events ({publishedRows.length})
         </h3>
         {publishedRows.length > 0 ? (
@@ -61,24 +61,24 @@ export function MobileAdminEvents({ stats, publishedRows, draftRows }: MobileAdm
                 <span className="h-[44px] w-[56px] shrink-0 rounded-[10px] bg-photo" />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-[8px]">
-                    <span className="font-mobile-body text-[13px] font-bold text-ink">
+                    <span className="font-mobile-body  font-bold text-ink">
                       {e.title}
                     </span>
                     <span
-                      className="rounded-[6px] px-[7px] py-[2px] font-mono text-[9.5px] font-medium uppercase tracking-[0.5px]"
+                      className="rounded-[6px] px-[7px] py-[2px] font-mono  font-medium uppercase tracking-[0.5px]"
                       style={{ backgroundColor: e.status.bg, color: e.status.color }}
                     >
                       {e.status.label}
                     </span>
                   </div>
-                  <span className="font-mono text-[10.5px] text-ink-faint">{e.meta}</span>
+                  <span className="font-mono  text-ink-faint">{e.meta}</span>
                 </div>
               </div>
 
               <div className="flex flex-col gap-[6px]">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[10.5px] text-ink-faint">{e.leftInfo}</span>
-                  <span className="font-mono text-[10.5px] text-ink-faint">{e.rightInfo}</span>
+                  <span className="font-mono  text-ink-faint">{e.leftInfo}</span>
+                  <span className="font-mono  text-ink-faint">{e.rightInfo}</span>
                 </div>
                 <ProgressBar value={e.progress} trackColor="#eceae2" fillColor={e.progressFill} height={8} />
               </div>
@@ -104,7 +104,7 @@ export function MobileAdminEvents({ stats, publishedRows, draftRows }: MobileAdm
             </div>
           ))
         ) : (
-          <div className="rounded-[16px] border border-dashed border-border-soft p-4 text-center font-mono text-[11px] text-ink-faint">
+          <div className="rounded-[16px] border border-dashed border-border-soft p-4 text-center font-mono  text-ink-faint">
             No published events yet.
           </div>
         )}
@@ -112,7 +112,7 @@ export function MobileAdminEvents({ stats, publishedRows, draftRows }: MobileAdm
 
       {/* Draft Events Section */}
       <div className="flex flex-col gap-[12px] pt-2">
-        <h3 className="font-mobile-display text-[15px] font-semibold text-ink">
+        <h3 className="font-mobile-display  font-semibold text-ink">
           Drafts ({draftRows.length})
         </h3>
         {draftRows.length > 0 ? (
@@ -127,24 +127,24 @@ export function MobileAdminEvents({ stats, publishedRows, draftRows }: MobileAdm
                 <span className="h-[44px] w-[56px] shrink-0 rounded-[10px] bg-photo" />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-[8px]">
-                    <span className="font-mobile-body text-[13px] font-bold text-ink">
+                    <span className="font-mobile-body  font-bold text-ink">
                       {e.title}
                     </span>
                     <span
-                      className="rounded-[6px] px-[7px] py-[2px] font-mono text-[9.5px] font-medium uppercase tracking-[0.5px]"
+                      className="rounded-[6px] px-[7px] py-[2px] font-mono  font-medium uppercase tracking-[0.5px]"
                       style={{ backgroundColor: e.status.bg, color: e.status.color }}
                     >
                       {e.status.label}
                     </span>
                   </div>
-                  <span className="font-mono text-[10.5px] text-ink-faint">{e.meta}</span>
+                  <span className="font-mono  text-ink-faint">{e.meta}</span>
                 </div>
               </div>
 
               <div className="flex flex-col gap-[6px]">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[10.5px] text-ink-faint">{e.leftInfo}</span>
-                  <span className="font-mono text-[10.5px] text-ink-faint">{e.rightInfo}</span>
+                  <span className="font-mono  text-ink-faint">{e.leftInfo}</span>
+                  <span className="font-mono  text-ink-faint">{e.rightInfo}</span>
                 </div>
                 <ProgressBar value={e.progress} trackColor="#eceae2" fillColor={e.progressFill} height={8} />
               </div>
@@ -170,7 +170,7 @@ export function MobileAdminEvents({ stats, publishedRows, draftRows }: MobileAdm
             </div>
           ))
         ) : (
-          <div className="rounded-[16px] border border-dashed border-border-soft p-4 text-center font-mono text-[11px] text-ink-faint">
+          <div className="rounded-[16px] border border-dashed border-border-soft p-4 text-center font-mono  text-ink-faint">
             No draft events saved.
           </div>
         )}
@@ -180,10 +180,10 @@ export function MobileAdminEvents({ stats, publishedRows, draftRows }: MobileAdm
         href="/admin/events/new"
         className="flex w-full flex-col gap-[4px] rounded-[16px] bg-brand px-[18px] py-[16px]"
       >
-        <span className="font-mobile-display text-[14px] font-bold text-white">
+        <span className="font-mobile-display  font-bold text-white">
           + Create a new event
         </span>
-        <span className="font-mono text-[10.5px] text-[#dfe6ff]">
+        <span className="font-mono  ">
           title · date · location · capacity · tags
         </span>
       </Link>

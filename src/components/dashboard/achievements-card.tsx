@@ -15,13 +15,13 @@ function AchievementTile({ tile }: { tile: Achievement }) {
       style={{ backgroundColor: tile.bg }}
     >
       <span
-        className="style-card-title text-[30px] leading-[30px] text-center [font-variation-settings:'wdth'_100]"
+        className="style-card-title  leading-[30px] text-center [font-variation-settings:'wdth'_100]"
         style={{ color: tile.color }}
       >
         {tile.value}
       </span>
       <span
-        className="style-meta-text text-[12px] leading-[16.8px] tracking-[1px] text-center"
+        className="style-meta-text  leading-[16.8px] tracking-[1px] text-center"
         style={{ color: tile.color }}
       >
         {tile.label}

@@ -84,7 +84,7 @@ export function MembersTable({
         {HEADERS.map((h, i) => (
           <span
             key={i}
-            className="font-techno text-[12px] uppercase tracking-[1px] text-ink-faint"
+            className="font-techno  uppercase tracking-[1px] text-ink-faint"
           >
             {h}
           </span>
@@ -104,12 +104,12 @@ export function MembersTable({
           {/* Name */}
           <div className="flex items-center gap-[12px]">
             <span className="size-[34px] shrink-0 rounded-full border border-border-soft bg-photo" />
-            <span className="truncate font-body text-[15px] font-bold leading-[22.5px] text-ink">
+            <span className="truncate font-body  font-bold leading-[22.5px] text-ink">
               {m.name}
             </span>
           </div>
           {/* NetID */}
-          <span className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-ink-faint">
+          <span className="font-mono  leading-[16.8px] tracking-[0.2px] text-ink-faint">
             {m.netid}
           </span>
           {/* Roles */}
@@ -119,11 +119,11 @@ export function MembersTable({
             ))}
           </div>
           {/* Events */}
-          <span className="font-body text-[14px] font-normal leading-[20.3px] text-ink-muted">
+          <span className="font-body  font-normal leading-[20.3px] text-ink-muted">
             {m.events}
           </span>
           {/* Joined */}
-          <span className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-ink-faint">
+          <span className="font-mono  leading-[16.8px] tracking-[0.2px] text-ink-faint">
             {m.joined}
           </span>
           </Link>
@@ -144,7 +144,7 @@ export function MembersTable({
               programs={m.programs}
             />
           ) : (
-            <span aria-hidden className="text-[16px] leading-none text-ink-faint">
+            <span aria-hidden className=" leading-none text-ink-faint">
               ⋯
             </span>
           )}
