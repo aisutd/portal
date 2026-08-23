@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from '@clerk/nextjs';
+import { AccountProvider } from "@/components/account-provider";
+import { getNavAccount } from "@/lib/nav-account";
 import { Analytics } from "@vercel/analytics/next";
 import { Inter, Bricolage_Grotesque } from "next/font/google";
 import localFont from 'next/font/local';
@@ -24,18 +26,20 @@ export const metadata: Metadata = {
   description: "AI Society at UT Dallas — member portal",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const account = await getNavAccount();
+
   return (
     <html lang="en">
       <body
         className={`${inter.variable} ${placard.variable} antialiased`}
       >
         <ClerkProvider>
-          {children}
+          <AccountProvider account={account}>{children}</AccountProvider>
         </ClerkProvider>
         <Analytics />
       </body>
