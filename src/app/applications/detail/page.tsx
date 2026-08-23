@@ -8,7 +8,7 @@ import { RoleCard } from "@/components/apply/role-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MobileApplyDetail } from "@/components/mobile/apply/MobileApplyDetail";
-import { applyDetailRoles } from "@/lib/data";
+// import { applyDetailRoles } from "@/lib/data";
 
 type ApplicationDetailResponse = {
   application: {

@@ -47,26 +47,26 @@ export const upNextTags: TagData[] = [
   { label: "learn", bg: "#d3eccf", color: "#356b2e" },
 ];
 
-export const applications: ApplicationItem[] = [
-  {
-    title: "AIM Mentor · Fall 2026",
-    status: { variant: "solid", label: "Active", bg: "#e1e8ff", color: "#1f3aa3" },
-    percent: 70,
-    fillColor: "#2f5fe8",
-  },
-  {
-    title: "AIS Tech Officer",
-    status: { variant: "outline", label: "Draft" },
-    percent: 30,
-    fillColor: "#4f7bff",
-  },
-];
+// export const applications: ApplicationItem[] = [
+//   {
+//     title: "AIM Mentor · Fall 2026",
+//     status: { variant: "solid", label: "Active", bg: "#e1e8ff", color: "#1f3aa3" },
+//     percent: 70,
+//     fillColor: "#2f5fe8",
+//   },
+//   {
+//     title: "AIS Tech Officer",
+//     status: { variant: "outline", label: "Draft" },
+//     percent: 30,
+//     fillColor: "#4f7bff",
+//   },
+// ];
 
-export const rsvps: RsvpItem[] = [
-  { day: "27", title: "Fall Kickoff", detail: "7:00 PM · ECSW 1.315" },
-  { day: "03", title: "Intro to PyTorch", detail: "6:00 PM · ECSW 1.355" },
-  { day: "17", title: "AIM Social", detail: "6:00 PM · ECSW 1.315" },
-];
+// export const rsvps: RsvpItem[] = [
+//   { day: "27", title: "Fall Kickoff", detail: "7:00 PM · ECSW 1.315" },
+//   { day: "03", title: "Intro to PyTorch", detail: "6:00 PM · ECSW 1.355" },
+//   { day: "17", title: "AIM Social", detail: "6:00 PM · ECSW 1.315" },
+// ];
 
 export const achievements: Achievement[] = [
   { value: "★", label: "RANK · NOVICE", bg: "#fbe3cb", color: "#7a4416" },
@@ -74,22 +74,22 @@ export const achievements: Achievement[] = [
   { value: "4", label: "LIFETIME EVENTS", bg: "#e9e5f6", color: "#4b4178" },
 ];
 
-export const recommended: RecommendedItem[] = [
-  {
-    title: "Intro to PyTorch",
-    tags: [
-      { label: "workshop", bg: "#cde9e5", color: "#1d6a61" },
-      { label: "learn", bg: "#d3eccf", color: "#356b2e" },
-    ],
-  },
-  {
-    title: "Sponsor Mixer",
-    tags: [
-      { label: "networking", bg: "#d6e2ff", color: "#284b9c" },
-      { label: "industry", bg: "#ded9f4", color: "#463e86" },
-    ],
-  },
-];
+// export const recommended: RecommendedItem[] = [
+//   {
+//     title: "Intro to PyTorch",
+//     tags: [
+//       { label: "workshop", bg: "#cde9e5", color: "#1d6a61" },
+//       { label: "learn", bg: "#d3eccf", color: "#356b2e" },
+//     ],
+//   },
+//   {
+//     title: "Sponsor Mixer",
+//     tags: [
+//       { label: "networking", bg: "#d6e2ff", color: "#284b9c" },
+//       { label: "industry", bg: "#ded9f4", color: "#463e86" },
+//     ],
+//   },
+// ];
 
 export const announcements: [Announcement, Announcement] = [
   {
@@ -154,49 +154,49 @@ export const programs: Program[] = [
     iconBg: "#e9e5f6",
     iconColor: "#4b4178",
     borderColor: "#e7e2d4",
-    title: "Officer",
+    title: "Innovation Labs",
     description:
-      "Join the AIS Development Team and contribute to tech, operations, marketing, and the Innovation Lab.",
+      "Selected teams deepen their AIM project in a lab/research setting, providing niche ML/AI experience.",
     tags: ["Advanced", "Project based"],
     cta: "primary",
   },
 ];
 
-export const openApps: OpenApp[] = [
-  {
-    title: "AIM Mentor Application · Fall 2026",
-    description: "Mentor students in building an AI/ML project",
-    meta: "closes June 25, 2026 · 11:59 PM CT",
-    borderColor: "#2f5fe8",
-    metaMedium: true,
-    actions: [
-      { label: "Learn more", variant: "soft" },
-      { label: "Apply", variant: "primary", href: "/applications/detail" },
-    ],
-  },
-  {
-    title: "AIS Tech Team Officer · 2026–2027",
-    description: "Design & develop AIS technical infrastructure",
-    meta: "closes June 1, 2026 · 11:59 PM CT",
-    borderColor: "#e7e2d4",
-    metaMedium: true,
-    actions: [
-      { label: "Learn more", variant: "ghost" },
-      { label: "Apply", variant: "primary", href: "/applications/detail" },
-    ],
-  },
-  {
-    title: "AI Academy Application · 2026–2027",
-    description: "AI workshops to help you build your 1ˢᵗ AI project",
-    meta: "opens May 25, 2026",
-    borderColor: "#e7e2d4",
-    dim: true,
-    actions: [
-      { label: "Learn more", variant: "ghost" },
-      { label: "Remind me", variant: "accent", pill: false },
-    ],
-  },
-];
+// export const openApps: OpenApp[] = [
+//   {
+//     title: "AIM Mentor Application · Fall 2026",
+//     description: "Mentor students in building an AI/ML project",
+//     meta: "closes June 25, 2026 · 11:59 PM CT",
+//     borderColor: "#2f5fe8",
+//     metaMedium: true,
+//     actions: [
+//       { label: "Learn more", variant: "soft" },
+//       { label: "Apply", variant: "primary", href: "/applications/detail" },
+//     ],
+//   },
+//   {
+//     title: "AIS Tech Team Officer · 2026–2027",
+//     description: "Design & develop AIS technical infrastructure",
+//     meta: "closes June 1, 2026 · 11:59 PM CT",
+//     borderColor: "#e7e2d4",
+//     metaMedium: true,
+//     actions: [
+//       { label: "Learn more", variant: "ghost" },
+//       { label: "Apply", variant: "primary", href: "/applications/detail" },
+//     ],
+//   },
+//   {
+//     title: "AI Academy Application · 2026–2027",
+//     description: "AI workshops to help you build your 1ˢᵗ AI project",
+//     meta: "opens May 25, 2026",
+//     borderColor: "#e7e2d4",
+//     dim: true,
+//     actions: [
+//       { label: "Learn more", variant: "ghost" },
+//       { label: "Remind me", variant: "accent", pill: false },
+//     ],
+//   },
+// ];
 
 /* -------------------------------------------------------- Admin · Apply page */
 

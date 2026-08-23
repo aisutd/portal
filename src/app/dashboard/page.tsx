@@ -57,19 +57,24 @@ export default async function DashboardPage() {
           <Navbar />
 
           <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[28px] px-[46px] pb-[46px] pt-[45px]">
-            <h1 className="style-page-title text-[40px] leading-[43.2px] tracking-[-0.4px] text-brand [font-variation-settings:'wdth'_100]">
-              Welcome back, {userName}! :)
+            <h1 className="font-display text-[40px] font-bold leading-[43.2px] tracking-[-0.4px] text-brand [font-variation-settings:'wdth'_100]">
+              Welcome back, {userName}!
             </h1>
 
             {/* Row 1 — featured event + applications */}
             <div className="mt-[28px] flex flex-col gap-[24px] xl:flex-row xl:items-start">
               {nextRsvp ? (
                 <UpNextCard
-                  eyebrow={`Up next · ${formatDaysAway(nextRsvp.event.startTime)}`}
+                  eyebrow={nextRsvp.isLive ? "Happening now" : `Up next · ${formatDaysAway(nextRsvp.event.startTime)}`}
                   title={nextRsvp.event.title}
                   dateLines={[formatEventDate(nextRsvp.event.startTime), nextRsvp.event.location]}
-                  tags={[{ label: "RSVP'd", bg: "#e1e8ff", color: "#1f3aa3" }]}
+                  tags={[
+                    nextRsvp.isLive 
+                      ? { "label": "LIVE", "bg": "#dcfce7", "color": "#166534" }
+                      : { label: "RSVP'd", bg: "#e1e8ff", color: "#1f3aa3" }
+                  ]}
                   qrToken={nextRsvp.qrToken}
+                  isLive
                 />
               ) : (
                 <UpNextCard

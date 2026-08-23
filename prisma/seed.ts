@@ -28,7 +28,7 @@ async function main() {
     create: {
       clerkId: 'mock_clerk_admin_1',
       email: 'admin@utdallas.edu',
-      role: UserRole.SUPER_ADMIN,
+      role: UserRole.EXECUTIVE,
       profile: {
         create: {
           firstName: 'Ada',
@@ -52,7 +52,7 @@ async function main() {
     create: {
       clerkId: 'mock_clerk_organizer_1',
       email: 'organizer@utdallas.edu',
-      role: UserRole.ORGANIZER,
+      role: UserRole.OFFICER,
       profile: {
         create: {
           firstName: 'Alan',
@@ -75,7 +75,7 @@ async function main() {
     create: {
       clerkId: 'mock_clerk_reviewer_1',
       email: 'reviewer@utdallas.edu',
-      role: UserRole.REVIEWER,
+      role: UserRole.OFFICER,
       profile: {
         create: {
           firstName: 'Grace',

@@ -6,8 +6,10 @@ import { MembersToolbar } from "@/components/admin/members-toolbar";
 import { MembersPagination } from "@/components/admin/members-pagination";
 import { MobileAdminMembers } from "@/components/mobile/admin/MobileAdminMembers";
 import { Button } from "@/components/ui/button";
+import { getAuthenticatedUser } from "@/lib/auth";
 import { parseMembersQuery } from "@/lib/members/query-params";
 import { getMembersViewModel } from "@/lib/members/view-model";
+import { canManageRoles } from "@/lib/roles";
 
 export const metadata: Metadata = {
   title: "AIS Admin — Members",
@@ -20,12 +22,16 @@ export default async function AdminMembersPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const query = parseMembersQuery(await searchParams);
-  const view = await getMembersViewModel(query);
+  const [view, viewer] = await Promise.all([
+    getMembersViewModel(query),
+    getAuthenticatedUser(),
+  ]);
+  const editable = canManageRoles(viewer?.role);
 
   return (
     <>
       <div className="md:hidden">
-        <MobileAdminMembers query={query} view={view} />
+        <MobileAdminMembers query={query} view={view} editable={editable} />
       </div>
 
       <div className="hidden min-h-screen w-full bg-cream md:flex">
@@ -59,7 +65,7 @@ export default async function AdminMembersPage({
 
         {/* Table */}
         {view.rows.length > 0 ? (
-          <MembersTable members={view.rows} />
+          <MembersTable members={view.rows} canManageRoles={editable} />
         ) : (
           <div className="w-full rounded-[14px] border border-border-soft bg-white px-[22px] py-[40px] text-center font-body text-[15px] text-ink-muted">
             No members match this search.

@@ -292,7 +292,7 @@ export function MobileApply() {
         </p>
       </div>
 
-      {/* How to Begin */}
+      {/* How to Begin
       <div className="flex flex-col gap-[12px]">
         <h2 className="font-sans text-[17px] font-bold text-ink">
           How to Begin
@@ -317,7 +317,7 @@ export function MobileApply() {
             </span>
           </div>
         ))}
-      </div>
+      </div> */}
 
       {/* Programs */}
       <div className="flex flex-col gap-[8px]">

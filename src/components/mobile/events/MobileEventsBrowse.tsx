@@ -7,6 +7,7 @@ import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
 import { eventFilterTags } from "@/lib/data";
 import { normalizeEventTags } from "@/lib/event-tags";
+import { formatEventDate } from "@/lib/utils";
 
 type EventRecord = {
   id: string;
@@ -16,20 +17,13 @@ type EventRecord = {
   startTime: string;
   tags: string[];
   isRsvpd?: boolean;
+  hasAttended?: boolean;
+  missedEvent?: boolean;
 };
 
 interface MobileEventsBrowseProps {
-  initialEvents: EventRecord[];
-}
-
-function formatEventDate(dateString: string) {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(date).replace(", ", " · ");
+  upcomingEvents: EventRecord[];
+  pastEvents: EventRecord[];
 }
 
 function EventCardSkeleton() {
@@ -49,12 +43,12 @@ function EventCardSkeleton() {
   );
 }
 
-export function MobileEventsBrowse({ initialEvents }: MobileEventsBrowseProps) {
-  const [events, setEvents] = useState<EventRecord[]>(initialEvents);
+export function MobileEventsBrowse({ upcomingEvents: initialUpcoming, pastEvents: initialPast }: MobileEventsBrowseProps) {
+  const [upcomingEvents, setUpcomingEvents] = useState<EventRecord[]>(initialUpcoming);
+  const [pastEvents, setPastEvents] = useState<EventRecord[]>(initialPast);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Track selected tags in an array for multi-select
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   useEffect(() => {
@@ -68,15 +62,26 @@ export function MobileEventsBrowse({ initialEvents }: MobileEventsBrowseProps) {
         }
         const payload = (await response.json()) as EventRecord[];
         if (Array.isArray(payload)) {
-          setEvents((prevEvents) =>
-            payload.map((fetchedEvent) => {
-              const matchingPrev = prevEvents.find((e) => e.id === fetchedEvent.id);
-              return {
-                ...fetchedEvent,
-                isRsvpd: matchingPrev ? matchingPrev.isRsvpd : fetchedEvent.isRsvpd,
-              };
-            })
-          );
+          const now = new Date();
+          
+          // Separate and map incoming payload to retain user RSVP/attendance state if available
+          const updateList = (prevList: EventRecord[]) =>
+            payload
+              .map((fetchedEvent) => {
+                const matchingPrev = prevList.find((e) => e.id === fetchedEvent.id);
+                return {
+                  ...fetchedEvent,
+                  isRsvpd: matchingPrev ? matchingPrev.isRsvpd : fetchedEvent.isRsvpd,
+                  hasAttended: matchingPrev ? matchingPrev.hasAttended : fetchedEvent.hasAttended,
+                  missedEvent: matchingPrev ? matchingPrev.missedEvent : fetchedEvent.missedEvent,
+                };
+              });
+
+          const fetchedUpcoming = updateList(initialUpcoming).filter(e => new Date(e.startTime) >= now);
+          const fetchedPast = updateList(initialPast).filter(e => new Date(e.startTime) < now);
+
+          setUpcomingEvents(fetchedUpcoming);
+          setPastEvents(fetchedPast);
         }
       } catch (err) {
         if ((err as Error).name !== "AbortError") {
@@ -86,9 +91,8 @@ export function MobileEventsBrowse({ initialEvents }: MobileEventsBrowseProps) {
     }
     loadEvents();
     return () => controller.abort();
-  }, []);
+  }, [initialUpcoming, initialPast]);
 
-  // Toggle selection on click, deselect if already chosen
   const handleTagClick = (tagLabel: string) => {
     setSelectedTags((prev) =>
       prev.includes(tagLabel)
@@ -97,14 +101,25 @@ export function MobileEventsBrowse({ initialEvents }: MobileEventsBrowseProps) {
     );
   };
 
-  // Filter events: Event matches if it contains ALL selected tags
-  const filteredEvents = selectedTags.length > 0
-    ? events.filter((event) =>
-        selectedTags.every((selectedTag) =>
-          event.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase())
+const filterList = (list: EventRecord[]) => 
+    selectedTags.length > 0
+      ? list.filter((event) =>
+          selectedTags.every((selectedTag) =>
+            event.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase())
+          )
         )
-      )
-    : events;
+      : list;
+
+  const filteredUpcoming = filterList(upcomingEvents).sort(
+    (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+  );
+  
+  // Explicitly force descending order for past events (most recent past first)
+  const filteredPast = filterList(pastEvents).sort(
+    (a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
+  );
+
+  const totalFilteredCount = filteredUpcoming.length + filteredPast.length;
 
   return (
     <MobileScreen>
@@ -162,37 +177,73 @@ export function MobileEventsBrowse({ initialEvents }: MobileEventsBrowseProps) {
         })}
       </div>
 
-      <div className="grid grid-cols-1 gap-[16px]">
+      <div className="flex flex-col gap-[28px]">
         {loading ? (
-          <>
+          <div className="grid grid-cols-1 gap-[16px]">
             <EventCardSkeleton />
             <EventCardSkeleton />
             <EventCardSkeleton />
-          </>
-        ) : error && events.length === 0 ? (
+          </div>
+        ) : error && totalFilteredCount === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-danger-border bg-white p-[32px] text-center">
             <p className="font-sans text-[16px] font-bold text-danger-ink">Oops!</p>
             <p className="mt-[4px] font-sans text-[14px] font-normal text-ink-muted">{error}</p>
           </div>
-        ) : filteredEvents.length > 0 ? (
-          filteredEvents.map((event) => (
-            <EventGridCard
-              key={event.id}
-              title={event.title}
-              meta={`${formatEventDate(event.startTime)} · ${event.location}`}
-              description={event.description}
-              tags={normalizeEventTags(event.tags)}
-              eventId={event.id}
-              isRsvpd={event.isRsvpd}
-            />
-          ))
+        ) : totalFilteredCount > 0 ? (
+          <>
+            {filteredUpcoming.length > 0 && (
+              <div className="flex flex-col gap-[16px]">
+                <h2 className="font-mobile-display text-[18px] font-bold text-ink">
+                  Upcoming Events
+                </h2>
+                <div className="grid grid-cols-1 gap-[16px]">
+                  {filteredUpcoming.map((event) => (
+                    <EventGridCard
+                      key={event.id}
+                      title={event.title}
+                      meta={`${formatEventDate(event.startTime)} · ${event.location}`}
+                      description={event.description}
+                      tags={normalizeEventTags(event.tags)}
+                      eventId={event.id}
+                      isRsvpd={event.isRsvpd}
+                      isPast={false}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {filteredPast.length > 0 && (
+              <div className="flex flex-col gap-[16px]">
+                <h2 className="font-mobile-display text-[18px] font-bold text-ink-muted">
+                  Past Events
+                </h2>
+                <div className="grid grid-cols-1 gap-[16px] opacity-80">
+                  {filteredPast.map((event) => (
+                    <EventGridCard
+                      key={event.id}
+                      title={event.title}
+                      meta={`${formatEventDate(event.startTime)} · ${event.location}`}
+                      description={event.description}
+                      tags={normalizeEventTags(event.tags)}
+                      eventId={event.id}
+                      isRsvpd={event.isRsvpd}
+                      isPast={true}
+                      hasAttended={event.hasAttended}
+                      missedEvent={event.missedEvent}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         ) : (
           <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-border-soft bg-white p-[40px] text-center shadow-sm">
             <p className="font-sans text-[16px] font-bold text-ink">
               No events found
             </p>
-            <p className="mt-[6px] font-sans text-[14px] font-normal text-ink-muted">
-              We couldn't find any upcoming events matching the selected filters.
+            <p className="mt-[6px] font-sans text-[14px] text-ink-muted">
+              We didn't have any events with the selected filters. Look out in the near future!
             </p>
             {selectedTags.length > 0 && (
               <button

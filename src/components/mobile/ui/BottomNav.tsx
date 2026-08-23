@@ -4,8 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
-
-const ADMIN_ROLES = ["REVIEWER", "ORGANIZER", "SUPER_ADMIN"] as const;
+import { isAdminRole, isKnownRole } from "@/lib/roles";
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -13,8 +12,10 @@ export function BottomNav() {
   const { user } = useUser();
 
   // 1. Initialize state instantly using metadata if it exists
-  const metadataRole = (user?.publicMetadata as { role?: string } | undefined)?.role;
-  const [role, setRole] = useState<string | null>(metadataRole || null);
+  // Unknown values mean stale metadata from an older build — ask the API.
+  const rawMetadataRole = (user?.publicMetadata as { role?: string } | undefined)?.role;
+  const metadataRole = isKnownRole(rawMetadataRole) ? rawMetadataRole : undefined;
+  const [role, setRole] = useState<string | null>(metadataRole ?? null);
 
   // 2. Fetch fallback logic identical to the desktop navbar
   useEffect(() => {
@@ -50,7 +51,7 @@ export function BottomNav() {
     };
   }, [isSignedIn, metadataRole]);
 
-  const isAdmin = !!role && ADMIN_ROLES.includes(role as (typeof ADMIN_ROLES)[number]);
+  const isAdmin = isAdminRole(role);
 
   // 3. Base navigation array
   const tabs = [

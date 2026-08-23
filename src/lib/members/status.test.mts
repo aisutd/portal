@@ -1,24 +1,50 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { deriveStatusKey } from "./status.ts";
+import { deriveStatusKey, eventsNeededForActive } from "./status.ts";
 
-const SINCE = new Date(2026, 7, 1);
-
-test("three or more check-ins this semester is active", () => {
-  const checkIns = [new Date(2026, 7, 2), new Date(2026, 7, 3), new Date(2026, 7, 4)];
-  assert.equal(deriveStatusKey(checkIns, SINCE), "active");
+test("no countable events yet reads as active, not inactive", () => {
+  assert.equal(deriveStatusKey(0, 0), "active");
 });
 
-test("one or two check-ins is at risk", () => {
-  assert.equal(deriveStatusKey([new Date(2026, 7, 2)], SINCE), "atRisk");
-  assert.equal(deriveStatusKey([new Date(2026, 7, 2), new Date(2026, 7, 3)], SINCE), "atRisk");
+test("attending none of the countable events is inactive", () => {
+  assert.equal(deriveStatusKey(0, 4), "inactive");
 });
 
-test("no check-ins is inactive", () => {
-  assert.equal(deriveStatusKey([], SINCE), "inactive");
+test("under half is at risk", () => {
+  assert.equal(deriveStatusKey(1, 4), "atRisk");
+  assert.equal(deriveStatusKey(2, 5), "atRisk");
 });
 
-test("check-ins before the semester start do not count", () => {
-  const lastSemester = [new Date(2026, 3, 1), new Date(2026, 3, 2), new Date(2026, 3, 3)];
-  assert.equal(deriveStatusKey(lastSemester, SINCE), "inactive");
+test("exactly half is active", () => {
+  assert.equal(deriveStatusKey(2, 4), "active");
+});
+
+test("attending everything is active", () => {
+  assert.equal(deriveStatusKey(6, 6), "active");
+});
+
+test("a single event is all or nothing", () => {
+  assert.equal(deriveStatusKey(0, 1), "inactive");
+  assert.equal(deriveStatusKey(1, 1), "active");
+});
+
+test("an active member needs no further events", () => {
+  assert.equal(eventsNeededForActive(3, 5), 0);
+  assert.equal(eventsNeededForActive(2, 4), 0);
+});
+
+test("attending raises both sides of the ratio, so the gap is not naive", () => {
+  // 1 of 4 is 25%. Attending 2 more gives 3 of 6, which is exactly half.
+  assert.equal(eventsNeededForActive(1, 4), 2);
+  assert.equal(eventsNeededForActive(0, 4), 4);
+  assert.equal(eventsNeededForActive(2, 5), 1);
+});
+
+test("the answer always lands on or above half", () => {
+  for (let countable = 1; countable <= 20; countable += 1) {
+    for (let attended = 0; attended <= countable; attended += 1) {
+      const k = eventsNeededForActive(attended, countable);
+      assert.ok((attended + k) / (countable + k) >= 0.5);
+    }
+  }
 });

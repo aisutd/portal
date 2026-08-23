@@ -159,6 +159,23 @@ function renderReadOnlyField(label: string, value: string) {
     );
   }
 
+  if (label === "Resume *") {
+    return (
+      <div key={label} className="flex w-full flex-col gap-[7px]">
+        <label className="font-body text-[14px] font-bold leading-[20.3px] text-ink-muted">
+          {label}
+        </label>
+        <a
+          href="/api/profile/resume/download"
+          className="flex h-[42px] w-full items-center rounded-[8px] bg-search-field px-[14px] font-mono text-[12px] text-search-ink transition-colors hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/40"
+          title={value}
+        >
+          <span className="truncate">{value || "Download resume"}</span>
+        </a>
+      </div>
+    );
+  }
+
   return <FormField key={label} {...commonProps} />;
 }
 

@@ -11,6 +11,7 @@ import { getProfileCompletion } from "@/lib/dashboard-utils";
 import { revalidatePath } from "next/cache";
 import { MobileProfile } from "@/components/mobile/profile/MobileProfile";
 import { PasswordResetButton } from "@/components/profile/PasswordResetButton";
+import { UTD_MAJORS, UTD_DEGREES, ACADEMIC_YEARS } from "@/lib/utd-data";
 import { ResumeUploadButton } from "@/components/profile/ResumeUploadButton";
 
 export default async function ProfilePage() {
@@ -47,12 +48,15 @@ export default async function ProfilePage() {
       data: {
         firstName: formData.get("firstName") as string,
         lastName: formData.get("lastName") as string,
+        prefName: formData.get("prefName") as string,
         utdEmail: formData.get("utdEmail") as string,
         utdNetId: formData.get("utdNetId") as string,
         major: formData.get("major") as string,
+        degree: formData.get("degree") as string,
         year: formData.get("year") as string,
         linkedinUrl: formData.get("linkedinUrl") as string,
         githubUrl: formData.get("githubUrl") as string,
+        portfolioUrl: formData.get("portfolioUrl") as string,
       }
     });
 
@@ -132,6 +136,18 @@ export default async function ProfilePage() {
                       />
                     </div>
                   </div>
+                  <div className="flex items-center gap-[16px]">
+                      <span className="font-[Inter] font-bold text-[15px] text-ink w-[80px]">Portfolio</span>
+                      <input 
+                        name="portfolioUrl"
+                        defaultValue={profile.portfolioUrl || ""}
+                        placeholder="https://..."
+                        className={cn(
+                          "h-[40px] flex-1 rounded-[8px] bg-field border px-[16px] text-[14px] text-ink focus:outline-none focus:border-brand",
+                          !profile.portfolioUrl ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                        )}
+                      />
+                    </div>
                 </Card>
               </div>
 
@@ -148,7 +164,8 @@ export default async function ProfilePage() {
                       <input 
                         name="firstName"
                         defaultValue={profile.firstName}
-                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] style-input-text text-[15px] text-ink focus:outline-none focus:border-brand"
+                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] text-[15px] text-ink focus:outline-none focus:border-brand"
+                        readOnly
                       />
                     </div>
                     <div className="flex flex-col gap-[8px]">
@@ -156,7 +173,15 @@ export default async function ProfilePage() {
                       <input 
                         name="lastName"
                         defaultValue={profile.lastName}
-                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] style-input-text text-[15px] text-ink focus:outline-none focus:border-brand"
+                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] text-[15px] text-ink focus:outline-none focus:border-brand"
+                        readOnly
+                      />
+                    </div><div className="flex flex-col gap-[8px]">
+                      <span className="font-[Inter] font-bold text-[14px] text-ink-muted">Preferred Name</span>
+                      <input 
+                        name="prefName"
+                        defaultValue={profile.prefName ?? ""}
+                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] text-[15px] text-ink focus:outline-none focus:border-brand"
                       />
                     </div>
                     <div className="flex flex-col gap-[8px]">
@@ -164,7 +189,8 @@ export default async function ProfilePage() {
                       <input 
                         name="utdEmail"
                         defaultValue={profile.utdEmail || ""}
-                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] style-input-text text-[15px] text-ink focus:outline-none focus:border-brand"
+                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] text-[15px] text-ink focus:outline-none focus:border-brand"
+                        readOnly
                       />
                     </div>
                     <div className="flex flex-col gap-[8px]">
@@ -179,29 +205,53 @@ export default async function ProfilePage() {
                       <span className="style-label-text text-[14px] text-ink-muted">Major</span>
                       <select 
                         name="major"
-                        defaultValue={profile.major}
-                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] style-input-text text-[15px] text-ink focus:outline-none focus:border-brand"
+                        defaultValue={profile.major ?? ""}
+                        className={cn(
+                          "h-[44px] rounded-[8px] bg-field border px-[16px] text-[14px] text-ink focus:outline-none focus:border-brand",
+                          !profile.major ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                        )}
                       >
-                        <option value="Computer Science">Computer Science</option>
-                        <option value="Software Engineering">Software Engineering</option>
-                        <option value="Data Science">Data Science</option>
-                        <option value="Information Technology">Information Technology</option>
-                        <option value="Cognitive Science">Cognitive Science</option>
-                        <option value="Other">Other</option>
+                        <option value="">Select your major</option>
+                        {UTD_MAJORS.map((major) => (
+                          <option key={major} value={major}>
+                            {major}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex flex-col gap-[8px]">
+                      <span className="font-[Inter] font-bold text-[14px] text-ink-muted">Degree</span>
+                      <select 
+                        name="degree"
+                        defaultValue={profile.degree ?? ""}
+                        className={cn(
+                          "h-[44px] rounded-[8px] bg-field border px-[16px] text-[14px] text-ink focus:outline-none focus:border-brand",
+                          !profile.degree ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                        )}                      >
+                        <option value="">Select your degree</option>
+                        {UTD_DEGREES.map((degree) => (
+                          <option key={degree} value={degree}>
+                            {degree}
+                          </option>
+                        ))}
                       </select>
                     </div>
                     <div className="flex flex-col gap-[8px]">
                       <span className="style-label-text text-[14px] text-ink-muted">Academic Year</span>
                       <select 
                         name="year"
-                        defaultValue={profile.year}
-                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] style-input-text text-[15px] text-ink focus:outline-none focus:border-brand"
+                        defaultValue={profile.year ?? ""}
+                        className={cn(
+                          "h-[44px] rounded-[8px] bg-field border px-[16px] text-[14px] text-ink focus:outline-none focus:border-brand",
+                          !profile.year ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                        )}
                       >
-                        <option value="Freshman">Freshman</option>
-                        <option value="Sophomore">Sophomore</option>
-                        <option value="Junior">Junior</option>
-                        <option value="Senior">Senior</option>
-                        <option value="Graduate">Graduate</option>
+                        <option value="">Select your year</option>
+                        {ACADEMIC_YEARS.map((year) => (
+                          <option key={year} value={year}>
+                            {year}
+                          </option>
+                        ))}
                       </select>
                     </div>
                   </div>

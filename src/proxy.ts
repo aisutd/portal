@@ -1,6 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isAdminRole, isKnownRole } from "@/lib/roles";
 
 const isPublicRoute = createRouteMatcher([
   '/',
@@ -8,10 +9,10 @@ const isPublicRoute = createRouteMatcher([
   '/applications(.*)',
   '/onboarding',
   '/api/webhooks(.*)',
+  '/api/onboarding/profile/(.*)'
 ]);
 
 const isAdminRoute = createRouteMatcher(["/admin(.*)", "/api/admin(.*)"]);
-const allowedAdminRoles = ['REVIEWER', 'ORGANIZER', 'SUPER_ADMIN'];
 
 export default clerkMiddleware(async (auth, req) => {
   const session = await auth();
@@ -23,7 +24,9 @@ export default clerkMiddleware(async (auth, req) => {
 
   // Extra role gate on top of that, for admin routes only
   if (isAdminRoute(req)) {
-    let role = session.sessionClaims?.metadata?.role as string | undefined;
+    const claimedRole = session.sessionClaims?.metadata?.role;
+    // A stale claim from an older build must not outrank the database.
+    let role = isKnownRole(claimedRole) ? claimedRole : undefined;
 
     if (!role && session.userId) {
       const user = await prisma.user.findUnique({
@@ -33,7 +36,7 @@ export default clerkMiddleware(async (auth, req) => {
       role = user?.role;
     }
 
-    if (!role || !allowedAdminRoles.includes(role)) {
+    if (!isAdminRole(role)) {
       return NextResponse.redirect(new URL('/dashboard', req.url));
     }
   }

@@ -44,6 +44,7 @@ export async function GET() {
       submittedAt: "desc",
     },
     select: {
+      id: true,
       status: true,
       submittedAt: true,
       application: {
