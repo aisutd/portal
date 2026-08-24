@@ -35,7 +35,7 @@ export default async function AdminMembersPage({
       </div>
 
       <div className="hidden min-h-screen w-full bg-cream md:flex">
-      <AdminSidebar active="Members" role="Officer" />
+      <AdminSidebar active="Members" />
 
       <div className="flex h-full flex-1 flex-col gap-[20px] p-[46px]">
         {/* Header */}

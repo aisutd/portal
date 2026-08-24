@@ -96,7 +96,7 @@ export default async function AdminEventsPage() {
 
       <div className="hidden md:block">
       <div className="flex min-h-screen w-full bg-cream">
-        <AdminSidebar active="Events" role="Officer" />
+        <AdminSidebar active="Events" />
 
         <div className="flex h-full flex-1 flex-col gap-[28px] p-[46px]">
           <div className="flex items-center justify-between">

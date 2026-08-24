@@ -26,7 +26,7 @@ export default function AdminApplyPage() {
 
       <div className="hidden md:block">
       <div className="flex min-h-screen w-full bg-cream">
-        <AdminSidebar active="Applications" role="Officer" />
+        <AdminSidebar active="Applications" />
 
         <div className="flex h-full flex-1 flex-col gap-[16px] p-[46px]">
           {/* Header */}
