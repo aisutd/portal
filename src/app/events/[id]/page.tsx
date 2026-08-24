@@ -10,6 +10,7 @@ import { Tag } from "@/components/ui/tag";
 import { normalizeEventTags } from "@/lib/event-tags";
 import { MobileEventDetail } from "@/components/mobile/events/MobileEventDetail";
 import { EventDetailActions, EventQRCode } from "@/components/events/event-detail-actions";
+import { EventCoverImage } from "@/components/events/event-cover-image";
 
 export async function generateMetadata({
   params,
@@ -100,11 +101,11 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
             <div className="flex flex-col gap-[32px] lg:flex-row lg:items-stretch">
               {/* Event body */}
               <div className="flex min-w-px flex-1 flex-col">
-                <div className="flex h-[300px] w-full items-center justify-center rounded-[12px] bg-photo overflow-hidden">
-                  <span className="style-caption tracking-[1.5px] text-photo-text">
-                    PHOTO
-                  </span>
-                </div>
+                <EventCoverImage
+                  imageUrl={event.imageUrl}
+                  className="h-[300px] w-full"
+                  alt={`${event.title} cover`}
+                />
                 
                 <h1 className="mt-[20px] style-section-header leading-[41px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
                   {event.title}
@@ -169,7 +170,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                   ) : isRsvpd ? (
                   <>
                     <h2 className="style-section-header leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
-                      You're Going!
+                      You&apos;re Going!
                     </h2>
 
                     {/* Real scannable QR code component (Only shows when RSVP'd) */}

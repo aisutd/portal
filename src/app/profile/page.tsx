@@ -81,7 +81,7 @@ export default async function ProfilePage() {
             </h1>
 
             {completion.percent < 100 && (
-              <div className="flex w-full items-center justify-between rounded-[8px] bg-[#f9d5d3] px-[21px] py-[16px] mt-[16px]">
+              <div className="flex w-full items-center justify-between rounded-lg bg-[#f9d5d3] px-[21px] py-[16px] mt-[16px]">
                 <span className="style-body-text  font-bold ">
                   Your profile is {completion.percent}% complete. Please complete the highlighted fields to reach 100%!
                 </span>
@@ -119,7 +119,7 @@ export default async function ProfilePage() {
                         defaultValue={profile.linkedinUrl || ""}
                         placeholder="https://linkedin.com/in/..."
                         className={cn(
-                          "h-[40px] flex-1 rounded-[8px] bg-field border px-[16px] style-input-text  text-ink focus:outline-none focus:border-brand",
+                          "h-[40px] flex-1 rounded-lg bg-field border px-[16px] style-input-text  text-ink focus:outline-none focus:border-brand",
                           !profile.linkedinUrl ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
                         )}
                       />
@@ -132,20 +132,20 @@ export default async function ProfilePage() {
                         defaultValue={profile.githubUrl || ""}
                         placeholder="https://github.com/..."
                         className={cn(
-                          "h-[40px] flex-1 rounded-[8px] bg-field border px-[16px] style-input-text  text-ink focus:outline-none focus:border-brand",
+                          "h-[40px] flex-1 rounded-lg bg-field border px-[16px] style-input-text  text-ink focus:outline-none focus:border-brand",
                           !profile.githubUrl ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
                         )}
                       />
                     </div>
                   </div>
                   <div className="flex items-center gap-[16px]">
-                      <span className="font-[Inter] font-bold  text-ink w-[80px]">Portfolio</span>
+                      <span className="style-label-text font-bold  text-ink w-[80px]">Portfolio</span>
                       <input 
                         name="portfolioUrl"
                         defaultValue={profile.portfolioUrl || ""}
                         placeholder="https://..."
                         className={cn(
-                          "h-[40px] flex-1 rounded-[8px] bg-field border px-[16px]  text-ink focus:outline-none focus:border-brand",
+                          "h-[40px] flex-1 rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
                           !profile.portfolioUrl ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
                         )}
                       />
@@ -161,55 +161,55 @@ export default async function ProfilePage() {
                   <SectionHeader title="Personal Info" />
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-[32px] gap-y-[20px]">
-                    <div className="flex flex-col gap-[8px]">
+                    <div className="flex flex-col gap-2">
                       <span className="style-label-text  text-ink-muted">First Name</span>
                       <input 
                         name="firstName"
                         defaultValue={profile.firstName}
-                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px]  text-ink focus:outline-none focus:border-brand"
+                        className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
                         readOnly
                       />
                     </div>
-                    <div className="flex flex-col gap-[8px]">
+                    <div className="flex flex-col gap-2">
                       <span className="style-label-text  text-ink-muted">Last Name</span>
                       <input 
                         name="lastName"
                         defaultValue={profile.lastName}
-                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px]  text-ink focus:outline-none focus:border-brand"
+                        className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
                         readOnly
                       />
-                    </div><div className="flex flex-col gap-[8px]">
-                      <span className="font-[Inter] font-bold  text-ink-muted">Preferred Name</span>
+                    </div><div className="flex flex-col gap-2">
+                      <span className="style-label-text font-bold  text-ink-muted">Preferred Name</span>
                       <input 
                         name="prefName"
                         defaultValue={profile.prefName ?? ""}
-                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px]  text-ink focus:outline-none focus:border-brand"
+                        className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
                       />
                     </div>
-                    <div className="flex flex-col gap-[8px]">
+                    <div className="flex flex-col gap-2">
                       <span className="style-label-text  text-ink-muted">Email</span>
                       <input 
                         name="utdEmail"
                         defaultValue={profile.utdEmail || ""}
-                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px]  text-ink focus:outline-none focus:border-brand"
-                        readOnly
+                        className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
+                        
                       />
                     </div>
-                    <div className="flex flex-col gap-[8px]">
+                    <div className="flex flex-col gap-2">
                       <span className="style-label-text  text-ink-muted">UTD ID</span>
                       <input 
                         name="utdNetId"
                         defaultValue={profile.utdNetId || ""}
-                        className="h-[44px] w-full rounded-[8px] bg-field border border-transparent px-[16px] style-input-text  text-ink focus:outline-none focus:border-brand"
+                        className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text  text-ink focus:outline-none focus:border-brand"
                       />
                     </div>
-                    <div className="flex flex-col gap-[8px]">
+                    <div className="flex flex-col gap-2">
                       <span className="style-label-text  text-ink-muted">Major</span>
                       <select 
                         name="major"
                         defaultValue={profile.major ?? ""}
                         className={cn(
-                          "h-[44px] rounded-[8px] bg-field border px-[16px]  text-ink focus:outline-none focus:border-brand",
+                          "h-11 rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
                           !profile.major ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
                         )}
                       >
@@ -221,13 +221,13 @@ export default async function ProfilePage() {
                         ))}
                       </select>
                     </div>
-                    <div className="flex flex-col gap-[8px]">
+                    <div className="flex flex-col gap-2">
                       <span className="font-[Inter] font-bold  text-ink-muted">Degree</span>
                       <select 
                         name="degree"
                         defaultValue={profile.degree ?? ""}
                         className={cn(
-                          "h-[44px] rounded-[8px] bg-field border px-[16px]  text-ink focus:outline-none focus:border-brand",
+                          "h-11 rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
                           !profile.degree ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
                         )}                      >
                         <option value="">Select your degree</option>
@@ -238,13 +238,13 @@ export default async function ProfilePage() {
                         ))}
                       </select>
                     </div>
-                    <div className="flex flex-col gap-[8px]">
+                    <div className="flex flex-col gap-2">
                       <span className="style-label-text  text-ink-muted">Academic Year</span>
                       <select 
                         name="year"
                         defaultValue={profile.year ?? ""}
                         className={cn(
-                          "h-[44px] rounded-[8px] bg-field border px-[16px]  text-ink focus:outline-none focus:border-brand",
+                          "h-11 rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
                           !profile.year ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
                         )}
                       >
