@@ -182,9 +182,14 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                     <h2 className="style-section-header leading-[25.96px] text-emerald-900 [font-variation-settings:'wdth'_100]">
                       Checked In!
                     </h2>
-                    <p className="text-center style-body-text text-emerald-800">
-                      You&apos;re all set! Your attendance has been verified for this event.
+
+                    <EventQRCode value={userRsvp?.qrToken ?? `checkin-${userId}-${event.id}`} />
+
+                    <p className="text-center style-caption text-emerald-800 font-medium">
+                      Your ticket can still be scanned for claiming items or swag.
                     </p>
+
+                    <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
                   </>
                 ) : isRsvpd ? (
                   <>

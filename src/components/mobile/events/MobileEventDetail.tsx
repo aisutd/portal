@@ -34,7 +34,7 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
         where: { id: eventId },
         include: {
           rsvps: {
-            where: { userId: "" }, 
+            where: { userId: "" },
           },
         },
       });
@@ -68,6 +68,8 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
       : isRsvpd
       ? "bg-[#fdf2f2] border border-red-200"
       : "bg-[#f4f1ea] border border-border-soft"
+    : attended
+    ? "bg-[#d2ecd9]"
     : isRsvpd
     ? "bg-[#d2ecd9]"
     : "bg-white border border-border-soft shadow-sm";
@@ -119,7 +121,7 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
         {isPast ? (
           <>
             <h2 className={`style-mobile-title ${
-              attended ? "" : isRsvpd ? "text-red-700" : "text-ink"
+              attended ? "text-emerald-900" : isRsvpd ? "text-red-700" : "text-ink"
             }`}>
               {attended ? "Attended" : isRsvpd ? "Missed Event" : "Event Passed"}
             </h2>
@@ -139,6 +141,20 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
               </span>
             </div>
           </>
+        ) : attended ? (
+          <>
+            <h2 className="style-mobile-title text-emerald-900">
+              Checked In!
+            </h2>
+
+            <EventQRCode value={userRsvp?.qrToken ?? `checkin-${userId}-${event.id}`} />
+
+            <p className="text-center style-caption text-emerald-800 font-medium">
+              Your ticket can still be scanned for claiming items or swag.
+            </p>
+
+            <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
+          </>
         ) : isRsvpd ? (
           <>
             <h2 className="style-mobile-title text-ink">
@@ -155,14 +171,14 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
           </>
         ) : (
           <>
-            <h2 className="style-section-header leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
+            <h2 className="style-mobile-title leading-[25.96px] text-ink">
               {isLive ? "Event is Live!" : "Join This Event"}
             </h2>
             
-            <p className="text-center style-body-text text-ink-muted">
+            <p className="text-center style-mobile-body text-ink-muted">
               {isLive
-                ? "RSVP now to secure your attendance and show your QR code at the door (for late check-in)."
-                : "RSVP to secure your spot and unlock your QR code for claiming merch, food, drinks, etc."}
+                ? "RSVP now to secure your attendance and show your QR code at the door."
+                : "RSVP to secure your spot and unlock your QR code for check-in and claiming merch."}
             </p>
 
             <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
