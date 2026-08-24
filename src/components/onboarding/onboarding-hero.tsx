@@ -9,13 +9,13 @@ export function OnboardingHero() {
   return (
     <div className="flex h-full flex-col justify-center gap-6 bg-cream p-8 md:p-12 lg:p-20">
       {/* Badge */}
-      <div>
+      <Link href={'/events'}>
          <img
           className="h-10 shrink-0 object-contain sm:h-12"
           src="/ais_logo_black.png"
           alt="AIS Logo"
         />
-      </div>
+      </Link>
 
       {/* Display heading */}
       <h1 className="font-logo text-3xl font-bold tracking-tight text-ink sm:text-4xl lg:text-5xl lg:leading-[1.1]">

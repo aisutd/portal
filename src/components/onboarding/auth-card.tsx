@@ -9,24 +9,13 @@ import { SegmentedTabs } from "@/components/ui/segmented-tabs";
 import { toFieldErrors, type AuthField, type AuthFieldErrors } from "@/lib/clerk-errors";
 import { EMAIL_DOMAIN_ERROR, isAllowedEmail } from "@/lib/email-domains";
 
-/**
- * Card shell. Laid out in flow rather than absolutely so a validation message can
- * grow to a few lines without running through the submit button; the margins and
- * reserved min-heights below reproduce the Figma spacing when nothing is showing.
- */
 const CARD =
   "flex min-h-[500px] w-full max-w-[400px] flex-col rounded-[14px] bg-white p-[30px] shadow-auth-card";
 
-/** Small centred link used for the secondary actions under a card's button. */
 const CARD_LINK = "font-mono-alt leading-[normal] hover:underline";
 
-/**
- * Which screen the card is showing. Sign-up verification and password reset are
- * full-card takeovers rather than extra fields on the tabbed form.
- */
 type View = "form" | "verify-signup" | "reset-request" | "reset-code";
 
-/** Red validation text rendered directly beneath the field it belongs to. */
 function ErrorText({ id, message }: { id: string; message?: string }) {
   if (!message) return null;
   return (
@@ -40,11 +29,19 @@ function ErrorText({ id, message }: { id: string; message?: string }) {
   );
 }
 
-function AuthCardInner() {
+interface AuthCardProps {
+  redirectUrl?: string;
+}
+
+function AuthCardInner({ redirectUrl }: AuthCardProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const mode = searchParams.get("mode");
 
+  // Prioritize passed prop, then searchParams, then default to /dashboard
+  const targetRedirect =
+    redirectUrl || searchParams.get("redirect_url") || "/dashboard";
+
+  const mode = searchParams.get("mode");
   const initialTab = mode === "login" || mode === "reset" ? "Log in" : "Sign up";
 
   const [tab, setTab] = useState<"Sign up" | "Log in">(initialTab);
@@ -62,7 +59,7 @@ function AuthCardInner() {
   const { signIn } = useSignIn();
 
   const goToSetup = () => router.push("/onboarding/setup");
-  const goToDashboard = () => router.push("/dashboard");
+  const goToTargetRedirect = () => router.push(targetRedirect);
 
   const clearError = (field: AuthField) =>
     setFieldErrors((prev) => {
@@ -180,7 +177,7 @@ function AuthCardInner() {
     }
 
     if (signIn.status === "complete") {
-      await signIn.finalize({ navigate: goToDashboard });
+      await signIn.finalize({ navigate: goToTargetRedirect });
     } else {
       setFieldErrors({
         form: "Additional verification is required, which isn't supported yet.",
@@ -285,7 +282,7 @@ function AuthCardInner() {
     }
 
     if (signIn.status === "complete") {
-      await signIn.finalize({ navigate: goToDashboard });
+      await signIn.finalize({ navigate: goToTargetRedirect });
     } else {
       console.error("signIn status after password reset:", signIn.status);
       setFieldErrors({
@@ -559,14 +556,14 @@ function AuthCardInner() {
   );
 }
 
-export function AuthCard() {
+export function AuthCard({ redirectUrl }: AuthCardProps) {
   return (
     <Suspense
       fallback={
         <div className="h-[500px] w-full max-w-[400px] rounded-[14px] bg-white shadow-auth-card" />
       }
     >
-      <AuthCardInner />
+      <AuthCardInner redirectUrl={redirectUrl} />
     </Suspense>
   );
 }

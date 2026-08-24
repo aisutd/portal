@@ -15,18 +15,23 @@ const isAdminRoute = createRouteMatcher(["/admin(.*)", "/api/admin(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
   const session = await auth();
-  const { pathname } = req.nextUrl;
+  const { pathname, search } = req.nextUrl;
   
   if (pathname === "/") {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  // Everything except the public routes above requires sign-in
+  // Everything except public routes requires sign-in
   if (!isPublicRoute(req) && !session.userId) {
-    return NextResponse.redirect(new URL('/onboarding?mode=login', req.url));
+    const fullPath = `${pathname}${search}`;
+    const redirectUrl = new URL('/onboarding', req.url);
+    redirectUrl.searchParams.set('mode', 'login');
+    redirectUrl.searchParams.set('redirect_url', fullPath);
+
+    return NextResponse.redirect(redirectUrl);
   }
 
-  // Extra role gate on top of that, for admin routes only
+  // Extra role gate for admin routes only
   if (isAdminRoute(req)) {
     const claimedRole = session.sessionClaims?.metadata?.role;
     // A stale claim from an older build must not outrank the database.

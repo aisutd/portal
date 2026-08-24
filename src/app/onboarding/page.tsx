@@ -10,18 +10,26 @@ export const metadata: Metadata = {
   description: "Create your AIS account with your UTD email.",
 };
 
-export default async function OnboardingPage() {
+interface OnboardingPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function OnboardingPage({ searchParams }: OnboardingPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const rawRedirectUrl = resolvedSearchParams.redirect_url;
+  const redirectUrl = typeof rawRedirectUrl === "string" ? rawRedirectUrl : "/dashboard";
 
   const user = await getAuthenticatedUser();
 
+  // If already logged in, honor redirect_url if available
   if (user) {
-    redirect("/dashboard");
+    redirect(redirectUrl);
   }
-  
+
   return (
     <>
       <div className="md:hidden">
-        <MobileOnboarding />
+        <MobileOnboarding redirectUrl={redirectUrl} />
       </div>
 
       <div className="hidden md:block">
@@ -31,10 +39,9 @@ export default async function OnboardingPage() {
             <OnboardingHero />
           </section>
           <section className="flex w-1/2 items-center justify-center bg-brand p-8">
-            <AuthCard />
+            <AuthCard redirectUrl={redirectUrl} />
           </section>
         </main>
-
       </div>
     </>
   );

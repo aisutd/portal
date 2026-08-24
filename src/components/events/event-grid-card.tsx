@@ -90,7 +90,7 @@ export function EventGridCard({
   return (
     <Link 
       href={`/events/${eventId}`}
-      className="flex h-full flex-col rounded-2xl border border-border-soft bg-white p-5 transition-shadow hover:shadow-sm block group"
+      className="group flex h-full flex-col rounded-2xl border border-border-soft bg-white p-5 transition-shadow hover:shadow-sm"
     >
       <EventCoverImage
         imageUrl={imageUrl}
@@ -99,7 +99,7 @@ export function EventGridCard({
       />
 
       <div className="flex flex-1 flex-col">
-        <h3 className="mt-4 line-clamp-2 style-card-title leading-tight text-ink group-hover:text-brand transition-colors [font-variation-settings:'wdth'_100]">
+        <h3 className="mt-4 line-clamp-2 style-card-title leading-tight text-ink transition-colors group-hover:text-brand [font-variation-settings:'wdth'_100]">
           {title}
         </h3>
         <p className="mt-1.5 style-meta-text tracking-wide text-ink-faint">
@@ -120,23 +120,23 @@ export function EventGridCard({
         <div className="flex shrink-0 flex-col items-end gap-1">
           {isPast ? (
             // Show dynamic attendance status badges for past events
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium">
+            <div className="flex items-center gap-1.5 rounded-full text-xs font-medium">
               {hasAttended ? (
-                <span className="flex items-center gap-1.5 bg-[#d2ecd9]  px-3 py-1 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 ">
+                <span className="flex items-center gap-1.5 rounded-full bg-[#d2ecd9] px-3 py-1 text-emerald-900">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
                     <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
                   </svg>
                   Attended
                 </span>
               ) : missedEvent ? (
-                <span className="flex items-center gap-1.5 bg-[#fdf2f2] text-red-700 px-3 py-1 rounded-full border border-red-200">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-red-600">
+                <span className="flex items-center gap-1.5 rounded-full border border-red-200 bg-[#fdf2f2] px-3 py-1 text-red-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-red-600">
                     <path fillRule="evenodd" d="M4 10a.75.75 0 01.75-.75h10.5a.75.75 0 010 1.5H4.75A.75.75 0 014 10z" clipRule="evenodd" />
                   </svg>
                   Missed Event
                 </span>
               ) : (
-                <span className="bg-stone-100 text-ink-muted px-3 py-1 rounded-full">
+                <span className="rounded-full bg-stone-100 px-3 py-1 text-ink-muted">
                   Not RSVP'd
                 </span>
               )}
@@ -148,13 +148,13 @@ export function EventGridCard({
               size="sm" 
               onClick={handleAction} 
               disabled={isSubmitting} 
-              className="flex items-center gap-1.5 w-[90px] justify-center" 
+              className="flex w-[90px] items-center justify-center gap-1.5" 
             >
               {isSubmitting ? (
                 "..."
               ) : hasRsvpd ? (
                 <>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
                     <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
                   </svg>
                   RSVP'd

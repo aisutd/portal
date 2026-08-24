@@ -23,7 +23,7 @@ export default async function EventQrPage({ params }: EventQrPageProps) {
     select: {
       id: true,
       title: true,
-      startTime: true, // 👈 Added startTime
+      startTime: true,
       endTime: true,
       checkInToken: true,
     },
