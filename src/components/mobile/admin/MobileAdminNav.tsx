@@ -14,7 +14,7 @@ type MobileAdminNavProps = {
 };
 
 /** Compact top nav replacing the desktop admin sidebar on narrow screens. */
-export async function MobileAdminNav({ active = "Overview" }: MobileAdminNavProps) {
+export async function MobileAdminNav({ active = "Events" }: MobileAdminNavProps) {
   // Fetch the authenticated user to determine their actual role
   const user = await getAuthenticatedUser();
   
@@ -23,11 +23,11 @@ export async function MobileAdminNav({ active = "Overview" }: MobileAdminNavProp
   const role = rawRole.charAt(0).toUpperCase() + rawRole.slice(1).toLowerCase();
 
   return (
-    <div className="flex flex-col gap-[12px]">
+    <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-[8px]">
+        <div className="flex items-center gap-2">
           <h1 className="style-mobile-title text-ink">AIS Admin</h1>
-          <span className="rounded-full bg-brand-soft px-[8px] py-[2px] style-caption font-bold uppercase tracking-[0.5px] text-brand">
+          <span className="rounded-full bg-brand-soft px-2 py-0.5 style-caption font-bold uppercase tracking-[0.5px] text-brand">
             {role}
           </span>
         </div>
