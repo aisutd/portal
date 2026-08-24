@@ -12,8 +12,7 @@ const r2 = new S3Client({
 
 const BUCKET_NAME = process.env.R2_BUCKET_NAME!;
 
-// Generate an expiration URL to view/download a file safely.
-// The optional filename nudges browsers to download instead of inline-open.
+// Generate an expiration URL to view/download a private file safely
 export async function getDownloadUrl(
   key: string,
   expiresInSeconds = 3600,
@@ -23,8 +22,8 @@ export async function getDownloadUrl(
     Bucket: BUCKET_NAME,
     Key: key,
     ResponseContentDisposition: filename
-      ? `attachment; filename="${filename.replace(/["\\]/g, "_")}"`
-      : "attachment",
+      ? `inline; filename="${filename.replace(/["\\]/g, "_")}"`
+      : "inline",
   });
   return await getSignedUrl(r2, command, { expiresIn: expiresInSeconds });
 }
@@ -39,33 +38,28 @@ export async function putObjectToR2(
   key: string,
   body: Buffer | Uint8Array,
   mimeType: string,
-) {
-  if (!process.env.R2_ENDPOINT || !process.env.R2_BUCKET_NAME) {
+): Promise<string | null> {
+  const publicBase = process.env.NEXT_PUBLIC_R2_PUBLIC_URL ?? process.env.R2_PUBLIC_URL;
+
+  if (!process.env.R2_ENDPOINT || !BUCKET_NAME || !publicBase) {
+    console.error("R2 configuration missing: Ensure R2_ENDPOINT, R2_BUCKET_NAME, and NEXT_PUBLIC_R2_PUBLIC_URL are set.");
     return null;
   }
 
-  await r2.send(
-    new PutObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: key,
-      Body: Buffer.from(body),
-      ContentType: mimeType,
-    })
-  );
+  try {
+    await r2.send(
+      new PutObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: key,
+        Body: Buffer.from(body),
+        ContentType: mimeType,
+      })
+    );
 
-  const publicBase =
-    process.env.NEXT_PUBLIC_R2_PUBLIC_URL ??
-    process.env.R2_PUBLIC_URL ??
-    process.env.R2_ENDPOINT;
-
-  if (!publicBase) {
+    const normalizedBase = publicBase.replace(/\/$/, "");
+    return `${normalizedBase}/${key}`;
+  } catch (error) {
+    console.error("Failed to upload object to Cloudflare R2:", error);
     return null;
   }
-
-  const normalizedBase = publicBase.replace(/\/$/, "");
-  const bucketUrl = normalizedBase.endsWith(`/${BUCKET_NAME}`)
-    ? normalizedBase
-    : `${normalizedBase}/${BUCKET_NAME}`;
-
-  return `${bucketUrl}/${key}`;
 }

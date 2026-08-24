@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { Button } from "./button";
 
 type SegmentedTabsProps = {
   options: string[];
@@ -30,7 +31,7 @@ export function SegmentedTabs({
       {options.map((option) => {
         const active = option === value;
         return (
-          <button
+          <Button
             key={option}
             type="button"
             role="tab"
@@ -44,7 +45,7 @@ export function SegmentedTabs({
             )}
           >
             {option}
-          </button>
+          </Button>
         );
       })}
     </div>

@@ -30,6 +30,7 @@ function mapEventToRow(event: any): EventRowData {
 
   return {
     id: event.id,
+    imageUrl: event.imageUrl,
     title: event.title,
     status: baseStatus,
     meta: `${new Date(event.startTime).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} · ${event.location}`,

@@ -64,6 +64,7 @@ export default async function DashboardPage() {
                 <UpNextCard
                   eyebrow={nextRsvp.isLive ? "Happening now" : `Up next · ${formatDaysAway(nextRsvp.event.startTime)}`}
                   title={nextRsvp.event.title}
+                  imageUrl={nextRsvp.event.imageUrl}                  
                   dateLines={[formatEventDate(nextRsvp.event.startTime), nextRsvp.event.location]}
                   tags={[
                     nextRsvp.isLive 
@@ -76,6 +77,7 @@ export default async function DashboardPage() {
               ) : (
                 <UpNextCard
                   isEmpty={true}
+                  imageUrl={null}
                   eyebrow="Up next"
                   title="No RSVPs yet"
                   dateLines={["Check out upcoming events and RSVP to see them here."]}

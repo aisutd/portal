@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
 import Link from "next/link";
 import QRCode from "react-qr-code";
+import { EventCoverImage } from "../events/event-cover-image";
 
 export type TagData = {
   label: string;
@@ -16,6 +17,7 @@ export type TagData = {
 type UpNextProps = {
   eyebrow: string;
   title: string;
+  imageUrl: string | null;
   dateLines: string[];
   tags?: TagData[];
   isEmpty?: boolean;
@@ -23,7 +25,7 @@ type UpNextProps = {
   isLive?: boolean;
 };
 
-export function UpNextCard({ eyebrow, title, dateLines, tags = [], isEmpty = false, qrToken, isLive = false}: UpNextProps) {
+export function UpNextCard({ eyebrow, title, imageUrl, dateLines, tags = [], isEmpty = false, qrToken, isLive = false}: UpNextProps) {
   return (
     <Card className="flex flex-1 flex-col gap-[18px] self-stretch p-[29px]">
       <p className="style-meta-text  uppercase leading-[normal] tracking-[3px] text-ink-faint">
@@ -51,11 +53,9 @@ export function UpNextCard({ eyebrow, title, dateLines, tags = [], isEmpty = fal
       ) : (
         <div className="flex flex-wrap gap-[24px]">
           {/* Photo placeholder */}
-          <div className="flex h-[170px] w-[240px] shrink-0 items-center justify-center rounded-xl bg-photo">
-            <span className="style-meta-text  tracking-[1.5px] text-photo-text">
-              PHOTO
-            </span>
-          </div>
+          <EventCoverImage className="flex h-[170px] w-[240px] shrink-0 items-center justify-center rounded-xl"
+            imageUrl={imageUrl} />
+            
 
           {/* Details */}
           <div className="flex min-w-px flex-1 flex-col justify-center gap-[10px] self-stretch">

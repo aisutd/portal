@@ -109,7 +109,10 @@ function isImageFile(value: FormDataEntryValue | null): value is File {
   return typeof File !== "undefined" && value instanceof File && value.size > 0;
 }
 
-async function resolveEventImageUrl(file: FormDataEntryValue | null, existingImageUrl?: string | null) {
+async function resolveEventImageUrl(
+  file: FormDataEntryValue | null,
+  existingImageUrl?: string | null
+): Promise<string | null> {
   if (!isImageFile(file)) {
     return existingImageUrl ?? null;
   }
@@ -125,14 +128,17 @@ async function resolveEventImageUrl(file: FormDataEntryValue | null, existingIma
   const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
   const key = `events/${Date.now()}-${crypto.randomUUID()}-${safeName}`;
   const data = Buffer.from(await file.arrayBuffer());
-  const copiedUrl = await putObjectToR2(key, data, file.type || "image/jpeg");
 
-  if (copiedUrl) {
-    return copiedUrl;
+  // Upload directly to Cloudflare R2
+  const publicUrl = await putObjectToR2(key, data, file.type || "image/jpeg");
+
+  if (!publicUrl) {
+    throw new Error(
+      "Failed to upload image to R2. Please check server logs for R2 configuration errors."
+    );
   }
 
-  const base64 = Buffer.from(await file.arrayBuffer()).toString("base64");
-  return `data:${file.type || "image/jpeg"};base64,${base64}`;
+  return publicUrl;
 }
 
 export async function createEvent(formData: FormData) {
