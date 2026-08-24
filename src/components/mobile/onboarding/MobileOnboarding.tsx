@@ -6,7 +6,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { AuthCard } from "@/components/onboarding/auth-card";
 
-function MobileOnboardingInner() {
+interface MobileOnboardingProps {
+  redirectUrl?: string;
+}
+
+function MobileOnboardingInner({ redirectUrl }: MobileOnboardingProps) {
   const searchParams = useSearchParams();
   const initialMode = searchParams.get("mode") === "login" ? "login" : "signup";
 
@@ -31,8 +35,8 @@ function MobileOnboardingInner() {
       {/* Main Content Area */}
       <main className="mx-auto flex w-full max-w-[430px] flex-1 flex-col px-6 pb-8">
         {/* Auth Card overlapping cream header */}
-        <div className="relative z-10 -mt-12 w-full shadow-lg rounded-2xl">
-          <AuthCard />
+        <div className="relative z-10 -mt-12 w-full rounded-2xl shadow-lg">
+          <AuthCard redirectUrl={redirectUrl} />
         </div>
 
         {/* Community Link / Discord Footer */}
@@ -57,10 +61,10 @@ function MobileOnboardingInner() {
   );
 }
 
-export function MobileOnboarding() {
+export function MobileOnboarding({ redirectUrl }: MobileOnboardingProps) {
   return (
     <Suspense fallback={<div className="min-h-[100dvh] w-full bg-brand" />}>
-      <MobileOnboardingInner />
+      <MobileOnboardingInner redirectUrl={redirectUrl} />
     </Suspense>
   );
 }
