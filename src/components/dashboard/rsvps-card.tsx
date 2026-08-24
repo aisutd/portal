@@ -9,9 +9,36 @@ export type RsvpItem = {
   detail: string;
   eventId: string;
   attended?: boolean;
+  isPast?: boolean;
 };
 
 function RsvpRow({ item }: { item: RsvpItem }) {
+  const renderBadge = () => {
+    if (item.attended) {
+      return (
+        <Badge
+          variant="solid"
+          label="Attended"
+          bg="#d3eccf"
+          color="#356b2e"
+        />
+      );
+    }
+
+    if (item.isPast) {
+      return (
+        <Badge
+          variant="solid"
+          label="Missed"
+          bg="#f9d5d3"
+          color="#9a3b36"
+        />
+      );
+    }
+
+    return <Badge variant="outline" label="RSVP'd" />;
+  };
+
   return (
     <Link
       href={`/events/${item.eventId}`}
@@ -33,18 +60,7 @@ function RsvpRow({ item }: { item: RsvpItem }) {
         </div>
       </div>
 
-      <div className="shrink-0">
-        {item.attended ? (
-          <Badge
-            variant="solid"
-            label="Attended"
-            bg="#d3eccf"
-            color="#356b2e"
-          />
-        ) : (
-          <Badge variant="outline" label="RSVP'd" />
-        )}
-      </div>
+      <div className="shrink-0">{renderBadge()}</div>
     </Link>
   );
 }
@@ -53,7 +69,7 @@ export function RsvpsCard({ items }: { items: RsvpItem[] }) {
   return (
     <Card className="flex w-full shrink-0 flex-col gap-[16px] self-stretch p-[29px] xl:w-[360px]">
       <SectionHeader title="Your Events & RSVPs" />
-      <div className="flex flex-1 flex-col gap-[20px] overflow-y-auto pr-1">
+      <div className="flex max-h-[380px] flex-col gap-[20px] overflow-y-auto pr-1">
         {items.length === 0 ? (
           <div className="flex min-h-[170px] w-full flex-1 items-center justify-center rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6]">
             <span className="style-body-text text-ink-faint">
