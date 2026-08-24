@@ -11,7 +11,7 @@ import {
 export function MobileAdminOverview() {
   return (
     <MobileScreen withBottomNavPadding={false}>
-      <MobileAdminNav active="Overview" />
+      <MobileAdminNav /*active="Overview"*/ />
 
       <h2 className="style-mobile-title text-ink">Overview</h2>
 
