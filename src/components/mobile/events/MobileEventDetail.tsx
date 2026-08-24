@@ -9,6 +9,7 @@ import { normalizeEventTags } from "@/lib/event-tags";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
 import { EventDetailActions, EventQRCode } from "@/components/events/event-detail-actions";
+import { EventCoverImage } from "@/components/events/event-cover-image";
 
 interface MobileEventDetailProps {
   eventId: string;
@@ -79,11 +80,11 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
         ← All Events
       </Link>
 
-      <div className="flex h-55 w-full shrink-0 items-center justify-center rounded-2xl bg-photo shadow-sm overflow-hidden">
-        <span className="style-caption font-medium tracking-[2px] text-photo-text">
-          PHOTO
-        </span>
-      </div>
+      <EventCoverImage
+        imageUrl={event.imageUrl}
+        className="h-55 w-full shrink-0 shadow-sm"
+        alt={`${event.title} cover`}
+      />
 
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
@@ -133,7 +134,7 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
         ) : isRsvpd ? (
           <>
             <h2 className="style-mobile-title text-ink">
-              You're Going!
+              You&apos;re Going!
             </h2>
 
             <EventQRCode value={userRsvp?.qrToken ?? `checkin-${userId}-${event.id}`} />

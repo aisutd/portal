@@ -15,6 +15,7 @@ type EventRecord = {
   description: string;
   location: string;
   startTime: string;
+  imageUrl?: string | null;
   tags: string[];
   isRsvpd?: boolean;
   hasAttended?: boolean;
@@ -203,6 +204,7 @@ const filterList = (list: EventRecord[]) =>
                       title={event.title}
                       meta={`${formatEventDate(event.startTime)} · ${event.location}`}
                       description={event.description}
+                      imageUrl={event.imageUrl}
                       tags={normalizeEventTags(event.tags)}
                       eventId={event.id}
                       isRsvpd={event.isRsvpd}
@@ -225,6 +227,7 @@ const filterList = (list: EventRecord[]) =>
                       title={event.title}
                       meta={`${formatEventDate(event.startTime)} · ${event.location}`}
                       description={event.description}
+                      imageUrl={event.imageUrl}
                       tags={normalizeEventTags(event.tags)}
                       eventId={event.id}
                       isRsvpd={event.isRsvpd}

@@ -43,7 +43,7 @@ export default function CreateEventPage() {
             <form action={createEvent} className="flex w-full flex-col gap-[24px] lg:flex-row lg:items-start">
               <EventForm tags={eventTags} />
               <div className="flex w-full flex-col gap-[20px] lg:w-[382px] lg:shrink-0">
-                <CoverPhotoCard />
+                <CoverPhotoCard defaultImageUrl={null} />
                 <SettingsCard items={eventSettings} />
                 
                 <div className="flex gap-[10px]">

@@ -34,3 +34,38 @@ export async function getUploadUrl(key: string, mimeType: string, expiresInSecon
   const command = new PutObjectCommand({ Bucket: BUCKET_NAME, Key: key, ContentType: mimeType });
   return await getSignedUrl(r2, command, { expiresIn: expiresInSeconds });
 }
+
+export async function putObjectToR2(
+  key: string,
+  body: Buffer | Uint8Array,
+  mimeType: string,
+) {
+  if (!process.env.R2_ENDPOINT || !process.env.R2_BUCKET_NAME) {
+    return null;
+  }
+
+  await r2.send(
+    new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      Body: Buffer.from(body),
+      ContentType: mimeType,
+    })
+  );
+
+  const publicBase =
+    process.env.NEXT_PUBLIC_R2_PUBLIC_URL ??
+    process.env.R2_PUBLIC_URL ??
+    process.env.R2_ENDPOINT;
+
+  if (!publicBase) {
+    return null;
+  }
+
+  const normalizedBase = publicBase.replace(/\/$/, "");
+  const bucketUrl = normalizedBase.endsWith(`/${BUCKET_NAME}`)
+    ? normalizedBase
+    : `${normalizedBase}/${BUCKET_NAME}`;
+
+  return `${bucketUrl}/${key}`;
+}

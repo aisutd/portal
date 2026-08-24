@@ -53,6 +53,7 @@ async function getEventsData(userId: string | null) {
       description: event.description,
       location: event.location,
       startTime: event.startTime.toISOString(),
+      imageUrl: event.imageUrl ?? null,
       tags: event.tags || [],
       isRsvpd: !!(event.rsvps && event.rsvps.length > 0),
     }));
@@ -70,6 +71,7 @@ async function getEventsData(userId: string | null) {
         description: event.description,
         location: event.location,
         startTime: event.startTime.toISOString(),
+        imageUrl: event.imageUrl ?? null,
         tags: event.tags || [],
         isRsvpd,
         hasAttended,

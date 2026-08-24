@@ -6,6 +6,7 @@ import { EventStatus, EventTag, ItemType, type MembershipType } from "@prisma/cl
 import { getAuthenticatedUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isAssignableProgram } from "@/lib/roles";
+import { putObjectToR2 } from "@/lib/r2";
 
 type EventItemInput = {
   name: string;
@@ -104,6 +105,36 @@ function parseStatus(rawValue: FormDataEntryValue | null): EventStatus {
   }
 }
 
+function isImageFile(value: FormDataEntryValue | null): value is File {
+  return typeof File !== "undefined" && value instanceof File && value.size > 0;
+}
+
+async function resolveEventImageUrl(file: FormDataEntryValue | null, existingImageUrl?: string | null) {
+  if (!isImageFile(file)) {
+    return existingImageUrl ?? null;
+  }
+
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Event cover must be an image file.");
+  }
+
+  if (file.size > 8 * 1024 * 1024) {
+    throw new Error("Event cover image must be under 8 MB.");
+  }
+
+  const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+  const key = `events/${Date.now()}-${crypto.randomUUID()}-${safeName}`;
+  const data = Buffer.from(await file.arrayBuffer());
+  const copiedUrl = await putObjectToR2(key, data, file.type || "image/jpeg");
+
+  if (copiedUrl) {
+    return copiedUrl;
+  }
+
+  const base64 = Buffer.from(await file.arrayBuffer()).toString("base64");
+  return `data:${file.type || "image/jpeg"};base64,${base64}`;
+}
+
 export async function createEvent(formData: FormData) {
   const currentUser = await getAuthenticatedUser();
 
@@ -121,6 +152,7 @@ export async function createEvent(formData: FormData) {
   const tags = parseTags(formData.get("tags"));
   const programs = parsePrograms(formData.get("programs"));
   const status = parseStatus(formData.get("status"));
+  const imageUrl = await resolveEventImageUrl(formData.get("image"));
   
   // Read submission action button value ("publish" vs "draft")
   const action = String(formData.get("action") ?? "draft");
@@ -153,6 +185,7 @@ export async function createEvent(formData: FormData) {
       status,
       capacity: Number.isFinite(capacity) && capacity > 0 ? capacity : null,
       visibility,
+      imageUrl,
       tags,
       programs,
       isPublished, // Properly saved as true or false
@@ -189,6 +222,12 @@ export async function updateEvent(formData: FormData) {
   const tags = parseTags(formData.get("tags"));
   const programs = parsePrograms(formData.get("programs"));
   const status = parseStatus(formData.get("status"));
+
+  const existingEvent = await prisma.event.findUnique({
+    where: { id },
+    select: { imageUrl: true },
+  });
+  const imageUrl = await resolveEventImageUrl(formData.get("image"), existingEvent?.imageUrl ?? null);
 
   // Read action type from edit button ("publish", "unpublish", or default to current database state)
   const action = String(formData.get("action") ?? "");
@@ -234,6 +273,7 @@ export async function updateEvent(formData: FormData) {
       status,
       capacity: Number.isFinite(capacity) && capacity > 0 ? capacity : null,
       visibility,
+      imageUrl,
       tags,
       programs,
       isPublished,

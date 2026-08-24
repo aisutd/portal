@@ -14,6 +14,7 @@ type EventRecord = {
   description: string;
   location: string;
   startTime: string;
+  imageUrl?: string | null;
   tags: string[];
   isRsvpd?: boolean;
   hasAttended?: boolean;
@@ -158,6 +159,7 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
                             title={event.title}
                             meta={`${event.location} · ${formatEventDate(event.startTime, true)}`}
                             description={event.description}
+                            imageUrl={event.imageUrl}
                             tags={event.tags}
                             eventId={event.id}
                             isRsvpd={event.isRsvpd}
@@ -181,6 +183,7 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
                             title={event.title}
                             meta={`${event.location} · ${formatEventDate(event.startTime, true)}`}
                             description={event.description}
+                            imageUrl={event.imageUrl}
                             tags={event.tags}
                             eventId={event.id}
                             isRsvpd={event.isRsvpd}
