@@ -18,6 +18,7 @@ type EventDefaultValues = {
   capacity: string;
   status: string;
   visibility: string;
+  imageUrl?: string | null;
   tags: string[];
   items: Array<{ name: string; type: "MEAL" | "DRINK" | "MERCH" | "OTHER" }>;
 };
@@ -46,7 +47,7 @@ export function MobileAdminEditEvent({ eventId, defaultValues, isPublished }: Mo
         <input type="hidden" name="id" value={eventId} />
 
         <EventForm tags={eventTags} defaultValues={defaultValues} />
-        <CoverPhotoCard />
+        <CoverPhotoCard defaultImageUrl={defaultValues.imageUrl} />
         <SettingsCard items={eventSettings} />
 
         <div className="flex flex-col gap-[10px]">

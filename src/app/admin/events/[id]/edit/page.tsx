@@ -47,6 +47,7 @@ export default async function EditEventPage({
     capacity: event.capacity?.toString() ?? "",
     status: event.status as string,
     visibility: event.visibility as string,
+    imageUrl: event.imageUrl,
     tags: event.tags as string[],
     programs: event.programs,
     items: event.items.map((i) => ({
@@ -83,14 +84,17 @@ export default async function EditEventPage({
               </div>
             </div>
 
-            <form action={updateEvent} className="flex w-full flex-col gap-[24px] lg:flex-row lg:items-start">
+            <form action={updateEvent} 
+              //encType="multipart/form-data"
+              className="flex w-full flex-col gap-6 lg:flex-row lg:items-start"
+            >
               {/* Hidden input to pass the event ID to the server action */}
               <input type="hidden" name="id" value={event.id} />
 
               <EventForm tags={eventTags} defaultValues={defaultValues} />
 
-              <div className="flex w-full flex-col gap-[20px] lg:w-[382px] lg:shrink-0">
-                <CoverPhotoCard />
+              <div className="flex w-full flex-col gap-5 lg:w-[382px] lg:shrink-0">
+                <CoverPhotoCard defaultImageUrl={event.imageUrl} />
                 <SettingsCard items={eventSettings} />
                 
                 <div className="flex flex-col gap-[10px]">

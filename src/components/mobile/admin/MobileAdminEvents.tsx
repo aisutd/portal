@@ -5,6 +5,7 @@ import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { MobileAdminNav } from "@/components/mobile/admin/MobileAdminNav";
 import type { StatCardData } from "@/components/admin/stat-card";
 import type { EventRowData } from "@/components/admin/event-row";
+import { EventCoverImage } from "@/components/events/event-cover-image";
 
 type MobileAdminEventsProps = {
   stats: StatCardData[];
@@ -50,59 +51,76 @@ export function MobileAdminEvents({ stats, publishedRows, draftRows }: MobileAdm
           Published Events ({publishedRows.length})
         </h3>
         {publishedRows.length > 0 ? (
-          publishedRows.map((e) => (
-            <div
-              key={e.id}
-              className={`flex flex-col gap-[10px] rounded-[16px] border border-border-soft bg-white p-[16px] ${
-                e.dim ? "opacity-[0.72]" : ""
-              }`}
-            >
-              <div className="flex items-center gap-[12px]">
-                <span className="h-[44px] w-[56px] shrink-0 rounded-[10px] bg-photo" />
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-[8px]">
-                    <span className="style-mobile-body font-bold text-ink">
-                      {e.title}
-                    </span>
-                    <span
-                      className="rounded-[6px] px-[7px] py-[2px] style-caption font-medium uppercase tracking-[0.5px]"
-                      style={{ backgroundColor: e.status.bg, color: e.status.color }}
-                    >
-                      {e.status.label}
-                    </span>
-                  </div>
-                  <span className="style-caption text-ink-faint">{e.meta}</span>
-                </div>
-              </div>
+          publishedRows.map((e) => {
+            const isLive = e.status?.label?.toUpperCase() === "LIVE";
 
-              <div className="flex flex-col gap-[6px]">
-                <div className="flex items-center justify-between">
-                  <span className="style-caption text-ink-faint">{e.leftInfo}</span>
-                  <span className="style-caption text-ink-faint">{e.rightInfo}</span>
-                </div>
-                <ProgressBar value={e.progress} trackColor="#eceae2" fillColor={e.progressFill} height={8} />
-              </div>
-
-              <div className="flex gap-[8px]">
-                {e.actions.map((a) => {
-                  const button = (
-                    <Button variant={a.variant} size="sm" pill={a.pill} className="flex-1 rounded-[8px]">
-                      {a.label}
-                    </Button>
-                  );
-                  return a.href ? (
-                    <Link key={a.label} href={a.href} className="flex-1">
-                      {button}
-                    </Link>
-                  ) : (
-                    <div key={a.label} className="flex-1">
-                      {button}
+            return (
+              <div
+                key={e.id}
+                className={`flex flex-col gap-[10px] rounded-[16px] border p-[16px] transition-all ${
+                  isLive
+                    ? "border-emerald-500/80 bg-emerald-50/60 ring-1 ring-emerald-500/20 shadow-md shadow-emerald-500/5"
+                    : "border-border-soft bg-white"
+                } ${e.dim ? "opacity-[0.72]" : ""}`}
+              >
+                <div className="flex items-center gap-[12px]">
+                  <EventCoverImage
+                    imageUrl={e.imageUrl ?? undefined}
+                    className="h-[44px] w-[56px] shrink-0 rounded-[10px] bg-photo"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-[8px]">
+                      <span className="style-mobile-body font-bold text-ink">
+                        {e.title}
+                      </span>
+                      {e.status && (
+                        <span
+                          className="inline-flex items-center gap-1.5 rounded-[6px] px-[7px] py-[2px] style-caption font-semibold uppercase tracking-[0.5px]"
+                          style={{ backgroundColor: e.status.bg, color: e.status.color }}
+                        >
+                          {isLive && (
+                            <span className="relative flex h-2 w-2">
+                              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                            </span>
+                          )}
+                          {e.status.label}
+                        </span>
+                      )}
                     </div>
-                  );
-                })}
+                    <span className="style-caption text-ink-faint">{e.meta}</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-[6px]">
+                  <div className="flex items-center justify-between">
+                    <span className="style-caption text-ink-faint">{e.leftInfo}</span>
+                    <span className="style-caption text-ink-faint">{e.rightInfo}</span>
+                  </div>
+                  <ProgressBar value={e.progress} trackColor="#eceae2" fillColor={e.progressFill} height={8} />
+                </div>
+
+                <div className="flex gap-[8px]">
+                  {e.actions.map((a) => {
+                    const button = (
+                      <Button variant={a.variant} size="sm" pill={a.pill} className="flex-1 rounded-[8px]">
+                        {a.label}
+                      </Button>
+                    );
+                    return a.href ? (
+                      <Link key={a.label} href={a.href} className="flex-1">
+                        {button}
+                      </Link>
+                    ) : (
+                      <div key={a.label} className="flex-1">
+                        {button}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         ) : (
           <div className="rounded-[16px] border border-dashed border-border-soft p-4 text-center style-caption text-ink-faint">
             No published events yet.
@@ -124,18 +142,20 @@ export function MobileAdminEvents({ stats, publishedRows, draftRows }: MobileAdm
               }`}
             >
               <div className="flex items-center gap-[12px]">
-                <span className="h-[44px] w-[56px] shrink-0 rounded-[10px] bg-photo" />
+                <EventCoverImage imageUrl={e.imageUrl ?? undefined} className="h-11 w-14 shrink-0 rounded-[10px]" />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-[8px]">
                     <span className="style-mobile-body font-bold text-ink">
                       {e.title}
                     </span>
-                    <span
-                      className="rounded-[6px] px-[7px] py-[2px] style-caption font-medium uppercase tracking-[0.5px]"
-                      style={{ backgroundColor: e.status.bg, color: e.status.color }}
-                    >
-                      {e.status.label}
-                    </span>
+                    {e.status && (
+                      <span
+                        className="rounded-md px-[7px] py-[2px] style-caption font-medium uppercase tracking-[0.5px]"
+                        style={{ backgroundColor: e.status.bg, color: e.status.color }}
+                      >
+                        {e.status.label}
+                      </span>
+                    )}
                   </div>
                   <span className="style-caption text-ink-faint">{e.meta}</span>
                 </div>
@@ -183,7 +203,7 @@ export function MobileAdminEvents({ stats, publishedRows, draftRows }: MobileAdm
         <span className="style-mobile-title text-white">
           + Create a new event
         </span>
-        <span className="style-caption ">
+        <span className="style-caption text-white/80">
           title · date · location · capacity · tags
         </span>
       </Link>

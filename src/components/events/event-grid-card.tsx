@@ -8,11 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
 import type { TagData } from "@/components/dashboard/up-next-card";
 import { normalizeEventTags } from "@/lib/event-tags";
+import { EventCoverImage } from "@/components/events/event-cover-image";
 
 export type EventGridItem = {
   title: string;
   meta: string;
   description: string;
+  imageUrl?: string | null;
   tags: Array<string | TagData>;
   eventId: string;
   isRsvpd?: boolean;
@@ -24,7 +26,8 @@ export type EventGridItem = {
 export function EventGridCard({ 
   title, 
   meta, 
-  description, 
+  description,
+  imageUrl,
   tags, 
   eventId, 
   isRsvpd = false,
@@ -89,11 +92,11 @@ export function EventGridCard({
       href={`/events/${eventId}`}
       className="flex h-full flex-col rounded-2xl border border-border-soft bg-white p-5 transition-shadow hover:shadow-sm block group"
     >
-      <div className="flex h-37.5 w-full shrink-0 items-center justify-center rounded-xl bg-photo overflow-hidden">
-        <span className="style-caption tracking-[1.5px] text-photo-text">
-          PHOTO
-        </span>
-      </div>
+      <EventCoverImage
+        imageUrl={imageUrl}
+        className="h-[150px] w-full shrink-0"
+        alt={`${title} cover`}
+      />
 
       <div className="flex flex-1 flex-col">
         <h3 className="mt-4 line-clamp-2 style-card-title leading-tight text-ink group-hover:text-brand transition-colors [font-variation-settings:'wdth'_100]">

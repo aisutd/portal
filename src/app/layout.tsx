@@ -38,7 +38,7 @@ export default async function RootLayout({
       <body
         className={`${inter.variable} ${placard.variable} antialiased`}
       >
-        <ClerkProvider>
+        <ClerkProvider afterSignOutUrl={"/dashboard"}>
           <AccountProvider account={account}>{children}</AccountProvider>
         </ClerkProvider>
         <Analytics />

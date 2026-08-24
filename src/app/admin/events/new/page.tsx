@@ -40,13 +40,16 @@ export default function CreateEventPage() {
               </div>
             </div>
 
-            <form action={createEvent} className="flex w-full flex-col gap-[24px] lg:flex-row lg:items-start">
+            <form action={createEvent}
+              //encType="multipart/form-data"
+              className="flex w-full flex-col gap-6 lg:flex-row lg:items-start"
+            >
               <EventForm tags={eventTags} />
-              <div className="flex w-full flex-col gap-[20px] lg:w-[382px] lg:shrink-0">
-                <CoverPhotoCard />
+              <div className="flex w-full flex-col gap-5 lg:w-[382px] lg:shrink-0">
+                <CoverPhotoCard defaultImageUrl={null} />
                 <SettingsCard items={eventSettings} />
                 
-                <div className="flex gap-[10px]">
+                <div className="flex gap-2.5">
                   {/* Save Draft Button passes action: 'draft' */}
                   <Button 
                     type="submit" 

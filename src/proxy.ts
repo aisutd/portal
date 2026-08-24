@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { isAdminRole, isKnownRole } from "@/lib/roles";
 
 const isPublicRoute = createRouteMatcher([
-  '/',
   '/events(.*)',
   '/applications(.*)',
   '/onboarding',
@@ -16,6 +15,11 @@ const isAdminRoute = createRouteMatcher(["/admin(.*)", "/api/admin(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
   const session = await auth();
+  const { pathname } = req.nextUrl;
+  
+  if (pathname === "/") {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
 
   // Everything except the public routes above requires sign-in
   if (!isPublicRoute(req) && !session.userId) {

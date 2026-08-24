@@ -8,9 +8,11 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
 import type { TagData } from "@/components/dashboard/up-next-card";
+import { EventCoverImage } from "../events/event-cover-image";
 
 export type RecommendedItem = {
   id?: string;
+  imageUrl: string | null;
   title: string;
   tags: TagData[];
 };
@@ -59,7 +61,7 @@ function RecommendedRow({
   return (
     <div className="flex w-full items-center justify-between rounded-xl bg-row-soft px-[18px] py-[14px]">
       <div className="flex items-center gap-[12px]">
-        <div className="size-[52px] shrink-0 rounded-xl bg-photo" />
+        <EventCoverImage imageUrl={item.imageUrl} className="size-[52px] shrink-0 rounded-xl bg-photo" />
         <div className="flex flex-col">
           <span className="style-card-title  leading-[22.5px] text-ink">
             {item.title}

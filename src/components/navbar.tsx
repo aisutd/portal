@@ -109,35 +109,35 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
           </Show>
 
           <Show when="signed-in">
-  <Link
-    href="/profile"
-    className={cn(
-      "flex shrink-0 items-center gap-[11px] hover:opacity-80 transition-colors px-[20px] py-[8px] rounded-full",
-      active === "Profile" ? "bg-[#e1e8ff]" : ""
-    )}
-  >
-    <div className="pointer-events-none flex items-center">
-      <UserButton
-        appearance={{
-          elements: {
-            avatarBox: cn(
-              "size-[32px] rounded-full border",
-              active === "Profile" ? "border-[#2f5fe8]" : "border-[#8a8a93]"
-            ),
-          },
-        }}
-      />
-    </div>
-    <span
-      className={cn(
-        "whitespace-nowrap style-nav-link ",
-        active === "Profile" ? "" : ""
-      )}
-    >
-      {accountLabel}
-    </span>
-  </Link>
-</Show>
+            <Link
+              href="/profile"
+              className={cn(
+                "flex shrink-0 items-center gap-[11px] hover:opacity-80 transition-colors px-[20px] py-[8px] rounded-full",
+                active === "Profile" ? "bg-[#e1e8ff]" : ""
+              )}
+            >
+              <div className="pointer-events-none flex items-center">
+                <UserButton
+                  appearance={{
+                    elements: {
+                      avatarBox: cn(
+                        "bg-brand text-white size-[36px] rounded-full border border-white",
+                        active === "Profile" ? "border-[#2f5fe8]" : "border-[#8a8a93]"
+                      ),
+                    },
+                  }}
+                />
+              </div>
+              <span
+                className={cn(
+                  "whitespace-nowrap style-nav-link ",
+                  active === "Profile" ? "" : ""
+                )}
+              >
+                {accountLabel}
+              </span>
+            </Link>
+          </Show>
         </div>
       </nav>
     </header>

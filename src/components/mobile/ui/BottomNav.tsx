@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { useAuth, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { isAdminRole, isKnownRole } from "@/lib/roles";
+import { Show, UserButton } from "@clerk/nextjs";
+import { cn } from "@/lib/utils";
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -65,6 +67,7 @@ export function BottomNav() {
     tabs.push({ label: "Admin", href: "/admin/events" });
   }
 
+  const isProfileActive = pathname?.startsWith("/profile");
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 md:hidden">
       <div className="flex w-full items-center justify-center border-t border-border-soft bg-white px-4 py-2.5 shadow-[0_-2px_10px_rgba(0,0,0,0.06)]">
@@ -83,13 +86,30 @@ export function BottomNav() {
               </Link>
             );
           })}
-          <Link
-            href="/profile"
-            aria-label="Profile"
-            className={`size-7.5 shrink-0 rounded-full border-2 bg-photo transition-colors ${
-              pathname?.startsWith("/profile") ? "border-brand" : "border-card-border"
-            }`}
-          />
+          {/* Aligned UserButton / Profile Link matching desktop */}
+          <Show when="signed-in">
+            <Link
+              href="/profile"
+              aria-label="Profile"
+              className={cn(
+                "flex shrink-0 items-center justify-center rounded-full transition-colors",
+                isProfileActive ? "bg-[#e1e8ff]" : ""
+              )}
+            >
+              <div className="pointer-events-none flex items-center">
+                <UserButton
+                  appearance={{
+                    elements: {
+                      avatarBox: cn(
+                        "size-[30px] bg-brand rounded-full border-2 transition-all",
+                        isProfileActive ? "border-[#2f5fe8]" : "border-[#8a8a93]"
+                      ),
+                    },
+                  }}
+                />
+              </div>
+            </Link>
+          </Show>
         </div>
       </div>
     </nav>
