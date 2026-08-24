@@ -29,7 +29,46 @@ type MobileAdminEditEventProps = {
   isPublished: boolean;
 };
 
+/**
+ * Converts a Date string/ISO string into a local 'YYYY-MM-DDTHH:mm' 
+ * string explicitly in Central Time (America/Chicago).
+ */
+function toCentralDateTimeInput(dateStr?: string | null): string {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return "";
+
+  // Convert UTC date to Central Time components using Intl API
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(date);
+  const partMap: Record<string, string> = {};
+  for (const part of parts) {
+    partMap[part.type] = part.value;
+  }
+
+  // Handle midnight 24:00 edge case from Intl
+  const hour = partMap.hour === "24" ? "00" : partMap.hour;
+
+  return `${partMap.year}-${partMap.month}-${partMap.day}T${hour}:${partMap.minute}`;
+}
+
 export function MobileAdminEditEvent({ eventId, defaultValues, isPublished }: MobileAdminEditEventProps) {
+  // Format start and end time specifically for America/Chicago (Central Time)
+  const formattedDefaultValues = {
+    ...defaultValues,
+    startTime: toCentralDateTimeInput(defaultValues.startTime),
+    endTime: toCentralDateTimeInput(defaultValues.endTime),
+  };
+
   return (
     <MobileScreen withBottomNavPadding={false}>
       <MobileAdminNav active="Events" />
@@ -46,7 +85,8 @@ export function MobileAdminEditEvent({ eventId, defaultValues, isPublished }: Mo
       <form action={updateEvent} className="flex flex-col gap-[24px]">
         <input type="hidden" name="id" value={eventId} />
 
-        <EventForm tags={eventTags} defaultValues={defaultValues} />
+        {/* Pass converted values to EventForm */}
+        <EventForm tags={eventTags} defaultValues={formattedDefaultValues} />
         <CoverPhotoCard defaultImageUrl={defaultValues.imageUrl} />
         <SettingsCard items={eventSettings} />
 
