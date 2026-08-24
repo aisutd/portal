@@ -4,15 +4,10 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'pub-a3cb7d30ea044503a67b8b9350b3817b.r2.dev', // Allows standard Cloudflare R2 public URLs
+        hostname: 'cdn.portal.aisutd.org', 
         port: '',
         pathname: '/**'
       },
-      // If using a custom domain (e.g. assets.yourdomain.com):
-      // {
-      //   protocol: 'https',
-      //   hostname: 'assets.yourdomain.com',
-      // },
     ],
   },
 };
