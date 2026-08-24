@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { parseChicagoTimeToUtc } from "@/lib/time";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { ItemType } from "@prisma/client";
@@ -78,18 +79,11 @@ export async function updateEvent(formData: FormData) {
     existingEvent?.imageUrl ?? null
   );
 
-  // Helper to force interpretation of datetime-local as Central Time
-  const parseCentralTime = (dateStr: string) => {
-    if (!dateStr) return new Date();
-    const cleanDate = dateStr.replace("Z", "");
-    const month = new Date(cleanDate).getMonth();
-    const isDst = month >= 2 && month <= 10;
-    const offset = isDst ? "-05:00" : "-06:00";
-    return new Date(`${cleanDate}:00${offset}`);
-  };
+  // Use centralized parser that interprets a datetime-local string as America/Chicago wall time
+  // and returns the corresponding UTC instant suitable for DB storage.
 
-  const startTime = parseCentralTime(startTimeInput);
-  const endTime = parseCentralTime(endTimeInput);
+  const startTime = parseChicagoTimeToUtc(startTimeInput);
+  const endTime = parseChicagoTimeToUtc(endTimeInput);
 
   const capacityStr = formData.get("capacity") as string;
   const capacity = capacityStr ? parseInt(capacityStr, 10) : null;

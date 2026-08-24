@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { MobileAdminEditEvent } from "@/components/mobile/admin/MobileAdminEditEvent";
 import { eventTags, eventSettings } from "@/lib/data";
 import { updateEvent, deleteEvent } from "./actions";
+import { formatDateTimeForInput } from "@/lib/time";
 import { DeleteEventButton } from "@/components/admin/delete-event-button"
 
 export const metadata: Metadata = {
@@ -31,11 +32,9 @@ export default async function EditEventPage({
 
   if (!event) return notFound();
 
-  // Format dates for HTML datetime-local inputs
+  // Format dates for HTML datetime-local inputs in Central Time
   const formatDateTime = (date: Date) => {
-    return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 16);
+    return formatDateTimeForInput(date);
   };
 
   const defaultValues = {

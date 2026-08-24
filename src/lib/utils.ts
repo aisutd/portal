@@ -6,6 +6,8 @@ export function cn(...classes: Array<string | false | null | undefined>): string
   return classes.filter(Boolean).join(" ");
 }
 
+import { CENTRAL_TIME_ZONE } from "@/lib/time";
+
 // Formats date and time in a legible, neat format: Mon, Aug. 20 - 6:00PM
 export function formatEventDate(dateString: string, includeDayOfWeek = false) {
   const date = new Date(dateString);
@@ -16,6 +18,7 @@ export function formatEventDate(dateString: string, includeDayOfWeek = false) {
   const isWithinAWeek = includeDayOfWeek && diffDays >= 0 && diffDays <= 7;
 
   const options: Intl.DateTimeFormatOptions = {
+    timeZone: CENTRAL_TIME_ZONE,
     month: "short",
     day: "numeric",
     year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
@@ -24,7 +27,7 @@ export function formatEventDate(dateString: string, includeDayOfWeek = false) {
   };
 
   if (isWithinAWeek) {
-    const weekday = new Intl.DateTimeFormat("en-US", { weekday: "short" }).format(date);
+    const weekday = new Intl.DateTimeFormat("en-US", { timeZone: CENTRAL_TIME_ZONE, weekday: "short" }).format(date);
     const timeDate = new Intl.DateTimeFormat("en-US", options).format(date);
     return `${weekday}, ${timeDate}`;
   }

@@ -33,7 +33,7 @@ function mapEventToRow(event: any): EventRowData {
     imageUrl: event.imageUrl,
     title: event.title,
     status: baseStatus,
-    meta: `${new Date(event.startTime).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} · ${event.location}`,
+    meta: `${new Date(event.startTime).toLocaleString([], { timeZone: "America/Chicago", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} · ${event.location}`,
     leftInfo: capacity > 0 ? `${checkedInCountForEvent} / ${capacity} checked in` : "No capacity set",
     rightInfo: `${event.rsvps.length} RSVPs`,
     progress,

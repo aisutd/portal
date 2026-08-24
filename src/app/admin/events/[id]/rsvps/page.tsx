@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 // --- Formatters ---
-const TIME_FORMAT = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" });
+const TIME_FORMAT = new Intl.DateTimeFormat("en-US", { timeZone: "America/Chicago", hour: "numeric", minute: "2-digit" });
 
 // --- Inline UI Components ---
 function StatusBadge({ label, bg, color }: { label: string; bg: string; color: string }) {

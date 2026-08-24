@@ -9,15 +9,9 @@ import { roleBadges } from "./role";
 import { deriveStatusKey, eventsNeededForActive } from "./status";
 import { PAGE_SIZE, type MembersQuery } from "./query-params";
 
-const JOINED_FORMAT = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  year: "numeric",
-});
+const JOINED_FORMAT = new Intl.DateTimeFormat("en-US", { timeZone: "America/Chicago", month: "short", year: "numeric" });
 
-const EVENT_DATE_FORMAT = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
-});
+const EVENT_DATE_FORMAT = new Intl.DateTimeFormat("en-US", { timeZone: "America/Chicago", month: "short", day: "numeric" });
 
 export type MembersViewModel = {
   rows: Member[];

@@ -7,6 +7,7 @@ import { getAuthenticatedUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isAssignableProgram } from "@/lib/roles";
 import { putObjectToR2 } from "@/lib/r2";
+import { parseChicagoTimeToUtc } from "@/lib/time";
 
 type EventItemInput = {
   name: string;
@@ -23,46 +24,8 @@ const validTagValues = [
   "INDUSTRY",
 ] as const;
 
-function parseChicagoTimeToUtc(localDateTimeString: string): Date {
-  // localDateTimeString format: "2026-09-10T19:00"
-  const [datePart, timePart] = localDateTimeString.split("T");
-  const [year, month, day] = datePart.split("-").map(Number);
-  const [hour, minute] = timePart.split(":").map(Number);
-
-  // Formatter configuration matching the target timezone
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Chicago",
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-    second: "numeric",
-    hour12: false,
-  });
-
-  // Target date estimate to refine offset calculation
-  let utcGuess = Date.UTC(year, month - 1, day, hour, minute);
-  
-  for (let i = 0; i < 3; i++) {
-    const parts = formatter.formatToParts(new Date(utcGuess));
-    const p = Object.fromEntries(parts.map(part => [part.type, part.value]));
-    
-    const formattedDate = Date.UTC(
-      Number(p.year),
-      Number(p.month) - 1,
-      Number(p.day),
-      Number(p.hour) === 24 ? 0 : Number(p.hour), // Normalizes midnight formatting edge-cases
-      Number(p.minute)
-    );
-
-    const delta = utcGuess - formattedDate;
-    if (delta === 0) break;
-    utcGuess += delta;
-  }
-
-  return new Date(utcGuess);
-}
+// parseChicagoTimeToUtc has been centralized into src/lib/time.ts
+// see parseChicagoTimeToUtc in that module for the robust implementation.
 
 
 /** Programs an event counts toward. Empty means it counts for everyone. */
