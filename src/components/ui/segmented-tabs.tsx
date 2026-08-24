@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Button } from "./button";
 
 type SegmentedTabsProps = {
   options: string[];
@@ -31,21 +30,21 @@ export function SegmentedTabs({
       {options.map((option) => {
         const active = option === value;
         return (
-          <Button
+          <button
             key={option}
             type="button"
             role="tab"
             aria-selected={active}
             onClick={() => onChange(option)}
             className={cn(
-              "style-caption flex-1 rounded-[7px] p-[9px] text-center font-grotesk font-semibold leading-[normal] transition-colors",
+              "flex-1 rounded-[7px] p-[9px] text-center font-grotesk text-[13px] font-semibold leading-[normal] transition-colors",
               active
                 ? "bg-white text-ink-card shadow-tab"
                 : "text-tab-muted hover:text-ink-card"
             )}
           >
             {option}
-          </Button>
+          </button>
         );
       })}
     </div>
