@@ -74,7 +74,7 @@ export async function DashboardStatusStrip({ userId }: { userId: string }) {
   ]);
 
   const since = (date: Date) =>
-    new Date(date).toLocaleDateString([], { month: "short", year: "2-digit" });
+    new Date(date).toLocaleDateString([], {timeZone: "America/Chicago", month: "short", year: "2-digit" });
 
   const statusStats: Stat[] = [
     {
@@ -200,7 +200,7 @@ export async function DashboardRsvpsCard({ userId }: { userId: string }) {
     const d = new Date(rsvp.event.startTime);
     return {
       id: rsvp.id,
-      day: d.getDate().toString().padStart(2, "0"),
+      day: d.toLocaleDateString("en-US", { timeZone: 'America/Chicago', day: "2-digit"}),
       title: rsvp.event.title,
       detail: `${d.toLocaleTimeString([], { timeZone: 'America/Chicago', hour: 'numeric', minute: '2-digit' })} · ${rsvp.event.location}`,
       eventId: rsvp.eventId
