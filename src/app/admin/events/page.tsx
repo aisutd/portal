@@ -48,7 +48,9 @@ function mapEventToRow(event: any): EventRowData {
 }
 
 async function getEventViewModel() {
-  const [events, totalRsvps, checkedInCount] = await Promise.all([
+  const now = new Date();
+
+  const [events, totalRsvps] = await Promise.all([
     prisma.event.findMany({
       orderBy: { startTime: "asc" },
       include: {
@@ -60,11 +62,18 @@ async function getEventViewModel() {
       },
     }),
     prisma.rSVP.count(),
-    prisma.attendance.count(),
   ]);
 
   const publishedEvents = events.filter((event) => event.isPublished);
   const draftEvents = events.filter((event) => !event.isPublished);
+
+  // Categorize published events into Live, Upcoming, and Past
+  const liveEvents = publishedEvents.filter((e) => new Date(e.startTime) <= now && new Date(e.endTime) >= now);
+  const upcomingEvents = publishedEvents.filter((e) => new Date(e.startTime) > now);
+  const pastEvents = publishedEvents.filter((e) => new Date(e.endTime) < now);
+
+  // Combine Live first, then Upcoming for the active published section
+  const activePublishedEvents = [...liveEvents, ...upcomingEvents];
 
   const totalCapacity = events.reduce((sum, event) => sum + (event.capacity ?? 0), 0);
   const totalCheckedIn = events.reduce(
@@ -80,8 +89,9 @@ async function getEventViewModel() {
       { value: String(totalRsvps), label: "total RSVPs" },
       { value: `${attendanceRatio}%`, label: "avg capacity", highlight: true },
     ],
-    publishedRows: publishedEvents.map(mapEventToRow),
+    publishedRows: activePublishedEvents.map(mapEventToRow),
     draftRows: draftEvents.map(mapEventToRow),
+    pastRows: pastEvents.map(mapEventToRow),
   };
 }
 
@@ -91,82 +101,106 @@ export default async function AdminEventsPage() {
   return (
     <>
       <div className="md:hidden">
-        {/* Pass all rows or combine them for mobile if needed */}
-        <MobileAdminEvents stats={data.stats} publishedRows={data.publishedRows} draftRows={data.draftRows} />
+        <MobileAdminEvents 
+          stats={data.stats} 
+          publishedRows={data.publishedRows} 
+          draftRows={data.draftRows}
+          pastRows={data.pastRows}
+        />
       </div>
 
       <div className="hidden md:block">
-      <div className="flex min-h-screen w-full bg-cream">
-        <AdminSidebar active="Events" />
+        <div className="flex min-h-screen w-full bg-cream">
+          <AdminSidebar active="Events" />
 
-        <div className="flex h-full flex-1 flex-col gap-[28px] p-[46px]">
-          <div className="flex items-center justify-between">
-            <h2 className="style-section-header leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
-              Events
-            </h2>
-            <div className="flex items-center gap-[10px]">
-              <Button variant="soft" size="sm" className="rounded-[8px]">
-                List
-              </Button>
-              <Button variant="ghost" size="sm" className="rounded-[8px]">
-                Calendar
-              </Button>
-              <Link href="/admin/events/new">
-                <Button variant="primary" size="md">
-                  + New Event
+          <div className="flex h-full flex-1 flex-col gap-[28px] p-[46px]">
+            <div className="flex items-center justify-between">
+              <h2 className="style-section-header leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+                Events
+              </h2>
+              <div className="flex items-center gap-[10px]">
+                <Button variant="soft" size="sm" className="rounded-[8px]">
+                  List
                 </Button>
-              </Link>
+                <Button variant="ghost" size="sm" className="rounded-[8px]">
+                  Calendar
+                </Button>
+                <Link href="/admin/events/new">
+                  <Button variant="primary" size="md">
+                    + New Event
+                  </Button>
+                </Link>
+              </div>
             </div>
-          </div>
 
-          <div className="flex w-full gap-[16px]">
-            {data.stats.map((s) => (
-              <StatCard key={s.label} {...s} />
-            ))}
-          </div>
-
-          {/* Published Events Section */}
-          <div className="flex flex-col gap-[12px]">
-            <div className="flex items-center justify-between">
-              <h3 className="style-section-header text-ink">
-                Published Events ({data.publishedRows.length})
-              </h3>
+            <div className="flex w-full gap-[16px]">
+              {data.stats.map((s) => (
+                <StatCard key={s.label} {...s} />
+              ))}
             </div>
-            {data.publishedRows.length > 0 ? (
-              data.publishedRows.map((e) => <EventRow key={e.id} {...e} />)
-            ) : (
-              <p className="rounded-xl border border-dashed border-border-soft p-4 text-center style-caption text-ink-faint">
-                No published events yet.
-              </p>
-            )}
-          </div>
 
-          {/* Draft Events Section */}
-          <div className="flex flex-col gap-[12px] pt-4">
-            <div className="flex items-center justify-between">
-              <h3 className="style-section-header text-ink">
-                Drafts ({data.draftRows.length})
-              </h3>
+            {/* Published Events Section (Live + Upcoming) */}
+            <div className="flex flex-col gap-[12px]">
+              <div className="flex items-center justify-between">
+                <h3 className="style-section-header text-ink">
+                  Published Events ({data.publishedRows.length})
+                </h3>
+              </div>
+              {data.publishedRows.length > 0 ? (
+                data.publishedRows.map((e) => <EventRow key={e.id} {...e} />)
+              ) : (
+                <p className="rounded-xl border border-dashed border-border-soft p-4 text-center style-caption text-ink-faint">
+                  No active or upcoming published events.
+                </p>
+              )}
             </div>
-            {data.draftRows.length > 0 ? (
-              data.draftRows.map((e) => <EventRow key={e.id} {...e} />)
-            ) : (
-              <p className="rounded-xl border border-dashed border-border-soft p-4 text-center style-caption text-ink-faint">
-                No draft events saved.
-              </p>
-            )}
-          </div>
 
-          <div className="flex w-full items-center justify-between rounded-[16px] bg-brand px-[23px] py-[21px] mt-2">
-            <span className="style-section-header leading-[21.25px] text-white [font-variation-settings:'wdth'_100]">
-              + Create a new event
-            </span>
-            <span className="style-caption leading-[16.8px] tracking-[0.2px] ">
-              title · date · location · capacity · tags
-            </span>
+            {/* Draft Events Section */}
+            <div className="flex flex-col gap-[12px] pt-4">
+              <div className="flex items-center justify-between">
+                <h3 className="style-section-header text-ink">
+                  Drafts ({data.draftRows.length})
+                </h3>
+              </div>
+              {data.draftRows.length > 0 ? (
+                data.draftRows.map((e) => <EventRow key={e.id} {...e} />)
+              ) : (
+                <p className="rounded-xl border border-dashed border-border-soft p-4 text-center style-caption text-ink-faint">
+                  No draft events saved.
+                </p>
+              )}
+            </div>
+
+            {/* Past Events Section (Below Drafts) */}
+            <div className="flex flex-col gap-[12px] pt-4">
+              <div className="flex items-center justify-between">
+                <h3 className="style-section-header text-ink-muted">
+                  Past Events ({data.pastRows.length})
+                </h3>
+              </div>
+              {data.pastRows.length > 0 ? (
+                <div className="flex flex-col gap-[12px] opacity-80">
+                  {data.pastRows.map((e) => <EventRow key={e.id} {...e} />)}
+                </div>
+              ) : (
+                <p className="rounded-xl border border-dashed border-border-soft p-4 text-center style-caption text-ink-faint">
+                  No past events recorded.
+                </p>
+              )}
+            </div>
+
+            <Link href="/admin/events/new" className="mt-2 block w-full">
+              <div className="flex w-full items-center justify-between rounded-[16px] bg-brand px-[23px] py-[21px] transition-opacity hover:opacity-95">
+                <span className="style-section-header leading-[21.25px] text-white [font-variation-settings:'wdth'_100]">
+                  + Create a new event
+                </span>
+                <span className="style-caption leading-[16.8px] tracking-[0.2px] text-white/80">
+                  title · date · location · capacity · tags
+                </span>
+              </div>
+            </Link>
           </div>
         </div>
-      </div>
       </div>
     </>
   );

@@ -12,11 +12,32 @@ import type { TagData } from "@/components/dashboard/up-next-card";
 import { EventCoverImage } from "../events/event-cover-image";
 
 export type RecommendedItem = {
-  id?: string;
+  id: string;
   imageUrl: string | null;
   title: string;
+  startTime: string | Date;
+  endTime?: string | Date | null;
+  location: string;
   tags: TagData[];
 };
+
+function formatEventDateTime(startTime?: string | Date | null) {
+  if (!startTime) return "TBD";
+
+  const dateObj = typeof startTime === "string" ? new Date(startTime) : startTime;
+
+  if (isNaN(dateObj.getTime())) {
+    return "TBD";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(dateObj);
+}
 
 function RecommendedRow({
   item,
@@ -29,7 +50,12 @@ function RecommendedRow({
   const { isSignedIn } = useAuth();
   const [loading, setLoading] = useState(false);
 
-  async function handleRsvp() {
+  const formattedDateTime = formatEventDateTime(item.startTime);
+
+  async function handleRsvp(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+
     if (!isSignedIn) {
       router.push("/onboarding?mode=login");
       return;
@@ -44,9 +70,7 @@ function RecommendedRow({
       });
 
       if (res.ok || res.status === 409) {
-        if (item.id) {
-          onRsvpSuccess?.(item.id);
-        }
+        onRsvpSuccess?.(item.id);
         router.refresh();
       } else {
         const data = await res.json();
@@ -60,30 +84,45 @@ function RecommendedRow({
   }
 
   return (
-    <div className="flex w-full items-center justify-between rounded-xl bg-row-soft px-[18px] py-[14px]">
-      <div className="flex items-center gap-[12px]">
-        <EventCoverImage imageUrl={item.imageUrl} className="size-[52px] shrink-0 rounded-xl bg-photo" />
-        <div className="flex flex-col">
-          <span className="style-card-title  leading-[22.5px] text-ink">
+    <Link
+      href={`/events/${item.id}`}
+      className="group flex w-full flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-xl bg-row-soft px-[18px] py-[14px] transition-colors hover:bg-[#eae6dc]"
+    >
+      <div className="flex flex-1 items-start sm:items-center gap-[14px] min-w-0 w-full">
+        <EventCoverImage
+          imageUrl={item.imageUrl}
+          className="size-[56px] shrink-0 rounded-xl bg-photo"
+        />
+        <div className="flex flex-col gap-1 min-w-0 flex-1">
+          <span className="style-card-title leading-[20px] text-ink group-hover:text-brand break-words">
             {item.title}
           </span>
-          <div className="flex gap-[6px] pt-[1px]">
-            {item.tags.map((tag, tagIndex) => (
-              <Tag key={`${tag.label}-${tagIndex}`} {...tag} />
-            ))}
-          </div>
+
+          <span className="style-caption font-medium text-ink-muted break-words">
+            {formattedDateTime} · {item.location}
+          </span>
+
+          {item.tags && item.tags.length > 0 && (
+            <div className="flex flex-wrap gap-[6px] pt-[2px]">
+              {item.tags.map((tag, tagIndex) => (
+                <Tag key={`${tag.label}-${tagIndex}`} {...tag} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
+
       <Button
         variant="primary"
         size="sm"
         onClick={handleRsvp}
         type="button"
         disabled={loading}
+        className="shrink-0 self-end sm:self-center w-full sm:w-auto"
       >
         {loading ? "RSVPing..." : "RSVP"}
       </Button>
-    </div>
+    </Link>
   );
 }
 
@@ -99,23 +138,25 @@ export function RecommendedCard({ items }: { items: RecommendedItem[] }) {
   }
 
   return (
-    <Card className="flex min-w-px flex-1 flex-col gap-[14px] self-stretch p-[27px]">
+    <Card className="flex h-auto min-w-0 flex-1 flex-col gap-[14px] self-stretch p-[27px]">
       <SectionHeader
         title="Recommended for you"
         action={
           <Link
             href="/events"
-            className="style-meta-text leading-[16.8px] tracking-[0.2px] text-brand hover:underline font-semibold flex items-center gap-1"
+            className="style-meta-text flex items-center gap-1 font-semibold leading-[16.8px] tracking-[0.2px] text-brand hover:underline"
           >
             Browse Events →
           </Link>
         }
       />
-      
-      <div className="flex flex-col gap-[14px]">
+
+      <div className="flex flex-col gap-[14px] h-auto w-full">
         {displayItems.length === 0 ? (
-          <div className="flex flex-col gap-[12px] h-[120px] w-full items-center justify-center rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6]">
-            <span className="style-body-text text-ink-faint">No upcoming events.</span>
+          <div className="flex h-[120px] w-full flex-col items-center justify-center gap-[12px] rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6]">
+            <span className="style-body-text text-ink-faint">
+              No upcoming events.
+            </span>
           </div>
         ) : (
           displayItems.map((item, index) => (
@@ -128,13 +169,13 @@ export function RecommendedCard({ items }: { items: RecommendedItem[] }) {
         )}
       </div>
 
-      {/* Light blue callout banner at bottom */}
+      {/* Callout banner */}
       <div className="mt-auto flex w-full flex-col items-start justify-between gap-[12px] rounded-xl bg-[#e1e8ff] px-[20px] py-[16px] sm:flex-row sm:items-center">
         <span className="style-card-title text-[15px] font-medium leading-[20px] text-[#1f3aa3]">
           Nothing on your calendar this week?
         </span>
-        <Link href="/events" className="shrink-0">
-          <Button variant="accent" size="sm" pill className="font-bold">
+        <Link href="/events" className="shrink-0 w-full sm:w-auto">
+          <Button variant="accent" size="sm" pill className="w-full sm:w-auto font-bold">
             Browse Events →
           </Button>
         </Link>

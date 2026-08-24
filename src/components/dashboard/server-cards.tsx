@@ -217,6 +217,8 @@ export async function DashboardRecommendedCard({ userId }: { userId: string }) {
     id: event.id,
     title: event.title,
     imageUrl: event.imageUrl,
+    startTime: event.startTime,
+    location: event.location,
     tags: [
       { label: "Upcoming", bg: "#e1e8ff", color: "#1f3aa3" },
     ],

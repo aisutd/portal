@@ -15,11 +15,13 @@ function MobileOnboardingInner() {
       {/* Top Header / Brand Hero Section */}
       <header className="relative flex w-full flex-col bg-cream pb-20 pt-8 sm:pt-12">
         <div className="mx-auto flex w-full max-w-[430px] flex-col items-center px-6">
-          <img
-            className="h-12 w-auto shrink-0 object-contain sm:h-14"
-            src="/ais_logo_black.png"
-            alt="AIS Logo"
-          />
+          <Link href="/events">
+            <img
+              className="h-12 w-auto shrink-0 object-contain sm:h-14"
+              src="/ais_logo_black.png"
+              alt="AIS Logo"
+            />
+          </Link>
           <h1 className="mt-6 text-center font-mobile-display text-3xl font-extrabold leading-[1.15] tracking-tight text-ink sm:text-4xl">
             Step into the world of <span className="text-brand">artificial intelligence</span>
           </h1>
