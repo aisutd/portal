@@ -24,7 +24,7 @@ export default function AdminOverviewPage() {
 
       <div className="hidden md:block">
       <div className="flex min-h-screen w-full bg-cream">
-        <AdminSidebar active="Overview" role="Officer" />
+        <AdminSidebar /*active="Overview" */ />
 
         <div className="flex h-full flex-1 flex-col gap-[24px] p-[46px]">
           <h2 className="style-section-header leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">

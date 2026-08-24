@@ -62,7 +62,7 @@ export function BottomNav() {
 
   // 4. Inject Admin route if permissions pass
   if (isSignedIn && isAdmin) {
-    tabs.push({ label: "Admin", href: "/admin/dashboard" });
+    tabs.push({ label: "Admin", href: "/admin/events" });
   }
 
   return (
@@ -75,7 +75,7 @@ export function BottomNav() {
               <Link
                 key={tab.href}
                 href={tab.href}
-                className={`rounded-full px-3.5 py-1.5 style-nav-link  transition-colors ${
+                className={`rounded-full px-4 py-2 style-nav-link  transition-colors ${
                   active ? "bg-purple-soft text-brand" : "text-ink-muted hover:text-ink"
                 }`}
               >
