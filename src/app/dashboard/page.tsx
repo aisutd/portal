@@ -5,7 +5,6 @@ import { getAuthenticatedUser } from "@/lib/auth";
 // Components
 import { Navbar } from "@/components/navbar";
 import { UpNextCard } from "@/components/dashboard/up-next-card";
-import { QuickCtaCard } from "@/components/dashboard/quick-cta-card";
 import { MobileDashboard } from "@/components/mobile/dashboard/MobileDashboard";
 import {
   DashboardApplicationsCard,
@@ -86,18 +85,13 @@ export default async function DashboardPage() {
               </Suspense>
             </div>
 
-            {/* Row 2 — rsvps + cta */}
-            <div className="flex flex-col gap-[24px] xl:h-[268px] xl:flex-row xl:items-stretch">
+            {/* Row 2 — combined recommended & browse events card + RSVPs at right edge */}
+            <div className="flex flex-col gap-[24px] xl:flex-row xl:items-stretch">
+              <Suspense fallback={<div className="flex min-h-[200px] flex-1 items-center justify-center rounded-2xl bg-white">Loading recommendations...</div>}>
+                <DashboardRecommendedCard userId={user.id} />
+              </Suspense>
               <Suspense fallback={<RsvpsCardSkeleton />}>
                 <DashboardRsvpsCard userId={user.id} />
-              </Suspense>
-              <QuickCtaCard />
-            </div>
-
-            {/* Row 3 — recommendations */}
-            <div className="flex flex-col gap-[24px] xl:flex-row xl:items-start">
-              <Suspense fallback={<div className="flex min-h-[150px] flex-1 items-center justify-center rounded-2xl bg-white">Loading recommendations...</div>}>
-                <DashboardRecommendedCard userId={user.id} />
               </Suspense>
             </div>
           </div>

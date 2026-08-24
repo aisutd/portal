@@ -33,12 +33,12 @@ function RsvpRow({ item }: { item: RsvpItem }) {
 
 export function RsvpsCard({ items }: { items: RsvpItem[] }) {
   return (
-    <Card className="flex w-full shrink-0 self-stretch flex-col gap-[16px] xl:w-[360px] p-[29px]">
+    <Card className="flex w-full shrink-0 flex-col gap-[16px] self-stretch xl:w-[360px] p-[29px]">
       <SectionHeader title="Your RSVPs" />
       <div className="flex flex-1 flex-col gap-[20px] overflow-y-auto pr-1">
         {items.length === 0 ? (
-          <div className="flex h-[170px] w-full items-center justify-center rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6]">
-            <span className="style-body-text  text-ink-faint">No upcoming RSVPs.</span>
+          <div className="flex flex-1 min-h-[170px] w-full items-center justify-center rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6]">
+            <span className="style-body-text text-ink-faint">No upcoming RSVPs.</span>
           </div>
         ) : (
           items.map((item, index) => (

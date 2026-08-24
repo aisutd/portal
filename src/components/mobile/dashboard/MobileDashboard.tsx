@@ -3,7 +3,6 @@ import QRCode from "react-qr-code";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { QuickCtaCard } from "@/components/dashboard/quick-cta-card";
 import {
   DashboardApplicationsCard,
   ApplicationsCardSkeleton,
@@ -88,8 +87,6 @@ export function MobileDashboard({ userId, userName, nextRsvp }: MobileDashboardP
       <Suspense fallback={<RsvpsCardSkeleton />}>
         <DashboardRsvpsCard userId={userId} />
       </Suspense>
-
-      <QuickCtaCard />
 
       {/* Recommended */}
       <Suspense

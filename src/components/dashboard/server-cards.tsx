@@ -47,9 +47,9 @@ export function ApplicationsCardSkeleton() {
 
 export function RsvpsCardSkeleton() {
   return (
-    <Card className="flex w-full flex-col gap-[16px] xl:w-[320px] p-[29px]">
+    <Card className="flex w-full shrink-0 self-stretch flex-col gap-[16px] xl:w-[360px] p-[29px]">
       <SectionHeader title="Your RSVPs" />
-      <div className="flex flex-col gap-[20px]">
+      <div className="flex flex-1 flex-col gap-[20px]">
         {[1, 2, 3].map((i) => (
           <div key={i} className="flex items-center gap-[12px]">
             <div className="flex size-[48px] flex-col items-center justify-center rounded-[8px] bg-gray-200 animate-pulse" />
