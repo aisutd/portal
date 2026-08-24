@@ -154,6 +154,7 @@ model Event {
   status           EventStatus
   capacity         Int?
   visibility       String?
+  imageUrl         String?
   eligibilityRules Json?
   isPublished      Boolean    @default(false)
   checkInToken     String     @unique @default(uuid())
