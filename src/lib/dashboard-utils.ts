@@ -101,9 +101,15 @@ export async function getApplications(userId: string) {
 export async function getRSVPs(userId: string, take: number = 5) {
   return prisma.rSVP.findMany({
     where: { userId, status: "GOING" },
-    include: { event: true },
-    orderBy: { createdAt: "desc" },
-    take,
+    include: {
+      event: true,
+      attendance: true,
+    },
+    orderBy: {
+      event: {
+        startTime: "desc",
+      },
+    },
   });
 }
 

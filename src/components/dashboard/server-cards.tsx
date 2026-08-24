@@ -194,16 +194,30 @@ export async function DashboardApplicationsCard({ userId }: { userId: string }) 
 }
 
 export async function DashboardRsvpsCard({ userId }: { userId: string }) {
-  const rsvps = await getRSVPs(userId, 5);
+  // Omit the 'take' limit or set a high number to fetch all past & upcoming RSVPs
+  const rsvps = await getRSVPs(userId); 
+
+  const now = new Date();
 
   const items: RsvpItem[] = rsvps.map((rsvp) => {
     const d = new Date(rsvp.event.startTime);
+    const endTime = new Date(rsvp.event.endTime ?? rsvp.event.startTime);
+
     return {
       id: rsvp.id,
-      day: d.toLocaleDateString("en-US", { timeZone: 'America/Chicago', day: "2-digit"}),
+      day: d.toLocaleDateString("en-US", {
+        timeZone: "America/Chicago",
+        day: "2-digit",
+      }),
       title: rsvp.event.title,
-      detail: `${d.toLocaleTimeString([], { timeZone: 'America/Chicago', hour: 'numeric', minute: '2-digit' })} · ${rsvp.event.location}`,
-      eventId: rsvp.eventId
+      detail: `${d.toLocaleTimeString([], {
+        timeZone: "America/Chicago",
+        hour: "numeric",
+        minute: "2-digit",
+      })} · ${rsvp.event.location}`,
+      eventId: rsvp.eventId,
+      attended: Boolean(rsvp.attendance),
+      isPast: endTime < now, // Marks event as past if end time has passed
     };
   });
 
