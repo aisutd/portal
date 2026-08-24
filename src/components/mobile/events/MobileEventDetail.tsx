@@ -164,7 +164,7 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
             <EventQRCode value={userRsvp?.qrToken ?? `checkin-${userId}-${event.id}`} />
 
             <p className="text-center style-caption text-ink-faint">
-              Scan QR at the door to check in
+              This is your ticket to claim food, merch, drinks, etc.
             </p>
 
             <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
