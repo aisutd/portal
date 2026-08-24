@@ -6,13 +6,13 @@ export type RsvpItem = {
   day: string;
   title: string;
   detail: string;
-  id: string;
+  eventId: string;
 };
 
 function RsvpRow({ item }: { item: RsvpItem }) {
   return (
     <Link
-      href={`/events/${item.id}`}
+      href={`/events/${item.eventId}`}
       className="flex w-full items-center gap-[12px]">
       <div className="flex size-[46px] shrink-0 items-center justify-center rounded-[14px] bg-brand-soft">
         <span className="style-meta-text  leading-[16.8px] tracking-[1px] text-brand-dark">
@@ -42,7 +42,7 @@ export function RsvpsCard({ items }: { items: RsvpItem[] }) {
           </div>
         ) : (
           items.map((item, index) => (
-            <RsvpRow key={item.id ?? `${item.title}-${index}`} item={item} />
+            <RsvpRow key={item.eventId ?? `${item.title}-${index}`} item={item} />
           ))
         )}
       </div>
