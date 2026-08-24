@@ -68,7 +68,7 @@ export function BottomNav() {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 md:hidden">
       <div className="flex w-full items-center justify-center border-t border-border-soft bg-white px-4 py-2.5 shadow-[0_-2px_10px_rgba(0,0,0,0.06)]">
-        <div className="flex w-full max-w-[340px] items-center justify-between gap-1">
+        <div className="flex w-full max-w-85 items-center overflow-x-auto scrollbar-none shrink-0 gap-1">
           {tabs.map((tab) => {
             const active = tab.href === "/" ? pathname === "/" : pathname?.startsWith(tab.href);
             return (
@@ -86,7 +86,7 @@ export function BottomNav() {
           <Link
             href="/profile"
             aria-label="Profile"
-            className={`size-[30px] shrink-0 rounded-full border-2 bg-photo transition-colors ${
+            className={`size-7.5 shrink-0 rounded-full border-2 bg-photo transition-colors ${
               pathname?.startsWith("/profile") ? "border-brand" : "border-card-border"
             }`}
           />
