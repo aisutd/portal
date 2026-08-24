@@ -5,7 +5,6 @@ import { getAuthenticatedUser } from "@/lib/auth";
 // Components
 import { Navbar } from "@/components/navbar";
 import { UpNextCard } from "@/components/dashboard/up-next-card";
-import { QuickCtaCard } from "@/components/dashboard/quick-cta-card";
 import { MobileDashboard } from "@/components/mobile/dashboard/MobileDashboard";
 import {
   DashboardApplicationsCard,
@@ -26,16 +25,10 @@ export default async function DashboardPage() {
   }
 
   const nextRsvp = await getNextUpcomingRsvp(user.id);
-  
-  // Define it once, use it in both places
   const userName = user.profile.firstName || "Member";
 
-  // Calculate if the current event is happening now or recently started
-  const isPastEvent = nextRsvp ? new Date(nextRsvp.event.startTime) < new Date() : false;
-  
-  // Set dynamic eyebrow prefix text based on the event time status
-  const eyebrowPrefix = isPastEvent ? "Happening Now / Recent" : "Up next";
-
+  // Event has concluded only if endTime is in the past
+  const isPastEvent = nextRsvp ? new Date(nextRsvp.event.endTime) < new Date() : false;
 
   return (
     <>
@@ -43,7 +36,7 @@ export default async function DashboardPage() {
       <div className="md:hidden">
         <MobileDashboard 
           userId={user.id} 
-          userName={userName} // <-- Passed here
+          userName={userName}
           nextRsvp={nextRsvp} 
         />
       </div>
@@ -68,11 +61,11 @@ export default async function DashboardPage() {
                   dateLines={[formatEventDate(nextRsvp.event.startTime), nextRsvp.event.location]}
                   tags={[
                     nextRsvp.isLive 
-                      ? { "label": "LIVE", "bg": "#dcfce7", "color": "#166534" }
+                      ? { label: "LIVE", bg: "#dcfce7", color: "#166534" }
                       : { label: "RSVP'd", bg: "#e1e8ff", color: "#1f3aa3" }
                   ]}
                   qrToken={nextRsvp.qrToken}
-                  isLive
+                  isLive={!!nextRsvp.isLive}
                 />
               ) : (
                 <UpNextCard
@@ -88,18 +81,13 @@ export default async function DashboardPage() {
               </Suspense>
             </div>
 
-            {/* Row 2 — rsvps + cta */}
-            <div className="flex flex-col gap-[24px] xl:h-[268px] xl:flex-row xl:items-stretch">
+            {/* Row 2 — recommended & browse events card + RSVPs */}
+            <div className="flex flex-col gap-[24px] xl:flex-row xl:items-stretch">
+              <Suspense fallback={<div className="flex min-h-[200px] flex-1 items-center justify-center rounded-2xl bg-white">Loading recommendations...</div>}>
+                <DashboardRecommendedCard userId={user.id} />
+              </Suspense>
               <Suspense fallback={<RsvpsCardSkeleton />}>
                 <DashboardRsvpsCard userId={user.id} />
-              </Suspense>
-              <QuickCtaCard />
-            </div>
-
-            {/* Row 3 — recommendations */}
-            <div className="flex flex-col gap-[24px] xl:flex-row xl:items-start">
-              <Suspense fallback={<div className="flex min-h-[150px] flex-1 items-center justify-center rounded-2xl bg-white">Loading recommendations...</div>}>
-                <DashboardRecommendedCard userId={user.id} />
               </Suspense>
             </div>
           </div>

@@ -11,7 +11,22 @@ type MobileAdminEventsProps = {
   stats: StatCardData[];
   publishedRows: EventRowData[];
   draftRows: EventRowData[];
+  pastRows: EventRowData[];
 };
+
+function formatInChicago(dateString?: string): string {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return dateString; // Fallback if already formatted
+
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date);
+}
 
 export function MobileAdminEvents({ stats, publishedRows, draftRows }: MobileAdminEventsProps) {
   return (
@@ -88,7 +103,9 @@ export function MobileAdminEvents({ stats, publishedRows, draftRows }: MobileAdm
                         </span>
                       )}
                     </div>
-                    <span className="style-caption text-ink-faint">{e.meta}</span>
+                    <span className="style-caption text-ink-faint">
+                      {formatInChicago(e.meta)}
+                    </span>
                   </div>
                 </div>
 

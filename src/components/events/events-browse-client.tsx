@@ -46,25 +46,26 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
         )
       : list;
 
-  // Filter both lists independently to keep them in distinct sections
   const filteredUpcoming = filterList(upcomingEvents);
   const filteredPast = filterList(pastEvents);
   const totalFilteredCount = filteredUpcoming.length + filteredPast.length;
 
   return (
     <>
+      {/* Mobile Layout */}
       <div className="md:hidden">
         <MobileEventsBrowse upcomingEvents={filteredUpcoming} pastEvents={filteredPast} />
       </div>
 
+      {/* Desktop & Tablet Layout */}
       <div className="hidden md:block">
         <div className="flex min-h-screen w-full flex-col bg-cream">
           <Navbar active="Events" />
           <div className="flex w-full flex-col md:flex-row md:items-stretch">
             
-            {/* Tag filter sidebar (Interactive) */}
-            <aside className="flex flex-col gap-[10px] border-b border-border-soft px-[26px] py-[32px] md:w-[219px] md:shrink-0 md:border-b-0 md:border-r">
-              <p className="font-techno  uppercase leading-[normal] tracking-[3px] text-ink-faint">
+            {/* Tag filter sidebar */}
+            <aside className="flex flex-col gap-[10px] border-b border-border-soft px-6 py-8 md:w-[220px] md:shrink-0 md:border-b-0 md:border-r">
+              <p className="font-techno uppercase leading-normal tracking-[3px] text-ink-faint">
                 Tags
               </p>
               
@@ -90,53 +91,48 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
                       type="button"
                       aria-pressed={isSelected}
                       onClick={() => handleTagClick(t.label)}
-                      className="transition-transform active:scale-95 text-left"
+                      className="text-left transition-transform active:scale-95"
                     >
-                      {isSelected ? (
-                        <Tag
-                          label={t.label}
-                          bg={t.bg}
-                          color={t.color}
-                          className="ring-2 ring-brand/30 ring-offset-2 ring-offset-cream"
-                        />
-                      ) : (
-                        <Tag
-                          label={t.label}
-                          bg={t.bg}
-                          color={t.color}
-                          className="opacity-75 transition-opacity hover:opacity-100"
-                        />
-                      )}
+                      <Tag
+                        label={t.label}
+                        bg={t.bg}
+                        color={t.color}
+                        className={
+                          isSelected
+                            ? "ring-2 ring-brand/30 ring-offset-2 ring-offset-cream"
+                            : "opacity-75 transition-opacity hover:opacity-100"
+                        }
+                      />
                     </button>
                   );
                 })}
               </div>
             </aside>
 
-            {/* Event sections (Distinct Sections with Flags) */}
-            <div className="min-w-px flex-1 p-[46px] flex flex-col gap-[40px]">
+            {/* Main Content Area */}
+            <div className="min-w-0 flex-1 flex-col gap-10 p-6 lg:p-11 flex">
               <div>
-                <h1 className="style-page-title text-brand mb-3">
+                <h1 className="style-page-title mb-3 text-brand">
                   Pick Your Next Sidequest
                 </h1>
-                <p className="style-page-subtitle  text-ink-muted">
+                <p className="style-page-subtitle text-ink-muted">
                   Join us to learn, build, and connect with the AIS community
                 </p>
               </div>
               
               {totalFilteredCount === 0 ? (
-                <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-border-soft bg-white p-[40px] text-center shadow-sm">
+                <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-border-soft bg-white p-10 text-center shadow-sm">
                   <p className="style-mobile-title text-ink">
                     No events found.
                   </p>
-                  <p className="mt-[6px] style-mobile-body text-ink-muted">
-                    We didn't have any events with selected filters. Look out in the near future!
+                  <p className="mt-1.5 style-mobile-body text-ink-muted">
+                    We didn't find any events with the selected filters.
                   </p>
                   {selectedTags.length > 0 && (
                     <button
                       type="button"
                       onClick={() => setSelectedTags([])}
-                      className="mt-[16px] rounded-full bg-brand-soft px-[16px] py-[8px] style-mobile-body font-bold text-brand transition-colors hover:bg-brand hover:text-white"
+                      className="mt-4 rounded-full bg-brand-soft px-4 py-2 style-mobile-body font-bold text-brand transition-colors hover:bg-brand hover:text-white"
                     >
                       Clear Filters
                     </button>
@@ -144,15 +140,17 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
                 </div>
               ) : (
                 <>
-                  {/* Upcoming Events Section */}
-                  <section className="flex flex-col gap-[20px]">
+                  {/* Upcoming Events */}
+                  <section className="flex flex-col gap-5">
                     <h2 className="font-grotesk style-section-header font-bold text-ink">
                       Upcoming Events
                     </h2>
                     {filteredUpcoming.length === 0 ? (
-                      <p className="text-sm text-ink-muted">No upcoming events scheduled for these tags.</p>
+                      <p className="text-sm text-ink-muted">
+                        No upcoming events scheduled for these tags.
+                      </p>
                     ) : (
-                      <div className="grid grid-cols-1 gap-[24px] lg:grid-cols-2">
+                      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
                         {filteredUpcoming.map((event) => (
                           <EventGridCard
                             key={event.id}
@@ -170,13 +168,13 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
                     )}
                   </section>
 
-                  {/* Past Events Section */}
+                  {/* Past Events */}
                   {filteredPast.length > 0 && (
-                    <section className="flex flex-col gap-[20px]">
+                    <section className="flex flex-col gap-5">
                       <h2 className="font-grotesk style-section-header font-bold text-ink-muted">
                         Past Events
                       </h2>
-                      <div className="grid grid-cols-1 gap-[24px] lg:grid-cols-2 opacity-80">
+                      <div className="grid grid-cols-1 gap-6 opacity-80 xl:grid-cols-2">
                         {filteredPast.map((event) => (
                           <EventGridCard
                             key={event.id}

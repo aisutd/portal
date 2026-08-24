@@ -16,6 +16,7 @@ export type TagData = {
 };
 
 type UpNextProps = {
+  eventId?: string;
   eyebrow: string;
   title: string;
   imageUrl: string | null;
@@ -28,6 +29,7 @@ type UpNextProps = {
 };
 
 export function UpNextCard({
+  eventId,
   eyebrow,
   title,
   imageUrl,
@@ -38,6 +40,8 @@ export function UpNextCard({
   isLive = false,
   isGlowing = false,
 }: UpNextProps) {
+  const eventLink = eventId ? `/events/${eventId}` : "/events";
+
   return (
     <Card
       className={cn(
@@ -46,7 +50,7 @@ export function UpNextCard({
           "border-green bg-checked/20 shadow-[0_0_20px_rgba(53,107,46,0.35)] ring-1 ring-green/50"
       )}
     >
-      {/* Header Row: Keeps the eyebrow and QR caption at the exact same height */}
+      {/* Header Row */}
       <div className="flex items-baseline justify-between gap-4">
         <p className="style-meta-text uppercase leading-[normal] tracking-[3px] text-ink-faint">
           {eyebrow}
@@ -67,8 +71,8 @@ export function UpNextCard({
               <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
           </div>
-          <h2 className="style-card-title  text-ink">{title || "No RSVPs yet"}</h2>
-          <p className="style-body-text  text-ink-muted text-center max-w-[280px] leading-tight">
+          <h2 className="style-card-title text-ink">{title || "No RSVPs yet"}</h2>
+          <p className="style-body-text text-ink-muted text-center max-w-[280px] leading-tight">
             {dateLines[0] || "You haven't saved any events. Browse what's coming up this semester."}
           </p>
           <Link href="/events" className="mt-[2px]">
@@ -79,49 +83,60 @@ export function UpNextCard({
         </div>
       ) : (
         <div className="flex flex-wrap items-start gap-[24px]">
-          {/* Photo */}
-          <EventCoverImage className="flex h-55 w-75 max-w-75 shrink-0 items-center justify-center rounded-xl"
-            imageUrl={imageUrl} />
+          {/* Linked Event Content */}
+          <Link
+            href={eventLink}
+            className="group flex flex-1 flex-wrap items-start gap-[24px] min-w-0"
+          >
+            {/* Photo */}
+            <EventCoverImage
+              className="flex h-55 w-75 max-w-75 shrink-0 items-center justify-center rounded-xl group-hover:opacity-90 transition-opacity"
+              imageUrl={imageUrl}
+            />
 
-          {/* Details */}
-          <div className="flex min-w-px flex-1 flex-col justify-center gap-[10px] self-stretch">
-            <h3 className="style-card-title wrap-break-word leading-[34.56px] tracking-[-0.4px] text-ink">
-              {title}
-            </h3>
+            {/* Details */}
+            <div className="flex min-w-px flex-1 flex-col justify-center gap-[10px] self-stretch">
+              <h3 className="style-card-title wrap-break-word leading-[34.56px] tracking-[-0.4px] text-ink group-hover:text-brand transition-colors">
+                {title}
+              </h3>
 
-            <p className="style-body-text leading-[20.3px] text-ink-muted">
-              {dateLines.map((line) => (
-                <span key={line} className="block">
-                  {line}
-                </span>
-              ))}
-            </p>
-
-            {tags && tags.length > 0 && (
-              <div className="flex gap-[8px] pt-[2px]">
-                {tags.map((tag) => (
-                  <Tag key={tag.label} {...tag} />
+              <p className="style-body-text leading-[20.3px] text-ink-muted">
+                {dateLines.map((line) => (
+                  <span key={line} className="block">
+                    {line}
+                  </span>
                 ))}
-              </div>
-            )}
+              </p>
+
+              {tags && tags.length > 0 && (
+                <div className="flex gap-[8px] pt-[2px]">
+                  {tags.map((tag) => (
+                    <Tag key={tag.label} {...tag} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </Link>
+
+          {/* Non-linked Action Items (Calendar & QR Code) */}
+          <div className="flex flex-col gap-[10px] items-center">
+            {/* RSVP QR code */}
+            <div className="flex size-55 shrink-0 items-center justify-center rounded-[10px] border border-ink bg-white p-[8px]">
+              {qrToken ? (
+                <QRCode value={qrToken} size={220} level="H" />
+              ) : (
+                <span className="style-caption uppercase tracking-[1.5px] text-ink-faint">
+                  QR
+                </span>
+              )}
+            </div>
 
             {!isLive && (
-              <div className="pt-[6px]">
-                <Button variant="primary" size="md" className="font-black">
+              <div className="pt-[2px] w-full">
+                <Button variant="primary" size="md" className="font-black w-full">
                   Add to Calendar
                 </Button>
               </div>
-            )}
-          </div>
-
-          {/* RSVP QR code */}
-          <div className="flex size-55 shrink-0 items-center justify-center rounded-[10px] border border-ink bg-white p-[8px]">
-            {qrToken ? (
-              <QRCode value={qrToken} size={220} level="H" />
-            ) : (
-              <span className="style-caption uppercase tracking-[1.5px] text-ink-faint">
-                QR
-              </span>
             )}
           </div>
         </div>

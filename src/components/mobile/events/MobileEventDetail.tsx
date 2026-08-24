@@ -34,7 +34,7 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
         where: { id: eventId },
         include: {
           rsvps: {
-            where: { userId: "" }, 
+            where: { userId: "" },
           },
         },
       });
@@ -44,11 +44,12 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
   }
 
   const now = new Date();
-  const isPast = event.startTime < now;
+  const isPast = new Date(event.endTime) < now;
+  const isLive = new Date(event.startTime) <= now && !isPast;
+
   const userRsvp = userId && Array.isArray(event.rsvps) ? event.rsvps[0] : null;
   const isRsvpd = !!userRsvp && userRsvp.status === "GOING";
   
-  // Safely check attendance using an 'in' check or optional chaining to satisfy the union type
   const attended = userRsvp && 'attendance' in userRsvp ? !!userRsvp.attendance : false;
 
   const normalizedTags = normalizeEventTags(event.tags);
@@ -67,6 +68,8 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
       : isRsvpd
       ? "bg-[#fdf2f2] border border-red-200"
       : "bg-[#f4f1ea] border border-border-soft"
+    : attended
+    ? "bg-[#d2ecd9]"
     : isRsvpd
     ? "bg-[#d2ecd9]"
     : "bg-white border border-border-soft shadow-sm";
@@ -88,9 +91,16 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
 
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <h1 className="style-mobile-title leading-tight text-ink">
-            {event.title}
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="style-mobile-title leading-tight text-ink">
+              {event.title}
+            </h1>
+            {isLive && (
+              <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+                LIVE
+              </span>
+            )}
+          </div>
           <p className="style-caption font-medium text-ink-muted">
             {formattedDate} · {event.location}
           </p>
@@ -111,7 +121,7 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
         {isPast ? (
           <>
             <h2 className={`style-mobile-title ${
-              attended ? "" : isRsvpd ? "text-red-700" : "text-ink"
+              attended ? "text-emerald-900" : isRsvpd ? "text-red-700" : "text-ink"
             }`}>
               {attended ? "Attended" : isRsvpd ? "Missed Event" : "Event Passed"}
             </h2>
@@ -131,10 +141,24 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
               </span>
             </div>
           </>
+        ) : attended ? (
+          <>
+            <h2 className="style-mobile-title text-emerald-900">
+              Checked In!
+            </h2>
+
+            <EventQRCode value={userRsvp?.qrToken ?? `checkin-${userId}-${event.id}`} />
+
+            <p className="text-center style-caption text-emerald-800 font-medium">
+              Your ticket can still be scanned for claiming items or swag.
+            </p>
+
+            <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
+          </>
         ) : isRsvpd ? (
           <>
             <h2 className="style-mobile-title text-ink">
-              You&apos;re Going!
+              {isLive ? "Happening Now!" : "You're Going!"}
             </h2>
 
             <EventQRCode value={userRsvp?.qrToken ?? `checkin-${userId}-${event.id}`} />
@@ -147,12 +171,14 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
           </>
         ) : (
           <>
-            <h2 className="style-mobile-title text-ink">
-              Join This Event
+            <h2 className="style-mobile-title leading-[25.96px] text-ink">
+              {isLive ? "Event is Live!" : "Join This Event"}
             </h2>
             
             <p className="text-center style-mobile-body text-ink-muted">
-              RSVP to secure your spot and unlock your check-in QR code.
+              {isLive
+                ? "RSVP now to secure your attendance and show your QR code at the door."
+                : "RSVP to secure your spot and unlock your QR code for check-in and claiming merch."}
             </p>
 
             <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
