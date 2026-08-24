@@ -3,6 +3,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import QRCode from "react-qr-code";
 import { EventCoverImage } from "../events/event-cover-image";
@@ -23,14 +24,40 @@ type UpNextProps = {
   isEmpty?: boolean;
   qrToken?: string;
   isLive?: boolean;
+  isGlowing?: boolean;
 };
 
-export function UpNextCard({ eyebrow, title, imageUrl, dateLines, tags = [], isEmpty = false, qrToken, isLive = false}: UpNextProps) {
+export function UpNextCard({
+  eyebrow,
+  title,
+  imageUrl,
+  dateLines,
+  tags = [],
+  isEmpty = false,
+  qrToken,
+  isLive = false,
+  isGlowing = false,
+}: UpNextProps) {
   return (
-    <Card className="flex flex-1 flex-col gap-[18px] self-stretch p-[29px]">
-      <p className="style-meta-text  uppercase leading-[normal] tracking-[3px] text-ink-faint">
-        {eyebrow}
-      </p>
+    <Card
+      className={cn(
+        "flex flex-1 flex-col gap-[18px] self-stretch p-[29px] transition-all duration-300",
+        (isGlowing || isLive) &&
+          "border-green bg-checked/20 shadow-[0_0_20px_rgba(53,107,46,0.35)] ring-1 ring-green/50"
+      )}
+    >
+      {/* Header Row: Keeps the eyebrow and QR caption at the exact same height */}
+      <div className="flex items-baseline justify-between gap-4">
+        <p className="style-meta-text uppercase leading-[normal] tracking-[3px] text-ink-faint">
+          {eyebrow}
+        </p>
+
+        {!isEmpty && (
+          <p className="max-w-60 style-caption text-right text-ink">
+            Your Ticket: Claiming Items / Late Check-in
+          </p>
+        )}
+      </div>
 
       {isEmpty ? (
         <div className="flex w-full flex-1 flex-col items-center justify-center gap-[8px] rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6] h-[170px] p-[12px]">
@@ -51,19 +78,18 @@ export function UpNextCard({ eyebrow, title, imageUrl, dateLines, tags = [], isE
           </Link>
         </div>
       ) : (
-        <div className="flex flex-wrap gap-[24px]">
-          {/* Photo placeholder */}
-          <EventCoverImage className="flex h-[170px] w-[240px] shrink-0 items-center justify-center rounded-xl"
+        <div className="flex flex-wrap items-start gap-[24px]">
+          {/* Photo */}
+          <EventCoverImage className="flex h-55 w-75 max-w-75 shrink-0 items-center justify-center rounded-xl"
             imageUrl={imageUrl} />
-            
 
           {/* Details */}
           <div className="flex min-w-px flex-1 flex-col justify-center gap-[10px] self-stretch">
-            <h3 className="style-card-title  leading-[34.56px] tracking-[-0.4px] text-ink">
+            <h3 className="style-card-title wrap-break-word leading-[34.56px] tracking-[-0.4px] text-ink">
               {title}
             </h3>
 
-            <p className="style-body-text  leading-[20.3px] text-ink-muted">
+            <p className="style-body-text leading-[20.3px] text-ink-muted">
               {dateLines.map((line) => (
                 <span key={line} className="block">
                   {line}
@@ -89,9 +115,9 @@ export function UpNextCard({ eyebrow, title, imageUrl, dateLines, tags = [], isE
           </div>
 
           {/* RSVP QR code */}
-          <div className="flex size-50 shrink-0 items-center justify-center rounded-[10px] border border-ink bg-white p-[8px]">
+          <div className="flex size-55 shrink-0 items-center justify-center rounded-[10px] border border-ink bg-white p-[8px]">
             {qrToken ? (
-              <QRCode value={qrToken} size={200} level="H" />
+              <QRCode value={qrToken} size={220} level="H" />
             ) : (
               <span className="style-caption uppercase tracking-[1.5px] text-ink-faint">
                 QR

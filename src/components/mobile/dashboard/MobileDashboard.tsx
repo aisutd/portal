@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import QRCode from "react-qr-code";
+import { cn } from "@/lib/utils"; // <-- Added missing import
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,11 +18,24 @@ import { BottomNav } from "@/components/mobile/ui/BottomNav";
 
 type MobileDashboardProps = {
   userId: string;
-  userName: string; // <-- Added this
+  userName: string;
   nextRsvp: Awaited<ReturnType<typeof getNextUpcomingRsvp>>;
 };
 
 export function MobileDashboard({ userId, userName, nextRsvp }: MobileDashboardProps) {
+  // Compute glowing state in outer scope so it's accessible to the Card class list
+  let isGlowing = false;
+
+  if (nextRsvp) {
+    const now = Date.now();
+    const startTime = new Date(nextRsvp.event.startTime).getTime();
+    const endTime = nextRsvp.event.endTime ? new Date(nextRsvp.event.endTime).getTime() : Infinity;
+
+    // Starting within 30 mins or currently live
+    const isStartingSoon = startTime - now <= 30 * 60 * 1000 && now <= endTime;
+    isGlowing = Boolean(nextRsvp.isLive || isStartingSoon);
+  }
+
   return (
     <MobileScreen>
       <h1 className="style-mobile-title text-brand">
@@ -29,17 +43,23 @@ export function MobileDashboard({ userId, userName, nextRsvp }: MobileDashboardP
       </h1>
 
       {/* Up Next */}
-      <Card className="flex flex-col gap-[16px] p-[20px]">
+      <Card
+        className={cn(
+          "flex flex-col gap-4 p-5 transition-all duration-300",
+          isGlowing &&
+            "border-green bg-checked/60 shadow-[0_0_20px_rgba(53,107,46,0.35)] ring-1 ring-green/50"
+        )}
+      >
         {nextRsvp ? (
           <>
-            <div className="flex flex-col gap-[4px]">
-              <div className="mb-[4px] flex items-center justify-between">
+            <div className="flex flex-col gap-1">
+              <div className="mb-1 flex items-center justify-between">
                 <p className="style-caption uppercase tracking-[2px] text-ink-faint">
-                  Up next · {formatDaysAway(nextRsvp.event.startTime)}
+                  {nextRsvp.isLive ? "Happening now" : `${formatDaysAway(nextRsvp.event.startTime)}`}
                 </p>
                 <Badge label="RSVP'd" bg="#e1e8ff" color="#1f3aa3" />
               </div>
-              
+
               <h3 className="style-mobile-title text-ink">
                 {nextRsvp.event.title}
               </h3>
@@ -52,14 +72,19 @@ export function MobileDashboard({ userId, userName, nextRsvp }: MobileDashboardP
             </div>
 
             {nextRsvp.qrToken && (
-              <div className="mt-[8px] flex w-full items-center justify-center rounded-[12px] border border-ink bg-white p-[24px]">
-                <div className="w-full max-w-[280px]">
-                  <QRCode
-                    value={nextRsvp.qrToken}
-                    size={256}
-                    style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                    level="H"
-                  />
+              <div className="flex flex-col items-center gap-2">
+                <p className="style-mobile-body text-center text-ink">
+                  Your Ticket: Claiming Items / Late Check-in
+                </p>
+                <div className="flex w-fit items-center justify-center rounded-xl border border-ink bg-white p-4">
+                  <div className="w-full max-w-70">
+                    <QRCode
+                      value={nextRsvp.qrToken}
+                      size={256}
+                      style={{ height: "fit", maxWidth: "100%", width: "100%" }}
+                      level="H"
+                    />
+                  </div>
                 </div>
               </div>
             )}

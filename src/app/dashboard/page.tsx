@@ -62,7 +62,7 @@ export default async function DashboardPage() {
             <div className="mt-[28px] flex flex-col gap-[24px] xl:flex-row xl:items-start">
               {nextRsvp ? (
                 <UpNextCard
-                  eyebrow={nextRsvp.isLive ? "Happening now" : `Up next · ${formatDaysAway(nextRsvp.event.startTime)}`}
+                  eyebrow={nextRsvp.isLive ? "Happening now" : `${formatDaysAway(nextRsvp.event.startTime)}`}
                   title={nextRsvp.event.title}
                   imageUrl={nextRsvp.event.imageUrl}                  
                   dateLines={[formatEventDate(nextRsvp.event.startTime), nextRsvp.event.location]}

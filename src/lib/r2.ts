@@ -42,7 +42,7 @@ export async function putObjectToR2(
   const publicBase = process.env.NEXT_PUBLIC_R2_PUBLIC_URL ?? process.env.R2_PUBLIC_URL;
 
   if (!process.env.R2_ENDPOINT || !BUCKET_NAME || !publicBase) {
-    console.error("R2 configuration missing: Ensure R2_ENDPOINT, R2_BUCKET_NAME, and NEXT_PUBLIC_R2_PUBLIC_URL are set.");
+    console.error("R2 configuration missing: Ensure R2_ENDPOINT, R2_BUCKET_NAME, and NEXT_PUBLIC_R2_PUBLIC_URL or R2_PUBLIC_URL (Prod) are set.");
     return null;
   }
 
