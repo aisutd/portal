@@ -55,7 +55,7 @@ export function MobileDashboard({ userId, userName, nextRsvp }: MobileDashboardP
             <div className="flex flex-col gap-1">
               <div className="mb-1 flex items-center justify-between">
                 <p className="style-caption uppercase tracking-[2px] text-ink-faint">
-                  {nextRsvp.isLive ? "Happening now" : `Up next · ${formatDaysAway(nextRsvp.event.startTime)}`}
+                  {nextRsvp.isLive ? "Happening now" : `${formatDaysAway(nextRsvp.event.startTime)}`}
                 </p>
                 <Badge label="RSVP'd" bg="#e1e8ff" color="#1f3aa3" />
               </div>
@@ -73,10 +73,10 @@ export function MobileDashboard({ userId, userName, nextRsvp }: MobileDashboardP
 
             {nextRsvp.qrToken && (
               <div className="flex flex-col items-center gap-2">
-                <p className="style-mobile-body text-ink">
+                <p className="style-mobile-body text-center text-ink">
                   Your Ticket: Claiming Items / Late Check-in
                 </p>
-                <div className="flex w-full items-center justify-center rounded-xl border border-ink bg-white p-4">
+                <div className="flex w-fit items-center justify-center rounded-xl border border-ink bg-white p-4">
                   <div className="w-full max-w-70">
                     <QRCode
                       value={nextRsvp.qrToken}
