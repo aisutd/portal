@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
 import { Card } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -102,27 +103,42 @@ export function RecommendedCard({ items }: { items: RecommendedItem[] }) {
       <SectionHeader
         title="Recommended for you"
         action={
-          <a
-            href="#"
-            className="style-meta-text  leading-[16.8px] tracking-[0.2px] text-brand"
+          <Link
+            href="/events"
+            className="style-meta-text leading-[16.8px] tracking-[0.2px] text-brand hover:underline font-semibold flex items-center gap-1"
           >
-            Refresh
-          </a>
+            Browse Events →
+          </Link>
         }
       />
-      {displayItems.length === 0 ? (
-        <div className="flex h-[160px] w-full items-center justify-center rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6]">
-          <span className="style-body-text  text-ink-faint">No upcoming events.</span>
-        </div>
-      ) : (
-        displayItems.map((item, index) => (
-          <RecommendedRow
-            key={item.id ?? `${item.title}-${index}`}
-            item={item}
-            onRsvpSuccess={handleRsvpSuccess}
-          />
-        ))
-      )}
+      
+      <div className="flex flex-col gap-[14px]">
+        {displayItems.length === 0 ? (
+          <div className="flex flex-col gap-[12px] h-[120px] w-full items-center justify-center rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6]">
+            <span className="style-body-text text-ink-faint">No upcoming events.</span>
+          </div>
+        ) : (
+          displayItems.map((item, index) => (
+            <RecommendedRow
+              key={item.id ?? `${item.title}-${index}`}
+              item={item}
+              onRsvpSuccess={handleRsvpSuccess}
+            />
+          ))
+        )}
+      </div>
+
+      {/* Light blue callout banner at bottom */}
+      <div className="mt-auto flex w-full flex-col items-start justify-between gap-[12px] rounded-xl bg-[#e1e8ff] px-[20px] py-[16px] sm:flex-row sm:items-center">
+        <span className="style-card-title text-[15px] font-medium leading-[20px] text-[#1f3aa3]">
+          Nothing on your calendar this week?
+        </span>
+        <Link href="/events" className="shrink-0">
+          <Button variant="accent" size="sm" pill className="font-bold">
+            Browse Events →
+          </Button>
+        </Link>
+      </div>
     </Card>
   );
 }
