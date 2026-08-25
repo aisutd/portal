@@ -1,0 +1,230 @@
+export const dynamic = "force-dynamic";
+
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import Link from "next/link";
+import { getAuthenticatedUser } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { Navbar } from "@/components/navbar";
+import { Tag } from "@/components/ui/tag";
+import { normalizeEventTags } from "@/lib/event-tags";
+import { MobileEventDetail } from "@/components/mobile/events/MobileEventDetail";
+import { EventDetailActions, EventQRCode } from "@/components/events/event-detail-actions";
+import { EventCoverImage } from "@/components/events/event-cover-image";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const event = await prisma.event.findUnique({
+    where: { id },
+    select: { title: true, description: true },
+  });
+
+  if (!event) {
+    return {
+      title: "Event Not Found",
+      description: "The requested event could not be found.",
+    };
+  }
+
+  return {
+    title: `Events — ${event.title}`,
+    description: event.description,
+  };
+}
+
+interface EventDetailPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function EventDetailPage({ params }: EventDetailPageProps) {
+  const { id } = await params;
+  const user = await getAuthenticatedUser();
+  const userId = user?.id ?? null;
+
+  const event = await prisma.event.findUnique({
+    where: { id },
+    include: {
+      rsvps: userId 
+        ? { 
+            where: { userId },
+            include: { attendance: true }
+          } 
+        : false,
+    },
+  });
+
+  if (!event || !event.isPublished) {
+    notFound();
+  }
+
+  const now = new Date();
+  
+  // Business Logic Timings
+  const isPast = event.endTime < now;
+  const isLive = now >= event.startTime && now <= event.endTime;
+
+  const userRsvp = userId && Array.isArray(event.rsvps) ? event.rsvps[0] : null;
+  const isRsvpd = !!userRsvp && userRsvp.status === "GOING";
+  const attended = userRsvp && 'attendance' in userRsvp ? !!userRsvp.attendance : false;
+  
+  const normalizedTags = normalizeEventTags(event.tags);
+  const formattedDate = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(event.startTime));
+
+  return (
+    <>
+      <div className="md:hidden">
+        <MobileEventDetail eventId={event.id} />
+      </div>
+
+      <div className="hidden md:block">
+        <div className="flex min-h-screen w-full flex-col bg-cream">
+          <Navbar active="Events" />
+
+          <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[28px] px-[46px] pb-[46px] pt-[45px]">
+            {/* Back link */}
+            <Link
+              href="/events"
+              className="style-caption leading-[16.8px] tracking-[0.2px] text-brand"
+            >
+              ← All Events
+            </Link>
+
+            <div className="flex flex-col gap-[32px] lg:flex-row lg:items-stretch">
+              {/* Event body */}
+              <div className="flex min-w-px flex-1 flex-col">
+                <EventCoverImage
+                  imageUrl={event.imageUrl}
+                  className="h-[300px] w-full"
+                  alt={`${event.title} cover`}
+                />
+                
+                <div className="mt-[20px] flex items-center gap-3">
+                  <h1 className="style-section-header leading-[41px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+                    {event.title}
+                  </h1>
+                  {isLive && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-800">
+                      <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                      Happening Now
+                    </span>
+                  )}
+                </div>
+
+                <p className="mt-[10px] style-caption font-medium leading-[20px] tracking-[0.2px] text-ink-muted">
+                  {formattedDate} · {event.location}
+                </p>
+
+                <p className="mt-[20px] max-w-[640px] style-body-text leading-[24px] text-ink">
+                  {event.description}
+                </p>
+
+                <div className="mt-[20px] flex flex-wrap gap-[10px]">
+                  {normalizedTags.map((t) => (
+                    <Tag key={t.label} label={t.label} bg={t.bg} color={t.color} />
+                  ))}
+                </div>
+              </div>
+
+              {/* Status & Action Card Sidebar */}
+              <div
+                className={`flex w-full flex-col items-center justify-center gap-[16px] self-stretch rounded-[16px] p-[33px] lg:w-[360px] lg:shrink-0 ${
+                  isPast
+                    ? attended
+                      ? "bg-[#d2ecd9]" // Soft green for attended
+                      : isRsvpd
+                      ? "bg-[#fdf2f2] border border-red-200" // Soft red/pink for RSVP'd but missed
+                      : "bg-[#f4f1ea] border border-border-soft" // Neutral for never RSVP'd
+                    : attended
+                    ? "bg-[#d2ecd9]"
+                    : isRsvpd
+                    ? "bg-[#d2ecd9]"
+                    : "bg-white border border-border-soft shadow-sm"
+                }`}
+              >
+                {isPast ? (
+                  <>
+                    <h2
+                      className={`style-section-header leading-[25.96px] [font-variation-settings:'wdth'_100] ${
+                        attended ? "text-emerald-900" : isRsvpd ? "text-red-700" : "text-ink"
+                      }`}
+                    >
+                      {attended ? "Attended" : isRsvpd ? "Missed Event" : "Event Concluded"}
+                    </h2>
+
+                    <p className="text-center style-body-text text-ink-muted">
+                      {attended
+                        ? "Thanks for joining us at this event!"
+                        : isRsvpd
+                        ? "You RSVP'd for this event, but you didn't check in at the door."
+                        : "This event has ended and attendance tracking is closed."}
+                    </p>
+
+                    <div className="mt-2 flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium bg-white/60 border border-border-soft">
+                      <span className="style-caption text-ink-faint">RSVP Status:</span>
+                      <span className={isRsvpd ? "text-emerald-700 font-semibold" : "text-ink-muted"}>
+                        {isRsvpd ? "Yes (Going)" : "No RSVP"}
+                      </span>
+                    </div>
+                  </>
+                ) : attended ? (
+                  <>
+                    <h2 className="style-section-header leading-[25.96px] text-emerald-900 [font-variation-settings:'wdth'_100]">
+                      Checked In!
+                    </h2>
+
+                    <EventQRCode value={userRsvp?.qrToken ?? `checkin-${userId}-${event.id}`} />
+
+                    <p className="text-center style-caption text-emerald-800 font-medium">
+                      Your ticket can still be scanned for claiming items or swag.
+                    </p>
+
+                    <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
+                  </>
+                ) : isRsvpd ? (
+                  <>
+                    <h2 className="style-section-header leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
+                      You&apos;re Going!
+                    </h2>
+
+                    <EventQRCode value={userRsvp?.qrToken ?? `checkin-${userId}-${event.id}`} />
+
+                    <p className="text-center style-caption text-ink-faint">
+                      This is your ticket to claim food, merch, drinks, etc.
+                    </p>
+
+                    <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
+                  </>
+                ) : (
+                  <>
+                    <h2 className="style-section-header leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
+                      {isLive ? "Event is Live!" : "Join This Event"}
+                    </h2>
+                    
+                    <p className="text-center style-body-text text-ink-muted">
+                      {isLive
+                        ? "RSVP now to secure your attendance and show your QR code at the door."
+                        : "RSVP to secure your spot and unlock your check-in QR code."}
+                    </p>
+
+                    <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

@@ -14,26 +14,51 @@ export function MobileAdminCreateEvent() {
       <MobileAdminNav active="Events" />
 
       <div>
-        <Link href="/admin/events" className="font-mono text-[11px] text-brand">
+        <Link href="/admin/events" className="style-caption text-brand">
           ← Back to Events
         </Link>
-        <h2 className="mt-[6px] font-mobile-display text-[20px] font-bold text-ink">
+        <h2 className="mt-[6px] style-mobile-title text-ink">
           Create Event
         </h2>
       </div>
 
       <form action={createEvent} className="flex flex-col gap-[24px]">
         <EventForm tags={eventTags} />
-        <CoverPhotoCard />
+        <CoverPhotoCard defaultImageUrl={null} />
         <SettingsCard items={eventSettings} />
 
-        <div className="flex gap-[10px]">
-          <Button type="button" variant="ghost" size="md" className="flex-1">
-            Save draft
-          </Button>
-          <Button type="submit" variant="primary" size="md" className="flex-1">
-            Publish
-          </Button>
+        <div className="flex flex-col gap-[10px]">
+          <div className="flex gap-[10px]">
+            {/* Save Draft Button passes action: 'draft' */}
+            <Button 
+              type="submit" 
+              name="action" 
+              value="draft" 
+              variant="ghost" 
+              size="md" 
+              className="flex-1"
+            >
+              Save draft
+            </Button>
+
+            {/* Publish Button passes action: 'publish' */}
+            <Button 
+              type="submit" 
+              name="action" 
+              value="publish" 
+              variant="primary" 
+              size="md" 
+              className="flex-1"
+            >
+              Publish
+            </Button>
+          </div>
+
+          <Link href="/admin/events" className="w-full">
+            <Button type="button" variant="ghost" size="md" className="w-full text-ink-faint">
+              Cancel
+            </Button>
+          </Link>
         </div>
       </form>
     </MobileScreen>

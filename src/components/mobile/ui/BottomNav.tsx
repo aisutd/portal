@@ -4,8 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
-
-const ADMIN_ROLES = ["REVIEWER", "ORGANIZER", "SUPER_ADMIN"] as const;
+import { isAdminRole, isKnownRole } from "@/lib/roles";
+import { Show, UserButton } from "@clerk/nextjs";
+import { cn } from "@/lib/utils";
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -13,8 +14,10 @@ export function BottomNav() {
   const { user } = useUser();
 
   // 1. Initialize state instantly using metadata if it exists
-  const metadataRole = (user?.publicMetadata as { role?: string } | undefined)?.role;
-  const [role, setRole] = useState<string | null>(metadataRole || null);
+  // Unknown values mean stale metadata from an older build — ask the API.
+  const rawMetadataRole = (user?.publicMetadata as { role?: string } | undefined)?.role;
+  const metadataRole = isKnownRole(rawMetadataRole) ? rawMetadataRole : undefined;
+  const [role, setRole] = useState<string | null>(metadataRole ?? null);
 
   // 2. Fetch fallback logic identical to the desktop navbar
   useEffect(() => {
@@ -50,7 +53,7 @@ export function BottomNav() {
     };
   }, [isSignedIn, metadataRole]);
 
-  const isAdmin = !!role && ADMIN_ROLES.includes(role as (typeof ADMIN_ROLES)[number]);
+  const isAdmin = isAdminRole(role);
 
   // 3. Base navigation array
   const tabs = [
@@ -61,33 +64,53 @@ export function BottomNav() {
 
   // 4. Inject Admin route if permissions pass
   if (isSignedIn && isAdmin) {
-    tabs.push({ label: "Admin", href: "/admin/dashboard" });
+    tabs.push({ label: "Admin", href: "/admin/events" });
   }
 
+  const isProfileActive = pathname?.startsWith("/profile");
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 md:hidden">
-      <div className="flex w-full items-center justify-between border-t border-border-soft bg-white px-5 py-3 shadow-[0_-2px_10px_rgba(0,0,0,0.06)]">
-        {tabs.map((tab) => {
-          const active = tab.href === "/" ? pathname === "/" : pathname?.startsWith(tab.href);
-          return (
+      <div className="flex w-full items-center justify-center border-t border-border-soft bg-white px-4 py-2.5 shadow-[0_-2px_10px_rgba(0,0,0,0.06)]">
+        <div className="flex w-full max-w-85 items-center overflow-x-auto scrollbar-none shrink-0 gap-1">
+          {tabs.map((tab) => {
+            const active = tab.href === "/" ? pathname === "/" : pathname?.startsWith(tab.href);
+            return (
+              <Link
+                key={tab.href}
+                href={tab.href}
+                className={`rounded-full px-4 py-2 style-nav-link  transition-colors ${
+                  active ? "bg-purple-soft text-brand" : "text-ink-muted hover:text-ink"
+                }`}
+              >
+                {tab.label}
+              </Link>
+            );
+          })}
+          {/* Aligned UserButton / Profile Link matching desktop */}
+          <Show when="signed-in">
             <Link
-              key={tab.href}
-              href={tab.href}
-              className={`rounded-full px-4 py-2 font-mobile-body text-[14px] font-bold transition-colors ${
-                active ? "bg-purple-soft text-brand" : "text-ink-muted"
-              }`}
+              href="/profile"
+              aria-label="Profile"
+              className={cn(
+                "flex shrink-0 items-center justify-center rounded-full transition-colors",
+                isProfileActive ? "bg-[#e1e8ff]" : ""
+              )}
             >
-              {tab.label}
+              <div className="pointer-events-none flex items-center">
+                <UserButton
+                  appearance={{
+                    elements: {
+                      avatarBox: cn(
+                        "size-[30px] bg-brand rounded-full border-2 transition-all",
+                        isProfileActive ? "border-[#2f5fe8]" : "border-[#8a8a93]"
+                      ),
+                    },
+                  }}
+                />
+              </div>
             </Link>
-          );
-        })}
-        <Link
-          href="/profile"
-          aria-label="Profile"
-          className={`size-[32px] rounded-full border-2 bg-photo ${
-            pathname?.startsWith("/profile") ? "border-brand" : "border-card-border"
-          }`}
-        />
+          </Show>
+        </div>
       </div>
     </nav>
   );

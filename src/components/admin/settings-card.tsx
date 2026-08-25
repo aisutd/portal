@@ -11,7 +11,7 @@ export type SettingRow =
 export function SettingsCard({ items }: { items: SettingRow[] }) {
   return (
     <div className="flex w-full flex-col gap-[14px] rounded-[16px] border border-border-soft bg-white px-[25px] pb-[25px] pt-[24px]">
-      <h3 className="font-display text-[17px] font-semibold leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
+      <h3 className="style-section-header leading-[21.25px] text-ink [font-variation-settings:'wdth'_100]">
         Settings
       </h3>
 
@@ -19,7 +19,7 @@ export function SettingsCard({ items }: { items: SettingRow[] }) {
         <div key={item.label} className="flex w-full flex-col gap-[14px]">
           {i > 0 && <div className="h-px w-full bg-border-soft" />}
           <div className="flex items-center justify-between">
-            <span className="font-body text-[14px] font-normal leading-[20.3px] text-ink-muted">
+            <span className="style-body-text leading-[20.3px] text-ink-muted">
               {item.label}
             </span>
             {item.type === "toggle" ? (

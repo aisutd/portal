@@ -4,6 +4,80 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* ==================================================================== */
+  /* TYPOGRAPHY CONTROLS FOR THE ENTIRE SITE                              */
+  /* Edit any variable below to change font, weight, or size globally!   */
+  /* Example values:                                                      */
+  /* - Font: Arial, sans-serif or var(--font-inter)                      */
+  /* - Weight: 400 (regular), 600 (semi-bold), 700 (bold), 900 (black)    */
+  /* - Size: 14px, 16px, 20px, 32px, 48px, etc.                           */
+  /* ==================================================================== */
+
+  /* Premium display headings — the only place using the placard-style treatment */
+  --font-page-title: var(--font-placard), sans-serif;
+  --weight-page-title: 800;
+  --size-page-title: 42px;
+
+  /* Mobile title scale */
+  --font-mobile-display: var(--font-placard), sans-serif;
+  --weight-mobile-display: 800;
+  --size-mobile-display: 34px;
+
+  /* Subtitles*/
+  --font-page-subtitle: var(--font-inter), sans-serif;
+  --weight-page-subtitle: 400;
+  --size-page-subtitle: 16px;
+
+  /* Section Headers ("How to Begin", "Open Applications", etc.) */
+  --font-section-header: var(--font-placard), sans-serif;
+  --weight-section-header: 700;
+  --size-section-header: 24px;
+
+  /* Card Titles (Program names, Event titles, Step titles) */
+  --font-card-title: var(--font-placard), sans-serif;
+  --weight-card-title: 800;
+  --size-card-title: 22px;
+
+  /* Buttons ("Apply", "Sign Up", "Learn More") */
+  --font-button: var(--font-inter), sans-serif;
+  --weight-button: 700;
+  --size-button: 15px;
+
+  /* Nav Bar  */
+  --font-nav-link: var(--font-inter), sans-serif;
+  --weight-nav-link: 700;
+  --size-nav-link: 15px;
+
+  /* Tags ("RSVP'd", "Submitted", "Workshop") */
+  --font-badge: var(--font-inter), sans-serif;
+  --weight-badge: 700;
+  --size-badge: 13px;
+
+  /* Labels ("First Name", "UTD Email", etc.) */
+  --font-label: var(--font-inter), sans-serif;
+  --weight-label: 700;
+  --size-label: 14px;
+
+  /* Inputs & Dropdowns */
+  --font-input: var(--font-inter), sans-serif;
+  --weight-input: 400;
+  --size-input: 14px;
+
+  /* Descriptions */
+  --font-body-text: var(--font-inter), sans-serif;
+  --weight-body-text: 400;
+  --size-body-text: 14px;
+
+  /* Mobile body copy */
+  --font-mobile-body: var(--font-inter), sans-serif;
+  --weight-mobile-body: 400;
+  --size-mobile-body: 14px;
+
+  /* Steps, Dates, Timestamps, etc */
+  --font-meta-text: var(--font-inter), sans-serif;
+  --weight-meta-text: 500;
+  --size-meta-text: 12px;
 }
 
 /* Tokens whose values reference other CSS variables MUST be `inline`, so the
@@ -65,23 +139,21 @@
   --color-danger-ink: #8c3a49;
   --color-table-line: #ece9e0;
 
-  /* Fonts */
+  /* Fonts — All mapped to Inter font system */
   --font-sans: var(--font-inter);
-  --font-mono: var(--font-geist-mono);
-
-  /* AIS Portal brand fonts */
-  --font-mobile-display: var(--font-placard);
-  --font-mobile-body: var(--font-garet);
+  --font-mono: var(--font-inter);
+  --font-mobile-display: var(--font-inter);
+  --font-mobile-body: var(--font-inter);
   --font-display: var(--font-inter);
   --font-nav: var(--font-inter);
-  --font-heading: var(--font-placard);
+  --font-heading: var(--font-inter);
   --font-body: var(--font-inter);
-  --font-ibm: var(--font-geist-mono);
-  --font-chakra: var(--font-inter);
+  --font-ibm: var(--font-inter);
+  --font-techno: var(--font-inter);
   --font-grotesk: var(--font-inter);
-  --font-logo: var(--font-inter);
-  --font-mono-alt: var(--font-geist-mono);
-  --font-techno: var(--font-geist-mono);
+  --font-mono-alt: var(--font-inter);
+  --font-placard: var(--font-inter);
+  --font-garet: var(--font-inter);
 }
 
 /* Literal design tokens — plain @theme is fine (and generates the utilities). */
@@ -109,13 +181,170 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-inter), sans-serif;
+  font-weight: 400;
   overflow-x: hidden;
 }
 
 @layer base {
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading);
+  h1 {
+    font-family: var(--font-page-title) !important;
+    font-weight: var(--weight-page-title) !important;
+    letter-spacing: -0.08em;
+    line-height: 0.96;
   }
+
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-section-header) !important;
+    font-weight: var(--weight-section-header) !important;
+    letter-spacing: -0.05em;
+    line-height: 1.08;
+  }
+
+  button {
+    font-family: var(--font-button) !important;
+    font-weight: var(--weight-button) !important;
+  }
+
+  p,
+  li,
+  span {
+    font-family: var(--font-body-text);
+  }
+}
+
+/* Typography Presets */
+@layer utilities {
+  .style-page-title {
+    font-family: var(--font-page-title) !important;
+    font-weight: var(--weight-page-title) !important;
+    font-size: var(--size-page-title, inherit);
+    line-height: 0.96;
+    letter-spacing: -0.08em;
+  }
+
+  .style-page-subtitle {
+    font-family: var(--font-page-subtitle) !important;
+    font-weight: var(--weight-page-subtitle) !important;
+    font-size: var(--size-page-subtitle, inherit);
+  }
+
+  .style-section-header {
+    font-family: var(--font-section-header) !important;
+    font-weight: var(--weight-section-header) !important;
+    font-size: var(--size-section-header, inherit);
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+  }
+
+  .style-card-title {
+    font-family: var(--font-card-title) !important;
+    font-weight: var(--weight-card-title) !important;
+    font-size: var(--size-card-title, inherit);
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+  }
+
+  .style-button-text {
+    font-family: var(--font-button) !important;
+    font-weight: var(--weight-button) !important;
+    font-size: var(--size-button, inherit);
+  }
+
+  .style-nav-link {
+    font-family: var(--font-nav-link) !important;
+    font-weight: var(--weight-nav-link) !important;
+    font-size: var(--size-nav-link, inherit);
+  }
+
+  .style-badge-text {
+    font-family: var(--font-badge) !important;
+    font-weight: var(--weight-badge) !important;
+    font-size: var(--size-badge, inherit);
+  }
+
+  .style-label-text {
+    font-family: var(--font-label) !important;
+    font-weight: var(--weight-label) !important;
+    font-size: var(--size-label, inherit);
+  }
+
+  .style-input-text {
+    font-family: var(--font-input) !important;
+    font-weight: var(--weight-input) !important;
+    font-size: var(--size-input, inherit);
+  }
+
+  .style-body-text {
+    font-family: var(--font-body-text) !important;
+    font-weight: var(--weight-body-text) !important;
+    font-size: var(--size-body-text, inherit);
+  }
+
+  .style-mobile-title {
+    font-family: var(--font-mobile-display) !important;
+    font-weight: var(--weight-mobile-display) !important;
+    font-size: var(--size-mobile-display, inherit);
+  }
+
+  .style-mobile-body {
+    font-family: var(--font-mobile-body) !important;
+    font-weight: var(--weight-mobile-body) !important;
+    font-size: var(--size-mobile-body, inherit);
+  }
+
+  .style-caption {
+    font-family: var(--font-body-text) !important;
+    font-weight: var(--weight-meta-text) !important;
+    font-size: var(--size-meta-text, inherit);
+  }
+
+  .style-meta-text {
+    font-family: var(--font-meta-text) !important;
+    font-weight: var(--weight-meta-text) !important;
+    font-size: var(--size-meta-text, inherit);
+  }
+}
+
+/* Button animations */
+@keyframes button-shake {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+
+  25% {
+    transform: rotate(-1deg) scale(1.015);
+  }
+
+  50% {
+    transform: rotate(1deg) scale(1.015);
+  }
+
+  75% {
+    transform: rotate(-0.5deg) scale(1.015);
+  }
+
+  100% {
+    transform: rotate(0deg) scale(1.015);
+  }
+}
+
+.btn-fun-animation {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.15s ease, filter 0.15s ease;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.btn-fun-animation:hover {
+  animation: button-shake 0.55s ease-in-out;
+}
+
+.btn-fun-animation:active {
+  animation: none !important;
+  transform: scale(0.95) !important;
 }
 
 @keyframes marquee-scroll {

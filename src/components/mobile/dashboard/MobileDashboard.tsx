@@ -1,10 +1,9 @@
 import { Suspense } from "react";
 import QRCode from "react-qr-code";
+import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AnnouncementsCard, type Announcement } from "@/components/dashboard/announcements-card";
-import { QuickCtaCard } from "@/components/dashboard/quick-cta-card";
 import {
   DashboardApplicationsCard,
   ApplicationsCardSkeleton,
@@ -18,71 +17,99 @@ import { BottomNav } from "@/components/mobile/ui/BottomNav";
 
 type MobileDashboardProps = {
   userId: string;
-  userName: string; // <-- Added this
+  userName: string;
   nextRsvp: Awaited<ReturnType<typeof getNextUpcomingRsvp>>;
-  announcements: [Announcement, Announcement];
 };
 
-export function MobileDashboard({ userId, userName, nextRsvp, announcements }: MobileDashboardProps) {
+function isRsvpGlowing(nextRsvp: MobileDashboardProps["nextRsvp"]) {
+  if (!nextRsvp) return false;
+
+  const now = Date.now();
+  const startTime = new Date(nextRsvp.event.startTime).getTime();
+  const endTime = nextRsvp.event.endTime ? new Date(nextRsvp.event.endTime).getTime() : Infinity;
+
+  // Starting within 30 mins or currently live
+  const isStartingSoon = startTime - now <= 30 * 60 * 1000 && now <= endTime;
+  return Boolean(nextRsvp.isLive || isStartingSoon);
+}
+
+export function MobileDashboard({ userId, userName, nextRsvp }: MobileDashboardProps) {
+  const isGlowing = isRsvpGlowing(nextRsvp);
+
   return (
     <MobileScreen>
-      <h1 className="font-mobile-display text-[36px] font-bold text-brand">
-        Welcome back, {userName}! :)
+      <h1 className="style-mobile-title text-brand">
+        Welcome back, {userName}!
       </h1>
 
       {/* Up Next */}
-      <Card className="flex flex-col gap-[16px] p-[20px]">
+      <Card
+        className={cn(
+          "flex flex-col gap-4 p-5 transition-all duration-300",
+          isGlowing &&
+            "border-green bg-checked/60 shadow-[0_0_20px_rgba(53,107,46,0.35)] ring-1 ring-green/50"
+        )}
+      >
         {nextRsvp ? (
           <>
-            <div className="flex flex-col gap-[4px]">
-              <div className="mb-[4px] flex items-center justify-between">
-                <p className="font-mono text-[11px] uppercase tracking-[2px] text-ink-faint">
-                  Up next · {formatDaysAway(nextRsvp.event.startTime)}
+            <div className="flex flex-col gap-1">
+              <div className="mb-1 flex items-center justify-between">
+                <p className="style-caption uppercase tracking-[2px] text-ink-faint">
+                  {nextRsvp.isLive ? "Happening now" : `${formatDaysAway(nextRsvp.event.startTime)}`}
                 </p>
                 <Badge label="RSVP'd" bg="#e1e8ff" color="#1f3aa3" />
               </div>
-              
-              <h3 className="font-mobile-display text-[20px] font-bold text-ink">
+
+              <h3 className="style-mobile-title text-ink">
                 {nextRsvp.event.title}
               </h3>
-              <p className="font-mobile-body text-[14px] text-ink-muted">
+              <p className="style-mobile-body text-ink-muted">
                 {formatEventDate(nextRsvp.event.startTime)}
               </p>
-              <p className="font-mobile-body text-[14px] text-ink-muted">
+              <p className="style-mobile-body text-ink-muted">
                 {nextRsvp.event.location}
               </p>
             </div>
 
-            <Button variant="primary" size="sm" className="w-fit font-black">
-              Add to Calendar
-            </Button>
-
-            <div className="mt-[8px] flex w-full items-center justify-center rounded-[12px] border border-ink bg-white p-[24px]">
-              {nextRsvp.qrToken ? (
-                <div className="w-full max-w-[280px]">
-                  <QRCode
-                    value={nextRsvp.qrToken}
-                    size={256}
-                    style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                    level="H"
-                  />
+            {nextRsvp.qrToken && (
+              <div className="flex flex-col items-center gap-2">
+                <p className="style-mobile-body text-center text-ink">
+                  Your Ticket: Claiming Items / Late Check-in
+                </p>
+                <div className="flex w-fit items-center justify-center rounded-xl border border-ink bg-white p-4">
+                  <div className="w-full max-w-70">
+                    <QRCode
+                      value={nextRsvp.qrToken}
+                      size={256}
+                      style={{ height: "fit", maxWidth: "100%", width: "100%" }}
+                      level="H"
+                    />
+                  </div>
                 </div>
-              ) : (
-                <span className="font-mono text-[11px] uppercase tracking-[1.5px] text-ink-faint">
-                  QR
-                </span>
-              )}
-            </div>
+              </div>
+            )}
+
+            {!nextRsvp.isLive && (
+              <Button
+                href="https://calendar.google.com/calendar/render?action=TEMPLATE&dates=20260904T000000Z%2F20260904T020000Z&details=Whether%20you%27re%20a%20newbie%20or%20looking%20to%20innovate%20in%20AI%2FML%2C%20we%27ve%20got%20a%20place%20for%20you%21%20Learn%20all%20about%20the%20programs%20and%20events%20we%20hold%20all%20throughout%20the%20year%2C%20including%20AI%20Academy%2C%20AIM%2C%20and%20AI%20Innovation%20Labs.%20Get%20an%20opportunity%20to%20network%20with%20the%20brightest%20minds%20and%20industry%20professionals%20at%20Kickoff%20and%20become%20part%20of%20the%20largest%20AI%20organization%20in%20North%20Texas.%20Oh%2C%20and%20there%27s%20free%20food...&location=ECSW%201.315&text=AIS%20Fall%20Kickoff%202026"
+                variant="primary"
+                size="sm"
+                className="font-black"
+                block
+              >
+                Add to Calendar
+              </Button>
+            )}
           </>
         ) : (
           <div className="flex flex-col items-center gap-[8px] rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6] p-[16px] text-center">
-            <h3 className="font-mobile-display text-[15px] font-bold text-ink">
+            <h3 className="style-mobile-title text-ink">
               No RSVPs yet
             </h3>
-            <p className="font-mobile-body text-[13px] text-ink-muted">
+            <p className="style-mobile-body text-ink-muted">
               Check out upcoming events and RSVP to see them here.
             </p>
-            <Button href="/events/browse" variant="primary" size="sm" pill>
+            <Button href="/events" variant="primary" size="sm" pill>
               Browse Events →
             </Button>
           </div>
@@ -99,13 +126,11 @@ export function MobileDashboard({ userId, userName, nextRsvp, announcements }: M
         <DashboardRsvpsCard userId={userId} />
       </Suspense>
 
-      <QuickCtaCard />
-
       {/* Recommended */}
       <Suspense
         fallback={
           <div className="flex min-h-[150px] items-center justify-center rounded-2xl bg-white">
-            <span className="font-mobile-body text-[13px] text-ink-muted">
+            <span className="style-mobile-body text-ink-muted">
               Loading recommendations...
             </span>
           </div>
@@ -113,8 +138,6 @@ export function MobileDashboard({ userId, userName, nextRsvp, announcements }: M
       >
         <DashboardRecommendedCard userId={userId} />
       </Suspense>
-
-      <AnnouncementsCard items={announcements} />
 
       <BottomNav />
     </MobileScreen>

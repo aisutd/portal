@@ -6,62 +6,143 @@ import { useSignIn, useSignUp } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { SegmentedTabs } from "@/components/ui/segmented-tabs";
+import { toFieldErrors, type AuthField, type AuthFieldErrors } from "@/lib/clerk-errors";
+import { EMAIL_DOMAIN_ERROR, isAllowedEmail } from "@/lib/email-domains";
 
-function AuthCardInner() {
+const CARD =
+  "flex min-h-[500px] w-full max-w-[400px] flex-col rounded-[14px] bg-white p-[30px] shadow-auth-card";
+
+const CARD_LINK = "font-mono-alt leading-[normal] hover:underline";
+
+type View = "form" | "verify-signup" | "reset-request" | "reset-code";
+
+function ErrorText({ id, message }: { id: string; message?: string }) {
+  if (!message) return null;
+  return (
+    <p
+      id={id}
+      role="alert"
+      className="mt-[8px] style-body-text leading-[16.8px] text-red-600"
+    >
+      {message}
+    </p>
+  );
+}
+
+interface AuthCardProps {
+  redirectUrl?: string;
+}
+
+function AuthCardInner({ redirectUrl }: AuthCardProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const initialTab = searchParams.get("mode") === "login" ? "Log in" : "Sign up";
+
+  // Prioritize passed prop, then searchParams, then default to /dashboard
+  const targetRedirect =
+    redirectUrl || searchParams.get("redirect_url") || "/dashboard";
+
+  const mode = searchParams.get("mode");
+  const initialTab = mode === "login" || mode === "reset" ? "Log in" : "Sign up";
 
   const [tab, setTab] = useState<"Sign up" | "Log in">(initialTab);
-  const [email, setEmail] = useState("");
+  const [view, setView] = useState<View>(mode === "reset" ? "reset-request" : "form");
+  const [email, setEmail] = useState(searchParams.get("email") ?? "");
   const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [code, setCode] = useState("");
-  const [verifying, setVerifying] = useState(false);
+  const [codeVerified, setCodeVerified] = useState(false);
+  const [notice, setNotice] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<AuthFieldErrors>({});
 
   const { signUp } = useSignUp();
   const { signIn } = useSignIn();
 
   const goToSetup = () => router.push("/onboarding/setup");
-  const goToDashboard = () => router.push("/dashboard");
+  const goToTargetRedirect = () => router.push(targetRedirect);
 
-  const handleSignUpSubmit = async (e: React.FormEvent) => {
+  const clearError = (field: AuthField) =>
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      delete next.form;
+      return next;
+    });
+
+  const clearResetState = () => {
+    setCode("");
+    setNewPassword("");
+    setCodeVerified(false);
+    setNotice("");
+    setFieldErrors({});
+  };
+
+  const openReset = () => {
+    clearResetState();
+    setView("reset-request");
+  };
+
+  const backToLogin = async () => {
+    clearResetState();
+    setView("form");
+    setTab("Log in");
+    await signIn?.reset();
+  };
+
+  const handleSignUpSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!signUp) return;
     setSubmitting(true);
-    setErrorMessage(null);
+    setFieldErrors({});
+
+    if (!isAllowedEmail(email)) {
+      setFieldErrors({ email: EMAIL_DOMAIN_ERROR });
+      setSubmitting(false);
+      return;
+    }
 
     const { error } = await signUp.password({ emailAddress: email, password });
     if (error) {
       console.error("signUp.password error:", error);
-      setErrorMessage(error.longMessage ?? "Something went wrong. Please try again.");
+      setFieldErrors(
+        toFieldErrors(error, "Something went wrong. Please try again.")
+      );
       setSubmitting(false);
       return;
     }
 
     const { error: codeError } = await signUp.verifications.sendEmailCode();
     if (codeError) {
-      console.error("signUp.password error:", error);
-      setErrorMessage("Couldn't send a verification code. Please try again.");
+      console.error("signUp.verifications.sendEmailCode error:", codeError);
+      setFieldErrors(
+        toFieldErrors(
+          codeError,
+          "Couldn't send a verification code. Please try again."
+        )
+      );
       setSubmitting(false);
       return;
     }
 
-    setVerifying(true);
+    setView("verify-signup");
     setSubmitting(false);
   };
 
-  const handleVerifySubmit = async (e: React.FormEvent) => {
+  const handleVerifySubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!signUp) return;
     setSubmitting(true);
-    setErrorMessage(null);
+    setFieldErrors({});
 
     const { error } = await signUp.verifications.verifyEmailCode({ code });
     if (error) {
-      console.error("signUp.password error:", error); // ADD THIS
-      setErrorMessage("That code didn't work — double-check it and try again.");
+      console.error("signUp.verifications.verifyEmailCode error:", error);
+      setFieldErrors(
+        toFieldErrors(
+          error,
+          "That code didn't work — double-check it and try again."
+        )
+      );
       setSubmitting(false);
       return;
     }
@@ -69,75 +150,318 @@ function AuthCardInner() {
     if (signUp.status === "complete") {
       await signUp.finalize({ navigate: goToSetup });
     } else {
-      console.error("signUp.password error:", error); // ADD THIS
-      setErrorMessage("Couldn't complete sign-up. Please try again.");
+      console.error("signUp status after verification:", signUp.status);
+      setFieldErrors({ form: "Couldn't complete sign-up. Please try again." });
       setSubmitting(false);
     }
   };
 
-  const handleLoginSubmit = async (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!signIn) return;
     setSubmitting(true);
-    setErrorMessage(null);
+    setFieldErrors({});
+
+    if (!isAllowedEmail(email)) {
+      setFieldErrors({ email: EMAIL_DOMAIN_ERROR });
+      setSubmitting(false);
+      return;
+    }
 
     const { error } = await signIn.password({ identifier: email, password });
     if (error) {
-      console.error("signUp.password error:", error); // ADD THIS
-      setErrorMessage("Incorrect email or password.");
+      console.error("signIn.password error:", error);
+      setFieldErrors(toFieldErrors(error, "Incorrect email or password."));
       setSubmitting(false);
       return;
     }
 
     if (signIn.status === "complete") {
-      await signIn.finalize({ navigate: goToDashboard });
+      await signIn.finalize({ navigate: goToTargetRedirect });
     } else {
-      // MFA / other session steps aren't wired up yet — fine as long as
-      // you haven't enabled a second factor in the Clerk Dashboard
-      setErrorMessage("Additional verification is required, which isn't supported yet.");
+      setFieldErrors({
+        form: "Additional verification is required, which isn't supported yet.",
+      });
       setSubmitting(false);
     }
   };
 
-  if (verifying) {
-    return (
-      <div className="relative h-[500px] w-full max-w-[400px] rounded-[14px] bg-white shadow-auth-card">
-        <div className="absolute left-[30px] right-[30px] top-[30px] pt-[17px]">
-          <h2 className="font-chakra text-[23px] font-bold leading-[normal] text-ink-card">
-            Check your email
-          </h2>
-        </div>
+  const sendResetCode = async () => {
+    if (!signIn) return false;
 
-        <form onSubmit={handleVerifySubmit}>
-          <div className="absolute left-[30px] right-[30px] top-[134px]">
+    const { error: createError } = await signIn.create({ identifier: email });
+    if (createError) {
+      console.error("signIn.create error:", createError);
+      setFieldErrors(
+        toFieldErrors(createError, "We couldn't find an account with that email.")
+      );
+      return false;
+    }
+
+    const { error } = await signIn.resetPasswordEmailCode.sendCode();
+    if (error) {
+      console.error("signIn.resetPasswordEmailCode.sendCode error:", error);
+      setFieldErrors(
+        toFieldErrors(error, "Couldn't send a reset code. Please try again.")
+      );
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleResetRequestSubmit = async (
+    e: React.SubmitEvent<HTMLFormElement>
+  ) => {
+    e.preventDefault();
+    if (!signIn) return;
+    setSubmitting(true);
+    setFieldErrors({});
+    setNotice("");
+
+    if (!isAllowedEmail(email)) {
+      setFieldErrors({ email: EMAIL_DOMAIN_ERROR });
+      setSubmitting(false);
+      return;
+    }
+
+    if (await sendResetCode()) {
+      setView("reset-code");
+    }
+    setSubmitting(false);
+  };
+
+  const handleResendResetCode = async () => {
+    if (!signIn) return;
+    setSubmitting(true);
+    setFieldErrors({});
+    setNotice("");
+    setCode("");
+    setCodeVerified(false);
+
+    if (await sendResetCode()) {
+      setNotice(`New code sent to ${email}`);
+    }
+    setSubmitting(false);
+  };
+
+  const handleResetSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!signIn) return;
+    setSubmitting(true);
+    setFieldErrors({});
+    setNotice("");
+
+    if (!codeVerified) {
+      const { error } = await signIn.resetPasswordEmailCode.verifyCode({ code });
+      if (error) {
+        console.error("signIn.resetPasswordEmailCode.verifyCode error:", error);
+        setFieldErrors(
+          toFieldErrors(
+            error,
+            "That code didn't work — double-check it and try again."
+          )
+        );
+        setSubmitting(false);
+        return;
+      }
+      setCodeVerified(true);
+    }
+
+    const { error } = await signIn.resetPasswordEmailCode.submitPassword({
+      password: newPassword,
+      signOutOfOtherSessions: true,
+    });
+    if (error) {
+      console.error("signIn.resetPasswordEmailCode.submitPassword error:", error);
+      setFieldErrors(
+        toFieldErrors(error, "Couldn't set that password. Please try another one.")
+      );
+      setSubmitting(false);
+      return;
+    }
+
+    if (signIn.status === "complete") {
+      await signIn.finalize({ navigate: goToTargetRedirect });
+    } else {
+      console.error("signIn status after password reset:", signIn.status);
+      setFieldErrors({
+        form: "Additional verification is required, which isn't supported yet.",
+      });
+      setSubmitting(false);
+    }
+  };
+
+  if (view === "verify-signup") {
+    return (
+      <div className={CARD}>
+        <h2 className="mt-[17px] font-chakra font-bold leading-[normal] text-ink-card">
+          Check your email
+        </h2>
+
+        <form onSubmit={handleVerifySubmit} className="flex flex-col">
+          <div className="mt-[59px] min-h-[191px]">
             <Field
               label="Verification code"
+              id="auth-code"
               type="text"
               inputMode="numeric"
               autoComplete="one-time-code"
               placeholder="123456"
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e) => {
+                setCode(e.target.value);
+                clearError("code");
+              }}
+              aria-invalid={Boolean(fieldErrors.code)}
+              aria-describedby={fieldErrors.code ? "auth-code-error" : undefined}
             />
+            <ErrorText id="auth-code-error" message={fieldErrors.code} />
+            <ErrorText id="auth-form-error" message={fieldErrors.form} />
           </div>
 
-          {errorMessage && (
-            <p className="absolute left-[30px] right-[30px] top-[210px] text-[12px] text-red-600">
-              {errorMessage}
-            </p>
-          )}
-
-          <div className="absolute left-[30px] right-[30px] top-[325px]">
-            <Button variant="auth" block type="submit" disabled={submitting}>
-              {submitting ? "Verifying…" : "Verify email"}
-            </Button>
-          </div>
+          <Button variant="auth" block type="submit" disabled={submitting}>
+            {submitting ? "Verifying…" : "Verify email"}
+          </Button>
         </form>
 
-        <div className="absolute left-[30px] right-[30px] top-[388px] text-center">
-          <p className="font-mono-alt text-[11px] leading-[normal] text-helper-ink">
-            we sent a 6-digit code to {email}
-          </p>
+        <p className="mt-[16px] text-center font-mono-alt leading-[normal] text-helper-ink">
+          We sent a 6-digit code to {email}
+        </p>
+      </div>
+    );
+  }
+
+  if (view === "reset-request") {
+    return (
+      <div className={CARD}>
+        <h2 className="mt-[17px] font-chakra font-bold leading-[normal] text-ink-card">
+          Reset your password
+        </h2>
+        <p className="mt-[8px] style-body-text leading-[19px] text-ink-muted">
+          We&apos;ll email you a 6-digit code to set a new password.
+        </p>
+
+        <form onSubmit={handleResetRequestSubmit} className="flex flex-col">
+          <div className="mt-[36px] min-h-[170px]">
+            <Field
+              label="UTD Email"
+              id="reset-email"
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              placeholder="netid@utdallas.edu"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                clearError("email");
+              }}
+              aria-invalid={Boolean(fieldErrors.email)}
+              aria-describedby={
+                fieldErrors.email ? "reset-email-error" : undefined
+              }
+            />
+            <ErrorText id="reset-email-error" message={fieldErrors.email} />
+            <ErrorText id="reset-form-error" message={fieldErrors.form} />
+          </div>
+
+          <Button variant="auth" block type="submit" disabled={submitting}>
+            {submitting ? "Sending…" : "Send reset code"}
+          </Button>
+        </form>
+
+        <button
+          type="button"
+          onClick={backToLogin}
+          className={`mt-[16px] text-center text-brand ${CARD_LINK}`}
+        >
+          ← Back to log in
+        </button>
+      </div>
+    );
+  }
+
+  if (view === "reset-code") {
+    return (
+      <div className={CARD}>
+        <h2 className="mt-[17px] font-chakra font-bold leading-[normal] text-ink-card">
+          Choose a new password
+        </h2>
+        <p className="mt-[8px] style-body-text leading-[19px] text-ink-muted">
+          Enter the code we sent to {email}, then pick a new password.
+        </p>
+
+        <form onSubmit={handleResetSubmit} className="flex flex-col">
+          <div className="mt-[24px] min-h-[100px]">
+            <Field
+              label="Reset code"
+              id="reset-code"
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              placeholder="123456"
+              value={code}
+              onChange={(e) => {
+                setCode(e.target.value);
+                clearError("code");
+              }}
+              disabled={codeVerified}
+              aria-invalid={Boolean(fieldErrors.code)}
+              aria-describedby={fieldErrors.code ? "reset-code-error" : undefined}
+            />
+            <ErrorText id="reset-code-error" message={fieldErrors.code} />
+            {notice && (
+              <p
+                role="status"
+                className="mt-[8px] style-body-text leading-[16.8px] text-green"
+              >
+                {notice}
+              </p>
+            )}
+          </div>
+
+          <div className="min-h-[101px]">
+            <Field
+              label="New password"
+              id="reset-new-password"
+              showToggle
+              autoComplete="new-password"
+              placeholder="••••••••"
+              value={newPassword}
+              onChange={(e) => {
+                setNewPassword(e.target.value);
+                clearError("password");
+              }}
+              aria-invalid={Boolean(fieldErrors.password)}
+              aria-describedby={
+                fieldErrors.password ? "reset-password-error" : undefined
+              }
+            />
+            <ErrorText id="reset-password-error" message={fieldErrors.password} />
+            <ErrorText id="reset-form-error" message={fieldErrors.form} />
+          </div>
+
+          <Button variant="auth" block type="submit" disabled={submitting}>
+            {submitting ? "…" : "Reset password"}
+          </Button>
+        </form>
+
+        <div className="mt-[16px] flex flex-col items-center gap-[10px]">
+          <button
+            type="button"
+            onClick={handleResendResetCode}
+            disabled={submitting}
+            className={`text-brand disabled:opacity-50 ${CARD_LINK}`}
+          >
+            Didn&apos;t get it? Send a new code
+          </button>
+          <button
+            type="button"
+            onClick={backToLogin}
+            className={`text-helper-ink ${CARD_LINK}`}
+          >
+            ← Back to log in
+          </button>
         </div>
       </div>
     );
@@ -146,74 +470,100 @@ function AuthCardInner() {
   const isSignUp = tab === "Sign up";
 
   return (
-    <div className="relative h-[500px] w-full max-w-100 rounded-[14px] bg-white shadow-auth-card">
-      <div className="absolute left-[30px] right-[30px] top-[30px]">
-        <SegmentedTabs
-          options={["Sign up", "Log in"]}
-          value={tab}
-          onChange={(v) => setTab(v as "Sign up" | "Log in")}
-        />
-      </div>
+    <div className={CARD}>
+      <SegmentedTabs
+        options={["Sign up", "Log in"]}
+        value={tab}
+        onChange={(v) => {
+          setTab(v as "Sign up" | "Log in");
+          setFieldErrors({});
+        }}
+      />
 
-      <div className="absolute left-[30px] right-[30px] top-[80px] pt-[17px]">
-        <h2 className="font-chakra text-[23px] font-bold leading-[normal] text-ink-card">
-          {isSignUp ? "Create your account" : "Welcome back"}
-        </h2>
-      </div>
+      <h2 className="mt-6 leading-[normal] text-display text-xl text-ink-card">
+        {isSignUp ? "Create your account" : "Welcome back"}
+      </h2>
 
-      <form onSubmit={isSignUp ? handleSignUpSubmit : handleLoginSubmit}>
-        <div className="absolute left-[30px] right-[30px] top-[134px]">
+      <form
+        onSubmit={isSignUp ? handleSignUpSubmit : handleLoginSubmit}
+        className="flex flex-col"
+      >
+        <div className="mt-6 min-h-[90px]">
           <Field
             label="UTD Email"
+            id="auth-email"
             type="email"
             inputMode="email"
             autoComplete="email"
             placeholder="netid@utdallas.edu"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              clearError("email");
+            }}
+            aria-invalid={Boolean(fieldErrors.email)}
+            aria-describedby={fieldErrors.email ? "auth-email-error" : undefined}
           />
+          <ErrorText id="auth-email-error" message={fieldErrors.email} />
         </div>
 
-        <div className="absolute left-[30px] right-[30px] top-[224px]">
+        <div className="min-h-[101px]">
           <Field
             label="Password"
-            type="password"
+            id="auth-password"
+            showToggle
             autoComplete={isSignUp ? "new-password" : "current-password"}
             placeholder="••••••••"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              clearError("password");
+            }}
+            aria-invalid={Boolean(fieldErrors.password)}
+            aria-describedby={
+              fieldErrors.password ? "auth-password-error" : undefined
+            }
           />
-        </div>
+          <ErrorText id="auth-password-error" message={fieldErrors.password} />
+          <ErrorText id="auth-form-error" message={fieldErrors.form} />
 
-        {errorMessage && (
-          <p className="absolute left-[30px] right-[30px] top-[300px] text-[12px] text-red-600">
-            {errorMessage}
-          </p>
-        )}
+          {!isSignUp && (
+            <div className="mt-4 mb-6 flex justify-end">
+              <button
+                type="button"
+                onClick={openReset}
+                className={`text-brand text-sm ${CARD_LINK}`}
+              >
+                Forgot password?
+              </button>
+            </div>
+          )}
+        </div>
 
         <div id="clerk-captcha" />
 
-        <div className="absolute left-[30px] right-[30px] top-[325px]">
-          <Button variant="auth" block type="submit" disabled={submitting}>
-            {submitting ? "…" : isSignUp ? "Create Account" : "Log In"}
-          </Button>
-        </div>
+        <Button variant="auth" block type="submit" disabled={submitting}>
+          {submitting ? "…" : isSignUp ? "Create Account" : "Log In"}
+        </Button>
       </form>
 
-      <div className="absolute left-[30px] right-[30px] top-[388px] text-center">
-        <p className="font-mono-alt text-[11px] leading-[normal] text-helper-ink">
-          {isSignUp ? "we'll email you a 6-digit code to verify your account" : "welcome back to AIS"}
-        </p>
-      </div>
+      <p className="mt-4 text-center font-mono-alt text-xs leading-[normal] text-helper-ink">
+        {isSignUp
+          ? "we'll email you a 6-digit code to verify your account"
+          : "welcome back to AIS"}
+      </p>
     </div>
   );
 }
 
-export function AuthCard() {
-  // useSearchParams() requires a Suspense boundary
+export function AuthCard({ redirectUrl }: AuthCardProps) {
   return (
-    <Suspense fallback={<div className="h-[500px] w-full max-w-[400px] rounded-[14px] bg-white shadow-auth-card" />}>
-      <AuthCardInner />
+    <Suspense
+      fallback={
+        <div className="h-[500px] w-full max-w-[400px] rounded-[14px] bg-white shadow-auth-card" />
+      }
+    >
+      <AuthCardInner redirectUrl={redirectUrl} />
     </Suspense>
   );
 }

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useId } from "react";
 
 type MobileFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
   label: string;
@@ -9,22 +10,24 @@ type MobileFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
  * (Personal Info, Links sections).
  */
 export function MobileField({ label, id, className, ...props }: MobileFieldProps) {
-  const inputId = id ?? `mf-${label.toLowerCase().replace(/\s+/g, "-")}`;
+  const generatedId = useId();
+  const inputId = id ?? `mf-${generatedId}`;
 
   return (
     <div className="flex flex-col gap-[6px]">
       <label
         htmlFor={inputId}
-        className="font-mobile-body text-[13px] font-bold text-ink"
+        className="style-label-text  text-ink"
       >
         {label}
       </label>
       <input
         id={inputId}
         className={cn(
-          "w-full rounded-[10px] border border-transparent bg-field px-[13px] py-[11px]",
-          "font-mobile-body text-[14px] text-ink",
-          "placeholder:text-field-ink focus:outline-none focus:ring-2 focus:ring-brand/40",
+          "w-full rounded-[10px] border px-[13px] py-[11px]",
+          "style-mobile-body text-ink",
+          "placeholder:text-field-ink focus:outline-none focus:ring-2",
+          "border-transparent bg-field focus:ring-brand/40",
           className
         )}
         {...props}

@@ -34,7 +34,7 @@ export function MembersPagination({
 }: Props) {
   return (
     <div className="flex w-full items-center justify-between">
-      <span className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-ink-faint">
+      <span className="style-caption leading-[16.8px] tracking-[0.2px] text-ink-faint">
         Showing {rangeStart}–{rangeEnd} of {total}
       </span>
 
@@ -46,16 +46,23 @@ export function MembersPagination({
             </Button>
           </Link>
         ) : (
-          <Button variant="ghost" size="sm" className="rounded-[8px] opacity-40" disabled>
+          <Button variant="ghost" size="sm" className="rounded-[8px]" disabled>
             ‹ Prev
           </Button>
         )}
 
         {pageWindow(page, pageCount).map((n) =>
           n === page ? (
-            <Badge key={n} label={String(n)} bg="#e1e8ff" color="#1f3aa3" />
+            <span key={n} aria-current="page">
+              <Badge label={String(n)} bg="#e1e8ff" color="#1f3aa3" />
+            </span>
           ) : (
-            <Link key={n} href={membersHref(query, { page: n })}>
+            <Link
+              key={n}
+              href={membersHref(query, { page: n })}
+              aria-label={`Page ${n}`}
+              className="rounded-full transition-colors hover:[&>span]:border-brand hover:[&>span]:bg-brand-soft hover:[&>span]:text-brand-dark focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-soft"
+            >
               <Badge label={String(n)} variant="outline" />
             </Link>
           )
@@ -68,7 +75,7 @@ export function MembersPagination({
             </Button>
           </Link>
         ) : (
-          <Button variant="ghost" size="sm" className="rounded-[8px] opacity-40" disabled>
+          <Button variant="ghost" size="sm" className="rounded-[8px]" disabled>
             Next ›
           </Button>
         )}

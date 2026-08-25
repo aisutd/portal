@@ -1,224 +1,496 @@
 "use client";
 
-import { Fragment, useEffect, useState, type ReactNode } from "react";
+import { BottomNav } from "@/components/mobile/ui/BottomNav";
+// import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { Navbar } from "@/components/navbar";
-import { SectionHeader } from "@/components/ui/section-header";
-import { ProgramCard } from "@/components/apply/program-card";
-import { Marquee } from "@/components/apply/marquee";
-import { OpenAppRow, type OpenApp } from "@/components/apply/open-app-row";
-import { Button } from "@/components/ui/button";
-import { MobileApply } from "@/components/mobile/apply/MobileApply";
-import { programs } from "@/lib/data";
-import {
-  type Application,
-  buildOpenRow,
-  buildSubmittedRow,
-  sortApplications,
-  sortSubmittedApplications,
-} from "@/lib/applications-utils";
+// import { SectionHeader } from "@/components/ui/section-header";
+// import { StepCard } from "@/components/apply/step-card";
+// import { ProgramCard } from "@/components/apply/program-card";
+// import { Marquee } from "@/components/apply/marquee";
+// import { OpenAppRow, type OpenApp } from "@/components/apply/open-app-row";
+// import { Badge } from "@/components/ui/badge";
+// import { Button } from "@/components/ui/button";
+// import { MobileApply } from "@/components/mobile/apply/MobileApply";
+// import { applySteps, programs } from "@/lib/data";
 
-type ApplicationResponse = {
-  applications: Application[];
-};
+// type ApplicationResponse = {
+//   applications: Array<{
+//     id: string;
+//     title: string;
+//     description: string;
+//     openAt: string;
+//     closeAt: string;
+//     phase: "open" | "upcoming" | "closed";
+//     draft: {
+//       stepIndex: number;
+//       isSubmitted: boolean;
+//     } | null;
+//     submissionStatus: string | null;
+//     submissionId: string | null;
+//     submittedAt: string | null;
+//   }>;
+// };
 
-function ApplicationSkeleton() {
-  return (
-    <div className="flex w-full flex-col items-start gap-[16px] rounded-[16px] border border-border-soft bg-white p-[25px] sm:flex-row sm:items-center sm:justify-between sm:gap-[24px]">
-      <div className="min-w-0 flex-1 animate-pulse">
-        <div className="h-[21px] w-[280px] rounded-full bg-[#efece3]" />
-        <div className="mt-[10px] h-[14px] w-[440px] max-w-full rounded-full bg-[#f4f1ea]" />
-        <div className="mt-[10px] h-[12px] w-[240px] rounded-full bg-[#f4f1ea]" />
-      </div>
-      <div className="flex shrink-0 gap-[10px]">
-        <div className="h-[38px] w-[112px] rounded-[10px] bg-[#f4f1ea]" />
-        <div className="h-[38px] w-[98px] rounded-[10px] bg-[#f4f1ea]" />
-      </div>
-    </div>
-  );
-}
+// const dateFormatter = new Intl.DateTimeFormat("en-US", {
+//   month: "long",
+//   day: "numeric",
+//   year: "numeric",
+//   timeZone: "America/Chicago",
+// });
 
-function ApplicationEmptyState({ message }: { message: string }) {
-  return (
-    <div className="rounded-[16px] border border-border-soft bg-white px-[25px] py-[22px] font-body text-[14px] leading-[20.3px] text-ink-muted">
-      {message}
-    </div>
-  );
-}
+// const timeFormatter = new Intl.DateTimeFormat("en-US", {
+//   hour: "numeric",
+//   minute: "2-digit",
+//   timeZone: "America/Chicago",
+//   timeZoneName: "short",
+// });
 
-function ApplicationSection({
-  title,
-  items,
-  loading,
-  emptyMessage,
-  action,
-  buildRow,
-}: {
-  title: string;
-  items: ApplicationResponse["applications"];
-  loading: boolean;
-  emptyMessage: string;
-  action?: ReactNode;
-  buildRow: (
-    application: ApplicationResponse["applications"][number],
-  ) => OpenApp;
-}) {
-  return (
-    <section className="mt-[22.05px] flex flex-col gap-[16px] px-[46px]">
-      <SectionHeader title={title} action={action} />
-      {loading ? (
-        <div className="flex flex-col gap-[14px]">
-          <ApplicationSkeleton />
-          <ApplicationSkeleton />
-        </div>
-      ) : items.length > 0 ? (
-        <div className="flex flex-col gap-[14px]">
-          {items.map((application) => (
-            <OpenAppRow key={application.id} {...buildRow(application)} />
-          ))}
-        </div>
-      ) : (
-        <ApplicationEmptyState message={emptyMessage} />
-      )}
-    </section>
-  );
-}
+// function formatDateTime(value: string) {
+//   const date = new Date(value);
+//   return `${dateFormatter.format(date)} · ${timeFormatter.format(date)}`;
+// }
 
-function ProgramFlowArrow() {
-  return (
-    <div
-      className="flex shrink-0 items-center justify-center text-brand"
-      aria-hidden="true"
-    >
-      <span className="flex h-[44px] w-[44px] items-center justify-center rounded-full border border-border-soft bg-[#fbfaf7] text-[20px] leading-none shadow-[0px_1px_0px_rgba(0,0,0,0.03)] lg:hidden">
-        ↓
-      </span>
-      <span className="hidden h-full w-[48px] items-center justify-center rounded-full border border-border-soft bg-[#fbfaf7] text-[22px] leading-none shadow-[0px_1px_0px_rgba(0,0,0,0.03)] lg:flex">
-        →
-      </span>
-    </div>
-  );
-}
+// function getStatusBadge(
+//   draft: ApplicationResponse["applications"][number]["draft"],
+//   submissionStatus: string | null,
+// ) {
+//   if (submissionStatus) {
+//     const label = submissionStatus
+//       .toLowerCase()
+//       .split("_")
+//       .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+//       .join(" ");
+
+//     if (submissionStatus === "ACCEPTED") {
+//       return <Badge label={label} bg="#d3eccf" color="#356b2e" />;
+//     }
+
+//     if (submissionStatus === "REJECTED") {
+//       return <Badge label={label} bg="#f9d5d3" color="#9a3b36" />;
+//     }
+
+//     if (submissionStatus === "WAITLISTED") {
+//       return <Badge label={label} bg="#fbe3cb" color="#7a4416" />;
+//     }
+
+//     if (submissionStatus === "IN_REVIEW") {
+//       return <Badge label={label} bg="#e1e8ff" color="#1f3aa3" />;
+//     }
+
+//     if (submissionStatus === "IN_CONSIDERATION") {
+//       return <Badge label={label} bg="#e9e5f6" color="#4b4178" />;
+//     }
+
+//     if (submissionStatus === "COMPLETED" || submissionStatus === "ARCHIVED") {
+//       return <Badge label={label} bg="#efece3" color="#6a685f" />;
+//     }
+
+//     return <Badge label={label} bg="#e1e8ff" color="#1f3aa3" />;
+//   }
+
+//   if (draft) {
+//     return (
+//       <Badge
+//         label={draft.isSubmitted ? "Submitted" : "Draft"}
+//         variant="outline"
+//       />
+//     );
+//   }
+
+//   return null;
+// }
+
+// function buildOpenRow(
+//   application: ApplicationResponse["applications"][number],
+// ): OpenApp {
+//   const borderColor = application.phase === "open" ? "#2f5fe8" : "#e7e2d4";
+//   const meta =
+//     application.phase === "upcoming"
+//       ? `opens ${formatDateTime(application.openAt)}`
+//       : application.phase === "closed"
+//         ? `closed ${formatDateTime(application.closeAt)}`
+//         : `closes ${formatDateTime(application.closeAt)}`;
+
+//   const actions =
+//     application.phase === "open"
+//       ? [
+//           {
+//             label: "Learn more",
+//             variant: "soft" as const,
+//             href: `/applications/detail?id=${application.id}`,
+//           },
+//           {
+//             label: "Apply",
+//             variant: "primary" as const,
+//             href: `/applications/form?id=${application.id}`,
+//           },
+//         ]
+//       : application.phase === "upcoming"
+//         ? [
+//             {
+//               label: "Learn more",
+//               variant: "ghost" as const,
+//               href: `/applications/detail?id=${application.id}`,
+//             },
+//             { label: "Remind me", variant: "accent" as const, pill: false },
+//           ]
+//         : [
+//             {
+//               label: "Learn more",
+//               variant: "ghost" as const,
+//               href: `/applications/detail?id=${application.id}`,
+//             },
+//           ];
+
+//   return {
+//     title: application.title,
+//     description: application.description,
+//     meta,
+//     borderColor,
+//     metaMedium: application.phase !== "upcoming",
+//     dim: application.phase !== "open",
+//     statusBadge: getStatusBadge(
+//       application.draft,
+//       application.submissionStatus,
+//     ),
+//     actions,
+//   };
+// }
+
+// function buildSubmittedRow(
+//   application: ApplicationResponse["applications"][number],
+// ): OpenApp {
+//   const statusBadge = application.submissionStatus ? (
+//     getStatusBadge(application.draft, application.submissionStatus)
+//   ) : (
+//     <Badge label="Submitted" variant="outline" />
+//   );
+
+//   return {
+//     title: application.title,
+//     description: application.description,
+//     meta: application.submittedAt
+//       ? `submitted ${formatDateTime(application.submittedAt)}`
+//       : "submitted",
+//     borderColor: "#d9d3c7",
+//     metaMedium: true,
+//     statusBadge,
+//     actions: [
+//       {
+//         label: "Submitted",
+//         variant: "outline" as const,
+//         disabled: true,
+//       },
+//       {
+//         label: "View application",
+//         variant: "primary" as const,
+//         href: application.submissionId
+//           ? `/applications/submitted?submissionId=${application.submissionId}`
+//           : "/applications/history",
+//       },
+//     ],
+//   };
+// }
+
+// function ApplicationSkeleton() {
+//   return (
+//     <div className="flex w-full flex-col items-start gap-4 rounded-[16px] border border-border-soft bg-white/80 p-6 sm:flex-row sm:items-center sm:justify-between sm:gap-6 shadow-xs">
+//       <div className="min-w-0 flex-1 animate-pulse space-y-2.5">
+//         <div className="h-5 w-64 rounded-full bg-[#efece3]" />
+//         <div className="h-3.5 w-full max-w-lg rounded-full bg-[#f4f1ea]" />
+//         <div className="h-3 w-48 rounded-full bg-[#f4f1ea]" />
+//       </div>
+//       <div className="flex shrink-0 gap-2.5">
+//         <div className="h-9 w-24 rounded-lg bg-[#f4f1ea] animate-pulse" />
+//         <div className="h-9 w-20 rounded-lg bg-[#f4f1ea] animate-pulse" />
+//       </div>
+//     </div>
+//   );
+// }
+
+// function ApplicationEmptyState({ message }: { message: string }) {
+//   return (
+//     <div className="rounded-[16px] border border-border-soft/80 bg-white/60 px-6 py-6 style-body-text leading-relaxed text-ink-muted transition-colors">
+//       {message}
+//     </div>
+//   );
+// }
+
+// function ApplicationSection({
+//   title,
+//   items,
+//   loading,
+//   emptyMessage,
+//   action,
+//   buildRow,
+// }: {
+//   title: string;
+//   items: ApplicationResponse["applications"];
+//   loading: boolean;
+//   emptyMessage: string;
+//   action?: ReactNode;
+//   buildRow: (
+//     application: ApplicationResponse["applications"][number],
+//   ) => OpenApp;
+// }) {
+//   return (
+//     <section className="mt-8 flex flex-col gap-4 px-8 lg:px-12">
+//       <SectionHeader title={title} action={action} />
+//       {loading ? (
+//         <div className="flex flex-col gap-3.5">
+//           <ApplicationSkeleton />
+//           <ApplicationSkeleton />
+//         </div>
+//       ) : items.length > 0 ? (
+//         <div className="flex flex-col gap-3.5">
+//           {items.map((application) => (
+//             <OpenAppRow key={application.id} {...buildRow(application)} />
+//           ))}
+//         </div>
+//       ) : (
+//         <ApplicationEmptyState message={emptyMessage} />
+//       )}
+//     </section>
+//   );
+// }
+
+// function sortApplications(
+//   items: ApplicationResponse["applications"],
+//   phase: "open" | "upcoming" | "closed",
+// ) {
+//   return items
+//     .filter((item) => item.phase === phase && !item.submissionId)
+//     .slice()
+//     .sort((left, right) => {
+//       const leftDate =
+//         phase === "upcoming"
+//           ? new Date(left.openAt).getTime()
+//           : new Date(left.closeAt).getTime();
+//       const rightDate =
+//         phase === "upcoming"
+//           ? new Date(right.openAt).getTime()
+//           : new Date(right.closeAt).getTime();
+
+//       return leftDate - rightDate;
+//     });
+// }
+
+// function sortSubmittedApplications(items: ApplicationResponse["applications"]) {
+//   return items
+//     .filter((item) => item.submissionId)
+//     .slice()
+//     .sort((left, right) => {
+//       const leftDate = left.submittedAt
+//         ? new Date(left.submittedAt).getTime()
+//         : 0;
+//       const rightDate = right.submittedAt
+//         ? new Date(right.submittedAt).getTime()
+//         : 0;
+
+//       return rightDate - leftDate;
+//     });
+// }
+
+// function ProgramFlowArrow() {
+//   return (
+//     <div
+//       className="flex shrink-0 items-center justify-center text-brand"
+//       aria-hidden="true"
+//     >
+//       <span className="flex h-11 w-11 items-center justify-center rounded-full border border-border-soft bg-[#fbfaf7] text-lg font-medium shadow-xs transition-transform hover:scale-105 lg:hidden">
+//         ↓
+//       </span>
+//       <span className="hidden h-11 w-11 items-center justify-center rounded-full border border-border-soft bg-[#fbfaf7] text-xl font-medium shadow-xs transition-transform hover:scale-105 lg:flex">
+//         →
+//       </span>
+//     </div>
+//   );
+// }
 
 export default function ApplyPage() {
-  const [applications, setApplications] = useState<
-    ApplicationResponse["applications"]
-  >([]);
-  const [loading, setLoading] = useState(true);
+//   const [applications, setApplications] = useState<
+//     ApplicationResponse["applications"]
+//   >([]);
+//   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const controller = new AbortController();
+//   useEffect(() => {
+//     const controller = new AbortController();
 
-    async function loadApplications() {
-      setLoading(true);
+//     async function loadApplications() {
+//       setLoading(true);
 
-      try {
-        const response = await fetch("/api/applications", {
-          signal: controller.signal,
-        });
+//       try {
+//         const response = await fetch("/api/applications", {
+//           signal: controller.signal,
+//         });
 
-        if (!response.ok) {
-          throw new Error(`Failed to load applications: ${response.status}`);
-        }
+//         if (!response.ok) {
+//           throw new Error(`Failed to load applications: ${response.status}`);
+//         }
 
-        const payload = (await response.json()) as ApplicationResponse;
-        setApplications(
-          Array.isArray(payload.applications) ? payload.applications : [],
-        );
-      } catch (error) {
-        if ((error as Error).name !== "AbortError") {
-          setApplications([]);
-        }
-      } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
-      }
-    }
+//         const payload = (await response.json()) as ApplicationResponse;
+//         setApplications(
+//           Array.isArray(payload.applications) ? payload.applications : [],
+//         );
+//       } catch (error) {
+//         if ((error as Error).name !== "AbortError") {
+//           setApplications([]);
+//         }
+//       } finally {
+//         if (!controller.signal.aborted) {
+//           setLoading(false);
+//         }
+//       }
+//     }
 
-    loadApplications();
+//     loadApplications();
 
-    return () => {
-      controller.abort();
-    };
-  }, []);
+//     return () => {
+//       controller.abort();
+//     };
+//   }, []);
 
-  const openApplications = sortApplications(applications, "open");
-  const upcomingApplications = sortApplications(applications, "upcoming");
-  const closedApplications = sortApplications(applications, "closed");
-  const submittedApplications = sortSubmittedApplications(applications);
+//   const openApplications = sortApplications(applications, "open");
+//   const upcomingApplications = sortApplications(applications, "upcoming");
+//   const closedApplications = sortApplications(applications, "closed");
+//   const submittedApplications = sortSubmittedApplications(applications);
 
   return (
+    // <>
+    //   {/* --- MOBILE LAYOUT --- */}
+    //   <div className="md:hidden">
+    //     <MobileApply />
+    //   </div>
+
+    //   {/* --- DESKTOP LAYOUT --- */}
+    //   <div className="hidden md:block">
+    //     <div className="flex min-h-screen w-full flex-col bg-cream antialiased">
+    //       <Navbar active="Apply" />
+
+    //       <main className="relative w-full pb-16 pt-8">
+    //         {/* Header Hero Section */}
+    //         <section className="px-8 lg:px-12 pt-4">
+    //           <h1 className="font-display style-page-title lg: font-bold leading-[1.05] tracking-[-0.02em] text-ink [font-variation-settings:'wdth'_100]">
+    //             Choose Your <span className="text-brand">AIS Path</span>
+    //           </h1>
+    //           <p className="mt-3 max-w-4xl style-page-subtitle lg: font-normal leading-relaxed text-ink/80">
+    //             Welcome to the enrollment hub. Whether you&apos;re here to learn,
+    //             lead, or build, there&apos;s a place waiting for you.
+    //           </p>
+    //         </section>
+
+    //         {/* How to Begin Steps */}
+    //         {/* <section className="mt-12 flex flex-col gap-4 px-8 lg:px-12">
+    //           <SectionHeader
+    //             title="How to Begin"
+    //             titleClassName=" lg: leading-tight font-semibold"
+    //           />
+    //           <div className="flex flex-col gap-5 lg:flex-row lg:items-stretch">
+    //             {applySteps.map((step) => (
+    //               <StepCard key={step.step} {...step} />
+    //             ))}
+    //           </div>
+    //         </section> */}
+
+    //         {/* Program Workflow */}
+    //         <section className="mt-10 px-8 lg:px-12">
+    //           <SectionHeader title="Our Pipeline" titleClassName=" pb-6" />
+    //           <div className="flex flex-col gap-5 lg:flex-row lg:items-center">
+    //             {programs.map((program, index) => (
+    //               <Fragment key={program.title}>
+    //                 <div className="flex-1">
+    //                   <ProgramCard {...program} showActionButton={false} />
+    //                 </div>
+    //                 {index < programs.length - 1 ? <ProgramFlowArrow /> : null}
+    //               </Fragment>
+    //             ))}
+    //           </div>
+    //         </section>
+
+    //         {/* Marquee Divider */}
+    //         <div className="overflow-visible mt-10">
+    //           <Marquee text="JOIN THE MOVEMENT · AIS UTD · BUILD THE FUTURE" />
+    //         </div>
+
+    //         {/* Application List Sections */}
+    //         <div className="space-y-4">
+    //           <ApplicationSection
+    //             title="Open Applications"
+    //             items={openApplications}
+    //             loading={loading}
+    //             emptyMessage="There are no open applications right now."
+    //             buildRow={buildOpenRow}
+    //           />
+    //           <ApplicationSection
+    //             title="Upcoming Applications"
+    //             items={upcomingApplications}
+    //             loading={loading}
+    //             emptyMessage="There are no upcoming applications."
+    //             buildRow={buildOpenRow}
+    //           />
+    //           <ApplicationSection
+    //             title="Closed Applications"
+    //             items={closedApplications}
+    //             loading={loading}
+    //             emptyMessage="There are no closed applications to show."
+    //             buildRow={buildOpenRow}
+    //           />
+    //           <ApplicationSection
+    //             title="Submitted Applications"
+    //             items={submittedApplications}
+    //             loading={loading}
+    //             emptyMessage="You have not submitted any applications yet."
+    //             action={
+    //               <Button href="/applications/history" variant="ghost" size="sm">
+    //                 View history
+    //               </Button>
+    //             }
+    //             buildRow={buildSubmittedRow}
+    //           />
+    //         </div>
+    //       </main>
+    //     </div>
+    //   </div>
+    // </>
     <>
       {/* --- MOBILE LAYOUT --- */}
-      <div className="md:hidden">
-        <MobileApply />
+      <div className="flex min-h-screen w-full flex-col bg-cream antialiased md:hidden">
+        <BottomNav/>
+        <main className="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
+          <div className="w-full max-w-md rounded-2xl border border-border-soft bg-white/80 p-8 shadow-sm backdrop-blur-xs">
+            <span className="inline-block rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand">
+              Applications
+            </span>
+            <h1 className="mt-4 font-display text-3xl font-bold tracking-tight text-ink">
+              Opening Soon
+            </h1>
+            <p className="mt-3 text-sm leading-relaxed text-ink-muted">
+              This page will open up at Kickoff on September 3, at 7pm.
+            </p>
+          </div>
+        </main>
       </div>
 
       {/* --- DESKTOP LAYOUT --- */}
       <div className="hidden md:block">
-        <div className="flex min-h-screen w-full flex-col bg-cream">
+        <div className="flex min-h-screen w-full flex-col bg-cream antialiased">
           <Navbar active="Apply" />
 
-          <div className="relative w-full pb-[46px] pt-[46px]">
-            <section className="px-[46px] pt-[8px]">
-              <h1 className="font-display text-[65px] font-bold leading-[47.52px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
-                Choose Your <span className="text-brand">AIS Path</span>
-              </h1>
-              <p className="mt-[7.76px] max-w-[1000px] pl-[20.94px] font-body text-[20px] font-normal leading-[24px] text-ink">
-                Welcome to the enrollment hub. Whether you&apos;re here to learn,
-                lead, or build, there&apos;s a place waiting for you.
-              </p>
-            </section>
-
-            <section className="mt-[31.49px] px-[46px]">
-              <div className="flex flex-col gap-[20px] lg:flex-row lg:items-stretch">
-                {programs.map((program, index) => (
-                  <Fragment key={program.title}>
-                    <ProgramCard {...program} showActionButton={false} />
-                    {index < programs.length - 1 ? <ProgramFlowArrow /> : null}
-                  </Fragment>
-                ))}
+          <main className="relative flex flex-1 w-full flex-col items-center justify-center pb-16 pt-8">
+            <section className="w-full max-w-2xl px-8 text-center lg:px-12">
+              <div className="rounded-2xl border border-border-soft bg-white/80 p-12 shadow-sm backdrop-blur-xs">
+                <span className="inline-block rounded-full bg-brand/10 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-brand">
+                  Applications
+                </span>
+                <h1 className="mt-4 font-display text-4xl font-bold tracking-tight text-ink lg:text-5xl">
+                  Opening Soon
+                </h1>
+                <p className="mt-4 text-base leading-relaxed text-ink-muted lg:text-lg">
+                  This page will open up at Kickoff on September 3, at 7pm.
+                </p>
               </div>
             </section>
-
-            <div className="mt-[29.59px]">
-              <Marquee text="JOIN THE MOVEMENT · AIS UTD · BUILD THE FUTURE · LEARN. BUILD. LEAD. · YOUR AI COMMUNITY AT UTD · AIS UTD" />
-            </div>
-
-            <ApplicationSection
-              title="Open Applications"
-              items={openApplications}
-              loading={loading}
-              emptyMessage="There are no open applications right now."
-              buildRow={buildOpenRow}
-            />
-            <ApplicationSection
-              title="Upcoming Applications"
-              items={upcomingApplications}
-              loading={loading}
-              emptyMessage="There are no upcoming applications."
-              buildRow={buildOpenRow}
-            />
-            <ApplicationSection
-              title="Closed Applications"
-              items={closedApplications}
-              loading={loading}
-              emptyMessage="There are no closed applications to show."
-              buildRow={buildOpenRow}
-            />
-            <ApplicationSection
-              title="Submitted Applications"
-              items={submittedApplications}
-              loading={loading}
-              emptyMessage="You have not submitted any applications yet."
-              action={
-                <Button href="/applications/history" variant="ghost" size="sm">
-                  View history
-                </Button>
-              }
-              buildRow={buildSubmittedRow}
-            />
-          </div>
+          </main>
         </div>
       </div>
     </>

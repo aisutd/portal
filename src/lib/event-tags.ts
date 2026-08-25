@@ -10,18 +10,6 @@ const eventTagPalette: Record<string, TagData> = {
   INDUSTRY: { label: "industry", bg: "#ded9f4", color: "#463e86" },
 };
 
-export function formatEventCardDate(dateString: string) {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  })
-    .format(date)
-    .replace(", ", " · ");
-}
-
 export function normalizeEventTags(tags: Array<string | TagData> | null | undefined): TagData[] {
   if (!tags?.length) {
     return [];

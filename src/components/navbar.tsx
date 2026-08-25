@@ -2,18 +2,19 @@
 
 import Link from "next/link";
 import { Show, UserButton, useAuth, useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useAccount } from "@/components/account-provider";
+import Image from "next/image";
+import { isAdminRole } from "@/lib/roles";
 
 const NAV_ITEMS = ["Events", "Apply", "Dashboard"] as const;
 const ADMIN_LABEL = "Admin" as const;
-const ADMIN_ROLES = ["REVIEWER", "ORGANIZER", "SUPER_ADMIN"] as const;
 
 const NAV_ROUTES: Record<(typeof NAV_ITEMS)[number] | typeof ADMIN_LABEL, string> = {
   Events: "/events",
   Apply: "/applications",
   Dashboard: "/dashboard",
-  Admin: "/admin/dashboard",
+  Admin: "/admin/events",
 };
 
 type NavbarProps = {
@@ -24,58 +25,33 @@ type NavbarProps = {
 export function Navbar({ active = "Dashboard" }: NavbarProps) {
   const { isSignedIn } = useAuth();
   const { user } = useUser();
-  const [role, setRole] = useState<string | null>(null);
+  // Resolved on the server by the root layout, so the name is already in the
+  // initial HTML — no post-mount fetch, no "Profile" flash.
+  const account = useAccount();
 
-  useEffect(() => {
-    if (!isSignedIn) {
-      setRole(null);
-      return;
-    }
+  const role =
+    account?.role ??
+    (user?.publicMetadata as { role?: string } | undefined)?.role ??
+    null;
 
-    const metadataRole = (user?.publicMetadata as { role?: string } | undefined)?.role;
-    if (metadataRole) {
-      setRole(metadataRole);
-      return;
-    }
-
-    let active = true;
-
-    async function loadRole() {
-      try {
-        const response = await fetch("/api/me");
-        if (!active) return;
-        if (!response.ok) {
-          setRole(null);
-          return;
-        }
-
-        const data = await response.json();
-        setRole(data?.role ?? null);
-      } catch {
-        if (active) setRole(null);
-      }
-    }
-
-    loadRole();
-
-    return () => {
-      active = false;
-    };
-  }, [isSignedIn, user]);
-
-  const showAdminLink = !!role && ADMIN_ROLES.includes(role as (typeof ADMIN_ROLES)[number]);
+  const showAdminLink = role ? isAdminRole(role) : false;
+  const accountLabel = account?.firstName?.trim() || user?.firstName?.trim() || "Profile";
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#f0f0f0] bg-white">
       <nav className="flex h-[72px] items-center justify-between px-[38px]">
         {/* Logo */}
         <Link href="/" className="shrink-0 flex items-center">
-            <img 
-              src="/ais_logo_black.png" 
-              alt="AIS Logo" 
-              className="h-[44px] w-auto object-contain" 
-            />
-          </Link>
+          <Image 
+            src="/ais_logo_black.png" 
+            alt="AIS Logo" 
+            width={150}               // Explicit width prevents layout shifts
+            height={44}              // Matches your h-[44px] height constraint
+            className="h-[44px] w-auto object-contain" 
+            priority                 // Loads the logo immediately to improve LCP
+          />
+        </Link>
+
 
         {/* Primary links */}
         <ul className="flex items-center gap-[8px]">
@@ -90,8 +66,8 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
                       : NAV_ROUTES[label]
                   }
                   className={cn(
-                    "font-techno text-[15px] font-black tracking-[0.5px] px-[24px] py-[10px] rounded-full transition-colors flex items-center justify-center",
-                    isActive ? "bg-[#e1e8ff] text-[#2f5fe8]" : "text-[#4b4178] hover:bg-gray-100"
+                    "style-nav-link  tracking-[0.5px] px-[24px] py-[10px] rounded-full transition-colors flex items-center justify-center",
+                    isActive ? "bg-[#e1e8ff] " : " hover:bg-gray-100"
                   )}
                 >
                   {label}
@@ -105,8 +81,8 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
               <Link
                 href={NAV_ROUTES.Admin}
                 className={cn(
-                  "font-techno text-[15px] font-black tracking-[0.5px] px-[24px] py-[10px] rounded-full transition-colors flex items-center justify-center",
-                  active === ADMIN_LABEL ? "bg-[#e1e8ff] text-[#2f5fe8]" : "text-[#4b4178] hover:bg-gray-100"
+                  "style-nav-link  tracking-[0.5px] px-[24px] py-[10px] rounded-full transition-colors flex items-center justify-center",
+                  active === ADMIN_LABEL ? "bg-[#e1e8ff] " : " hover:bg-gray-100"
                 )}
               >
                 Admin
@@ -120,48 +96,48 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
           <Show when="signed-out">
             <Link
               href="/onboarding?mode=login"
-              className="font-body text-[15px] font-semibold text-ink-muted"
+              className="style-nav-link  text-ink-muted"
             >
               Sign In
             </Link>
             <Link
               href="/onboarding?mode=signup"
-              className="rounded-[10px] border border-brand bg-brand px-[15px] py-[9px] font-body text-[15px] font-semibold text-white"
+              className="rounded-[10px] border border-brand bg-brand px-[15px] py-[9px] style-nav-link  text-white"
             >
               Sign Up
             </Link>
           </Show>
 
           <Show when="signed-in">
-  <Link
-    href="/profile"
-    className={cn(
-      "flex shrink-0 items-center gap-[11px] hover:opacity-80 transition-colors px-[20px] py-[8px] rounded-full",
-      active === "Profile" ? "bg-[#e1e8ff]" : ""
-    )}
-  >
-    <div className="pointer-events-none flex items-center">
-      <UserButton
-        appearance={{
-          elements: {
-            avatarBox: cn(
-              "size-[32px] rounded-full border",
-              active === "Profile" ? "border-[#2f5fe8]" : "border-[#8a8a93]"
-            ),
-          },
-        }}
-      />
-    </div>
-    <span
-      className={cn(
-        "whitespace-nowrap font-body text-[15px] font-black",
-        active === "Profile" ? "text-[#2f5fe8]" : "text-[#4b4178]"
-      )}
-    >
-      Profile
-    </span>
-  </Link>
-</Show>
+            <Link
+              href="/profile"
+              className={cn(
+                "flex shrink-0 items-center gap-[11px] hover:opacity-80 transition-colors px-[20px] py-[8px] rounded-full",
+                active === "Profile" ? "bg-[#e1e8ff]" : ""
+              )}
+            >
+              <div className="pointer-events-none flex items-center">
+                <UserButton
+                  appearance={{
+                    elements: {
+                      avatarBox: cn(
+                        "bg-brand text-white size-[36px] rounded-full border border-white",
+                        active === "Profile" ? "border-[#2f5fe8]" : "border-[#8a8a93]"
+                      ),
+                    },
+                  }}
+                />
+              </div>
+              <span
+                className={cn(
+                  "whitespace-nowrap style-nav-link ",
+                  active === "Profile" ? "" : ""
+                )}
+              >
+                {accountLabel}
+              </span>
+            </Link>
+          </Show>
         </div>
       </nav>
     </header>

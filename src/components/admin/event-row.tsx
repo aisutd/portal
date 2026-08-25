@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { EventCoverImage } from "../events/event-cover-image";
 
 type EventStatus = { label: string; bg: string; color: string };
 type EventAction = {
@@ -12,6 +13,7 @@ type EventAction = {
 
 export type EventRowData = {
   id: string;
+  imageUrl: string | null;
   title: string;
   status: EventStatus;
   /** "Aug 27 · 7:00 PM · ECSW 1.315" */
@@ -35,6 +37,7 @@ export type EventRowData = {
  */
 export function EventRow({
   title,
+  imageUrl,
   status,
   meta,
   leftInfo,
@@ -44,29 +47,42 @@ export function EventRow({
   dim,
   actions,
 }: EventRowData) {
+  const isLive = status?.label?.toUpperCase() === "LIVE";
+
   return (
     <div
-      className={`flex w-full items-center gap-[20px] rounded-[16px] border border-border-soft bg-white px-[21px] py-[19px] ${
-        dim ? "opacity-[0.72]" : ""
-      }`}
+      className={`flex w-full items-center gap-[20px] rounded-[16px] border px-[21px] py-[19px] transition-all ${
+        isLive
+          ? "border-emerald-500/80 bg-emerald-50/60 ring-1 ring-emerald-500/20 shadow-md shadow-emerald-500/5"
+          : "border-border-soft bg-white"
+      } ${dim ? "opacity-[0.72]" : ""}`}
     >
       {/* Thumbnail */}
-      <span className="h-[56px] w-[72px] shrink-0 rounded-[12px] bg-photo" />
+      <EventCoverImage
+        className="h-[56px] w-[72px] shrink-0 rounded-[12px]"
+        imageUrl={imageUrl}
+      />
 
       {/* Title + schedule */}
       <div className="flex min-w-[250px] shrink-0 flex-col gap-[5px]">
         <div className="flex items-center gap-[10px]">
-          <span className="font-body text-[15px] font-bold leading-[22.5px] text-ink">
+          <span className="style-body-text leading-[22.5px] text-ink">
             {title}
           </span>
           <span
-            className="rounded-[6px] px-[9px] py-[3px] font-mono text-[10.5px] font-medium uppercase leading-[normal] tracking-[0.5px]"
+            className="inline-flex items-center gap-1.5 rounded-[6px] px-[9px] py-[3px] style-caption font-semibold uppercase leading-[normal] tracking-[0.5px]"
             style={{ backgroundColor: status.bg, color: status.color }}
           >
+            {isLive && (
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+              </span>
+            )}
             {status.label}
           </span>
         </div>
-        <span className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-ink-faint">
+        <span className="style-caption leading-[16.8px] tracking-[0.2px] text-ink-faint">
           {meta}
         </span>
       </div>
@@ -74,10 +90,10 @@ export function EventRow({
       {/* Progress */}
       <div className="flex min-w-px flex-1 flex-col gap-[8px]">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-ink-faint">
+          <span className="style-caption leading-[16.8px] tracking-[0.2px] text-ink-faint">
             {leftInfo}
           </span>
-          <span className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-ink-faint">
+          <span className="style-caption leading-[16.8px] tracking-[0.2px] text-ink-faint">
             {rightInfo}
           </span>
         </div>

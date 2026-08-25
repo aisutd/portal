@@ -8,12 +8,7 @@ type FormStepperProps = {
   onDark?: boolean;
 };
 
-/**
- * Bordered segmented stepper (e.g. Personal / Long Answers / Review).
- * The active segment fills brand blue; segments are divided by hairlines.
- * Pass `onDark` when the stepper sits directly on a blue page background
- * (e.g. the profile setup wizard) rather than on a white/cream one.
- */
+// Pass onDark when this sits directly on a blue background (e.g. the setup wizard).
 export function FormStepper({ steps, active = 0, onDark = false }: FormStepperProps) {
   return (
     <div
@@ -35,7 +30,7 @@ export function FormStepper({ steps, active = 0, onDark = false }: FormStepperPr
           >
             <span
               className={cn(
-                "font-display text-[15px] font-semibold leading-[normal] [font-variation-settings:'wdth'_100]",
+                "style-caption leading-[normal] [font-variation-settings:'wdth'_100]",
                 isActive
                   ? (onDark ? "text-brand" : "text-white")
                   : (onDark ? "text-white/70" : "text-ink-muted")

@@ -26,16 +26,16 @@ export default function AdminApplyPage() {
 
       <div className="hidden md:block">
       <div className="flex min-h-screen w-full bg-cream">
-        <AdminSidebar active="Applications" role="Officer" />
+        <AdminSidebar active="Applications" />
 
         <div className="flex h-full flex-1 flex-col gap-[16px] p-[46px]">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-[5px]">
-              <h2 className="font-display text-[32px] font-bold leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+              <h2 className="style-section-header leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
                 AIM Mentor Application · Fall 2026
               </h2>
-              <p className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-ink-faint">
+              <p className="style-caption leading-[16.8px] tracking-[0.2px] text-ink-faint">
                 Reviewing applicant 4 of 37 · two reviewers per applicant
               </p>
             </div>
@@ -60,7 +60,7 @@ export default function AdminApplyPage() {
             <input
               type="text"
               placeholder="search name / netid…"
-              className="h-[42px] flex-1 rounded-[8px] bg-search-field px-[14px] font-mono text-[12px] text-search-ink placeholder:text-search-ink focus:outline-none"
+              className="h-[42px] flex-1 rounded-[8px] bg-search-field px-[14px] style-caption text-search-ink placeholder:text-search-ink focus:outline-none"
             />
             {reviewFilters.map((f) =>
               f.active ? (

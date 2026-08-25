@@ -1,13 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  async redirects() {
-    return [
+  images: {
+    remotePatterns: [
       {
-        source: '/',
-        destination: '/dashboard', // The page you want as your new starting route
-        permanent: true,          // Use true for a 308 permanent redirect
+        protocol: 'https',
+        hostname: 'cdn.portal.aisutd.org', 
+        port: '',
+        pathname: '/**'
       },
-    ]
+    ],
   },
 };
 

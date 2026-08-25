@@ -1,15 +1,14 @@
 "use client";
-//TODO - Make what is required at profile creation consistent accross api and this doc's canNext()
+//TODO - Make what is required at profile creation consistent across api and this doc's canNext()
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FormStepper } from "@/components/apply/form-stepper";
 import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { UTD_DEGREES, UTD_MAJORS, ACADEMIC_YEARS } from "@/lib/utd-data";
 
 const STEPS = ["Personal", "Academic", "Links"];
-const YEARS = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"];
-const DEGREES = ["Bachelors", "Masters", "PhD"];
 
 function SelectArrow() {
   return (
@@ -96,8 +95,9 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
         return;
       }
       router.replace("/dashboard");
-    } catch {
-      setError("Network error. Please try again.");
+    } catch (err) {
+      console.error("Profile submission error:", err);
+      setError("Failed to save profile. Please check your network and fields.");
       setSubmitting(false);
     }
   };
@@ -159,7 +159,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
                   className={selectClasses}
                 >
                   <option value="">Select year</option>
-                  {YEARS.map((y) => (
+                  {ACADEMIC_YEARS.map((y) => (
                     <option key={y} value={y}>
                       {y}
                     </option>
@@ -180,7 +180,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
                   className={selectClasses}
                 >
                   <option value="">Select degree</option>
-                  {DEGREES.map((d) => (
+                  {UTD_DEGREES.map((d) => (
                     <option key={d} value={d}>
                       {d}
                     </option>
@@ -190,12 +190,26 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
               </div>
             </div>
 
-            <Field
-              label="Major"
-              value={form.major}
-              onChange={set("major")}
-              placeholder="Computer Science"
-            />
+            <div className="flex flex-col">
+              <label className="mb-[10px] font-grotesk text-[13px] font-semibold leading-[normal] text-label-ink">
+                Major
+              </label>
+              <div className="relative">
+                <select
+                  value={form.major}
+                  onChange={set("major")}
+                  className={selectClasses}
+                >
+                  <option value="">Select major</option>
+                  {UTD_MAJORS.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+                <SelectArrow />
+              </div>
+            </div>
             <Field
               label="UTD Email"
               value={form.utdEmail}
@@ -217,7 +231,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
         {/* Step 3 — Links */}
         {step === 2 && (
           <div className="flex flex-col gap-[16px]">
-            <p className="font-body text-[14px] leading-[20.3px] text-ink-muted">
+            <p className="style-body-text leading-[20.3px] text-ink-muted">
               These are all optional — you can always add them later from your
               profile.
             </p>
@@ -262,6 +276,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
               type="button"
               onClick={next}
               disabled={!canNext()}
+              className={!canNext() ? "bg-gray-400 opacity-50 cursor-not-allowed" : ""}
             >
               Next
             </Button>

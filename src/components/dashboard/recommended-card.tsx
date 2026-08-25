@@ -1,74 +1,185 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
 import { Card } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
 import type { TagData } from "@/components/dashboard/up-next-card";
+import { EventCoverImage } from "../events/event-cover-image";
 
 export type RecommendedItem = {
+  id: string;
+  imageUrl: string | null;
   title: string;
+  startTime: string | Date;
+  endTime?: string | Date | null;
+  location: string;
   tags: TagData[];
 };
 
-function RecommendedRow({ item }: { item: RecommendedItem }) {
+function formatEventDateTime(startTime?: string | Date | null) {
+  if (!startTime) return "TBD";
+
+  const dateObj = typeof startTime === "string" ? new Date(startTime) : startTime;
+
+  if (isNaN(dateObj.getTime())) {
+    return "TBD";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(dateObj);
+}
+
+function RecommendedRow({
+  item,
+  onRsvpSuccess,
+}: {
+  item: RecommendedItem;
+  onRsvpSuccess?: (id: string) => void;
+}) {
   const router = useRouter();
   const { isSignedIn } = useAuth();
+  const [loading, setLoading] = useState(false);
 
-  function handleRsvp() {
+  const formattedDateTime = formatEventDateTime(item.startTime);
+
+  async function handleRsvp(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+
     if (!isSignedIn) {
       router.push("/onboarding?mode=login");
       return;
     }
+
+    if (!item.id || loading) return;
+
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/events/${item.id}/rsvp`, {
+        method: "POST",
+      });
+
+      if (res.ok || res.status === 409) {
+        onRsvpSuccess?.(item.id);
+        router.refresh();
+      } else {
+        const data = await res.json();
+        alert(data?.error || "Failed to RSVP");
+      }
+    } catch {
+      alert("Failed to RSVP. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
-    <div className="flex w-full items-center justify-between rounded-xl bg-row-soft px-[18px] py-[14px]">
-      <div className="flex items-center gap-[12px]">
-        <div className="size-[52px] shrink-0 rounded-xl bg-photo" />
-        <div className="flex flex-col">
-          <span className="font-body text-[15px] font-bold leading-[22.5px] text-ink">
+    <Link
+      href={`/events/${item.id}`}
+      className="group flex w-full flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-xl bg-row-soft px-[18px] py-[14px] transition-colors hover:bg-[#eae6dc]"
+    >
+      <div className="flex flex-1 items-start sm:items-center gap-[14px] min-w-0 w-full">
+        <EventCoverImage
+          imageUrl={item.imageUrl}
+          className="size-[56px] shrink-0 rounded-xl bg-photo"
+        />
+        <div className="flex flex-col gap-1 min-w-0 flex-1">
+          <span className="style-card-title leading-[20px] text-ink group-hover:text-brand break-words">
             {item.title}
           </span>
-          <div className="flex gap-[6px] pt-[1px]">
-            {item.tags.map((tag) => (
-              <Tag key={tag.label} {...tag} />
-            ))}
-          </div>
+
+          <span className="style-caption font-medium text-ink-muted break-words">
+            {formattedDateTime} · {item.location}
+          </span>
+
+          {item.tags && item.tags.length > 0 && (
+            <div className="flex flex-wrap gap-[6px] pt-[2px]">
+              {item.tags.map((tag, tagIndex) => (
+                <Tag key={`${tag.label}-${tagIndex}`} {...tag} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
-      <Button variant="primary" size="sm" onClick={handleRsvp} type="button">
-        RSVP
+
+      <Button
+        variant="primary"
+        size="sm"
+        onClick={handleRsvp}
+        type="button"
+        disabled={loading}
+        className="shrink-0 self-end sm:self-center w-full sm:w-auto"
+      >
+        {loading ? "RSVPing..." : "RSVP"}
       </Button>
-    </div>
+    </Link>
   );
 }
 
 export function RecommendedCard({ items }: { items: RecommendedItem[] }) {
+  const [displayItems, setDisplayItems] = useState(items);
+
+  useEffect(() => {
+    setDisplayItems(items);
+  }, [items]);
+
+  function handleRsvpSuccess(eventId: string) {
+    setDisplayItems((prev) => prev.filter((item) => item.id !== eventId));
+  }
+
   return (
-    <Card className="flex min-w-px flex-1 flex-col gap-[14px] self-stretch p-[27px]">
+    <Card className="flex h-auto min-w-0 flex-1 flex-col gap-[14px] self-stretch p-[27px]">
       <SectionHeader
         title="Recommended for you"
         action={
-          <a
-            href="#"
-            className="font-mono text-[12px] leading-[16.8px] tracking-[0.2px] text-brand"
+          <Link
+            href="/events"
+            className="style-meta-text flex items-center gap-1 font-semibold leading-[16.8px] tracking-[0.2px] text-brand hover:underline"
           >
-            Refresh
-          </a>
+            Browse Events →
+          </Link>
         }
       />
-      {items.length === 0 ? (
-        <div className="flex h-[160px] w-full items-center justify-center rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6]">
-          <span className="font-body text-[14px] text-ink-faint">No upcoming events.</span>
-        </div>
-      ) : (
-        items.map((item) => (
-          <RecommendedRow key={item.title} item={item} />
-        ))
-      )}
+
+      <div className="flex flex-col gap-[14px] h-auto w-full">
+        {displayItems.length === 0 ? (
+          <div className="flex h-[120px] w-full flex-col items-center justify-center gap-[12px] rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6]">
+            <span className="style-body-text text-ink-faint">
+              No upcoming events.
+            </span>
+          </div>
+        ) : (
+          displayItems.map((item, index) => (
+            <RecommendedRow
+              key={item.id ?? `${item.title}-${index}`}
+              item={item}
+              onRsvpSuccess={handleRsvpSuccess}
+            />
+          ))
+        )}
+      </div>
+
+      {/* Callout banner */}
+      <div className="mt-auto flex w-full flex-col items-start justify-between gap-[12px] rounded-xl bg-[#e1e8ff] px-[20px] py-[16px] sm:flex-row sm:items-center">
+        <span className="style-card-title text-[15px] font-medium leading-[20px] text-[#1f3aa3]">
+          Nothing on your calendar this week?
+        </span>
+        <Link href="/events" className="shrink-0 w-full sm:w-auto">
+          <Button variant="accent" size="sm" pill className="w-full sm:w-auto font-bold">
+            Browse Events →
+          </Button>
+        </Link>
+      </div>
     </Card>
   );
 }

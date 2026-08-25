@@ -1,39 +1,24 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from '@clerk/nextjs';
+import { AccountProvider } from "@/components/account-provider";
+import { getNavAccount } from "@/lib/nav-account";
 import { Analytics } from "@vercel/analytics/next";
-import {
-  Geist,
-  Geist_Mono,
-  Inter,
-  Nunito_Sans,
-} from "next/font/google";
+import { Inter } from "next/font/google";
 import localFont from 'next/font/local';
-import "./globals.css";
 
-const placardNext = localFont({
-  src: '../../public/fonts/PlacardNextRegular.ttf',
-  display: 'swap',
-  variable: '--font-placard',
-});
+import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const garetStandIn = Nunito_Sans({
-  variable: "--font-garet",
-  subsets: ["latin"],
+const placard = localFont({
+  src: '../../public/fonts/PlacardNextRegular.ttf',
+  display: 'swap',
+  variable: "--font-placard",
+  //subsets: ["latin"],
+  //weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -41,18 +26,20 @@ export const metadata: Metadata = {
   description: "AI Society at UT Dallas — member portal",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const account = await getNavAccount();
+
   return (
     <html lang="en">
       <body
-        className={`${inter.className} ${inter.variable} ${placardNext.variable} ${geistSans.variable} ${geistMono.variable} ${garetStandIn.variable} antialiased`}
+        className={`${inter.variable} ${placard.variable} antialiased`}
       >
-        <ClerkProvider>
-          {children}
+        <ClerkProvider afterSignOutUrl={"/dashboard"}>
+          <AccountProvider account={account}>{children}</AccountProvider>
         </ClerkProvider>
         <Analytics />
       </body>

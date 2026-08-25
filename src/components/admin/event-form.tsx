@@ -5,6 +5,9 @@ import { FormField, FormTextarea } from "@/components/ui/form-field";
 import { Tag } from "@/components/ui/tag";
 import { Button } from "@/components/ui/button";
 import type { TagData } from "@/components/dashboard/up-next-card";
+import type { MembershipType } from "@prisma/client";
+import { PROGRAM_BADGES } from "@/lib/members/badges";
+import { ASSIGNABLE_PROGRAMS, PROGRAM_LABELS } from "@/lib/roles";
 
 type EventItemInput = {
   name: string;
@@ -24,17 +27,29 @@ type EventFormProps = {
     visibility?: string;
     status?: string;
     tags?: string[];
+    programs?: MembershipType[];
     items?: EventItemInput[];
   };
 };
 
 export function EventForm({ tags, defaultValues }: EventFormProps) {
   const [selectedTags, setSelectedTags] = useState<string[]>(defaultValues?.tags ?? []);
+  const [selectedPrograms, setSelectedPrograms] = useState<MembershipType[]>(
+    defaultValues?.programs ?? []
+  );
   const [eventItems, setEventItems] = useState<EventItemInput[]>(defaultValues?.items ?? []);
 
   const toggleTag = (tag: string) => {
     setSelectedTags((current) =>
       current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag]
+    );
+  };
+
+  const toggleProgram = (program: MembershipType) => {
+    setSelectedPrograms((current) =>
+      current.includes(program)
+        ? current.filter((item) => item !== program)
+        : [...current, program]
     );
   };
 
@@ -57,6 +72,7 @@ export function EventForm({ tags, defaultValues }: EventFormProps) {
   return (
     <div className="flex min-w-px flex-1 flex-col gap-[24px] rounded-[16px] border border-border-soft bg-white p-[31px]">
       <input type="hidden" name="tags" value={selectedTags.join(",")} />
+      <input type="hidden" name="programs" value={selectedPrograms.join(",")} />
       <input type="hidden" name="status" value={defaultValues?.status ?? "UPCOMING"} />
       <input type="hidden" name="visibility" value={defaultValues?.visibility ?? "public"} />
       <input type="hidden" name="eventItems" value={JSON.stringify(eventItems)} />
@@ -116,10 +132,10 @@ export function EventForm({ tags, defaultValues }: EventFormProps) {
       <div className="flex flex-col gap-3 border-t border-border-soft pt-5">
         <div className="flex items-center justify-between">
           <div>
-            <span className="font-body text-[14px] font-bold leading-[20.3px] text-ink">
+            <span className="style-body-text leading-[20.3px] text-ink">
               Event Items / Perks (Meals, Drinks, Merch)
             </span>
-            <p className="font-mono text-xs text-ink-faint">
+            <p className="style-caption text-xs text-ink-faint">
               Configure items that can be scanned/claimed during the event.
             </p>
           </div>
@@ -137,13 +153,13 @@ export function EventForm({ tags, defaultValues }: EventFormProps) {
                   placeholder="Item Name (e.g. Pizza Slice, T-Shirt)"
                   value={item.name}
                   onChange={(e) => updateItem(index, "name", e.target.value)}
-                  className="flex-1 rounded-lg border border-border-soft bg-white px-3 py-2 font-mono text-sm text-ink outline-none focus:border-brand"
+                  className="flex-1 rounded-lg border border-border-soft bg-white px-3 py-2 style-caption text-sm text-ink outline-none focus:border-brand"
                   required
                 />
                 <select
                   value={item.type}
                   onChange={(e) => updateItem(index, "type", e.target.value as EventItemInput["type"])}
-                  className="rounded-lg border border-border-soft bg-white px-3 py-2 font-mono text-sm text-ink outline-none focus:border-brand"
+                  className="rounded-lg border border-border-soft bg-white px-3 py-2 style-caption text-sm text-ink outline-none focus:border-brand"
                 >
                   <option value="MEAL">MEAL</option>
                   <option value="DRINK">DRINK</option>
@@ -165,9 +181,47 @@ export function EventForm({ tags, defaultValues }: EventFormProps) {
         )}
       </div>
 
+      {/* Programs Section — drives member status: attendance is measured
+          against the events tagged for a member's programs. */}
+      <div className="flex w-full flex-col gap-[7px] border-t border-border-soft pt-5">
+        <span className="style-body-text leading-[20.3px] text-ink-muted">
+          Counts toward
+        </span>
+        <span className="style-body-text leading-[18px] text-ink-faint">
+          Leave empty for a general event that counts for every member.
+        </span>
+        <div className="mt-[4px] flex flex-wrap gap-[8px]">
+          {ASSIGNABLE_PROGRAMS.map((program) => {
+            const isActive = selectedPrograms.includes(program);
+            const badge = PROGRAM_BADGES[program];
+            return (
+              <button
+                key={program}
+                type="button"
+                onClick={() => toggleProgram(program)}
+                aria-pressed={isActive}
+                className={`cursor-pointer rounded-full border px-[14px] py-[7px] style-body-text transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-soft ${
+                  isActive
+                    ? "border-transparent"
+                    : "border-border-soft bg-white text-ink-muted hover:bg-row-soft"
+                }`}
+                style={
+                  isActive
+                    ? { backgroundColor: badge.bg ?? "#efece3", color: badge.color ?? "#16161c" }
+                    : undefined
+                }
+              >
+                {isActive ? "✓ " : ""}
+                {PROGRAM_LABELS[program]}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Tags Section */}
       <div className="flex w-full flex-col gap-[7px] border-t border-border-soft pt-5">
-        <span className="font-body text-[14px] font-bold leading-[20.3px] text-ink-muted">
+        <span className="style-body-text leading-[20.3px] text-ink-muted">
           Tags
         </span>
         <div className="flex flex-wrap gap-[8px]">

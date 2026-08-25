@@ -2,10 +2,11 @@ import { Suspense } from "react";
 import { StatusStrip, Stat } from "./status-strip";
 import { ApplicationsCard, ApplicationItem } from "./applications-card";
 import { RsvpsCard, RsvpItem } from "./rsvps-card";
-import { getDashboardStats, getProfileCompletion, getMembership, getApplications, getRSVPs, getUpcomingEvents } from "@/lib/dashboard-utils";
+import { getDashboardStats, getProfileCompletion, getMemberships, getApplications, getRSVPs, getUpcomingEvents } from "@/lib/dashboard-utils";
 import { RecommendedCard, RecommendedItem } from "./recommended-card";
 import { Card } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
+import { PROGRAM_LABELS } from "@/lib/roles";
 
 /* --- Skeletons --- */
 
@@ -46,9 +47,9 @@ export function ApplicationsCardSkeleton() {
 
 export function RsvpsCardSkeleton() {
   return (
-    <Card className="flex w-full flex-col gap-[16px] xl:w-[320px] p-[29px]">
+    <Card className="flex w-full shrink-0 self-stretch flex-col gap-[16px] xl:w-[360px] p-[29px]">
       <SectionHeader title="Your RSVPs" />
-      <div className="flex flex-col gap-[20px]">
+      <div className="flex flex-1 flex-col gap-[20px]">
         {[1, 2, 3].map((i) => (
           <div key={i} className="flex items-center gap-[12px]">
             <div className="flex size-[48px] flex-col items-center justify-center rounded-[8px] bg-gray-200 animate-pulse" />
@@ -66,20 +67,25 @@ export function RsvpsCardSkeleton() {
 /* --- Async Server Components --- */
 
 export async function DashboardStatusStrip({ userId }: { userId: string }) {
-  const [stats, profile, membership] = await Promise.all([
+  const [stats, profile, memberships] = await Promise.all([
     getDashboardStats(userId),
     getProfileCompletion(userId),
-    getMembership(userId),
+    getMemberships(userId),
   ]);
+
+  const since = (date: Date) =>
+    new Date(date).toLocaleDateString([], {timeZone: "America/Chicago", month: "short", year: "2-digit" });
 
   const statusStats: Stat[] = [
     {
       kind: "dot",
       label: "Membership",
-      value: membership
-        ? `${membership.membershipType.replace("_", " ")} (${new Date(membership.startDate).toLocaleDateString([], { month: 'short', year: '2-digit' })} - ${membership.endDate ? new Date(membership.endDate).toLocaleDateString([], { month: 'short', year: '2-digit' }) : 'Present'})`
-        : "Non Member",
-      dotColor: membership ? "#356b2e" : "#8a8a93",
+      value: memberships.length
+        ? memberships
+            .map((m) => `${PROGRAM_LABELS[m.membershipType]} (${since(m.startDate)} - Present)`)
+            .join(", ")
+        : "Member",
+      dotColor: memberships.length ? "#356b2e" : "#8a8a93",
     },
     {
       kind: "progress",
@@ -115,10 +121,10 @@ export async function DashboardStatusStrip({ userId }: { userId: string }) {
   if (profile.missingFields.length > 0) {
     banner = (
       <div className="flex w-full items-center justify-between rounded-[8px] bg-[#f9d5d3] px-[21px] py-[12px]">
-        <span className="font-body text-[14px] text-[#9a3b36]">
+        <span className="style-body-text ">
           Your profile is incomplete. Missing: {profile.missingFields.join(", ")}.
         </span>
-        <a href="/profile" className="font-mono text-[12px] font-bold text-[#9a3b36] hover:underline">
+        <a href="/profile" className="style-caption font-bold  hover:underline">
           Complete Profile →
         </a>
       </div>
@@ -188,14 +194,30 @@ export async function DashboardApplicationsCard({ userId }: { userId: string }) 
 }
 
 export async function DashboardRsvpsCard({ userId }: { userId: string }) {
-  const rsvps = await getRSVPs(userId, 5);
+  // Omit the 'take' limit or set a high number to fetch all past & upcoming RSVPs
+  const rsvps = await getRSVPs(userId); 
+
+  const now = new Date();
 
   const items: RsvpItem[] = rsvps.map((rsvp) => {
     const d = new Date(rsvp.event.startTime);
+    const endTime = new Date(rsvp.event.endTime ?? rsvp.event.startTime);
+
     return {
-      day: d.getDate().toString().padStart(2, "0"),
+      id: rsvp.id,
+      day: d.toLocaleDateString("en-US", {
+        timeZone: "America/Chicago",
+        day: "2-digit",
+      }),
       title: rsvp.event.title,
-      detail: `${d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} · ${rsvp.event.location}`,
+      detail: `${d.toLocaleTimeString([], {
+        timeZone: "America/Chicago",
+        hour: "numeric",
+        minute: "2-digit",
+      })} · ${rsvp.event.location}`,
+      eventId: rsvp.eventId,
+      attended: Boolean(rsvp.attendance),
+      isPast: endTime < now, // Marks event as past if end time has passed
     };
   });
 
@@ -206,7 +228,11 @@ export async function DashboardRecommendedCard({ userId }: { userId: string }) {
   const events = await getUpcomingEvents(2, userId);
 
   const items: RecommendedItem[] = events.map((event) => ({
+    id: event.id,
     title: event.title,
+    imageUrl: event.imageUrl,
+    startTime: event.startTime,
+    location: event.location,
     tags: [
       { label: "Upcoming", bg: "#e1e8ff", color: "#1f3aa3" },
     ],

@@ -517,6 +517,7 @@ import { PAGE_SIZE, type MembersQuery } from "./query-params";
 const OFFICER_ROLES: UserRole[] = ["REVIEWER", "ORGANIZER", "SUPER_ADMIN"];
 
 const JOINED_FORMAT = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/Chicago",
   month: "short",
   year: "numeric",
 });
