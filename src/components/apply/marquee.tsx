@@ -10,7 +10,7 @@ export function Marquee({ text }: { text: string }) {
               {Array.from({ length: 4 }).map((_, i) => (
                 <p
                   key={i}
-                  className="whitespace-nowrap px-[24px] font-logo text-[21px] leading-[normal] tracking-[1.5px] text-white"
+                  className="whitespace-nowrap px-[24px] style-badge-text text-[21px] leading-[normal] tracking-[1.5px] text-white"
                 >
                   {text}
                 </p>
