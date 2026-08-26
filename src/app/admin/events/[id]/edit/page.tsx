@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { getAuthenticatedUser } from "@/lib/auth";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { EventForm } from "@/components/admin/event-form";
 import { CoverPhotoCard } from "@/components/admin/cover-photo-card";
@@ -10,11 +11,16 @@ import { Button } from "@/components/ui/button";
 import { MobileAdminEditEvent } from "@/components/mobile/admin/MobileAdminEditEvent";
 import { eventTags, eventSettings } from "@/lib/data";
 import { updateEvent, deleteEvent } from "./actions";
-import { DeleteEventButton } from "@/components/admin/delete-event-button"
+import { DeleteEventButton } from "@/components/admin/delete-event-button";
 
 export const metadata: Metadata = {
   title: "AIS Admin — Edit Event",
   description: "Edit an existing AIS event.",
+};
+
+const formatDateTime = (date: Date) => {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 };
 
 export default async function EditEventPage({ 
@@ -22,6 +28,11 @@ export default async function EditEventPage({
 }: { 
   params: Promise<{ id: string }> 
 }) {
+  const user = await getAuthenticatedUser();
+  if (!user || (user.role !== "ADMIN" && user.role !== "OFFICER")) {
+    redirect("/login");
+  }
+
   const { id } = await params;
 
   const event = await prisma.event.findUnique({
@@ -30,13 +41,6 @@ export default async function EditEventPage({
   });
 
   if (!event) return notFound();
-
-  // Format dates for HTML datetime-local inputs
-  const formatDateTime = (date: Date) => {
-    return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 16);
-  };
 
   const defaultValues = {
     title: event.title,
@@ -60,14 +64,15 @@ export default async function EditEventPage({
     <>
       <div className="md:hidden">
         <MobileAdminEditEvent 
-        eventId={event.id} 
-        defaultValues={defaultValues} 
-        isPublished={event.isPublished} />
+          eventId={event.id} 
+          defaultValues={defaultValues} 
+          isPublished={event.isPublished} 
+        />
       </div>
 
       <div className="hidden md:block">
         <div className="flex min-h-screen w-full bg-cream">
-          <AdminSidebar active="Events" role="Officer" />
+          <AdminSidebar active="Events" role={user.role} />
 
           <div className="flex h-full flex-1 flex-col gap-[20px] p-[46px]">
             <div className="flex items-center justify-between">
@@ -84,11 +89,13 @@ export default async function EditEventPage({
               </div>
             </div>
 
-            <form action={updateEvent} 
-              //encType="multipart/form-data"
+            <form 
+              action={async (formData: FormData) => {
+                await updateEvent(formData);
+              }}
+              encType="multipart/form-data"
               className="flex w-full flex-col gap-6 lg:flex-row lg:items-start"
             >
-              {/* Hidden input to pass the event ID to the server action */}
               <input type="hidden" name="id" value={event.id} />
 
               <EventForm tags={eventTags} defaultValues={defaultValues} />
