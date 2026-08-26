@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { putObjectToR2 } from "@/lib/r2";
 import { revalidatePath } from "next/cache";
 
-const MAX_FILE_SIZE = 512 * 1024; // 0.5 MB
+const MAX_FILE_SIZE = 1024 * 1024; // 1 MB
 const ALLOWED_TYPES = [
   "application/pdf",
   "application/msword",

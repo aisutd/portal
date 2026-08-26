@@ -100,7 +100,7 @@ export function EventDetailActions({
         disabled={loading}
         block
       >
-        {loading ? "Processing..." : isRsvpd ? "Cancel RSVP" : "RSVP Now"}
+        {loading ? "Processing..." : isRsvpd ? "Cancel RSVP" : "RSVP"}
       </Button>
     </div>
   );

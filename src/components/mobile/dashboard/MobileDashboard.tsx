@@ -82,7 +82,7 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
             {nextRsvp.qrToken && (
               <div className="flex flex-col items-center gap-2">
                 <p className="style-mobile-body text-center text-ink">
-                  Your Ticket: Claiming Items / Late Check-in
+                  Ticket: Claiming Items / Late Check-in
                 </p>
                 <div className="flex w-fit items-center justify-center rounded-xl border border-ink bg-white p-4">
                   <div className="w-full max-w-70">

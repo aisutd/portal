@@ -182,6 +182,16 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
             </p>
 
             <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
+            {!userId && (
+              <div className="mt-4 flex w-full flex-col gap-1 rounded-2xl border-orange bg-orange-soft border-2 p-4 text-center">
+                <p className="style-badge-text text-md text-brand">
+                  Clicking RSVP will redirect you to Sign In or Sign Up.
+                </p>
+                <p className="style-meta-text text-ink">
+                  Creating an account takes under 20 seconds and saves your info for fast applications to our programs and 1-click event RSVPs in the future!
+                </p>
+              </div>
+            )}
           </>
         )}
       </div>
