@@ -29,12 +29,19 @@ function toDisplayStatus(event: { startTime: Date; endTime: Date; isPublished: b
 function mapEventToRow(event: any): EventRowData {
   const now = new Date();
   const isPast = new Date(event.endTime) < now;
-  const checkedInCountForEvent = event.rsvps.filter((rsvp: any) => Boolean(rsvp.attendance)).length;
+
+  // 1. Filter out cancelled RSVPs
+  // NOTE: Adjust `rsvp.status === "GOING"` (or `!rsvp.isCancelled`) to match your Prisma schema
+  const activeRsvps = event.rsvps.filter(
+    (rsvp: any) => rsvp.status !== "CANCELED" && !rsvp.isCancelled
+  );
+
+  const checkedInCountForEvent = activeRsvps.filter((rsvp: any) => Boolean(rsvp.attendance)).length;
   const capacity = event.capacity ?? 0;
   const progress = capacity > 0 ? Math.round((checkedInCountForEvent / capacity) * 100) : 0;
   const baseStatus = toDisplayStatus(event);
 
-  // Deterministic date formatting for Server Components (prevents hydration mismatch)
+  // Deterministic date formatting for Server Components
   const formattedDate = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/Chicago",
     month: "short",
@@ -50,7 +57,7 @@ function mapEventToRow(event: any): EventRowData {
     status: baseStatus,
     meta: `${formattedDate} · ${event.location}`,
     leftInfo: capacity > 0 ? `${checkedInCountForEvent} / ${capacity} checked in` : "No capacity set",
-    rightInfo: `${event.rsvps.length} RSVPs`,
+    rightInfo: `${activeRsvps.length} RSVPs`, // <-- Uses active count only
     progress,
     progressFill: isPast ? "#8a8a93" : "#2f5fe8",
     dim: isPast,
@@ -58,7 +65,7 @@ function mapEventToRow(event: any): EventRowData {
       { label: "QR", variant: "primary", href: `/admin/events/${event.id}/check-in` },
       { label: "Scan", variant: "primary", href: `/admin/events/${event.id}/scan` },
       { label: "RSVPs", variant: "accent", href: `/admin/events/${event.id}/rsvps` },
-      { label: "Edit", variant: "ghost", href: `/admin/events/${event.id}/edit` }, 
+      { label: "Edit", variant: "ghost", href: `/admin/events/${event.id}/edit` },
     ],
   };
 }
@@ -77,13 +84,20 @@ async function getEventViewModel() {
         },
       },
     }),
-    prisma.rSVP.count(),
+    // 2. Filter total count query to active RSVPs only
+    prisma.rSVP.count({
+      where: {
+        // Adjust filter based on your RSVP model status field:
+        // status: "GOING" 
+        // OR isCancelled: false
+        NOT: { status: "CANCELED" },
+      },
+    }),
   ]);
 
   const publishedEvents = events.filter((event) => event.isPublished);
   const draftEvents = events.filter((event) => !event.isPublished);
 
-  // Categorize published events into Live, Upcoming, and Past
   const liveEvents = publishedEvents.filter((e) => new Date(e.startTime) <= now && new Date(e.endTime) >= now);
   const upcomingEvents = publishedEvents.filter((e) => new Date(e.startTime) > now);
   const pastEvents = publishedEvents.filter((e) => new Date(e.endTime) < now);
@@ -92,7 +106,11 @@ async function getEventViewModel() {
 
   const totalCapacity = events.reduce((sum, event) => sum + (event.capacity ?? 0), 0);
   const totalCheckedIn = events.reduce(
-    (sum, event) => sum + event.rsvps.filter((rsvp) => Boolean(rsvp.attendance)).length,
+    (sum, event) =>
+      sum +
+      event.rsvps.filter(
+        (rsvp: any) => (rsvp.status !== "CANCELED" && !rsvp.isCancelled) && Boolean(rsvp.attendance)
+      ).length,
     0
   );
   const attendanceRatio = totalCapacity > 0 ? Math.round((totalCheckedIn / totalCapacity) * 100) : 0;
@@ -154,7 +172,7 @@ export default async function AdminEventsPage() {
               ))}
             </div>
 
-            {/* Published Events Section (Live + Upcoming) */}
+            {/* Published Events Section */}
             <div className="flex flex-col gap-[12px]">
               <div className="flex items-center justify-between">
                 <h3 className="style-section-header text-ink">
