@@ -68,6 +68,7 @@ async function getFullMemberDetails(id: string) {
 
 export default async function MemberProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const now = new Date();
   
   const [member, viewer] = await Promise.all([
     getFullMemberDetails(id),
@@ -116,8 +117,8 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
 
           <div className="flex flex-col gap-[16px] pb-[40px]">
             {/* Mobile Profile Hero */}
-            <div className="flex flex-col items-center gap-[12px] rounded-[16px] border border-border-soft bg-white p-[24px] text-center shadow-sm">
-              <div className="size-[80px] shrink-0 rounded-full border-[2px] border-border-soft bg-photo" />
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-border-soft bg-white p-[24px] text-center shadow-sm">
+              <div className="size-20 shrink-0 rounded-full border-2 border-border-soft bg-photo" />
               <div>
                 <h1 className="style-mobile-body font-bold text-ink">{name}</h1>
                 <p className="style-caption text-ink-muted mb-[4px]">{member.email}</p>
@@ -147,7 +148,7 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
               <div className="bg-row-soft border-b border-table-line p-[16px] flex items-center justify-between">
                 <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">Academic</h2>
                 {member.profile?.resumeFile && (
-                  <a href={`/api/files/${member.profile.resumeFile.id}`} target="_blank" rel="noreferrer" className=" font-bold text-brand hover:underline">
+                  <a href={`${process.env.R2_PUBLIC_URL ?? process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${member.profile.resumeFile.storageKey}`} target="_blank" rel="noreferrer" className=" font-bold text-brand hover:underline">
                     View Resume ↗
                   </a>
                 )}
@@ -188,7 +189,7 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
               <div className="flex flex-col">
                 {member.rsvps.slice(0, 5).length > 0 ? (
                   member.rsvps.slice(0, 5).map((rsvp) => {
-                    const isPast = rsvp.event.endTime < new Date();
+                    const isPast = rsvp.event.endTime < now;
                     let badge = { label: "Upcoming", bg: "bg-blue-50", color: "text-blue-700" };
                     if (rsvp.status === "CANCELED") badge = { label: "Canceled", bg: "bg-gray-100", color: "text-gray-500" };
                     else if (rsvp.attendance) badge = { label: "Attended", bg: "bg-green-50", color: "text-green-700" };
@@ -271,8 +272,8 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
                 <div className="flex items-center justify-between border-b border-table-line p-[20px]">
                   <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">Academic Profile</h2>
                   {member.profile?.resumeFile && (
-                    <a href={`/api/files/${member.profile.resumeFile.id}`} target="_blank" rel="noreferrer" className=" font-bold text-brand hover:underline">
-                      Download Resume ↗
+                    <a href={`${process.env.R2_PUBLIC_URL ?? process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${member.profile.resumeFile.storageKey}`} target="_blank" rel="noreferrer" className=" font-bold text-brand hover:underline">
+                      View Resume ↗
                     </a>
                   )}
                 </div>
@@ -364,7 +365,7 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
                 <div className="flex flex-col">
                   {member.rsvps.length > 0 ? (
                     member.rsvps.map((rsvp) => {
-                      const isPast = rsvp.event.endTime < new Date();
+                      const isPast = rsvp.event.endTime < now;
                       let badge = { label: "Upcoming", bg: "bg-blue-50", color: "text-blue-700" };
                       if (rsvp.status === "CANCELED") badge = { label: "Canceled", bg: "bg-gray-100", color: "text-gray-500" };
                       else if (rsvp.attendance) badge = { label: "Attended", bg: "bg-green-50", color: "text-green-700" };
@@ -404,11 +405,11 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
 }
 
 // Helper to standardise InfoRow layout across mobile and desktop
-function InfoRow({ label, value, mobile = false }: { label: string; value?: string | null; mobile?: boolean }) {
+function InfoRow({ label, value }: { label: string; value?: string | null; mobile?: boolean }) {
   return (
     <div className="flex items-center justify-between gap-[16px]">
-      <span className={`style-caption text-ink-faint shrink-0 ${mobile ? '' : ''}`}>{label}</span>
-      <span className={`style-body-text font-medium text-ink text-right truncate ${mobile ? '' : ''}`}>
+      <span className={`style-caption text-ink-faint shrink-0`}>{label}</span>
+      <span className={`style-body-text font-medium text-ink text-right truncate`}>
         {formatDisplayString(value)}
       </span>
     </div>
