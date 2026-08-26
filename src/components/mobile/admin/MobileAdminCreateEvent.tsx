@@ -22,7 +22,11 @@ export function MobileAdminCreateEvent() {
         </h2>
       </div>
 
-      <form action={createEvent} className="flex flex-col gap-[24px]">
+      <form 
+        action={createEvent} 
+        // encType="multipart/form-data" 
+        className="flex flex-col gap-[24px]"
+      >
         <EventForm tags={eventTags} />
         <CoverPhotoCard defaultImageUrl={null} />
         <SettingsCard items={eventSettings} />

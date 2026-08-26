@@ -24,44 +24,26 @@ const validTagValues = [
 ] as const;
 
 function parseChicagoTimeToUtc(localDateTimeString: string): Date {
-  // localDateTimeString format: "2026-09-10T19:00"
-  const [datePart, timePart] = localDateTimeString.split("T");
-  const [year, month, day] = datePart.split("-").map(Number);
-  const [hour, minute] = timePart.split(":").map(Number);
+  // Example input: "2026-09-10T19:00"
+  if (!localDateTimeString) return new Date(NaN);
 
-  // Formatter configuration matching the target timezone
+  // Derive offset for America/Chicago at target date
+  const targetDate = new Date(`${localDateTimeString}:00Z`);
   const formatter = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/Chicago",
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-    second: "numeric",
-    hour12: false,
+    timeZoneName: "shortOffset",
   });
 
-  // Target date estimate to refine offset calculation
-  let utcGuess = Date.UTC(year, month - 1, day, hour, minute);
+  const parts = formatter.formatToParts(targetDate);
+  const timeZoneName = parts.find((p) => p.type === "timeZoneName")?.value ?? "GMT-5";
   
-  for (let i = 0; i < 3; i++) {
-    const parts = formatter.formatToParts(new Date(utcGuess));
-    const p = Object.fromEntries(parts.map(part => [part.type, part.value]));
-    
-    const formattedDate = Date.UTC(
-      Number(p.year),
-      Number(p.month) - 1,
-      Number(p.day),
-      Number(p.hour) === 24 ? 0 : Number(p.hour), // Normalizes midnight formatting edge-cases
-      Number(p.minute)
-    );
+  // Convert "GMT-5" or "GMT-6" to "-05:00" / "-06:00"
+  const match = timeZoneName.match(/GMT([+-]\d+)/);
+  const offset = match 
+    ? `${match[1].padStart(3, "0")}:00`.replace("+0", "+0").replace("-0", "-0")
+    : "-05:00";
 
-    const delta = utcGuess - formattedDate;
-    if (delta === 0) break;
-    utcGuess += delta;
-  }
-
-  return new Date(utcGuess);
+  return new Date(`${localDateTimeString}:00${offset}`);
 }
 
 
@@ -121,15 +103,15 @@ async function resolveEventImageUrl(
     throw new Error("Event cover must be an image file.");
   }
 
-  if (file.size > 8 * 1024 * 1024) {
-    throw new Error("Event cover image must be under 8 MB.");
+  // UPDATED: Match client 2 MB limit
+  if (file.size > 2 * 1024 * 1024) {
+    throw new Error("Event cover image must be under 2 MB.");
   }
 
   const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
   const key = `events/${Date.now()}-${crypto.randomUUID()}-${safeName}`;
   const data = Buffer.from(await file.arrayBuffer());
 
-  // Upload directly to Cloudflare R2
   const publicUrl = await putObjectToR2(key, data, file.type || "image/jpeg");
 
   if (!publicUrl) {

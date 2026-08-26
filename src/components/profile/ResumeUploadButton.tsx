@@ -4,6 +4,8 @@ import { useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { uploadResumeAction } from "@/app/profile/resume";
 
+const MAX_FILE_SIZE = 1024 * 1024;
+
 type ResumeUploadButtonProps = {
   initialFileName?: string | null;
   hasResume: boolean;
