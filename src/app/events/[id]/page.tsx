@@ -42,8 +42,9 @@ interface EventDetailPageProps {
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
   const { id } = await params;
-  const user = await getAuthenticatedUser();
-  const userId = user?.id ?? null;
+  const session = await getAuthenticatedUser();
+  // FIXED: Fetch target userId from profile.userId instead of base user.id
+  const userId = session?.profile?.userId ?? null;
 
   const event = await prisma.event.findUnique({
     where: { id },
@@ -140,10 +141,10 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                 className={`flex w-full flex-col items-center justify-center gap-[16px] self-stretch rounded-[16px] p-[33px] lg:w-[360px] lg:shrink-0 ${
                   isPast
                     ? attended
-                      ? "bg-checked border-2 border-green" // Soft green for attended
+                      ? "bg-checked border-2 border-green"
                       : isRsvpd
-                      ? "bg-danger-ink/20 border-2 border-danger-ink" // Soft red/pink for RSVP'd but missed
-                      : "bg-[#f4f1ea] border border-border-soft" // Neutral for never RSVP'd
+                      ? "bg-danger-ink/20 border-2 border-danger-ink"
+                      : "bg-[#f4f1ea] border border-border-soft"
                     : attended
                     ? "bg-checked"
                     : isRsvpd
@@ -187,8 +188,6 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                     <p className="text-center style-caption text-green font-medium">
                       Your ticket can still be scanned for claiming items or swag.
                     </p>
-
-                    <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
                   </>
                 ) : isRsvpd ? (
                   <>
