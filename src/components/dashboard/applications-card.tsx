@@ -95,7 +95,7 @@ export function ApplicationsCard({ items }: { items: ApplicationItem[] }) {
           <p className="style-body-text text-ink-muted max-w-[280px] leading-tight">
             Applications open at Kickoff on September 3, at 7pm.
           </p>
-          <Link href="/applications" className="mt-[2px]">
+          {/* <Link href="/applications" className="mt-[2px]">
             <Button
               variant="soft"
               size="sm"
@@ -104,7 +104,7 @@ export function ApplicationsCard({ items }: { items: ApplicationItem[] }) {
             >
               View Schedule
             </Button>
-          </Link>
+          </Link> */}
         </div>
       ) : (
         items.map((item, index) => (

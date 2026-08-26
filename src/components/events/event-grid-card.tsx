@@ -90,7 +90,7 @@ export function EventGridCard({
   return (
     <Link 
       href={`/events/${eventId}`}
-      className="group flex h-full flex-col rounded-2xl border border-border-soft bg-white p-5 transition-shadow hover:shadow-sm"
+      className="group flex h-full flex-col rounded-2xl border border-border-soft bg-white p-5 transition-all duration-300 hover:shadow-sm hover:scale-105"
     >
       <EventCoverImage
         imageUrl={imageUrl}
