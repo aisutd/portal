@@ -164,7 +164,7 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
             <EventQRCode value={userRsvp?.qrToken ?? `checkin-${userId}-${event.id}`} />
 
             <p className="text-center style-caption text-ink-faint">
-              This is your ticket to claim food, merch, drinks, etc.
+              This is your ticket to claim food, merch, drinks, etc. If you are late and don't see the attendance on the big screen, show this QR to an officer to check you in.
             </p>
 
             <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
@@ -177,8 +177,8 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
             
             <p className="text-center style-mobile-body text-ink-muted">
               {isLive
-                ? "RSVP now to secure your attendance and show your QR code at the door."
-                : "RSVP to secure your spot and unlock your QR code for check-in and claiming merch."}
+                ? "RSVP now to secure your attendance and show your QR code for claiming food/drinks/merch."
+                : "RSVP to secure your spot and unlock your QR code to claim food/drinks/merch."}
             </p>
 
             <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />

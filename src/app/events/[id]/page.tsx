@@ -63,7 +63,6 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
 
   const now = new Date();
   
-  // Business Logic Timings
   const isPast = event.endTime < now;
   const isLive = now >= event.startTime && now <= event.endTime;
 
@@ -194,13 +193,13 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                 ) : isRsvpd ? (
                   <>
                     <h2 className="style-section-header leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
-                      You&apos;re Going!
+                      RSVP'd. You're Going!
                     </h2>
 
                     <EventQRCode value={userRsvp?.qrToken ?? `checkin-${userId}-${event.id}`} />
 
                     <p className="text-center style-caption text-ink-faint">
-                      This is your ticket to claim food, merch, drinks, etc.
+                      This is your ticket to claim food, merch, drinks, etc. If you are late and don't see the attendance on the big screen, show this QR to an officer to check you in.
                     </p>
 
                     <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
@@ -213,8 +212,8 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                     
                     <p className="text-center style-body-text text-ink-muted">
                       {isLive
-                        ? "RSVP now to secure your attendance and show your QR code at the door."
-                        : "RSVP to secure your spot and unlock your check-in QR code."}
+                        ? "RSVP now to secure your attendance and to show your QR code for claiming food/drinks/merch."
+                        : "RSVP to secure your spot and unlock your QR code to claim food/drinks/merch at the event."}
                     </p>
 
                     <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
