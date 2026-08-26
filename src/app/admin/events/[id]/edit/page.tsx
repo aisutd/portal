@@ -29,8 +29,8 @@ export default async function EditEventPage({
   params: Promise<{ id: string }> 
 }) {
   const user = await getAuthenticatedUser();
-  if (!user || (user.role !== "ADMIN" && user.role !== "OFFICER")) {
-    redirect("/login");
+  if (!user || (user.role !== "EXECUTIVE" && user.role !== "OFFICER")) {
+    redirect("/onboarding");
   }
 
   const { id } = await params;
