@@ -66,10 +66,29 @@ async function getFullMemberDetails(id: string) {
   };
 }
 
-export default async function MemberProfilePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function MemberProfilePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const { id } = await params;
+  const resolvedSearchParams = await searchParams;
+
+  // Handle redirect URL parsing with security check for internal paths
+  const rawRedirect =
+    typeof resolvedSearchParams.redirectUrl === "string"
+      ? resolvedSearchParams.redirectUrl
+      : typeof resolvedSearchParams.from === "string"
+      ? resolvedSearchParams.from
+      : null;
+
+  const backUrl = rawRedirect && rawRedirect.startsWith("/") ? rawRedirect : "/admin/members";
+  const backLabel = backUrl.includes("/rsvps") ? "Back to Event RSVPs" : "Back to Members";
+
   const now = new Date();
-  
+
   const [member, viewer] = await Promise.all([
     getFullMemberDetails(id),
     getAuthenticatedUser(),
@@ -78,8 +97,8 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
   if (!member) notFound();
 
   const editable = canManageRoles(viewer?.role);
-  const name = member.profile 
-    ? `${member.profile.prefName || member.profile.firstName} ${member.profile.lastName}`.trim() 
+  const name = member.profile
+    ? `${member.profile.prefName || member.profile.firstName} ${member.profile.lastName}`.trim()
     : member.email.split("@")[0];
 
   const uniquePrograms = Array.from(new Set(member.memberships.map((m) => m.membershipType)));
@@ -96,20 +115,23 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
           {/* Header */}
           <div className="flex items-center justify-between pb-[16px]">
             <div className="flex items-center gap-[12px]">
-              <Link href="/admin/members" className="flex h-[32px] w-[32px] items-center justify-center rounded-full border border-border-soft bg-white text-ink-faint hover:bg-gray-50">
+              <Link
+                href={backUrl}
+                className="flex h-[32px] w-[32px] items-center justify-center rounded-full border border-border-soft bg-white text-ink-faint hover:bg-gray-50"
+              >
                 <span aria-hidden>←</span>
               </Link>
               <h2 className="style-mobile-title text-ink">Profile</h2>
             </div>
-            
+
             {editable && (
               <div className="flex items-center gap-[6px] rounded-full border border-border-soft bg-white pl-[12px] pr-[4px] py-[4px] shadow-sm">
                 <span className="style-caption text-ink-faint">Manage</span>
-                <MemberRolesEditor 
+                <MemberRolesEditor
                   memberId={member.id}
                   memberName={name}
                   role={member.role}
-                  programs={uniquePrograms} 
+                  programs={uniquePrograms}
                 />
               </div>
             )}
@@ -146,9 +168,14 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
             {/* Mobile Academic Profile */}
             <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
               <div className="bg-row-soft border-b border-table-line p-[16px] flex items-center justify-between">
-                <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">Academic</h2>
+                <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Academic</h2>
                 {member.profile?.resumeFile && (
-                  <a href={`${process.env.R2_PUBLIC_URL ?? process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${member.profile.resumeFile.storageKey}`} target="_blank" rel="noreferrer" className=" font-bold text-brand hover:underline">
+                  <a
+                    href={`${process.env.R2_PUBLIC_URL ?? process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${member.profile.resumeFile.storageKey}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-bold text-brand hover:underline"
+                  >
                     View Resume ↗
                   </a>
                 )}
@@ -165,7 +192,7 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
             {member.submissions.length > 0 && (
               <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
                 <div className="bg-row-soft border-b border-table-line p-[16px]">
-                  <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">Applications</h2>
+                  <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Applications</h2>
                 </div>
                 <div className="flex flex-col">
                   {member.submissions.map((sub) => (
@@ -184,7 +211,7 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
             {/* Mobile RSVPs */}
             <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
               <div className="bg-row-soft border-b border-table-line p-[16px]">
-                <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">Recent RSVPs</h2>
+                <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Recent RSVPs</h2>
               </div>
               <div className="flex flex-col">
                 {member.rsvps.slice(0, 5).length > 0 ? (
@@ -212,7 +239,6 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
                 )}
               </div>
             </div>
-            
           </div>
         </MobileScreen>
       </div>
@@ -226,19 +252,19 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
         <div className="flex h-full flex-1 flex-col gap-[24px] p-[46px] overflow-y-auto">
           {/* Header & Actions */}
           <div className="flex items-center justify-between">
-            <Link href="/admin/members" className="flex items-center gap-[8px] style-caption text-ink-faint transition-colors hover:text-ink">
-              <span aria-hidden>←</span> Back to Members
+            <Link href={backUrl} className="flex items-center gap-[8px] style-caption text-ink-faint transition-colors hover:text-ink">
+              <span aria-hidden>←</span> {backLabel}
             </Link>
-            
+
             <div className="flex items-center gap-[12px]">
               {editable && (
                 <div className="flex items-center gap-[8px] rounded-[8px] border border-border-soft bg-white px-[12px] py-[6px] shadow-sm">
                   <span className="style-caption text-ink-faint">Manage User</span>
-                  <MemberRolesEditor 
+                  <MemberRolesEditor
                     memberId={member.id}
                     memberName={name}
                     role={member.role}
-                    programs={uniquePrograms} 
+                    programs={uniquePrograms}
                   />
                 </div>
               )}
@@ -262,17 +288,18 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
           </div>
 
           <div className="grid grid-cols-[1.2fr_2fr] gap-[24px] items-start">
-            
-            {/* ============================================================== */}
             {/* LEFT COLUMN: Profile, Docs, Programs */}
-            {/* ============================================================== */}
             <div className="flex flex-col gap-[24px]">
-              
               <div className="flex flex-col rounded-[14px] border border-border-soft bg-white">
                 <div className="flex items-center justify-between border-b border-table-line p-[20px]">
-                  <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">Academic Profile</h2>
+                  <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Academic Profile</h2>
                   {member.profile?.resumeFile && (
-                    <a href={`${process.env.R2_PUBLIC_URL ?? process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${member.profile.resumeFile.storageKey}`} target="_blank" rel="noreferrer" className=" font-bold text-brand hover:underline">
+                    <a
+                      href={`${process.env.R2_PUBLIC_URL ?? process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${member.profile.resumeFile.storageKey}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-bold text-brand hover:underline"
+                    >
                       View Resume ↗
                     </a>
                   )}
@@ -288,7 +315,7 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
               {/* Application Submissions */}
               <div className="flex flex-col rounded-[14px] border border-border-soft bg-white">
                 <div className="border-b border-table-line p-[20px]">
-                  <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">Applications</h2>
+                  <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Applications</h2>
                 </div>
                 <div className="flex flex-col">
                   {member.submissions.length > 0 ? (
@@ -306,12 +333,12 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
                   )}
                 </div>
               </div>
-              
+
               {/* System Audit Logs */}
               {member.auditLogs.length > 0 && (
                 <div className="flex flex-col rounded-[14px] border border-border-soft bg-white">
                   <div className="border-b border-table-line p-[20px]">
-                    <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">Recent System Activity</h2>
+                    <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Recent System Activity</h2>
                   </div>
                   <div className="flex flex-col p-[20px] gap-[12px]">
                     {member.auditLogs.map((log) => (
@@ -325,16 +352,13 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
               )}
             </div>
 
-            {/* ============================================================== */}
             {/* RIGHT COLUMN: Events (RSVPs & Created) */}
-            {/* ============================================================== */}
             <div className="flex flex-col gap-[24px]">
-              
               {/* Created Events */}
               {member.role !== "MEMBER" && member.createdEvents.length > 0 && (
                 <div className="flex flex-col rounded-[14px] border border-border-soft bg-white">
                   <div className="flex items-center justify-between border-b border-table-line p-[20px]">
-                    <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">Events Organized</h2>
+                    <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Events Organized</h2>
                     <span className="style-caption text-brand">{member.createdEvents.length} Total</span>
                   </div>
                   <div className="flex flex-col">
@@ -354,14 +378,14 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
               {/* Event RSVPs */}
               <div className="flex flex-col rounded-[14px] border border-border-soft bg-white">
                 <div className="flex items-center justify-between border-b border-table-line p-[20px]">
-                  <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">RSVPs & Attendance</h2>
-                  <div className="flex gap-[12px] style-caption ">
+                  <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">RSVPs & Attendance</h2>
+                  <div className="flex gap-[12px] style-caption">
                     <span className="text-green-700">{member.stats.attendedCount} Attended</span>
                     <span className="text-ink-faint">·</span>
                     <span className="text-red-600">{member.stats.missedCount} Missed</span>
                   </div>
                 </div>
-                
+
                 <div className="flex flex-col">
                   {member.rsvps.length > 0 ? (
                     member.rsvps.map((rsvp) => {
@@ -408,8 +432,8 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
 function InfoRow({ label, value }: { label: string; value?: string | null; mobile?: boolean }) {
   return (
     <div className="flex items-center justify-between gap-[16px]">
-      <span className={`style-caption text-ink-faint shrink-0`}>{label}</span>
-      <span className={`style-body-text font-medium text-ink text-right truncate`}>
+      <span className="style-caption text-ink-faint shrink-0">{label}</span>
+      <span className="style-body-text font-medium text-ink text-right truncate">
         {formatDisplayString(value)}
       </span>
     </div>
