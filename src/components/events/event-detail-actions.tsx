@@ -94,13 +94,13 @@ export function EventDetailActions({
   return (
     <div className="flex w-full flex-col gap-[10px] mt-[4px]">
       <Button
-        variant={isRsvpd ? "accent" : "primary"}
+        variant={isRsvpd ? "ghost" : "primary"}
         size="md"
         onClick={handleRsvpToggle}
         disabled={loading}
         block
       >
-        {loading ? "Processing..." : isRsvpd ? "Cancel RSVP" : "RSVP Now"}
+        {loading ? "Processing..." : isRsvpd ? "Cancel RSVP" : "RSVP"}
       </Button>
     </div>
   );

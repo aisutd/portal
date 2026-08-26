@@ -14,7 +14,6 @@ export function BottomNav() {
   const { user } = useUser();
 
   // 1. Initialize state instantly using metadata if it exists
-  // Unknown values mean stale metadata from an older build — ask the API.
   const rawMetadataRole = (user?.publicMetadata as { role?: string } | undefined)?.role;
   const metadataRole = isKnownRole(rawMetadataRole) ? rawMetadataRole : undefined;
   const [role, setRole] = useState<string | null>(metadataRole ?? null);
@@ -68,17 +67,23 @@ export function BottomNav() {
   }
 
   const isProfileActive = pathname?.startsWith("/profile");
+
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 md:hidden">
       <div className="flex w-full items-center justify-center border-t border-border-soft bg-white px-4 py-2.5 shadow-[0_-2px_10px_rgba(0,0,0,0.06)]">
-        <div className="flex w-full max-w-85 items-center overflow-x-auto scrollbar-none shrink-0 gap-1">
+        {/* Adjusted max-w and flex constraints for small screens */}
+        <div className="flex w-full items-center justify-around overflow-x-auto scrollbar-none shrink-0 gap-1">
           {tabs.map((tab) => {
             const active = tab.href === "/" ? pathname === "/" : pathname?.startsWith(tab.href);
             return (
               <Link
                 key={tab.href}
-                href={tab.href}
-                className={`rounded-full px-4 py-2 style-nav-link  transition-colors ${
+                href={
+                  tab.href === "/dashboard" && !isSignedIn
+                    ? "/onboarding?mode=login"
+                    : tab.href
+                }
+                className={`rounded-full px-3 py-2 style-nav-link transition-colors whitespace-nowrap ${
                   active ? "bg-purple-soft text-brand" : "text-ink-muted hover:text-ink"
                 }`}
               >
@@ -86,13 +91,24 @@ export function BottomNav() {
               </Link>
             );
           })}
-          {/* Aligned UserButton / Profile Link matching desktop */}
+
+          {/* Rendered when SIGNED OUT */}
+          <Show when="signed-out">
+            <Link
+              href="/onboarding?mode=login"
+              className="rounded-full bg-brand px-3 py-2 style-nav-link text-white whitespace-nowrap shrink-0"
+            >
+              Sign In
+            </Link>
+          </Show>
+
+          {/* Rendered when SIGNED IN */}
           <Show when="signed-in">
             <Link
               href="/profile"
               aria-label="Profile"
               className={cn(
-                "flex shrink-0 items-center justify-center rounded-full transition-colors",
+                "flex shrink-0 items-center justify-center rounded-full transition-colors p-1",
                 isProfileActive ? "bg-[#e1e8ff]" : ""
               )}
             >

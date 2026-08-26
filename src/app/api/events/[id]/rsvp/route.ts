@@ -2,16 +2,21 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { generateQRToken } from "@/lib/qrToken";
+import { sendRsvpConfirmationEmail } from "@/lib/emails/confirm-rsvp-email";
+import { sendRsvpCancellationEmail } from "@/lib/emails/cancel-rsvp-email";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getAuthenticatedUser();
-
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  console.log("attempting to confirm rsvp");
   const { id: eventId } = await params;
-  const existingEvent = await prisma.event.findUnique({ where: { id: eventId } });
+
+  const existingEvent = await prisma.event.findUnique({
+    where: { id: eventId }
+  });
 
   if (!existingEvent) {
     return NextResponse.json({ error: "Event not found" }, { status: 404 });
@@ -50,7 +55,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     qrExpiresAt: expiresAt,
   };
 
-  // FIX: Use upsert to handle both first-time RSVPs and re-RSVPs
+  // Use upsert to handle both first-time RSVPs and re-RSVPs
   const rsvp = await prisma.rSVP.upsert({
     where: {
       userId_eventId: {
@@ -66,12 +71,25 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     },
   });
 
+  console.log("RSVP is confirmed. now should try sending email.");
+
+  try {
+    await sendRsvpConfirmationEmail({ 
+      userId: user.id, 
+      eventId: eventId 
+    });
+    console.log("RSVP confirmation email dispatched successfully.");
+  } catch (error: any) {
+    console.error("Failed to send RSVP email:", error.message);
+  }
+
+  // Always return the database record confirmation to your client frontend
   return NextResponse.json({ success: true, rsvp });
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  console.log("attempting to delete rsvp");
   const user = await getAuthenticatedUser();
-
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -95,6 +113,17 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     where: { id: existing.id },
     data: { status: "CANCELED" },
   });
+
+  try {
+    await sendRsvpCancellationEmail({ 
+      userId: user.id, 
+      eventId: eventId 
+    });
+    console.log("RSVP cancellation email dispatched successfully.");
+  } catch (error: any) {
+
+    console.error("Failed to send RSVP cancel email:", error.message);
+  }
 
   return NextResponse.json({ success: true });
 }

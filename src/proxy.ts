@@ -1,52 +1,39 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { isAdminRole, isKnownRole } from "@/lib/roles";
+import { clerkMiddleware } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
 
-const isPublicRoute = createRouteMatcher([
-  '/events(.*)',
-  '/applications(.*)',
+// Public route prefixes that bypass authentication entirely
+const PUBLIC_PREFIXES = [
+  '/events',
+  '/applications',
   '/onboarding',
-  '/api/webhooks(.*)',
-  '/api/onboarding/profile/(.*)'
-]);
-
-const isAdminRoute = createRouteMatcher(["/admin(.*)", "/api/admin(.*)"]);
+  '/api/webhooks',
+  '/api/onboarding/profile',
+];
 
 export default clerkMiddleware(async (auth, req) => {
-  const session = await auth();
   const { pathname, search } = req.nextUrl;
-  
-  if (pathname === "/") {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+
+  // 1. Root route redirect
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL('/dashboard', req.url));
   }
 
-  // Everything except public routes requires sign-in
-  if (!isPublicRoute(req) && !session.userId) {
-    const fullPath = `${pathname}${search}`;
-    const redirectUrl = new URL('/onboarding', req.url);
-    redirectUrl.searchParams.set('mode', 'login');
-    redirectUrl.searchParams.set('redirect_url', fullPath);
+  // 2. Check if route is public using standard string matching
+  const isPublicRoute = PUBLIC_PREFIXES.some((prefix) =>
+    pathname.startsWith(prefix)
+  );
 
-    return NextResponse.redirect(redirectUrl);
-  }
+  // 3. Require sign-in for all non-public routes
+  if (!isPublicRoute) {
+    const session = await auth();
 
-  // Extra role gate for admin routes only
-  if (isAdminRoute(req)) {
-    const claimedRole = session.sessionClaims?.metadata?.role;
-    // A stale claim from an older build must not outrank the database.
-    let role = isKnownRole(claimedRole) ? claimedRole : undefined;
+    if (!session.userId) {
+      const fullPath = `${pathname}${search}`;
+      const redirectUrl = new URL('/onboarding', req.url);
+      redirectUrl.searchParams.set('mode', 'login');
+      redirectUrl.searchParams.set('redirect_url', fullPath);
 
-    if (!role && session.userId) {
-      const user = await prisma.user.findUnique({
-        where: { clerkId: session.userId },
-        select: { role: true },
-      });
-      role = user?.role;
-    }
-
-    if (!isAdminRole(role)) {
-      return NextResponse.redirect(new URL('/dashboard', req.url));
+      return NextResponse.redirect(redirectUrl);
     }
   }
 });

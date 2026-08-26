@@ -5,7 +5,6 @@ import { createErrorResponse } from "@/lib/api-error";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { canManageRoles } from "@/lib/roles";
-import { redirect } from "next/navigation";
 
 /**
  * Records that belong to the organisation rather than to the person. Nothing
@@ -32,6 +31,7 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // 1. Resource-based Auth Check (Matches Clerk's recommended migration strategy)
   const actor = await getAuthenticatedUser();
 
   if (!actor) {
@@ -107,14 +107,10 @@ export async function DELETE(
     );
   }
 
-  // The Clerk delete runs inside the transaction so the two systems cannot
-  // disagree: if Clerk rejects it, the database rows come back. Leaving the
-  // login alive would let onboarding recreate the row from the same account.
+  // Transaction for Prisma + Clerk operations
   try {
     await prisma.$transaction(
       async (tx) => {
-        // Personal rows only: profile, program memberships, and their RSVPs
-        // (Attendance cascades from RSVP).
         await tx.rSVP.deleteMany({ where: { userId: id } });
         await tx.membership.deleteMany({ where: { userId: id } });
         await tx.profile.deleteMany({ where: { userId: id } });
@@ -137,7 +133,6 @@ export async function DELETE(
         try {
           await clerk.users.deleteUser(target.clerkId);
         } catch (clerkError) {
-          // Already gone in Clerk is the end state we want, not a failure.
           const status = (clerkError as { status?: number })?.status;
           if (status !== 404) throw clerkError;
         }
@@ -154,7 +149,6 @@ export async function DELETE(
   }
 
   revalidatePath("/admin/members");
-  redirect("/admin/members");
 
   return NextResponse.json({ success: true });
 }
