@@ -155,29 +155,10 @@ export default async function ProfilePage() {
                 <Card className="flex flex-col p-[29px] gap-[20px]">
                   <SectionHeader title="Resume Upload" />
 
-                  <div className={cn(
-                    "flex flex-col md:flex-row items-start md:items-center justify-between rounded-[12px] border-[2px] p-[24px] gap-[20px]",
-                    !profile.resumeFileId ? "border-red-500 border-solid bg-red-50" : "border-dashed border-frame bg-[#f9f8f6]"
-                  )}>
-                    <div className="flex items-center gap-[20px]">
-                      <div className="flex size-[64px] shrink-0 items-center justify-center rounded-full bg-featured">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2f5fe8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                          <path d="M14 2v6h6"></path>
-                          <path d="M12 18v-6"></path>
-                          <path d="M9 15l3-3 3 3"></path>
-                        </svg>
-                      </div>
-                      <div className="flex flex-col gap-[4px]">
-                        <span className="style-card-title text-ink">Upload New Resume</span>
-                        <span className="style-meta-text text-ink-muted uppercase tracking-wide">PDF, DOC, DOCX, UP TO 10MB.</span>
-                      </div>
-                    </div>
-                    <ResumeUploadButton
-                      initialFileName={profile.resumeFile?.fileName}
-                      hasResume={!!profile.resumeFileId}
-                    />
-                  </div>
+                  <ResumeUploadButton
+                    initialFileName={profile.resumeFile?.fileName}
+                    hasResume={!!profile.resumeFileId}
+                  />
                 </Card>
               </div>
 
@@ -288,7 +269,7 @@ export default async function ProfilePage() {
 
                 {/* SECURITY CARD */}
                 <Card className="flex flex-col p-[29px] gap-[20px]">
-                  <SectionHeader title="Security & Notifications" />
+                  <SectionHeader title="Security" />
 
                   <div className="flex items-center justify-between rounded-[12px] bg-[var(--color-pill-amber)] p-[20px]">
                     <div className="flex flex-col gap-[4px] pr-4">
@@ -298,16 +279,6 @@ export default async function ProfilePage() {
 
                     {/* Render the Client Component Button here */}
                     <PasswordResetButton />
-                  </div>
-
-                  <div className="flex items-center justify-between rounded-[12px] bg-coffee p-[20px]">
-                    <div className="flex flex-col gap-[4px] pr-4">
-                      <span className="style-card-title text-[#4b4178]">Email Notifications</span>
-                      <span className="style-body-text text-[#4b4178] leading-tight">Receive updates from AIS about events and announcements.</span>
-                    </div>
-                    <div className="relative h-[28px] w-[52px] shrink-0 rounded-full bg-brand p-[2px]">
-                      <div className="absolute right-[2px] top-[2px] size-[24px] rounded-full bg-white shadow-sm" />
-                    </div>
                   </div>
                 </Card>
 
