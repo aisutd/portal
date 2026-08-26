@@ -39,6 +39,19 @@ function formatEventDateTime(startTime?: string | Date | null) {
   }).format(dateObj);
 }
 
+function isUpcomingOrOngoing(item: RecommendedItem): boolean {
+  const now = new Date().getTime();
+  
+  // Use endTime if present; fallback to startTime
+  const targetTime = item.endTime ?? item.startTime;
+  if (!targetTime) return false;
+
+  const dateObj = typeof targetTime === "string" ? new Date(targetTime) : targetTime;
+  const timestamp = dateObj.getTime();
+
+  return !isNaN(timestamp) && timestamp > now;
+}
+
 function RecommendedRow({
   item,
   onRsvpSuccess,
@@ -127,10 +140,13 @@ function RecommendedRow({
 }
 
 export function RecommendedCard({ items }: { items: RecommendedItem[] }) {
-  const [displayItems, setDisplayItems] = useState(items);
+  const [displayItems, setDisplayItems] = useState(() => 
+    items.filter(isUpcomingOrOngoing)
+  );
 
   useEffect(() => {
-    setDisplayItems(items);
+    // Re-filter whenever props update
+    setDisplayItems(items.filter(isUpcomingOrOngoing));
   }, [items]);
 
   function handleRsvpSuccess(eventId: string) {

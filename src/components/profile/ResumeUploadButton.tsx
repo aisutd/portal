@@ -4,6 +4,8 @@ import { useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { uploadResumeAction } from "@/app/profile/resume";
 
+const MAX_FILE_SIZE = 1024 * 1024;
+
 type ResumeUploadButtonProps = {
   initialFileName?: string | null;
   hasResume: boolean;
@@ -25,6 +27,12 @@ export function ResumeUploadButton({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      alert("File is too large! Please upload a file smaller than 1 MB.");
+      e.target.value = ""; // Clear selected file
+      return;
+    }
 
     setError(null);
     const formData = new FormData();

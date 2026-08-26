@@ -194,9 +194,7 @@ export async function DashboardApplicationsCard({ userId }: { userId: string }) 
 }
 
 export async function DashboardRsvpsCard({ userId }: { userId: string }) {
-  // Omit the 'take' limit or set a high number to fetch all past & upcoming RSVPs
   const rsvps = await getRSVPs(userId); 
-
   const now = new Date();
 
   const items: RsvpItem[] = rsvps.map((rsvp) => {
@@ -205,6 +203,7 @@ export async function DashboardRsvpsCard({ userId }: { userId: string }) {
 
     return {
       id: rsvp.id,
+      isoDate: d.toISOString(), // Required for Month/Year grouping
       day: d.toLocaleDateString("en-US", {
         timeZone: "America/Chicago",
         day: "2-digit",
@@ -217,7 +216,7 @@ export async function DashboardRsvpsCard({ userId }: { userId: string }) {
       })} · ${rsvp.event.location}`,
       eventId: rsvp.eventId,
       attended: Boolean(rsvp.attendance),
-      isPast: endTime < now, // Marks event as past if end time has passed
+      isPast: endTime < now,
     };
   });
 

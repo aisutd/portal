@@ -10,6 +10,11 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '1gb', // higher than actual limit to let server handle errors
+    },
+  },
 };
 
 export default nextConfig;

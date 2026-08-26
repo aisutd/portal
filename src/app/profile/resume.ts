@@ -2,10 +2,10 @@
 
 import { currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
-import { putObjectToR2 } from "@/lib/r2";
+import { putObjectToR2, deleteObjectFromR2 } from "@/lib/r2";
 import { revalidatePath } from "next/cache";
 
-const MAX_FILE_SIZE = 512 * 1024; // 0.5 MB
+const MAX_FILE_SIZE = 1024 * 1024; // 1 MB
 const ALLOWED_TYPES = [
   "application/pdf",
   "application/msword",
@@ -19,7 +19,13 @@ export async function uploadResumeAction(formData: FormData) {
 
     const user = await prisma.user.findUnique({
       where: { clerkId: clerkUser.id },
-      include: { profile: true },
+      include: {
+        profile: {
+          include: {
+            resumeFile: true, // Fetch existing resume file record
+          },
+        },
+      },
     });
 
     if (!user || !user.profile) {
@@ -32,12 +38,15 @@ export async function uploadResumeAction(formData: FormData) {
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      return { success: false, error: "File exceeds 10MB limit" };
+      return { success: false, error: "File exceeds 1MB limit" };
     }
 
     if (!ALLOWED_TYPES.includes(file.type)) {
       return { success: false, error: "Only PDF, DOC, and DOCX files are allowed" };
     }
+
+    // Capture the existing resume file record to clean it up after the new upload succeeds
+    const oldResumeFile = user.profile.resumeFile;
 
     // Generate storage key
     const fileExtension = file.name.split(".").pop();
@@ -52,22 +61,32 @@ export async function uploadResumeAction(formData: FormData) {
       return { success: false, error: "Failed to upload file to R2" };
     }
 
-    // 1. Create the File record (using prisma.file & your schema's field names)
+    // 1. Create the new File record in Prisma
     const fileRecord = await prisma.file.create({
       data: {
         fileName: file.name,
         mimeType: file.type,
-        fileSize: file.size,       // schema field is fileSize
-        storageKey: storageKey,   // schema field is storageKey
+        fileSize: file.size,
+        storageKey: storageKey,
         uploadedById: user.id,
       },
     });
 
-    // 2. Attach the File ID to the User's Profile
+    // 2. Attach the new File ID to the User's Profile
     await prisma.profile.update({
       where: { id: user.profile.id },
       data: { resumeFileId: fileRecord.id },
     });
+
+    // 3. Cleanup: Delete the old file from Cloudflare R2 and Prisma
+    if (oldResumeFile) {
+      if (oldResumeFile.storageKey) {
+        await deleteObjectFromR2(oldResumeFile.storageKey);
+      }
+      await prisma.file.delete({
+        where: { id: oldResumeFile.id },
+      }).catch((err) => console.error("Failed to delete old file record from DB:", err));
+    }
 
     revalidatePath("/profile");
     return { success: true, fileName: file.name };

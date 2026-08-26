@@ -63,7 +63,6 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
 
   const now = new Date();
   
-  // Business Logic Timings
   const isPast = event.endTime < now;
   const isLive = now >= event.startTime && now <= event.endTime;
 
@@ -114,8 +113,8 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                     {event.title}
                   </h1>
                   {isLive && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-800">
-                      <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="style-badge-text inline-flex items-center gap-1.5 rounded-full bg-checked px-3 py-1 uppercase tracking-wider text-checked-text">
+                      <span className="h-2 w-2 rounded-full bg-green animate-pulse" />
                       Happening Now
                     </span>
                   )}
@@ -141,22 +140,22 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                 className={`flex w-full flex-col items-center justify-center gap-[16px] self-stretch rounded-[16px] p-[33px] lg:w-[360px] lg:shrink-0 ${
                   isPast
                     ? attended
-                      ? "bg-[#d2ecd9]" // Soft green for attended
+                      ? "bg-checked border-2 border-green" // Soft green for attended
                       : isRsvpd
-                      ? "bg-[#fdf2f2] border border-red-200" // Soft red/pink for RSVP'd but missed
+                      ? "bg-danger-ink/20 border-2 border-danger-ink" // Soft red/pink for RSVP'd but missed
                       : "bg-[#f4f1ea] border border-border-soft" // Neutral for never RSVP'd
                     : attended
-                    ? "bg-[#d2ecd9]"
+                    ? "bg-checked"
                     : isRsvpd
-                    ? "bg-[#d2ecd9]"
+                    ? "bg-checked"
                     : "bg-white border border-border-soft shadow-sm"
                 }`}
               >
                 {isPast ? (
                   <>
                     <h2
-                      className={`style-section-header leading-[25.96px] [font-variation-settings:'wdth'_100] ${
-                        attended ? "text-emerald-900" : isRsvpd ? "text-red-700" : "text-ink"
+                      className={`style-section-header ${
+                        attended ? "text-green" : isRsvpd ? "text-danger-ink" : "text-ink"
                       }`}
                     >
                       {attended ? "Attended" : isRsvpd ? "Missed Event" : "Event Concluded"}
@@ -172,20 +171,20 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
 
                     <div className="mt-2 flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium bg-white/60 border border-border-soft">
                       <span className="style-caption text-ink-faint">RSVP Status:</span>
-                      <span className={isRsvpd ? "text-emerald-700 font-semibold" : "text-ink-muted"}>
+                      <span className={isRsvpd ? "text-green font-semibold" : "text-ink-muted"}>
                         {isRsvpd ? "Yes (Going)" : "No RSVP"}
                       </span>
                     </div>
                   </>
                 ) : attended ? (
                   <>
-                    <h2 className="style-section-header leading-[25.96px] text-emerald-900 [font-variation-settings:'wdth'_100]">
+                    <h2 className="style-section-header leading-[25.96px] text-green [font-variation-settings:'wdth'_100]">
                       Checked In!
                     </h2>
 
                     <EventQRCode value={userRsvp?.qrToken ?? `checkin-${userId}-${event.id}`} />
 
-                    <p className="text-center style-caption text-emerald-800 font-medium">
+                    <p className="text-center style-caption text-green font-medium">
                       Your ticket can still be scanned for claiming items or swag.
                     </p>
 
@@ -193,14 +192,14 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                   </>
                 ) : isRsvpd ? (
                   <>
-                    <h2 className="style-section-header leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
-                      You&apos;re Going!
+                    <h2 className="style-section-header text-green">
+                      {isLive ? "Check-in started!" : "RSVP'd. You're Going!"}
                     </h2>
 
                     <EventQRCode value={userRsvp?.qrToken ?? `checkin-${userId}-${event.id}`} />
 
                     <p className="text-center style-caption text-ink-faint">
-                      This is your ticket to claim food, merch, drinks, etc.
+                      This is your ticket to claim food, merch, drinks, etc. If you are late and don't see the attendance on the big screen, show this QR to an officer to check you in.
                     </p>
 
                     <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
@@ -213,11 +212,22 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                     
                     <p className="text-center style-body-text text-ink-muted">
                       {isLive
-                        ? "RSVP now to secure your attendance and show your QR code at the door."
-                        : "RSVP to secure your spot and unlock your check-in QR code."}
+                        ? "RSVP now to secure your attendance and to show your QR code for claiming food/drinks/merch."
+                        : "RSVP to secure your spot and unlock your QR code to claim food/drinks/merch at the event."}
                     </p>
 
                     <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
+
+                    {!userId && (
+                      <div className="mt-4 flex w-full flex-col gap-1 rounded-2xl border-orange border-2 bg-orange-soft p-4 text-center">
+                        <p className="style-badge-text text-md text-brand">
+                          Clicking RSVP will redirect you to Sign In or Sign Up.
+                        </p>
+                        <p className="style-meta-text text-ink">
+                          Creating an account takes under 20 seconds and saves your info for fast applications to our programs and 1-click event RSVPs in the future!
+                        </p>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
