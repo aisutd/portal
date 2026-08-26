@@ -106,7 +106,7 @@ export default async function CheckInPage({ searchParams }: CheckInProps) {
   }
 
   // 5. Check if user already has an RSVP, if NOT — auto-create it on the fly!
-  let rsvp = await prisma.rSVP.findUnique({
+  const existingRsvp = await prisma.rSVP.findUnique({
     where: {
       userId_eventId: {
         userId: session.profile.userId,
@@ -114,6 +114,10 @@ export default async function CheckInPage({ searchParams }: CheckInProps) {
       },
     },
   });
+
+  // Track if user was previously RSVP'd
+  const hadPriorRsvp = Boolean(existingRsvp);
+  let rsvp = existingRsvp;
 
   if (!rsvp) {
     const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7);
@@ -165,10 +169,14 @@ export default async function CheckInPage({ searchParams }: CheckInProps) {
           Verified
         </span>
         <h1 className="mt-[12px] style-section-header ">
-          Checked In
+          Checked In!
         </h1>
         <p className="mt-[8px] style-body-text /80 leading-[20px]">
-          You're all set for <span className="font-semibold ">{event.title}</span>. We automatically registered your spot and checked you in!
+          {hadPriorRsvp ? (
+            <>You are checked in for <span className="font-semibold">{event.title}</span>.</>
+          ) : (
+            <>You're all set for <span className="font-semibold">{event.title}</span>. You didn't have an RSVP, but we checked you in!</>
+          )}
         </p>
 
         <div className="mt-[28px]">

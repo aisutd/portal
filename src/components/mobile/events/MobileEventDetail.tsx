@@ -16,8 +16,9 @@ interface MobileEventDetailProps {
 }
 
 export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
-  const user = await getAuthenticatedUser();
-  const userId = user?.id ?? null;
+  const session = await getAuthenticatedUser();
+  // FIXED: Access profile.userId to match RSVP database queries
+  const userId = session?.profile?.userId ?? null;
 
   // Branch the query conditionally to keep Prisma's input types strictly valid
   const event = userId
@@ -153,8 +154,6 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
             <p className="text-center style-caption text-green font-medium">
               Your ticket can still be scanned for claiming items or swag.
             </p>
-
-            <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
           </>
         ) : isRsvpd ? (
           <>

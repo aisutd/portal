@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
@@ -13,31 +15,45 @@ export const metadata: Metadata = {
   description: "Manage AIS events, RSVPs, and check-ins.",
 };
 
-function toDisplayStatus(startTime: Date, endTime: Date) {
+function toDisplayStatus(event: { startTime: Date; endTime: Date; isPublished: boolean }) {
+  if (!event.isPublished) {
+    return { label: "Draft", bg: "#f3f4f6", color: "#4b5563" };
+  }
   const now = new Date();
-  if (now < startTime) return { label: "Upcoming", bg: "#e1e8ff", color: "#1f3aa3" };
-  if (now > endTime) return { label: "Past", bg: "#efece3", color: "#8a8a93" };
+  if (now < new Date(event.startTime)) return { label: "Upcoming", bg: "#e1e8ff", color: "#1f3aa3" };
+  if (now > new Date(event.endTime)) return { label: "Past", bg: "#efece3", color: "#8a8a93" };
   return { label: "Live", bg: "#d2ecd9", color: "#2c5d3e" };
 }
 
 // Helper to convert an event into an EventRowData item
 function mapEventToRow(event: any): EventRowData {
   const now = new Date();
+  const isPast = new Date(event.endTime) < now;
   const checkedInCountForEvent = event.rsvps.filter((rsvp: any) => Boolean(rsvp.attendance)).length;
   const capacity = event.capacity ?? 0;
   const progress = capacity > 0 ? Math.round((checkedInCountForEvent / capacity) * 100) : 0;
-  const baseStatus = toDisplayStatus(event.startTime, event.endTime);
+  const baseStatus = toDisplayStatus(event);
+
+  // Deterministic date formatting for Server Components (prevents hydration mismatch)
+  const formattedDate = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(event.startTime));
 
   return {
     id: event.id,
     imageUrl: event.imageUrl,
     title: event.title,
     status: baseStatus,
-    meta: `${new Date(event.startTime).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} · ${event.location}`,
+    meta: `${formattedDate} · ${event.location}`,
     leftInfo: capacity > 0 ? `${checkedInCountForEvent} / ${capacity} checked in` : "No capacity set",
     rightInfo: `${event.rsvps.length} RSVPs`,
     progress,
-    progressFill: now > event.endTime ? "#8a8a93" : "#2f5fe8",
+    progressFill: isPast ? "#8a8a93" : "#2f5fe8",
+    dim: isPast,
     actions: [
       { label: "QR", variant: "primary", href: `/admin/events/${event.id}/check-in` },
       { label: "Scan", variant: "primary", href: `/admin/events/${event.id}/scan` },
@@ -72,7 +88,6 @@ async function getEventViewModel() {
   const upcomingEvents = publishedEvents.filter((e) => new Date(e.startTime) > now);
   const pastEvents = publishedEvents.filter((e) => new Date(e.endTime) < now);
 
-  // Combine Live first, then Upcoming for the active published section
   const activePublishedEvents = [...liveEvents, ...upcomingEvents];
 
   const totalCapacity = events.reduce((sum, event) => sum + (event.capacity ?? 0), 0);
@@ -171,7 +186,7 @@ export default async function AdminEventsPage() {
               )}
             </div>
 
-            {/* Past Events Section (Below Drafts) */}
+            {/* Past Events Section */}
             <div className="flex flex-col gap-[12px] pt-4">
               <div className="flex items-center justify-between">
                 <h3 className="style-section-header text-ink-muted">
@@ -179,7 +194,7 @@ export default async function AdminEventsPage() {
                 </h3>
               </div>
               {data.pastRows.length > 0 ? (
-                <div className="flex flex-col gap-[12px] opacity-80">
+                <div className="flex flex-col gap-[12px]">
                   {data.pastRows.map((e) => <EventRow key={e.id} {...e} />)}
                 </div>
               ) : (
