@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { generateQRToken } from "@/lib/qrToken";
-import { sendRsvpConfirmationEmail } from "@/lib/confirm-rsvp-email";
+import { sendRsvpConfirmationEmail } from "@/lib/emails/confirm-rsvp-email";
+import { sendRsvpCancellationEmail } from "@/lib/emails/cancel-rsvp-email";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getAuthenticatedUser();
@@ -72,7 +73,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   console.log("RSVP is confirmed. now should try sending email.");
 
-  // ✉️ Trigger the RSVP confirmation email directly using existing scope variables
   try {
     await sendRsvpConfirmationEmail({ 
       userId: user.id, 
@@ -80,7 +80,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     });
     console.log("RSVP confirmation email dispatched successfully.");
   } catch (error: any) {
-    // Log the error but DO NOT block the response. The user is successfully registered!
     console.error("Failed to send RSVP email:", error.message);
   }
 
@@ -114,6 +113,17 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     where: { id: existing.id },
     data: { status: "CANCELED" },
   });
+
+  try {
+    await sendRsvpCancellationEmail({ 
+      userId: user.id, 
+      eventId: eventId 
+    });
+    console.log("RSVP cancellation email dispatched successfully.");
+  } catch (error: any) {
+
+    console.error("Failed to send RSVP cancel email:", error.message);
+  }
 
   return NextResponse.json({ success: true });
 }
