@@ -175,7 +175,7 @@ export function UpNextCard({
 
              {/* Calendar Dropdown Trigger */}
             {!isLive && calendarLinks && (
-              <div className="pt-[2px] w-full relative" ref={dropdownRef}>
+              <div className="pt-0.5 w-full relative" ref={dropdownRef}>
                 <Button 
                   onClick={() => setDropdownOpen(!dropdownOpen)} 
                   variant="primary" 

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { EventStatus, EventVisibility, EventTag, ItemType, type MembershipType } from "@prisma/client";
+import { EventStatus, EventTag, ItemType, MembershipType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { isAssignableProgram } from "@/lib/roles";
@@ -15,15 +15,7 @@ type EventItemInput = {
   type: ItemType;
 };
 
-const validTagValues = [
-  "FOOD",
-  "DRINK",
-  "SOCIAL",
-  "LEARN",
-  "WORKSHOP",
-  "NETWORKING",
-  "INDUSTRY",
-] as const;
+const VALID_TAG_VALUES = Object.values(EventTag);
 
 function isImageFile(value: FormDataEntryValue | null): value is File {
   return typeof File !== "undefined" && value instanceof File && value.size > 0;
@@ -80,15 +72,12 @@ function parseTags(rawValue: FormDataEntryValue | FormDataEntryValue[] | null): 
   return entries
     .flatMap((entry) => String(entry).split(","))
     .map((tag) => tag.trim().toUpperCase())
-    .filter((tag): tag is EventTag => (validTagValues as readonly string[]).includes(tag));
+    .filter((tag): tag is EventTag => (VALID_TAG_VALUES as readonly string[]).includes(tag));
 }
 
 async function authorizeAdminUser() {
   const user = await getAuthenticatedUser();
-  if (!user) {
-    redirect("/onboarding");
-  }
-  if (user.role !== "EXECUTIVE" && user.role !== "OFFICER") {
+  if (!user || (user.role !== "EXECUTIVE" && user.role !== "OFFICER")) {
     throw new Error("Unauthorized action.");
   }
   return user;
@@ -195,10 +184,8 @@ export async function updateEvent(formData: FormData): Promise<void> {
     ? (rawStatus as EventStatus)
     : EventStatus.UPCOMING;
 
-  const rawVisibility = String(formData.get("visibility") ?? "PUBLIC").toUpperCase();
-  const visibility = Object.values(EventVisibility).includes(rawVisibility as EventVisibility)
-    ? (rawVisibility as EventVisibility)
-    : EventVisibility.PUBLIC;
+  // visibility is a plain String? in the Prisma schema
+  const visibility = String(formData.get("visibility") ?? "PUBLIC").toUpperCase();
 
   const tags = parseTags(formData.getAll("tags").length > 0 ? formData.getAll("tags") : formData.get("tags"));
   const programs = parsePrograms(formData.getAll("programs").length > 0 ? formData.getAll("programs") : formData.get("programs"));
@@ -266,30 +253,19 @@ export async function deleteEvent(formData: FormData): Promise<void> {
     select: { imageUrl: true },
   });
 
-  await prisma.attendance.deleteMany({
-    where: { rsvp: { eventId: id } },
-  });
-
+  // 1. Delete RSVPs (RSVP does not cascade on Event deletion)
+  // Attendance and ItemScan will automatically cascade delete via RSVP -> Attendance -> ItemScan
   await prisma.rSVP.deleteMany({
     where: { eventId: id },
   });
 
-  const items = await prisma.eventItem.findMany({ where: { eventId: id } });
-  const itemIds = items.map((item) => item.id);
-
-  if (itemIds.length > 0) {
-    await prisma.itemScan.deleteMany({
-      where: { eventItemId: { in: itemIds } },
-    });
-    await prisma.eventItem.deleteMany({
-      where: { eventId: id },
-    });
-  }
-
+  // 2. Delete the Event
+  // EventItems will automatically cascade delete via Event -> EventItem
   await prisma.event.delete({
     where: { id },
   });
 
+  // 3. Clean up image storage key from Cloudflare R2
   if (existingEvent?.imageUrl) {
     const oldStorageKey = extractStorageKeyFromUrl(existingEvent.imageUrl);
     if (oldStorageKey) {
