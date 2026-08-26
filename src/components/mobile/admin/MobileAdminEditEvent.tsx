@@ -29,17 +29,9 @@ type MobileAdminEditEventProps = {
   isPublished: boolean;
 };
 
-/**
- * Converts a Date string/ISO string into a local 'YYYY-MM-DDTHH:mm' 
- * string explicitly in Central Time (America/Chicago).
- */
+/** Formats input values cleanly into Central time */
 function toCentralDateTimeInput(dateStr?: string | null): string {
   if (!dateStr) return "";
-  
-  // If already formatted as 'YYYY-MM-DDTHH:mm', pass it straight through
-  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(dateStr)) {
-    return dateStr;
-  }
 
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return "";
@@ -61,7 +53,6 @@ function toCentralDateTimeInput(dateStr?: string | null): string {
   }
 
   const hour = partMap.hour === "24" ? "00" : partMap.hour;
-
   return `${partMap.year}-${partMap.month}-${partMap.day}T${hour}:${partMap.minute}`;
 }
 
@@ -85,9 +76,7 @@ export function MobileAdminEditEvent({ eventId, defaultValues, isPublished }: Mo
         </h2>
       </div>
 
-      <form action={updateEvent} // encType="multipart/form-data" 
-        className="flex flex-col gap-6"
-      >
+      <form action={updateEvent} className="flex flex-col gap-6">
         <input type="hidden" name="id" value={eventId} />
 
         <EventForm tags={eventTags} defaultValues={formattedDefaultValues} />

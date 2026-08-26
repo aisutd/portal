@@ -17,7 +17,11 @@ export function DeleteEventButton({ eventId, deleteAction }: DeleteEventButtonPr
       formData.append("id", eventId);
       
       startTransition(async () => {
-        await deleteAction(formData);
+        try {
+          await deleteAction(formData);
+        } catch (error) {
+          alert("Failed to delete event. Please try again.");
+        }
       });
     }
   };

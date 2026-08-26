@@ -18,10 +18,27 @@ export const metadata: Metadata = {
   description: "Edit an existing AIS event.",
 };
 
-const formatDateTime = (date: Date) => {
-  const pad = (n: number) => n.toString().padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-};
+/** Formats date explicitly into Chicago timezone YYYY-MM-DDTHH:mm */
+function formatChicagoDateTimeInput(date: Date): string {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(date);
+  const partMap: Record<string, string> = {};
+  for (const part of parts) {
+    partMap[part.type] = part.value;
+  }
+
+  const hour = partMap.hour === "24" ? "00" : partMap.hour;
+  return `${partMap.year}-${partMap.month}-${partMap.day}T${hour}:${partMap.minute}`;
+}
 
 export default async function EditEventPage({ 
   params 
@@ -46,8 +63,8 @@ export default async function EditEventPage({
     title: event.title,
     description: event.description ?? "",
     location: event.location,
-    startTime: formatDateTime(event.startTime),
-    endTime: formatDateTime(event.endTime),
+    startTime: formatChicagoDateTimeInput(event.startTime),
+    endTime: formatChicagoDateTimeInput(event.endTime),
     capacity: event.capacity?.toString() ?? "",
     status: event.status as string,
     visibility: event.visibility as string,
@@ -90,10 +107,8 @@ export default async function EditEventPage({
             </div>
 
             <form 
-              action={async (formData: FormData) => {
-                await updateEvent(formData);
-              }}
-              encType="multipart/form-data"
+              action={updateEvent}
+              // encType="multipart/form-data"
               className="flex w-full flex-col gap-6 lg:flex-row lg:items-start"
             >
               <input type="hidden" name="id" value={event.id} />

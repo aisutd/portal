@@ -1,11 +1,12 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { ItemType } from "@prisma/client";
+import { redirect } from "next/navigation";
+import { EventStatus, EventVisibility, EventTag, ItemType, type MembershipType } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+import { getAuthenticatedUser } from "@/lib/auth";
 import { isAssignableProgram } from "@/lib/roles";
-import { putObjectToR2, deleteObjectFromR2 } from "@/lib/r2"; // Assumes deleteObjectFromR2 is exported
+import { putObjectToR2, deleteObjectFromR2 } from "@/lib/r2";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 
@@ -14,43 +15,97 @@ type EventItemInput = {
   type: ItemType;
 };
 
-export type ActionResponse = {
-  success: boolean;
-  error?: string;
-};
+const validTagValues = [
+  "FOOD",
+  "DRINK",
+  "SOCIAL",
+  "LEARN",
+  "WORKSHOP",
+  "NETWORKING",
+  "INDUSTRY",
+] as const;
 
 function isImageFile(value: FormDataEntryValue | null): value is File {
   return typeof File !== "undefined" && value instanceof File && value.size > 0;
 }
 
-/**
- * Extracts the R2 storage key from a full public R2 URL.
- */
 function extractStorageKeyFromUrl(url: string): string | null {
   try {
     const parsed = new URL(url);
-    // Returns key starting after the leading slash (e.g., "events/12345-image.png")
     return parsed.pathname.startsWith("/") ? parsed.pathname.slice(1) : parsed.pathname;
   } catch {
     return null;
   }
 }
 
+function parseChicagoTimeToUtc(localDateTimeString: string): Date {
+  if (!localDateTimeString) return new Date(NaN);
+
+  const cleanDate = localDateTimeString.replace("Z", "");
+  const targetDate = new Date(`${cleanDate}:00Z`);
+  if (isNaN(targetDate.getTime())) return new Date(NaN);
+
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    timeZoneName: "shortOffset",
+  });
+
+  const parts = formatter.formatToParts(targetDate);
+  const timeZoneName = parts.find((p) => p.type === "timeZoneName")?.value ?? "GMT-5";
+  const match = timeZoneName.match(/GMT([+-]\d+)/);
+
+  if (!match) return new Date(`${cleanDate}:00-05:00`);
+
+  const hours = parseInt(match[1], 10);
+  const sign = hours >= 0 ? "+" : "-";
+  const padHours = Math.abs(hours).toString().padStart(2, "0");
+
+  return new Date(`${cleanDate}:00${sign}${padHours}:00`);
+}
+
+function parsePrograms(rawValue: FormDataEntryValue | FormDataEntryValue[] | null): MembershipType[] {
+  if (!rawValue) return [];
+  const entries = Array.isArray(rawValue) ? rawValue : [rawValue];
+
+  return entries
+    .flatMap((entry) => String(entry).split(","))
+    .map((value) => value.trim().toUpperCase())
+    .filter(isAssignableProgram);
+}
+
+function parseTags(rawValue: FormDataEntryValue | FormDataEntryValue[] | null): EventTag[] {
+  if (!rawValue) return [];
+  const entries = Array.isArray(rawValue) ? rawValue : [rawValue];
+
+  return entries
+    .flatMap((entry) => String(entry).split(","))
+    .map((tag) => tag.trim().toUpperCase())
+    .filter((tag): tag is EventTag => (validTagValues as readonly string[]).includes(tag));
+}
+
+async function authorizeAdminUser() {
+  const user = await getAuthenticatedUser();
+  if (!user) {
+    redirect("/onboarding");
+  }
+  if (user.role !== "EXECUTIVE" && user.role !== "OFFICER") {
+    throw new Error("Unauthorized action.");
+  }
+  return user;
+}
+
 async function resolveEventImageUrl(
   fileEntry: FormDataEntryValue | null,
   existingImageUrl?: string | null
 ): Promise<{ imageUrl: string | null; error?: string }> {
-  // If no file uploaded or invalid entry type, keep existing image
-  if (!fileEntry || !(fileEntry instanceof File) || fileEntry.size === 0) {
+  if (!isImageFile(fileEntry)) {
     return { imageUrl: existingImageUrl ?? null };
   }
 
-  // 1. Hard check file MIME type
   if (!fileEntry.type.startsWith("image/")) {
     return { imageUrl: existingImageUrl ?? null, error: "Event cover must be an image file." };
   }
 
-  // 2. Hard check size BEFORE reading into memory or uploading to R2
   if (fileEntry.size > MAX_FILE_SIZE) {
     const sizeInMB = (fileEntry.size / (1024 * 1024)).toFixed(1);
     return { 
@@ -65,7 +120,7 @@ async function resolveEventImageUrl(
       .replace(/\s+/g, "-")
       .replace(/[^a-z0-9\.-]/g, "");
 
-    const key = `events/${Date.now()}-${cleanFileName}`;
+    const key = `events/${Date.now()}-${crypto.randomUUID()}-${cleanFileName}`;
     const data = Buffer.from(await fileEntry.arrayBuffer());
 
     const publicUrl = await putObjectToR2(key, data, fileEntry.type || "image/jpeg");
@@ -74,7 +129,6 @@ async function resolveEventImageUrl(
       return { imageUrl: existingImageUrl ?? null, error: "Failed to upload image to R2." };
     }
 
-    // Clean up old image in R2 if replacement succeeded
     if (existingImageUrl) {
       const oldStorageKey = extractStorageKeyFromUrl(existingImageUrl);
       if (oldStorageKey) {
@@ -91,180 +145,162 @@ async function resolveEventImageUrl(
   }
 }
 
-export async function updateEvent(formData: FormData): Promise<ActionResponse> {
+export async function updateEvent(formData: FormData): Promise<void> {
+  await authorizeAdminUser();
+
   const id = formData.get("id") as string;
-  if (!id) return { success: false, error: "Event ID is required." };
+  if (!id) throw new Error("Event ID is required.");
 
-  try {
-    const action = String(formData.get("action") ?? "");
+  const title = String(formData.get("title") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const location = String(formData.get("location") ?? "").trim();
+  const startTimeInput = String(formData.get("startTime") ?? "");
+  const endTimeInput = String(formData.get("endTime") ?? "");
 
-    const title = formData.get("title") as string;
-    const description = formData.get("description") as string;
-    const location = formData.get("location") as string;
-    const startTimeInput = formData.get("startTime") as string;
-    const endTimeInput = formData.get("endTime") as string;
-
-    const existingEvent = await prisma.event.findUnique({
-      where: { id },
-      select: { imageUrl: true, isPublished: true },
-    });
-
-    if (!existingEvent) {
-      return { success: false, error: "Event not found." };
-    }
-
-    // Resolve new image upload safely
-    const imageResult = await resolveEventImageUrl(
-      formData.get("image"),
-      existingEvent.imageUrl
-    );
-
-    if (imageResult.error) {
-      return { success: false, error: imageResult.error };
-    }
-
-    const imageUrl = imageResult.imageUrl;
-
-    const parseCentralTime = (dateStr: string) => {
-      if (!dateStr) return new Date();
-      const cleanDate = dateStr.replace("Z", "");
-      const month = new Date(cleanDate).getMonth();
-      const isDst = month >= 2 && month <= 10;
-      const offset = isDst ? "-05:00" : "-06:00";
-      return new Date(`${cleanDate}:00${offset}`);
-    };
-
-    const startTime = parseCentralTime(startTimeInput);
-    const endTime = parseCentralTime(endTimeInput);
-
-    const capacityStr = formData.get("capacity") as string;
-    const capacity = capacityStr ? parseInt(capacityStr, 10) : null;
-
-    const status = formData.get("status") as string;
-    const visibility = formData.get("visibility") as string;
-
-    const tagsString = formData.get("tags") as string;
-    const tags = tagsString ? tagsString.split(",").filter(Boolean) : [];
-
-    const programsString = formData.get("programs") as string;
-    const programs = programsString
-      ? programsString
-          .split(",")
-          .map((value) => value.trim().toUpperCase())
-          .filter(isAssignableProgram)
-      : [];
-
-    let eventItems: EventItemInput[] = [];
-    const eventItemsJson = formData.get("eventItems") as string;
-    if (eventItemsJson) {
-      try {
-        eventItems = JSON.parse(eventItemsJson);
-      } catch {
-        return { success: false, error: "Invalid event items format." };
-      }
-    }
-
-    let isPublished: boolean;
-    if (action === "publish") {
-      isPublished = true;
-    } else if (action === "unpublish") {
-      isPublished = false;
-    } else {
-      isPublished = existingEvent.isPublished ?? false;
-    }
-
-    await prisma.event.update({
-      where: { id },
-      data: {
-        title,
-        description,
-        location,
-        startTime,
-        endTime,
-        capacity,
-        status: status as any,
-        visibility: visibility as any,
-        imageUrl,
-        tags: tags as any,
-        programs,
-        isPublished,
-        items: {
-          deleteMany: {},
-          create: eventItems.map((item) => ({
-            name: item.name,
-            type: item.type,
-          })),
-        },
-      },
-    });
-
-    revalidatePath("/admin/events");
-    revalidatePath(`/admin/events/${id}/edit`);
-    revalidatePath(`/admin/events/${id}/scan`);
-  } catch (error: any) {
-    console.error("Failed to update event:", error);
-    return { success: false, error: error?.message || "An unexpected error occurred while updating the event." };
+  if (!title || !description || !location || !startTimeInput || !endTimeInput) {
+    throw new Error("Please fill out all required fields.");
   }
 
-  // Next.js redirect must run OUTSIDE the try...catch block
+  const existingEvent = await prisma.event.findUnique({
+    where: { id },
+    select: { imageUrl: true, isPublished: true },
+  });
+
+  if (!existingEvent) {
+    throw new Error("Event not found.");
+  }
+
+  const imageResult = await resolveEventImageUrl(
+    formData.get("image"),
+    existingEvent.imageUrl
+  );
+
+  if (imageResult.error) {
+    throw new Error(imageResult.error);
+  }
+
+  const parsedStart = parseChicagoTimeToUtc(startTimeInput);
+  const parsedEnd = parseChicagoTimeToUtc(endTimeInput);
+
+  if (isNaN(parsedStart.getTime()) || isNaN(parsedEnd.getTime()) || parsedEnd <= parsedStart) {
+    throw new Error("Please select a valid event window.");
+  }
+
+  const capacityStr = formData.get("capacity") as string;
+  const parsedCapacity = capacityStr ? parseInt(capacityStr, 10) : null;
+  const capacity = parsedCapacity && parsedCapacity > 0 ? parsedCapacity : null;
+
+  const rawStatus = String(formData.get("status") ?? "UPCOMING").toUpperCase();
+  const status = Object.values(EventStatus).includes(rawStatus as EventStatus)
+    ? (rawStatus as EventStatus)
+    : EventStatus.UPCOMING;
+
+  const rawVisibility = String(formData.get("visibility") ?? "PUBLIC").toUpperCase();
+  const visibility = Object.values(EventVisibility).includes(rawVisibility as EventVisibility)
+    ? (rawVisibility as EventVisibility)
+    : EventVisibility.PUBLIC;
+
+  const tags = parseTags(formData.getAll("tags").length > 0 ? formData.getAll("tags") : formData.get("tags"));
+  const programs = parsePrograms(formData.getAll("programs").length > 0 ? formData.getAll("programs") : formData.get("programs"));
+
+  let eventItems: EventItemInput[] = [];
+  const eventItemsJson = formData.get("eventItems") as string;
+  if (eventItemsJson) {
+    try {
+      eventItems = JSON.parse(eventItemsJson);
+    } catch {
+      throw new Error("Invalid event items format.");
+    }
+  }
+
+  const action = String(formData.get("action") ?? "");
+  let isPublished: boolean;
+  if (action === "publish") {
+    isPublished = true;
+  } else if (action === "unpublish") {
+    isPublished = false;
+  } else {
+    isPublished = existingEvent.isPublished ?? false;
+  }
+
+  await prisma.event.update({
+    where: { id },
+    data: {
+      title,
+      description,
+      location,
+      startTime: parsedStart,
+      endTime: parsedEnd,
+      capacity,
+      status,
+      visibility,
+      imageUrl: imageResult.imageUrl,
+      tags,
+      programs,
+      isPublished,
+      items: {
+        deleteMany: {},
+        create: eventItems.map((item) => ({
+          name: item.name,
+          type: item.type,
+        })),
+      },
+    },
+  });
+
+  revalidatePath("/admin/events");
+  revalidatePath(`/admin/events/${id}/edit`);
+  revalidatePath(`/admin/events/${id}/scan`);
+
   redirect("/admin/events");
 }
 
-export async function deleteEvent(formData: FormData): Promise<ActionResponse> {
+export async function deleteEvent(formData: FormData): Promise<void> {
+  await authorizeAdminUser();
+
   const id = formData.get("id") as string;
-  if (!id) return { success: false, error: "Event ID is required for deletion." };
+  if (!id) throw new Error("Event ID is required for deletion.");
 
-  try {
-    const existingEvent = await prisma.event.findUnique({
-      where: { id },
-      select: { imageUrl: true },
+  const existingEvent = await prisma.event.findUnique({
+    where: { id },
+    select: { imageUrl: true },
+  });
+
+  await prisma.attendance.deleteMany({
+    where: { rsvp: { eventId: id } },
+  });
+
+  await prisma.rSVP.deleteMany({
+    where: { eventId: id },
+  });
+
+  const items = await prisma.eventItem.findMany({ where: { eventId: id } });
+  const itemIds = items.map((item) => item.id);
+
+  if (itemIds.length > 0) {
+    await prisma.itemScan.deleteMany({
+      where: { eventItemId: { in: itemIds } },
     });
-
-    // Delete associated attendance records first
-    await prisma.attendance.deleteMany({
-      where: { rsvp: { eventId: id } },
-    });
-
-    // Delete associated RSVPs
-    await prisma.rSVP.deleteMany({
+    await prisma.eventItem.deleteMany({
       where: { eventId: id },
     });
-
-    // Delete associated event items
-    const items = await prisma.eventItem.findMany({ where: { eventId: id } });
-    const itemIds = items.map((item) => item.id);
-
-    if (itemIds.length > 0) {
-      await prisma.itemScan.deleteMany({
-        where: { eventItemId: { in: itemIds } },
-      });
-      await prisma.eventItem.deleteMany({
-        where: { eventId: id },
-      });
-    }
-
-    // Delete event from DB
-    await prisma.event.delete({
-      where: { id },
-    });
-
-    // Delete image from R2 if one existed
-    if (existingEvent?.imageUrl) {
-      const oldStorageKey = extractStorageKeyFromUrl(existingEvent.imageUrl);
-      if (oldStorageKey) {
-        deleteObjectFromR2(oldStorageKey).catch((err) =>
-          console.error("Failed to delete event image from R2 on event deletion:", err)
-        );
-      }
-    }
-
-    revalidatePath("/admin/events");
-    revalidatePath(`/admin/events/${id}/edit`);
-  } catch (error: any) {
-    console.error("Failed to delete event:", error);
-    return { success: false, error: error?.message || "An unexpected error occurred while deleting the event." };
   }
 
-  // Next.js redirect must run OUTSIDE the try...catch block
+  await prisma.event.delete({
+    where: { id },
+  });
+
+  if (existingEvent?.imageUrl) {
+    const oldStorageKey = extractStorageKeyFromUrl(existingEvent.imageUrl);
+    if (oldStorageKey) {
+      deleteObjectFromR2(oldStorageKey).catch((err) =>
+        console.error("Failed to delete event image from R2 on event deletion:", err)
+      );
+    }
+  }
+
+  revalidatePath("/admin/events");
+  revalidatePath(`/admin/events/${id}/edit`);
+
   redirect("/admin/events");
 }

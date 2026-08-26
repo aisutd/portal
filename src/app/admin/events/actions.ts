@@ -24,11 +24,11 @@ const validTagValues = [
 ] as const;
 
 function parseChicagoTimeToUtc(localDateTimeString: string): Date {
-  // Example input: "2026-09-10T19:00"
   if (!localDateTimeString) return new Date(NaN);
 
-  // Derive offset for America/Chicago at target date
   const targetDate = new Date(`${localDateTimeString}:00Z`);
+  if (isNaN(targetDate.getTime())) return new Date(NaN);
+
   const formatter = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/Chicago",
     timeZoneName: "shortOffset",
@@ -36,40 +36,40 @@ function parseChicagoTimeToUtc(localDateTimeString: string): Date {
 
   const parts = formatter.formatToParts(targetDate);
   const timeZoneName = parts.find((p) => p.type === "timeZoneName")?.value ?? "GMT-5";
-  
-  // Convert "GMT-5" or "GMT-6" to "-05:00" / "-06:00"
+
   const match = timeZoneName.match(/GMT([+-]\d+)/);
-  const offset = match 
-    ? `${match[1].padStart(3, "0")}:00`.replace("+0", "+0").replace("-0", "-0")
-    : "-05:00";
+  if (!match) return new Date(`${localDateTimeString}:00-05:00`);
+
+  // Fixed string padding bug: parse offset integer directly
+  const hours = parseInt(match[1], 10);
+  const sign = hours >= 0 ? "+" : "-";
+  const padHours = Math.abs(hours).toString().padStart(2, "0");
+  const offset = `${sign}${padHours}:00`;
 
   return new Date(`${localDateTimeString}:00${offset}`);
 }
 
+/** Handles both single entry strings and array form values */
+function parsePrograms(rawValue: FormDataEntryValue | FormDataEntryValue[] | null): MembershipType[] {
+  if (!rawValue) return [];
+  const entries = Array.isArray(rawValue) ? rawValue : [rawValue];
 
-/** Programs an event counts toward. Empty means it counts for everyone. */
-function parsePrograms(rawValue: FormDataEntryValue | null): MembershipType[] {
-  if (!rawValue) {
-    return [];
-  }
-
-  return String(rawValue)
-    .split(",")
+  return entries
+    .flatMap((entry) => String(entry).split(","))
     .map((value) => value.trim().toUpperCase())
     .filter(isAssignableProgram);
 }
 
-function parseTags(rawValue: FormDataEntryValue | null): EventTag[] {
-  if (!rawValue) {
-    return [];
-  }
+function parseTags(rawValue: FormDataEntryValue | FormDataEntryValue[] | null): EventTag[] {
+  if (!rawValue) return [];
+  const entries = Array.isArray(rawValue) ? rawValue : [rawValue];
 
-  return String(rawValue)
-    .split(",")
+  return entries
+    .flatMap((entry) => String(entry).split(","))
     .map((tag) => tag.trim().toUpperCase())
     .filter((tag): tag is EventTag =>
       (validTagValues as readonly string[]).includes(tag)
-    ) as EventTag[];
+    );
 }
 
 function parseStatus(rawValue: FormDataEntryValue | null): EventStatus {
@@ -103,7 +103,6 @@ async function resolveEventImageUrl(
     throw new Error("Event cover must be an image file.");
   }
 
-  // UPDATED: Match client 2 MB limit
   if (file.size > 2 * 1024 * 1024) {
     throw new Error("Event cover image must be under 2 MB.");
   }
@@ -123,12 +122,18 @@ async function resolveEventImageUrl(
   return publicUrl;
 }
 
+function authorizeAdminUser(user: { role: string } | null) {
+  if (!user) {
+    redirect("/onboarding");
+  }
+  else if (user.role !== "EXECUTIVE" && user.role !== "OFFICER") {
+    throw new Error("Unauthorized action.");
+  }
+}
+
 export async function createEvent(formData: FormData) {
   const currentUser = await getAuthenticatedUser();
-
-  if (!currentUser) {
-    redirect("/sign-in");
-  }
+  authorizeAdminUser(currentUser);
 
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
@@ -137,18 +142,22 @@ export async function createEvent(formData: FormData) {
   const endTime = formData.get("endTime");
   const capacityValue = formData.get("capacity");
   const visibility = String(formData.get("visibility") ?? "public").trim() || "public";
-  const tags = parseTags(formData.get("tags"));
-  const programs = parsePrograms(formData.get("programs"));
+  
+  const tags = parseTags(formData.getAll("tags").length > 0 ? formData.getAll("tags") : formData.get("tags"));
+  const programs = parsePrograms(formData.getAll("programs").length > 0 ? formData.getAll("programs") : formData.get("programs"));
   const status = parseStatus(formData.get("status"));
   const imageUrl = await resolveEventImageUrl(formData.get("image"));
   
-  // Read submission action button value ("publish" vs "draft")
   const action = String(formData.get("action") ?? "draft");
   const isPublished = action === "publish";
 
-  // Extract and parse event items from the JSON hidden input
-  const eventItemsJson = formData.get("eventItems") as string;
-  const eventItems: EventItemInput[] = eventItemsJson ? JSON.parse(eventItemsJson) : [];
+  let eventItems: EventItemInput[] = [];
+  try {
+    const rawJson = formData.get("eventItems") as string;
+    eventItems = rawJson ? JSON.parse(rawJson) : [];
+  } catch {
+    throw new Error("Invalid format for event items.");
+  }
 
   if (!title || !description || !location || !startTime || !endTime) {
     throw new Error("Please fill out the event title, description, location, and schedule.");
@@ -176,8 +185,8 @@ export async function createEvent(formData: FormData) {
       imageUrl,
       tags,
       programs,
-      isPublished, // Properly saved as true or false
-      createdById: currentUser.id,
+      isPublished,
+      createdById: currentUser!.id,
 
       items: {
         create: eventItems.map((item) => ({
@@ -194,12 +203,11 @@ export async function createEvent(formData: FormData) {
 
 export async function updateEvent(formData: FormData) {
   const currentUser = await getAuthenticatedUser();
-
-  if (!currentUser) {
-    redirect("/sign-in");
-  }
+  authorizeAdminUser(currentUser);
 
   const id = formData.get("id") as string;
+  if (!id) throw new Error("Event ID is missing.");
+
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const location = String(formData.get("location") ?? "").trim();
@@ -207,24 +215,34 @@ export async function updateEvent(formData: FormData) {
   const endTime = formData.get("endTime");
   const capacityValue = formData.get("capacity");
   const visibility = String(formData.get("visibility") ?? "public").trim() || "public";
-  const tags = parseTags(formData.get("tags"));
-  const programs = parsePrograms(formData.get("programs"));
+  
+  const tags = parseTags(formData.getAll("tags").length > 0 ? formData.getAll("tags") : formData.get("tags"));
+  const programs = parsePrograms(formData.getAll("programs").length > 0 ? formData.getAll("programs") : formData.get("programs"));
   const status = parseStatus(formData.get("status"));
 
+  // Consolidated database fetch into a single query
   const existingEvent = await prisma.event.findUnique({
     where: { id },
-    select: { imageUrl: true },
+    select: { imageUrl: true, isPublished: true },
   });
-  const imageUrl = await resolveEventImageUrl(formData.get("image"), existingEvent?.imageUrl ?? null);
 
-  // Read action type from edit button ("publish", "unpublish", or default to current database state)
+  if (!existingEvent) {
+    throw new Error("Event not found.");
+  }
+
+  const imageUrl = await resolveEventImageUrl(formData.get("image"), existingEvent.imageUrl);
+
   const action = String(formData.get("action") ?? "");
-  
-  // Extract and parse event items from the JSON hidden input
-  const eventItemsJson = formData.get("eventItems") as string;
-  const eventItems: EventItemInput[] = eventItemsJson ? JSON.parse(eventItemsJson) : [];
 
-  if (!id || !title || !description || !location || !startTime || !endTime) {
+  let eventItems: EventItemInput[] = [];
+  try {
+    const rawJson = formData.get("eventItems") as string;
+    eventItems = rawJson ? JSON.parse(rawJson) : [];
+  } catch {
+    throw new Error("Invalid format for event items.");
+  }
+
+  if (!title || !description || !location || !startTime || !endTime) {
     throw new Error("Please fill out all required fields.");
   }
 
@@ -237,17 +255,13 @@ export async function updateEvent(formData: FormData) {
 
   const capacity = Number(capacityValue ?? 0);
 
-  // Determine isPublished: 
-  // If "publish" was clicked -> true, if "unpublish" -> false, otherwise fetch/keep existing value
   let isPublished: boolean;
   if (action === "publish") {
     isPublished = true;
   } else if (action === "unpublish") {
     isPublished = false;
   } else {
-    // Fallback: fetch current state if generic save was submitted without publish/unpublish buttons
-    const existing = await prisma.event.findUnique({ where: { id }, select: { isPublished: true } });
-    isPublished = existing?.isPublished ?? false;
+    isPublished = existingEvent.isPublished;
   }
 
   await prisma.event.update({
