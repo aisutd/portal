@@ -43,11 +43,21 @@ export default async function DashboardPage() {
 
       {/* --- DESKTOP VIEW --- */}
       <div className="hidden md:block">
-        <div className="flex min-h-screen w-full flex-col bg-cream">
+        <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-cream">
+          {/* Ambient accent glow, purely decorative */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -top-24 left-[12%] -z-10 h-[420px] w-[420px] rounded-full bg-orange-300/25 blur-[110px]"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -top-10 right-[8%] -z-10 h-[380px] w-[380px] rounded-full bg-purple-400/20 blur-[110px]"
+          />
+
           <Navbar />
 
           <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[28px] px-[46px] pb-[46px] pt-[45px]">
-            <h1 className="style-page-title leading-[43.2px] tracking-[-0.4px] text-brand [font-variation-settings:'wdth'_100]">
+            <h1 className="style-page-title leading-[43.2px] tracking-[-0.4px] [font-variation-settings:'wdth'_100] bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">
               Welcome back, {userName}!
             </h1>
 

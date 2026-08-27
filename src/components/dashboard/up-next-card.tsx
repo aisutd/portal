@@ -45,11 +45,18 @@ export function UpNextCard({
   return (
     <Card
       className={cn(
-        "flex flex-1 flex-col gap-[18px] self-stretch p-[29px] transition-all duration-300",
+        "relative flex flex-1 flex-col gap-[18px] self-stretch overflow-hidden p-[29px] transition-all duration-300",
         (isGlowing || isLive) &&
           "border-green bg-checked/20 shadow-[0_0_20px_rgba(53,107,46,0.35)] ring-1 ring-green/50"
       )}
     >
+      <div
+        aria-hidden
+        className={cn(
+          "absolute inset-x-0 top-0 h-[4px] transition-colors duration-300",
+          isGlowing || isLive ? "bg-green" : "bg-brand/60"
+        )}
+      />
       {/* Header Row */}
       <div className="flex items-baseline justify-between gap-4">
         <p className="style-meta-text uppercase leading-[normal] tracking-[3px] text-ink-faint">

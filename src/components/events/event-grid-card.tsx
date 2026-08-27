@@ -88,9 +88,9 @@ export function EventGridCard({
   }
 
   return (
-    <Link 
+    <Link
       href={`/events/${eventId}`}
-      className="group flex h-full flex-col rounded-2xl border border-border-soft bg-white p-5 transition-all duration-300 hover:shadow-sm hover:scale-105"
+      className="group flex h-full flex-col rounded-2xl border border-border-soft bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:shadow-ink/10"
     >
       <EventCoverImage
         imageUrl={imageUrl}
@@ -99,7 +99,7 @@ export function EventGridCard({
       />
 
       <div className="flex flex-1 flex-col">
-        <h3 className="mt-4 line-clamp-2 style-card-title leading-tight text-ink transition-colors group-hover:text-brand [font-variation-settings:'wdth'_100]">
+        <h3 className="mt-4 line-clamp-2 style-card-title leading-tight text-ink [font-variation-settings:'wdth'_100]">
           {title}
         </h3>
         <p className="mt-1.5 style-meta-text tracking-wide text-ink-faint">

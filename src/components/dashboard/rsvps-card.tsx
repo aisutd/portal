@@ -45,8 +45,11 @@ function RsvpRow({ item }: { item: RsvpItem }) {
       className="flex w-full items-center justify-between gap-[12px] group"
     >
       <div className="flex items-center gap-[12px] min-w-0">
-        <div className="flex size-[46px] shrink-0 items-center justify-center rounded-[14px] bg-brand-soft">
-          <span className="style-meta-text leading-[16.8px] tracking-[1px] text-brand-dark">
+        <div
+          className="flex size-[46px] shrink-0 items-center justify-center rounded-[14px]"
+          style={{ background: "linear-gradient(135deg, #f2a968 0%, #7d64c4 100%)" }}
+        >
+          <span className="style-meta-text leading-[16.8px] tracking-[1px] text-white">
             {item.day}
           </span>
         </div>
@@ -67,7 +70,8 @@ function RsvpRow({ item }: { item: RsvpItem }) {
 
 export function RsvpsCard({ items }: { items: RsvpItem[] }) {
   return (
-    <Card className="flex w-full shrink-0 flex-col gap-[16px] self-stretch p-[29px] xl:w-[360px]">
+    <Card className="relative flex w-full shrink-0 flex-col gap-[16px] self-stretch overflow-hidden p-[29px] xl:w-[360px]">
+      <div aria-hidden className="absolute inset-x-0 top-0 h-[4px] bg-purple-300" />
       <SectionHeader title="Your Events & RSVPs" />
       <div className="flex max-h-[380px] flex-col gap-[20px] overflow-y-auto pr-1">
         {items.length === 0 ? (
