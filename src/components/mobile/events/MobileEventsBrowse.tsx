@@ -211,7 +211,7 @@ export function MobileEventsBrowse({ upcomingEvents: initialUpcoming, pastEvents
               No events found
             </p>
             <p className="mt-[6px] font-sans text-ink-muted">
-              We didn't have any events with the selected filters. Look out in the near future!
+              We didn&apos;t have any events with the selected filters. Look out in the near future!
             </p>
             {selectedTags.length > 0 && (
               <button

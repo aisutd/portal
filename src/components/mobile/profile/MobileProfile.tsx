@@ -9,8 +9,8 @@ import { BottomNav } from "@/components/mobile/ui/BottomNav";
 import { MobileEyebrow as Eyebrow } from "@/components/mobile/ui/MobileEyebrow";
 import { SignOutButton } from "@clerk/nextjs";
 import { PasswordResetButton } from "@/components/profile/PasswordResetButton";
-import { UTD_MAJORS, UTD_DEGREES, ACADEMIC_YEARS } from "@/lib/utd-data";
 import { ResumeUploadButton } from "@/components/profile/ResumeUploadButton";
+import { UTD_MAJORS, UTD_DEGREES, ACADEMIC_YEARS } from "@/lib/utd-data";
 
 type MobileProfileProps = {
   profile: Profile & { resumeFile?: { fileName: string } | null };
@@ -29,7 +29,7 @@ function MobileSelect({
   name: string;
   defaultValue: string;
   options: string[];
-  className: string;
+  className?: string;
 }) {
   return (
     <div className="flex flex-col gap-[6px]">
@@ -53,95 +53,65 @@ function MobileSelect({
   );
 }
 
-export function MobileProfile({
-  profile,
-  completion,
-  updateProfile,
-}: MobileProfileProps) {
+export function MobileProfile({ profile, completion, updateProfile }: MobileProfileProps) {
   return (
     <MobileScreen>
       {completion.percent < 100 && (
         <div className="rounded-[8px] bg-[#f9d5d3] px-[16px] py-[12px]">
-          <span className="style-mobile-body font-bold text-red-900">
-            Your profile is {completion.percent}% complete. Fill in the
-            highlighted fields to reach 100%.
+          <span className="style-mobile-body font-bold text-[#9a3b36]">
+            Your profile is {completion.percent}% complete. Fill in the highlighted fields to
+            reach 100%.
           </span>
         </div>
       )}
 
-      <form
-        key={profile.updatedAt.toString()}
-        action={updateProfile}
-        className="flex flex-col gap-[16px]"
-      >
-        {/* Avatar + Links */}
-        <div className="flex gap-[12px]">
-          <Card className="flex flex-[3] flex-col items-center gap-[10px] p-[18px]">
-            <div className="size-[64px] rounded-full bg-photo" />
-            <p className="style-card-title uppercase tracking-[0.5px] text-ink">
-              {profile.firstName} {profile.lastName}
-            </p>
-            <Badge
-              label={`${profile.major || "No Major"} · ${profile.year || "N/A"}`}
-              bg="#fbe3cb"
-              color="#7a4416"
-            />
-          </Card>
+      <form key={profile.updatedAt.toString()} action={updateProfile} className="flex flex-col gap-[16px]">
+        {/* Name / Major bar */}
+        <Card className="flex flex-row flex-wrap items-center justify-between gap-[10px] p-[18px]">
+          <p className="style-card-title uppercase tracking-[0.5px] text-ink">
+            {profile.firstName} {profile.lastName}
+          </p>
+          <Badge
+            label={`${profile.major || "No Major"} · ${profile.year || "N/A"}`}
+            bg="#fbe3cb"
+            color="#7a4416"
+          />
+        </Card>
 
-          <Card className="flex flex-[2] flex-col gap-[12px] p-[16px]">
-            <Eyebrow>Links</Eyebrow>
-            <MobileField
-              label="LinkedIn"
-              name="linkedinUrl"
-              defaultValue={profile.linkedinUrl || ""}
-              placeholder="linkedin.com/in/…"
-              className={cn(
-                !profile.linkedinUrl
-                  ? "border-red-500 bg-red-50 ring-2 ring-red-500"
-                  : "border-transparent"
-              )}
-            />
-            <MobileField
-              label="Github"
-              name="githubUrl"
-              defaultValue={profile.githubUrl || ""}
-              placeholder="github.com/…"
-              className={cn(
-                !profile.githubUrl
-                  ? "border-red-500 bg-red-50 ring-2 ring-red-500"
-                  : "border-transparent"
-              )}
-            />
-            <MobileField
-              label="Portfolio"
-              name="portfolioUrl"
-              defaultValue={profile.portfolioUrl || ""}
-              placeholder="https://..."
-              className="border-transparent"
-            />
-          </Card>
-        </div>
+        {/* Links */}
+        <Card className="flex flex-col gap-[12px] p-[16px]">
+          <Eyebrow>Links</Eyebrow>
+          <MobileField
+            label="LinkedIn"
+            name="linkedinUrl"
+            defaultValue={profile.linkedinUrl || ""}
+            placeholder="linkedin.com/in/…"
+            className={cn(!profile.linkedinUrl ? "border-red-500 bg-red-50 ring-2 ring-red-500" : "border-transparent")}
+          />
+          <MobileField
+            label="Github"
+            name="githubUrl"
+            defaultValue={profile.githubUrl || ""}
+            placeholder="github.com/…"
+            className={cn(!profile.githubUrl ? "border-red-500 bg-red-50 ring-2 ring-red-500" : "border-transparent")}
+          />
+          <MobileField
+            label="Portfolio"
+            name="portfolioUrl"
+            defaultValue={profile.portfolioUrl || ""}
+            placeholder="https://..."
+            className="border-transparent"
+          />
+        </Card>
 
         {/* Personal Info */}
         <Card className="flex flex-col gap-[14px] p-[18px]">
           <Eyebrow>Personal Info</Eyebrow>
+          <MobileField label="First Name" name="firstName" defaultValue={profile.firstName} />
+          <MobileField label="Last Name" name="lastName" defaultValue={profile.lastName} />
+          <MobileField label="Preferred Name" name="prefName" defaultValue={profile.prefName || ""} />
           <MobileField
-            label="First Name"
-            name="firstName"
-            defaultValue={profile.firstName}
-          />
-          <MobileField
-            label="Last Name"
-            name="lastName"
-            defaultValue={profile.lastName}
-          />
-          <MobileField
-            label="Preferred Name"
-            name="prefName"
-            defaultValue={profile.prefName || ""}
-          />
-          <MobileField
-            label="UTD Email"
+            label="Email"
             name="utdEmail"
             type="email"
             defaultValue={profile.utdEmail || ""}
@@ -150,48 +120,32 @@ export function MobileProfile({
             label="UTD ID"
             name="utdNetId"
             defaultValue={profile.utdNetId || ""}
-            className={cn(
-              !profile.utdNetId
-                ? "border-red-500 bg-red-50 ring-2 ring-red-500"
-                : "border-transparent"
-            )}
+            className={cn(!profile.utdNetId ? "border-red-500 bg-red-50 ring-2 ring-red-500" : "border-transparent")}
           />
           <MobileSelect
             label="Major"
             name="major"
             defaultValue={profile.major ?? ""}
             options={UTD_MAJORS}
-            className={cn(
-              !profile.major
-                ? "border-red-500 bg-red-50 ring-2 ring-red-500"
-                : "border-transparent"
-            )}
+            className={cn(!profile.major ? "border-red-500 bg-red-50 ring-2 ring-red-500" : "border-transparent")}
           />
           <MobileSelect
             label="Degree"
             name="degree"
             defaultValue={profile.degree ?? ""}
             options={UTD_DEGREES}
-            className={cn(
-              !profile.degree
-                ? "border-red-500 bg-red-50 ring-2 ring-red-500"
-                : "border-transparent"
-            )}
+            className={cn(!profile.degree ? "border-red-500 bg-red-50 ring-2 ring-red-500" : "border-transparent")}
           />
           <MobileSelect
             label="Academic Year"
             name="year"
             defaultValue={profile.year ?? ""}
             options={ACADEMIC_YEARS}
-            className={cn(
-              !profile.year
-                ? "border-red-500 bg-red-50 ring-2 ring-red-500"
-                : "border-transparent"
-            )}
+            className={cn(!profile.year ? "border-red-500 bg-red-50 ring-2 ring-red-500" : "border-transparent")}
           />
         </Card>
 
-        {/* Resume Upload Section */}
+        {/* Resume Upload */}
         <Card
           className={cn(
             "flex flex-col gap-[12px] p-[18px]",

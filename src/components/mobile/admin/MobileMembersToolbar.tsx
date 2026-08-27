@@ -4,9 +4,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { SearchInput } from "@/components/ui/search-input";
 import { membersHref, type MemberFilter, type MembersQuery } from "@/lib/members/query-params";
-import { FILTER_LABELS } from "@/lib/members/labels";
+import { FILTER_LABELS, NEXT_SORT, SORT_LABELS } from "@/lib/members/labels";
 
 const DEBOUNCE_MS = 300;
 
@@ -51,6 +52,13 @@ export function MobileMembersToolbar({ query }: { query: MembersQuery }) {
             </Button>
           </Link>
         ))}
+        <Link
+          href={membersHref(query, { sort: NEXT_SORT[query.sort] })}
+          aria-label="Change sort"
+          className="shrink-0"
+        >
+          <Badge label={SORT_LABELS[query.sort]} variant="outline" />
+        </Link>
       </div>
     </div>
   );
