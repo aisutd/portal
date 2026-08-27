@@ -29,16 +29,13 @@ type MobileAdminEditEventProps = {
   isPublished: boolean;
 };
 
-/**
- * Converts a Date string/ISO string into a local 'YYYY-MM-DDTHH:mm' 
- * string explicitly in Central Time (America/Chicago).
- */
+/** Formats input values cleanly into Central time */
 function toCentralDateTimeInput(dateStr?: string | null): string {
   if (!dateStr) return "";
+
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return "";
 
-  // Convert UTC date to Central Time components using Intl API
   const formatter = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/Chicago",
     year: "numeric",
@@ -55,14 +52,11 @@ function toCentralDateTimeInput(dateStr?: string | null): string {
     partMap[part.type] = part.value;
   }
 
-  // Handle midnight 24:00 edge case from Intl
   const hour = partMap.hour === "24" ? "00" : partMap.hour;
-
   return `${partMap.year}-${partMap.month}-${partMap.day}T${hour}:${partMap.minute}`;
 }
 
 export function MobileAdminEditEvent({ eventId, defaultValues, isPublished }: MobileAdminEditEventProps) {
-  // Format start and end time specifically for America/Chicago (Central Time)
   const formattedDefaultValues = {
     ...defaultValues,
     startTime: toCentralDateTimeInput(defaultValues.startTime),
@@ -82,16 +76,15 @@ export function MobileAdminEditEvent({ eventId, defaultValues, isPublished }: Mo
         </h2>
       </div>
 
-      <form action={updateEvent} className="flex flex-col gap-[24px]">
+      <form action={updateEvent} className="flex flex-col gap-6">
         <input type="hidden" name="id" value={eventId} />
 
-        {/* Pass converted values to EventForm */}
         <EventForm tags={eventTags} defaultValues={formattedDefaultValues} />
         <CoverPhotoCard defaultImageUrl={defaultValues.imageUrl} />
         <SettingsCard items={eventSettings} />
 
-        <div className="flex flex-col gap-[10px]">
-          <div className="flex gap-[10px]">
+        <div className="flex flex-col gap-2.5">
+          <div className="flex gap-2.5">
             <Button 
               type="submit" 
               name="action" 

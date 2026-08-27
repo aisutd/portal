@@ -14,11 +14,19 @@ import {
 import { formatDaysAway, formatEventDate, type getNextUpcomingRsvp } from "@/lib/dashboard-utils";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
+import { MobileCalendarDropdown } from "../ui/MobileCalendarDropdown";
+
+type CalendarLinksObject = {
+  googleUrl: string;
+  outlookUrl: string;
+  icsContent: string;
+};
 
 type MobileDashboardProps = {
   userId: string;
   userName: string;
   nextRsvp: Awaited<ReturnType<typeof getNextUpcomingRsvp>>;
+  calendarLinks?: CalendarLinksObject | null;
 };
 
 function isRsvpGlowing(nextRsvp: MobileDashboardProps["nextRsvp"]) {
@@ -33,7 +41,7 @@ function isRsvpGlowing(nextRsvp: MobileDashboardProps["nextRsvp"]) {
   return Boolean(nextRsvp.isLive || isStartingSoon);
 }
 
-export function MobileDashboard({ userId, userName, nextRsvp }: MobileDashboardProps) {
+export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: MobileDashboardProps) {
   const isGlowing = isRsvpGlowing(nextRsvp);
 
   return (
@@ -74,18 +82,24 @@ export function MobileDashboard({ userId, userName, nextRsvp }: MobileDashboardP
             {nextRsvp.qrToken && (
               <div className="flex flex-col items-center gap-2">
                 <p className="style-mobile-body text-center text-ink">
-                  Your Ticket: Claiming Items / Late Check-in
+                  Ticket: Claiming Items / Late Check-in
                 </p>
                 <div className="flex w-fit items-center justify-center rounded-xl border border-ink bg-white p-4">
                   <div className="w-full max-w-70">
                     <QRCode
                       value={nextRsvp.qrToken}
                       size={256}
-                      style={{ height: "fit", maxWidth: "100%", width: "100%" }}
+                      style={{ height: "auto", maxWidth: "100%", width: "100%" }}
                       level="H"
                     />
                   </div>
                 </div>
+                {!nextRsvp.isLive && calendarLinks && (
+                  <MobileCalendarDropdown 
+                    calendarLinks={calendarLinks} 
+                    eventId={nextRsvp.event.id} 
+                  />
+                )}
               </div>
             )}
 
@@ -116,11 +130,6 @@ export function MobileDashboard({ userId, userName, nextRsvp }: MobileDashboardP
         )}
       </Card>
 
-      {/* Applications */}
-      <Suspense fallback={<ApplicationsCardSkeleton />}>
-        <DashboardApplicationsCard userId={userId} />
-      </Suspense>
-
       {/* RSVPs */}
       <Suspense fallback={<RsvpsCardSkeleton />}>
         <DashboardRsvpsCard userId={userId} />
@@ -137,6 +146,11 @@ export function MobileDashboard({ userId, userName, nextRsvp }: MobileDashboardP
         }
       >
         <DashboardRecommendedCard userId={userId} />
+      </Suspense>
+
+      {/* Applications */}
+      <Suspense fallback={<ApplicationsCardSkeleton />}>
+        <DashboardApplicationsCard userId={userId} />
       </Suspense>
 
       <BottomNav />

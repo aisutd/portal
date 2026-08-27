@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { getAuthenticatedUser } from "@/lib/auth";
+import { generateCalendarLinks } from "@/lib/calendar";
 
 // Components
 import { Navbar } from "@/components/navbar";
@@ -29,6 +30,19 @@ export default async function DashboardPage() {
 
   // Event has concluded only if endTime is in the past
   const isPastEvent = nextRsvp ? new Date(nextRsvp.event.endTime) < new Date() : false;
+  
+  let calendarLinksObj = null;
+  if (nextRsvp) {
+    calendarLinksObj = generateCalendarLinks({
+      id: nextRsvp.event.id,
+      title: nextRsvp.event.title,
+      description: nextRsvp.event.description,
+      location: nextRsvp.event.location,
+      startTime: nextRsvp.event.startTime,
+      endTime: nextRsvp.event.endTime,
+      userId: user.id,
+    });
+  }
 
   return (
     <>
@@ -38,6 +52,7 @@ export default async function DashboardPage() {
           userId={user.id} 
           userName={userName}
           nextRsvp={nextRsvp} 
+          calendarLinks={calendarLinksObj}
         />
       </div>
 
@@ -57,7 +72,7 @@ export default async function DashboardPage() {
           <Navbar />
 
           <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[28px] px-[46px] pb-[46px] pt-[45px]">
-            <h1 className="style-page-title leading-[43.2px] tracking-[-0.4px] [font-variation-settings:'wdth'_100] bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">
+            <h1 className="style-page-title /*leading-[43.2px] tracking-[-0.4px] [font-variation-settings:'wdth'_100]*/ bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">
               Welcome back, {userName}!
             </h1>
 
@@ -76,6 +91,7 @@ export default async function DashboardPage() {
                   ]}
                   qrToken={nextRsvp.qrToken}
                   isLive={!!nextRsvp.isLive}
+                  calendarLinks={calendarLinksObj}
                 />
               ) : (
                 <UpNextCard
@@ -86,9 +102,11 @@ export default async function DashboardPage() {
                   dateLines={["Check out upcoming events and RSVP to see them here."]}
                 />
               )}
-              <Suspense fallback={<ApplicationsCardSkeleton />}>
-                <DashboardApplicationsCard userId={user.id} />
+              <Suspense fallback={<RsvpsCardSkeleton />}>
+                <DashboardRsvpsCard userId={user.id} />
               </Suspense>
+              
+              
             </div>
 
             {/* Row 2 — recommended & browse events card + RSVPs */}
@@ -96,8 +114,8 @@ export default async function DashboardPage() {
               <Suspense fallback={<div className="flex min-h-[200px] flex-1 items-center justify-center rounded-2xl bg-white">Loading recommendations...</div>}>
                 <DashboardRecommendedCard userId={user.id} />
               </Suspense>
-              <Suspense fallback={<RsvpsCardSkeleton />}>
-                <DashboardRsvpsCard userId={user.id} />
+              <Suspense fallback={<ApplicationsCardSkeleton />}>
+                <DashboardApplicationsCard userId={user.id} />
               </Suspense>
             </div>
           </div>

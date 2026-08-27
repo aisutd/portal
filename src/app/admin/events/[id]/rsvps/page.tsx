@@ -78,18 +78,23 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
 
   const { event, attended, unattended, stats, itemStats } = data;
 
-  // Reusable User Row Component for consistency across both lists
-  const UserRow = ({ rsvp, isAttended }: { rsvp: any, isAttended: boolean }) => {
-    const name = rsvp.user.profile 
-      ? `${rsvp.user.profile.prefName || rsvp.user.profile.firstName} ${rsvp.user.profile.lastName}`.trim() 
+  // Reusable User Row Component linking to user's admin profile
+  const UserRow = ({ rsvp, isAttended }: { rsvp: any; isAttended: boolean }) => {
+    const name = rsvp.user.profile
+      ? `${rsvp.user.profile.prefName || rsvp.user.profile.firstName} ${rsvp.user.profile.lastName}`.trim()
       : rsvp.user.email.split("@")[0];
 
+    const userId = rsvp.userId || rsvp.user.id;
+
     return (
-      <div className="flex items-center justify-between border-b border-table-line last:border-0 p-[16px] md:p-[20px] hover:bg-row-soft transition-colors">
+      <Link
+        href={`/admin/members/${userId}?from=/admin/events/${event.id}/rsvps`}
+        className="flex items-center justify-between border-b border-table-line last:border-0 p-[16px] md:p-[20px] hover:bg-row-soft transition-colors cursor-pointer"
+      >
         <div className="flex items-center gap-[12px] md:gap-[16px]">
           <div className="size-[36px] md:size-[40px] shrink-0 rounded-full border border-border-soft bg-gray-200" />
           <div className="flex flex-col">
-            <span className="style-body-text md: font-bold text-ink">{name}</span>
+            <span className="style-body-text md: font-bold text-ink hover:underline">{name}</span>
             <span className="style-caption md: text-ink-faint">{rsvp.user.email}</span>
           </div>
         </div>
@@ -102,14 +107,14 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
               </span>
             </>
           ) : (
-            <StatusBadge 
-              label={stats.isPast ? "Missed" : "Pending"} 
-              bg={stats.isPast ? "bg-red-50" : "bg-gray-100"} 
-              color={stats.isPast ? "text-red-700" : "text-gray-600"} 
+            <StatusBadge
+              label={stats.isPast ? "Missed" : "Pending"}
+              bg={stats.isPast ? "bg-red-50" : "bg-gray-100"}
+              color={stats.isPast ? "text-red-700" : "text-gray-600"}
             />
           )}
         </div>
-      </div>
+      </Link>
     );
   };
 
@@ -154,7 +159,7 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
             {Object.keys(itemStats).length > 0 && (
               <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
                 <div className="bg-row-soft border-b border-table-line p-[16px]">
-                  <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">Items Scanned</h2>
+                  <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Items Scanned</h2>
                 </div>
                 <div className="grid grid-cols-2 gap-y-[12px] p-[16px]">
                   {Object.entries(itemStats).map(([type, count]) => (
@@ -170,12 +175,12 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
             {/* Mobile Attended List */}
             <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
               <div className="bg-row-soft border-b border-table-line p-[16px] flex justify-between items-center">
-                <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">Checked In</h2>
+                <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Checked In</h2>
                 <span className="style-caption font-bold text-green-700">{attended.length}</span>
               </div>
               <div className="flex flex-col">
                 {attended.length > 0 ? (
-                  attended.map(r => <UserRow key={r.id} rsvp={r} isAttended={true} />)
+                  attended.map((r) => <UserRow key={r.id} rsvp={r} isAttended={true} />)
                 ) : (
                   <div className="p-[20px] text-center style-caption text-ink-muted">No check-ins yet.</div>
                 )}
@@ -185,14 +190,14 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
             {/* Mobile Unattended List */}
             <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
               <div className="bg-row-soft border-b border-table-line p-[16px] flex justify-between items-center">
-                <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">
+                <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">
                   {stats.isPast ? "Missed" : "Pending"}
                 </h2>
                 <span className="style-caption font-bold text-ink-muted">{unattended.length}</span>
               </div>
               <div className="flex flex-col">
                 {unattended.length > 0 ? (
-                  unattended.map(r => <UserRow key={r.id} rsvp={r} isAttended={false} />)
+                  unattended.map((r) => <UserRow key={r.id} rsvp={r} isAttended={false} />)
                 ) : (
                   <div className="p-[20px] text-center style-caption text-ink-muted">Everyone checked in!</div>
                 )}
@@ -222,14 +227,12 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
           </div>
 
           <div className="grid grid-cols-[1fr_2.5fr] gap-[24px] items-start">
-            
             {/* LEFT COLUMN: Stats & Scanning */}
             <div className="flex flex-col gap-[24px] sticky top-[46px]">
-              
               {/* Core Metrics */}
               <div className="flex flex-col rounded-[14px] border border-border-soft bg-white overflow-hidden shadow-sm">
                 <div className="border-b border-table-line p-[20px]">
-                  <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">Attendance Overview</h2>
+                  <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Attendance Overview</h2>
                 </div>
                 <div className="flex flex-col p-[20px] gap-[16px]">
                   <div className="flex justify-between items-end">
@@ -252,7 +255,7 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
               {Object.keys(itemStats).length > 0 && (
                 <div className="flex flex-col rounded-[14px] border border-border-soft bg-white overflow-hidden shadow-sm">
                   <div className="border-b border-table-line p-[20px]">
-                    <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">Items Dispensed</h2>
+                    <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Items Dispensed</h2>
                   </div>
                   <div className="flex flex-col p-[20px] gap-[12px]">
                     {Object.entries(itemStats).map(([type, count]) => (
@@ -268,16 +271,15 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
 
             {/* RIGHT COLUMN: Lists */}
             <div className="flex flex-col gap-[24px]">
-              
               {/* Attended List */}
               <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
                 <div className="flex items-center justify-between border-b border-table-line p-[20px] bg-row-soft">
-                  <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">Checked In</h2>
+                  <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Checked In</h2>
                   <StatusBadge label={`${attended.length} Members`} bg="bg-green-50" color="text-green-700" />
                 </div>
                 <div className="flex flex-col">
                   {attended.length > 0 ? (
-                    attended.map(r => <UserRow key={r.id} rsvp={r} isAttended={true} />)
+                    attended.map((r) => <UserRow key={r.id} rsvp={r} isAttended={true} />)
                   ) : (
                     <div className="p-[40px] text-center style-body-text text-ink-muted">No one has checked in yet.</div>
                   )}
@@ -287,14 +289,14 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
               {/* Unattended List */}
               <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
                 <div className="flex items-center justify-between border-b border-table-line p-[20px] bg-row-soft">
-                  <h2 className="font-techno  uppercase tracking-[1px] text-ink-faint">
+                  <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">
                     {stats.isPast ? "Missed Event" : "Pending Check-in"}
                   </h2>
                   <StatusBadge label={`${unattended.length} Members`} bg="bg-gray-100" color="text-gray-600" />
                 </div>
                 <div className="flex flex-col">
                   {unattended.length > 0 ? (
-                    unattended.map(r => <UserRow key={r.id} rsvp={r} isAttended={false} />)
+                    unattended.map((r) => <UserRow key={r.id} rsvp={r} isAttended={false} />)
                   ) : (
                     <div className="p-[40px] text-center style-body-text text-ink-muted">
                       {stats.totalRsvps > 0 ? "Everyone who RSVP'd checked in!" : "No RSVPs for this event."}
@@ -302,7 +304,6 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
                   )}
                 </div>
               </div>
-
             </div>
           </div>
         </div>

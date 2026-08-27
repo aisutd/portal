@@ -101,8 +101,9 @@ async function getEventsData(userId: string | null) {
 }
 
 export default async function EventsBrowsePage() {
-  const user = await getAuthenticatedUser();
-  const userId = user?.id ?? null;
+  const session = await getAuthenticatedUser();
+  // FIXED: Access profile.userId to match CheckInPage & RSVP queries
+  const userId = session?.profile?.userId ?? null;
   const { upcomingEvents, pastEvents } = await getEventsData(userId);
 
   return <EventsBrowseClient upcomingEvents={upcomingEvents} pastEvents={pastEvents} />;

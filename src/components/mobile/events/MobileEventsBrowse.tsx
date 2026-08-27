@@ -48,54 +48,15 @@ function EventCardSkeleton() {
 export function MobileEventsBrowse({ upcomingEvents: initialUpcoming, pastEvents: initialPast }: MobileEventsBrowseProps) {
   const [upcomingEvents, setUpcomingEvents] = useState<EventRecord[]>(initialUpcoming);
   const [pastEvents, setPastEvents] = useState<EventRecord[]>(initialPast);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loading] = useState(false);
+  const [error] = useState<string | null>(null);
   
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
+  // Sync state whenever props from server update
   useEffect(() => {
-    const controller = new AbortController();
-    async function loadEvents() {
-      setError(null);
-      try {
-        const response = await fetch("/api/events", { signal: controller.signal });
-        if (!response.ok) {
-          throw new Error(`Failed to load events: ${response.status}`);
-        }
-        const payload = (await response.json()) as EventRecord[];
-        if (Array.isArray(payload)) {
-          const now = new Date();
-          
-          const updateList = (prevList: EventRecord[]) =>
-            payload.map((fetchedEvent) => {
-              const matchingPrev = prevList.find((e) => e.id === fetchedEvent.id);
-              return {
-                ...fetchedEvent,
-                isRsvpd: matchingPrev ? matchingPrev.isRsvpd : fetchedEvent.isRsvpd,
-                hasAttended: matchingPrev ? matchingPrev.hasAttended : fetchedEvent.hasAttended,
-                missedEvent: matchingPrev ? matchingPrev.missedEvent : fetchedEvent.missedEvent,
-              };
-            });
-
-          // Check against endTime (or fallback to startTime) to keep ongoing events in upcoming
-          const fetchedUpcoming = updateList(initialUpcoming).filter(
-            (e) => new Date(e.endTime ?? e.startTime) >= now
-          );
-          const fetchedPast = updateList(initialPast).filter(
-            (e) => new Date(e.endTime ?? e.startTime) < now
-          );
-
-          setUpcomingEvents(fetchedUpcoming);
-          setPastEvents(fetchedPast);
-        }
-      } catch (err) {
-        if ((err as Error).name !== "AbortError") {
-          setError("Unable to load events at this time.");
-        }
-      }
-    }
-    loadEvents();
-    return () => controller.abort();
+    setUpcomingEvents(initialUpcoming);
+    setPastEvents(initialPast);
   }, [initialUpcoming, initialPast]);
 
   const handleTagClick = (tagLabel: string) => {
@@ -110,7 +71,7 @@ export function MobileEventsBrowse({ upcomingEvents: initialUpcoming, pastEvents
     selectedTags.length > 0
       ? list.filter((event) =>
           selectedTags.every((selectedTag) =>
-            event.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase())
+            (event.tags || []).some((tag) => tag.toLowerCase() === selectedTag.toLowerCase())
           )
         )
       : list;
@@ -211,6 +172,8 @@ export function MobileEventsBrowse({ upcomingEvents: initialUpcoming, pastEvents
                       eventId={event.id}
                       isRsvpd={event.isRsvpd}
                       isPast={false}
+                      hasAttended={event.hasAttended} // 👈 FIXED: Added hasAttended
+                      missedEvent={event.missedEvent} // 👈 FIXED: Added missedEvent
                     />
                   ))}
                 </div>

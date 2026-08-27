@@ -164,6 +164,8 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
                             eventId={event.id}
                             isRsvpd={event.isRsvpd}
                             isPast={false}
+                            hasAttended={event.hasAttended}
+                            missedEvent={event.missedEvent}
                           />
                         ))}
                       </div>

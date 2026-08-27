@@ -118,17 +118,18 @@ export function EventGridCard({
         </div>
 
         <div className="flex shrink-0 flex-col items-end gap-1">
-          {isPast ? (
-            // Show dynamic attendance status badges for past events
+          {hasAttended ? (
+            // Always display the green "Attended" badge if checked in, regardless of whether the event is past or ongoing
+            <span className="flex items-center gap-1.5 rounded-full bg-[#d2ecd9] px-3 py-1 text-xs font-medium text-emerald-900">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
+              </svg>
+              Attended
+            </span>
+          ) : isPast ? (
+            // Handle remaining past states (missed or un-RSVP'd past events)
             <div className="flex items-center gap-1.5 rounded-full text-xs font-medium">
-              {hasAttended ? (
-                <span className="flex items-center gap-1.5 rounded-full bg-[#d2ecd9] px-3 py-1 text-emerald-900">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
-                    <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
-                  </svg>
-                  Attended
-                </span>
-              ) : missedEvent ? (
+              {missedEvent ? (
                 <span className="flex items-center gap-1.5 rounded-full border border-red-200 bg-[#fdf2f2] px-3 py-1 text-red-700">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-red-600">
                     <path fillRule="evenodd" d="M4 10a.75.75 0 01.75-.75h10.5a.75.75 0 010 1.5H4.75A.75.75 0 014 10z" clipRule="evenodd" />
@@ -142,7 +143,7 @@ export function EventGridCard({
               )}
             </div>
           ) : (
-            // Active RSVP button for upcoming events
+            // Standard interactive RSVP button for active/upcoming events where the user hasn't checked in yet
             <Button 
               variant={hasRsvpd ? "outline" : "primary"}
               size="sm" 
@@ -165,7 +166,7 @@ export function EventGridCard({
             </Button>
           )}
 
-          {message && !isPast && (
+          {message && !isPast && !hasAttended && (
             <p className="style-body-text text-ink-faint">{message}</p>
           )}
         </div>
