@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { getAuthenticatedUser } from "@/lib/auth";
+import { generateCalendarLinks } from "@/lib/calendar";
 
 // Components
 import { Navbar } from "@/components/navbar";
 import { UpNextCard } from "@/components/dashboard/up-next-card";
-import { QuickCtaCard } from "@/components/dashboard/quick-cta-card";
 import { MobileDashboard } from "@/components/mobile/dashboard/MobileDashboard";
 import {
   DashboardApplicationsCard,
@@ -26,16 +26,23 @@ export default async function DashboardPage() {
   }
 
   const nextRsvp = await getNextUpcomingRsvp(user.id);
-  
-  // Define it once, use it in both places
   const userName = user.profile.firstName || "Member";
 
-  // Calculate if the current event is happening now or recently started
-  const isPastEvent = nextRsvp ? new Date(nextRsvp.event.startTime) < new Date() : false;
+  // Event has concluded only if endTime is in the past
+  const isPastEvent = nextRsvp ? new Date(nextRsvp.event.endTime) < new Date() : false;
   
-  // Set dynamic eyebrow prefix text based on the event time status
-  const eyebrowPrefix = isPastEvent ? "Happening Now / Recent" : "Up next";
-
+  let calendarLinksObj = null;
+  if (nextRsvp) {
+    calendarLinksObj = generateCalendarLinks({
+      id: nextRsvp.event.id,
+      title: nextRsvp.event.title,
+      description: nextRsvp.event.description,
+      location: nextRsvp.event.location,
+      startTime: nextRsvp.event.startTime,
+      endTime: nextRsvp.event.endTime,
+      userId: user.id,
+    });
+  }
 
   return (
     <>
@@ -43,8 +50,9 @@ export default async function DashboardPage() {
       <div className="md:hidden">
         <MobileDashboard 
           userId={user.id} 
-          userName={userName} // <-- Passed here
+          userName={userName}
           nextRsvp={nextRsvp} 
+          calendarLinks={calendarLinksObj}
         />
       </div>
 
@@ -54,7 +62,7 @@ export default async function DashboardPage() {
           <Navbar />
 
           <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[28px] px-[46px] pb-[46px] pt-[45px]">
-            <h1 className="style-page-title leading-[43.2px] tracking-[-0.4px] text-brand [font-variation-settings:'wdth'_100]">
+            <h1 className="style-page-title text-brand">
               Welcome back, {userName}!
             </h1>
 
@@ -62,42 +70,42 @@ export default async function DashboardPage() {
             <div className="mt-[28px] flex flex-col gap-[24px] xl:flex-row xl:items-start">
               {nextRsvp ? (
                 <UpNextCard
-                  eyebrow={nextRsvp.isLive ? "Happening now" : `Up next · ${formatDaysAway(nextRsvp.event.startTime)}`}
+                  eyebrow={nextRsvp.isLive ? "Happening now" : `${formatDaysAway(nextRsvp.event.startTime)}`}
                   title={nextRsvp.event.title}
+                  imageUrl={nextRsvp.event.imageUrl}                  
                   dateLines={[formatEventDate(nextRsvp.event.startTime), nextRsvp.event.location]}
                   tags={[
                     nextRsvp.isLive 
-                      ? { "label": "LIVE", "bg": "#dcfce7", "color": "#166534" }
+                      ? { label: "LIVE", bg: "#dcfce7", color: "#166534" }
                       : { label: "RSVP'd", bg: "#e1e8ff", color: "#1f3aa3" }
                   ]}
                   qrToken={nextRsvp.qrToken}
-                  isLive
+                  isLive={!!nextRsvp.isLive}
+                  calendarLinks={calendarLinksObj}
                 />
               ) : (
                 <UpNextCard
                   isEmpty={true}
+                  imageUrl={null}
                   eyebrow="Up next"
                   title="No RSVPs yet"
                   dateLines={["Check out upcoming events and RSVP to see them here."]}
                 />
               )}
-              <Suspense fallback={<ApplicationsCardSkeleton />}>
-                <DashboardApplicationsCard userId={user.id} />
-              </Suspense>
-            </div>
-
-            {/* Row 2 — rsvps + cta */}
-            <div className="flex flex-col gap-[24px] xl:h-[268px] xl:flex-row xl:items-stretch">
               <Suspense fallback={<RsvpsCardSkeleton />}>
                 <DashboardRsvpsCard userId={user.id} />
               </Suspense>
-              <QuickCtaCard />
+              
+              
             </div>
 
-            {/* Row 3 — recommendations */}
-            <div className="flex flex-col gap-[24px] xl:flex-row xl:items-start">
-              <Suspense fallback={<div className="flex min-h-[150px] flex-1 items-center justify-center rounded-2xl bg-white">Loading recommendations...</div>}>
+            {/* Row 2 — recommended & browse events card + RSVPs */}
+            <div className="flex flex-col gap-[24px] xl:flex-row xl:items-stretch">
+              <Suspense fallback={<div className="flex min-h-[200px] flex-1 items-center justify-center rounded-2xl bg-white">Loading recommendations...</div>}>
                 <DashboardRecommendedCard userId={user.id} />
+              </Suspense>
+              <Suspense fallback={<ApplicationsCardSkeleton />}>
+                <DashboardApplicationsCard userId={user.id} />
               </Suspense>
             </div>
           </div>

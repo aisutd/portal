@@ -15,6 +15,8 @@ type EventRecord = {
   description: string;
   location: string;
   startTime: string;
+  endTime?: string | null;
+  imageUrl?: string | null;
   tags: string[];
   isRsvpd?: boolean;
   hasAttended?: boolean;
@@ -46,51 +48,15 @@ function EventCardSkeleton() {
 export function MobileEventsBrowse({ upcomingEvents: initialUpcoming, pastEvents: initialPast }: MobileEventsBrowseProps) {
   const [upcomingEvents, setUpcomingEvents] = useState<EventRecord[]>(initialUpcoming);
   const [pastEvents, setPastEvents] = useState<EventRecord[]>(initialPast);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loading] = useState(false);
+  const [error] = useState<string | null>(null);
   
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
+  // Sync state whenever props from server update
   useEffect(() => {
-    const controller = new AbortController();
-    async function loadEvents() {
-      setError(null);
-      try {
-        const response = await fetch("/api/events", { signal: controller.signal });
-        if (!response.ok) {
-          throw new Error(`Failed to load events: ${response.status}`);
-        }
-        const payload = (await response.json()) as EventRecord[];
-        if (Array.isArray(payload)) {
-          const now = new Date();
-          
-          // Separate and map incoming payload to retain user RSVP/attendance state if available
-          const updateList = (prevList: EventRecord[]) =>
-            payload
-              .map((fetchedEvent) => {
-                const matchingPrev = prevList.find((e) => e.id === fetchedEvent.id);
-                return {
-                  ...fetchedEvent,
-                  isRsvpd: matchingPrev ? matchingPrev.isRsvpd : fetchedEvent.isRsvpd,
-                  hasAttended: matchingPrev ? matchingPrev.hasAttended : fetchedEvent.hasAttended,
-                  missedEvent: matchingPrev ? matchingPrev.missedEvent : fetchedEvent.missedEvent,
-                };
-              });
-
-          const fetchedUpcoming = updateList(initialUpcoming).filter(e => new Date(e.startTime) >= now);
-          const fetchedPast = updateList(initialPast).filter(e => new Date(e.startTime) < now);
-
-          setUpcomingEvents(fetchedUpcoming);
-          setPastEvents(fetchedPast);
-        }
-      } catch (err) {
-        if ((err as Error).name !== "AbortError") {
-          setError("Unable to load events at this time.");
-        }
-      }
-    }
-    loadEvents();
-    return () => controller.abort();
+    setUpcomingEvents(initialUpcoming);
+    setPastEvents(initialPast);
   }, [initialUpcoming, initialPast]);
 
   const handleTagClick = (tagLabel: string) => {
@@ -101,11 +67,11 @@ export function MobileEventsBrowse({ upcomingEvents: initialUpcoming, pastEvents
     );
   };
 
-const filterList = (list: EventRecord[]) => 
+  const filterList = (list: EventRecord[]) => 
     selectedTags.length > 0
       ? list.filter((event) =>
           selectedTags.every((selectedTag) =>
-            event.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase())
+            (event.tags || []).some((tag) => tag.toLowerCase() === selectedTag.toLowerCase())
           )
         )
       : list;
@@ -114,7 +80,6 @@ const filterList = (list: EventRecord[]) =>
     (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
   );
   
-  // Explicitly force descending order for past events (most recent past first)
   const filteredPast = filterList(pastEvents).sort(
     (a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
   );
@@ -124,21 +89,20 @@ const filterList = (list: EventRecord[]) =>
   return (
     <MobileScreen>
       <div className="flex flex-col gap-[6px]">
-        <h1 className="style-page-title  leading-tight tracking-tight text-brand">
+        <h1 className="style-page-title leading-tight tracking-tight text-brand">
           Pick Your Next Sidequest
         </h1>
-        <p className="style-page-subtitle  text-ink-muted">
+        <p className="style-page-subtitle text-ink-muted">
           Join us to learn, build, and connect with the AIS community
         </p>
       </div>
 
       <div className="flex snap-x snap-mandatory gap-[8px] overflow-x-auto py-[6px] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-        {/* All Events resets selection state completely */}
         <button
           type="button"
           aria-pressed={selectedTags.length === 0}
           onClick={() => setSelectedTags([])}
-          className={`shrink-0 snap-start rounded-full px-[16px] py-[8px] font-sans  font-bold transition-all duration-200 ${
+          className={`shrink-0 snap-start rounded-full px-[16px] py-[8px] font-sans font-bold transition-all duration-200 ${
             selectedTags.length === 0
               ? "bg-brand text-white shadow-sm"
               : "border border-border-soft bg-white text-ink-muted hover:bg-stone-soft"
@@ -186,8 +150,8 @@ const filterList = (list: EventRecord[]) =>
           </div>
         ) : error && totalFilteredCount === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-danger-border bg-white p-[32px] text-center">
-            <p className="font-sans  font-bold text-danger-ink">Oops!</p>
-            <p className="mt-[4px] font-sans  font-normal text-ink-muted">{error}</p>
+            <p className="font-sans font-bold text-danger-ink">Oops!</p>
+            <p className="mt-[4px] font-sans font-normal text-ink-muted">{error}</p>
           </div>
         ) : totalFilteredCount > 0 ? (
           <>
@@ -203,10 +167,13 @@ const filterList = (list: EventRecord[]) =>
                       title={event.title}
                       meta={`${formatEventDate(event.startTime)} · ${event.location}`}
                       description={event.description}
+                      imageUrl={event.imageUrl}
                       tags={normalizeEventTags(event.tags)}
                       eventId={event.id}
                       isRsvpd={event.isRsvpd}
                       isPast={false}
+                      hasAttended={event.hasAttended} // 👈 FIXED: Added hasAttended
+                      missedEvent={event.missedEvent} // 👈 FIXED: Added missedEvent
                     />
                   ))}
                 </div>
@@ -225,6 +192,7 @@ const filterList = (list: EventRecord[]) =>
                       title={event.title}
                       meta={`${formatEventDate(event.startTime)} · ${event.location}`}
                       description={event.description}
+                      imageUrl={event.imageUrl}
                       tags={normalizeEventTags(event.tags)}
                       eventId={event.id}
                       isRsvpd={event.isRsvpd}
@@ -239,16 +207,16 @@ const filterList = (list: EventRecord[]) =>
           </>
         ) : (
           <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-border-soft bg-white p-[40px] text-center shadow-sm">
-            <p className="font-sans  font-bold text-ink">
+            <p className="font-sans font-bold text-ink">
               No events found
             </p>
-            <p className="mt-[6px] font-sans  text-ink-muted">
+            <p className="mt-[6px] font-sans text-ink-muted">
               We didn't have any events with the selected filters. Look out in the near future!
             </p>
             {selectedTags.length > 0 && (
               <button
                 onClick={() => setSelectedTags([])}
-                className="mt-[16px] rounded-full bg-brand-soft px-[16px] py-[8px] font-sans  font-bold text-brand transition-colors hover:bg-brand hover:text-white"
+                className="mt-[16px] rounded-full bg-brand-soft px-[16px] py-[8px] font-sans font-bold text-brand transition-colors hover:bg-brand hover:text-white"
               >
                 Clear Filters
               </button>

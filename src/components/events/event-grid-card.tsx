@@ -8,11 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
 import type { TagData } from "@/components/dashboard/up-next-card";
 import { normalizeEventTags } from "@/lib/event-tags";
+import { EventCoverImage } from "@/components/events/event-cover-image";
 
 export type EventGridItem = {
   title: string;
   meta: string;
   description: string;
+  imageUrl?: string | null;
   tags: Array<string | TagData>;
   eventId: string;
   isRsvpd?: boolean;
@@ -24,7 +26,8 @@ export type EventGridItem = {
 export function EventGridCard({ 
   title, 
   meta, 
-  description, 
+  description,
+  imageUrl,
   tags, 
   eventId, 
   isRsvpd = false,
@@ -87,16 +90,16 @@ export function EventGridCard({
   return (
     <Link 
       href={`/events/${eventId}`}
-      className="flex h-full flex-col rounded-2xl border border-border-soft bg-white p-5 transition-shadow hover:shadow-sm block group"
+      className="group flex h-full flex-col rounded-2xl border border-border-soft bg-white p-5 transition-all duration-300 hover:shadow-lg hover:scale-105"
     >
-      <div className="flex h-37.5 w-full shrink-0 items-center justify-center rounded-xl bg-photo overflow-hidden">
-        <span className="style-caption tracking-[1.5px] text-photo-text">
-          PHOTO
-        </span>
-      </div>
+      <EventCoverImage
+        imageUrl={imageUrl}
+        className="h-[150px] w-full shrink-0"
+        alt={`${title} cover`}
+      />
 
       <div className="flex flex-1 flex-col">
-        <h3 className="mt-4 line-clamp-2 style-card-title leading-tight text-ink group-hover:text-brand transition-colors [font-variation-settings:'wdth'_100]">
+        <h3 className="mt-4 line-clamp-2 style-card-title leading-tight text-ink transition-colors group-hover:text-brand [font-variation-settings:'wdth'_100]">
           {title}
         </h3>
         <p className="mt-1.5 style-meta-text tracking-wide text-ink-faint">
@@ -115,43 +118,44 @@ export function EventGridCard({
         </div>
 
         <div className="flex shrink-0 flex-col items-end gap-1">
-          {isPast ? (
-            // Show dynamic attendance status badges for past events
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium">
-              {hasAttended ? (
-                <span className="flex items-center gap-1.5 bg-[#d2ecd9]  px-3 py-1 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 ">
-                    <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
-                  </svg>
-                  Attended
-                </span>
-              ) : missedEvent ? (
-                <span className="flex items-center gap-1.5 bg-[#fdf2f2] text-red-700 px-3 py-1 rounded-full border border-red-200">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-red-600">
+          {hasAttended ? (
+            // Always display the green "Attended" badge if checked in, regardless of whether the event is past or ongoing
+            <span className="flex items-center gap-1.5 rounded-full bg-[#d2ecd9] px-3 py-1 text-xs font-medium text-emerald-900">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
+              </svg>
+              Attended
+            </span>
+          ) : isPast ? (
+            // Handle remaining past states (missed or un-RSVP'd past events)
+            <div className="flex items-center gap-1.5 rounded-full text-xs font-medium">
+              {missedEvent ? (
+                <span className="flex items-center gap-1.5 rounded-full border border-red-200 bg-[#fdf2f2] px-3 py-1 text-red-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-red-600">
                     <path fillRule="evenodd" d="M4 10a.75.75 0 01.75-.75h10.5a.75.75 0 010 1.5H4.75A.75.75 0 014 10z" clipRule="evenodd" />
                   </svg>
                   Missed Event
                 </span>
               ) : (
-                <span className="bg-stone-100 text-ink-muted px-3 py-1 rounded-full">
+                <span className="rounded-full bg-stone-100 px-3 py-1 text-ink-muted">
                   Not RSVP'd
                 </span>
               )}
             </div>
           ) : (
-            // Active RSVP button for upcoming events
+            // Standard interactive RSVP button for active/upcoming events where the user hasn't checked in yet
             <Button 
               variant={hasRsvpd ? "outline" : "primary"}
               size="sm" 
               onClick={handleAction} 
               disabled={isSubmitting} 
-              className="flex items-center gap-1.5 w-[90px] justify-center" 
+              className="flex w-[90px] items-center justify-center gap-1.5" 
             >
               {isSubmitting ? (
                 "..."
               ) : hasRsvpd ? (
                 <>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
                     <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
                   </svg>
                   RSVP'd
@@ -162,7 +166,7 @@ export function EventGridCard({
             </Button>
           )}
 
-          {message && !isPast && (
+          {message && !isPast && !hasAttended && (
             <p className="style-body-text text-ink-faint">{message}</p>
           )}
         </div>

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { getAuthenticatedUser } from "@/lib/auth";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { EventForm } from "@/components/admin/event-form";
 import { CoverPhotoCard } from "@/components/admin/cover-photo-card";
@@ -10,18 +11,45 @@ import { Button } from "@/components/ui/button";
 import { MobileAdminEditEvent } from "@/components/mobile/admin/MobileAdminEditEvent";
 import { eventTags, eventSettings } from "@/lib/data";
 import { updateEvent, deleteEvent } from "./actions";
-import { DeleteEventButton } from "@/components/admin/delete-event-button"
+import { DeleteEventButton } from "@/components/admin/delete-event-button";
 
 export const metadata: Metadata = {
   title: "AIS Admin — Edit Event",
   description: "Edit an existing AIS event.",
 };
 
+/** Formats date explicitly into Chicago timezone YYYY-MM-DDTHH:mm */
+function formatChicagoDateTimeInput(date: Date): string {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(date);
+  const partMap: Record<string, string> = {};
+  for (const part of parts) {
+    partMap[part.type] = part.value;
+  }
+
+  const hour = partMap.hour === "24" ? "00" : partMap.hour;
+  return `${partMap.year}-${partMap.month}-${partMap.day}T${hour}:${partMap.minute}`;
+}
+
 export default async function EditEventPage({ 
   params 
 }: { 
   params: Promise<{ id: string }> 
 }) {
+  const user = await getAuthenticatedUser();
+  if (!user || (user.role !== "EXECUTIVE" && user.role !== "OFFICER")) {
+    redirect("/onboarding");
+  }
+
   const { id } = await params;
 
   const event = await prisma.event.findUnique({
@@ -31,22 +59,16 @@ export default async function EditEventPage({
 
   if (!event) return notFound();
 
-  // Format dates for HTML datetime-local inputs
-  const formatDateTime = (date: Date) => {
-    return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 16);
-  };
-
   const defaultValues = {
     title: event.title,
     description: event.description ?? "",
     location: event.location,
-    startTime: formatDateTime(event.startTime),
-    endTime: formatDateTime(event.endTime),
+    startTime: formatChicagoDateTimeInput(event.startTime),
+    endTime: formatChicagoDateTimeInput(event.endTime),
     capacity: event.capacity?.toString() ?? "",
     status: event.status as string,
     visibility: event.visibility as string,
+    imageUrl: event.imageUrl,
     tags: event.tags as string[],
     programs: event.programs,
     items: event.items.map((i) => ({
@@ -59,14 +81,15 @@ export default async function EditEventPage({
     <>
       <div className="md:hidden">
         <MobileAdminEditEvent 
-        eventId={event.id} 
-        defaultValues={defaultValues} 
-        isPublished={event.isPublished} />
+          eventId={event.id} 
+          defaultValues={defaultValues} 
+          isPublished={event.isPublished} 
+        />
       </div>
 
       <div className="hidden md:block">
         <div className="flex min-h-screen w-full bg-cream">
-          <AdminSidebar active="Events" role="Officer" />
+          <AdminSidebar active="Events" role={user.role} />
 
           <div className="flex h-full flex-1 flex-col gap-[20px] p-[46px]">
             <div className="flex items-center justify-between">
@@ -83,14 +106,17 @@ export default async function EditEventPage({
               </div>
             </div>
 
-            <form action={updateEvent} className="flex w-full flex-col gap-[24px] lg:flex-row lg:items-start">
-              {/* Hidden input to pass the event ID to the server action */}
+            <form 
+              action={updateEvent}
+              // encType="multipart/form-data"
+              className="flex w-full flex-col gap-6 lg:flex-row lg:items-start"
+            >
               <input type="hidden" name="id" value={event.id} />
 
               <EventForm tags={eventTags} defaultValues={defaultValues} />
 
-              <div className="flex w-full flex-col gap-[20px] lg:w-[382px] lg:shrink-0">
-                <CoverPhotoCard />
+              <div className="flex w-full flex-col gap-5 lg:w-[382px] lg:shrink-0">
+                <CoverPhotoCard defaultImageUrl={event.imageUrl} />
                 <SettingsCard items={eventSettings} />
                 
                 <div className="flex flex-col gap-[10px]">

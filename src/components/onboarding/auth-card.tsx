@@ -9,24 +9,13 @@ import { SegmentedTabs } from "@/components/ui/segmented-tabs";
 import { toFieldErrors, type AuthField, type AuthFieldErrors } from "@/lib/clerk-errors";
 import { EMAIL_DOMAIN_ERROR, isAllowedEmail } from "@/lib/email-domains";
 
-/**
- * Card shell. Laid out in flow rather than absolutely so a validation message can
- * grow to a few lines without running through the submit button; the margins and
- * reserved min-heights below reproduce the Figma spacing when nothing is showing.
- */
 const CARD =
   "flex min-h-[500px] w-full max-w-[400px] flex-col rounded-[14px] bg-white p-[30px] shadow-auth-card";
 
-/** Small centred link used for the secondary actions under a card's button. */
-const CARD_LINK = "font-mono-alt  leading-[normal] hover:underline";
+const CARD_LINK = "font-mono-alt leading-[normal] hover:underline";
 
-/**
- * Which screen the card is showing. Sign-up verification and password reset are
- * full-card takeovers rather than extra fields on the tabbed form.
- */
 type View = "form" | "verify-signup" | "reset-request" | "reset-code";
 
-/** Red validation text rendered directly beneath the field it belongs to. */
 function ErrorText({ id, message }: { id: string; message?: string }) {
   if (!message) return null;
   return (
@@ -40,12 +29,19 @@ function ErrorText({ id, message }: { id: string; message?: string }) {
   );
 }
 
-function AuthCardInner() {
+interface AuthCardProps {
+  redirectUrl?: string;
+}
+
+function AuthCardInner({ redirectUrl }: AuthCardProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  // Prioritize passed prop, then searchParams, then default to /dashboard
+  const targetRedirect =
+    redirectUrl || searchParams.get("redirect_url") || "/dashboard";
+
   const mode = searchParams.get("mode");
-  // ?mode=reset opens the reset flow directly — that's how the profile page's
-  // "Reset Password" button arrives here, having signed the user out first.
   const initialTab = mode === "login" || mode === "reset" ? "Log in" : "Sign up";
 
   const [tab, setTab] = useState<"Sign up" | "Log in">(initialTab);
@@ -54,8 +50,6 @@ function AuthCardInner() {
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [code, setCode] = useState("");
-  // The reset code is spent the moment Clerk accepts it, so remember that it
-  // worked — see handleResetSubmit.
   const [codeVerified, setCodeVerified] = useState(false);
   const [notice, setNotice] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -65,9 +59,8 @@ function AuthCardInner() {
   const { signIn } = useSignIn();
 
   const goToSetup = () => router.push("/onboarding/setup");
-  const goToDashboard = () => router.push("/dashboard");
+  const goToTargetRedirect = () => router.push(targetRedirect);
 
-  /** Drop a field's error once the user starts fixing it. */
   const clearError = (field: AuthField) =>
     setFieldErrors((prev) => {
       const next = { ...prev };
@@ -76,7 +69,6 @@ function AuthCardInner() {
       return next;
     });
 
-  /** Wipes everything the reset flow owns, leaving the email as typed. */
   const clearResetState = () => {
     setCode("");
     setNewPassword("");
@@ -94,8 +86,6 @@ function AuthCardInner() {
     clearResetState();
     setView("form");
     setTab("Log in");
-    // Discard the half-finished attempt so the next log in starts from scratch
-    // rather than from a sign-in still waiting on a new password.
     await signIn?.reset();
   };
 
@@ -105,7 +95,6 @@ function AuthCardInner() {
     setSubmitting(true);
     setFieldErrors({});
 
-    // Membership is UTD/AIS only. Enforced again server-side — see email-domains.ts.
     if (!isAllowedEmail(email)) {
       setFieldErrors({ email: EMAIL_DOMAIN_ERROR });
       setSubmitting(false);
@@ -188,10 +177,8 @@ function AuthCardInner() {
     }
 
     if (signIn.status === "complete") {
-      await signIn.finalize({ navigate: goToDashboard });
+      await signIn.finalize({ navigate: goToTargetRedirect });
     } else {
-      // MFA / other session steps aren't wired up yet — fine as long as
-      // you haven't enabled a second factor in the Clerk Dashboard
       setFieldErrors({
         form: "Additional verification is required, which isn't supported yet.",
       });
@@ -199,11 +186,6 @@ function AuthCardInner() {
     }
   };
 
-  /**
-   * Starts (or restarts) a reset. `sendCode()` takes no arguments — it mails
-   * whichever address is already on the sign-in attempt — so the identifier has
-   * to be attached with create() first. Returns false once an error is shown.
-   */
   const sendResetCode = async () => {
     if (!signIn) return false;
 
@@ -249,7 +231,6 @@ function AuthCardInner() {
     setSubmitting(false);
   };
 
-  /** "Send a new code" — a fresh attempt, so any earlier code is abandoned. */
   const handleResendResetCode = async () => {
     if (!signIn) return;
     setSubmitting(true);
@@ -271,10 +252,6 @@ function AuthCardInner() {
     setFieldErrors({});
     setNotice("");
 
-    // Clerk spends the code on verifyCode() and only then accepts a password, so
-    // a password rejected for being too short or breached would otherwise strand
-    // the user on a code that no longer works. Verify once, then retry the
-    // password on its own.
     if (!codeVerified) {
       const { error } = await signIn.resetPasswordEmailCode.verifyCode({ code });
       if (error) {
@@ -293,8 +270,6 @@ function AuthCardInner() {
 
     const { error } = await signIn.resetPasswordEmailCode.submitPassword({
       password: newPassword,
-      // A reset is the remedy for a stolen password, so drop any session that
-      // password may have opened elsewhere.
       signOutOfOtherSessions: true,
     });
     if (error) {
@@ -307,7 +282,7 @@ function AuthCardInner() {
     }
 
     if (signIn.status === "complete") {
-      await signIn.finalize({ navigate: goToDashboard });
+      await signIn.finalize({ navigate: goToTargetRedirect });
     } else {
       console.error("signIn status after password reset:", signIn.status);
       setFieldErrors({
@@ -320,12 +295,11 @@ function AuthCardInner() {
   if (view === "verify-signup") {
     return (
       <div className={CARD}>
-        <h2 className="mt-[17px] font-chakra  font-bold leading-[normal] text-ink-card">
+        <h2 className="mt-[17px] font-chakra font-bold leading-[normal] text-ink-card">
           Check your email
         </h2>
 
         <form onSubmit={handleVerifySubmit} className="flex flex-col">
-          {/* Reserves the gap down to the button so short errors don't shift it. */}
           <div className="mt-[59px] min-h-[191px]">
             <Field
               label="Verification code"
@@ -351,7 +325,7 @@ function AuthCardInner() {
           </Button>
         </form>
 
-        <p className="mt-[16px] text-center font-mono-alt  leading-[normal] text-helper-ink">
+        <p className="mt-[16px] text-center font-mono-alt leading-[normal] text-helper-ink">
           We sent a 6-digit code to {email}
         </p>
       </div>
@@ -361,7 +335,7 @@ function AuthCardInner() {
   if (view === "reset-request") {
     return (
       <div className={CARD}>
-        <h2 className="mt-[17px] font-chakra  font-bold leading-[normal] text-ink-card">
+        <h2 className="mt-[17px] font-chakra font-bold leading-[normal] text-ink-card">
           Reset your password
         </h2>
         <p className="mt-[8px] style-body-text leading-[19px] text-ink-muted">
@@ -369,7 +343,6 @@ function AuthCardInner() {
         </p>
 
         <form onSubmit={handleResetRequestSubmit} className="flex flex-col">
-          {/* Reserves the gap down to the button so short errors don't shift it. */}
           <div className="mt-[36px] min-h-[170px]">
             <Field
               label="UTD Email"
@@ -411,7 +384,7 @@ function AuthCardInner() {
   if (view === "reset-code") {
     return (
       <div className={CARD}>
-        <h2 className="mt-[17px] font-chakra  font-bold leading-[normal] text-ink-card">
+        <h2 className="mt-[17px] font-chakra font-bold leading-[normal] text-ink-card">
           Choose a new password
         </h2>
         <p className="mt-[8px] style-body-text leading-[19px] text-ink-muted">
@@ -447,12 +420,11 @@ function AuthCardInner() {
             )}
           </div>
 
-          {/* Reserves the gap down to the button so short errors don't shift it. */}
           <div className="min-h-[101px]">
             <Field
               label="New password"
               id="reset-new-password"
-              type="password"
+              showToggle
               autoComplete="new-password"
               placeholder="••••••••"
               value={newPassword}
@@ -508,7 +480,7 @@ function AuthCardInner() {
         }}
       />
 
-      <h2 className="mt-[25px] font-chakra  font-bold leading-[normal] text-ink-card">
+      <h2 className="mt-6 leading-[normal] text-display text-xl text-ink-card">
         {isSignUp ? "Create your account" : "Welcome back"}
       </h2>
 
@@ -516,8 +488,7 @@ function AuthCardInner() {
         onSubmit={isSignUp ? handleSignUpSubmit : handleLoginSubmit}
         className="flex flex-col"
       >
-        {/* Reserves the gap down to the password field. */}
-        <div className="mt-[9px] min-h-[90px]">
+        <div className="mt-6 min-h-[90px]">
           <Field
             label="UTD Email"
             id="auth-email"
@@ -536,12 +507,11 @@ function AuthCardInner() {
           <ErrorText id="auth-email-error" message={fieldErrors.email} />
         </div>
 
-        {/* Reserves the gap down to the button so short errors don't shift it. */}
         <div className="min-h-[101px]">
           <Field
             label="Password"
             id="auth-password"
-            type="password"
+            showToggle
             autoComplete={isSignUp ? "new-password" : "current-password"}
             placeholder="••••••••"
             value={password}
@@ -557,14 +527,12 @@ function AuthCardInner() {
           <ErrorText id="auth-password-error" message={fieldErrors.password} />
           <ErrorText id="auth-form-error" message={fieldErrors.form} />
 
-          {/* Sits directly under a failed-password message, which is where
-              someone actually starts looking for it. */}
           {!isSignUp && (
-            <div className="mt-[10px] flex justify-end">
+            <div className="mt-4 mb-6 flex justify-end">
               <button
                 type="button"
                 onClick={openReset}
-                className={`text-brand ${CARD_LINK}`}
+                className={`text-brand text-sm ${CARD_LINK}`}
               >
                 Forgot password?
               </button>
@@ -579,7 +547,7 @@ function AuthCardInner() {
         </Button>
       </form>
 
-      <p className="mt-[16px] text-center font-mono-alt  leading-[normal] text-helper-ink">
+      <p className="mt-4 text-center font-mono-alt text-xs leading-[normal] text-helper-ink">
         {isSignUp
           ? "we'll email you a 6-digit code to verify your account"
           : "welcome back to AIS"}
@@ -588,15 +556,14 @@ function AuthCardInner() {
   );
 }
 
-export function AuthCard() {
-  // useSearchParams() requires a Suspense boundary
+export function AuthCard({ redirectUrl }: AuthCardProps) {
   return (
     <Suspense
       fallback={
         <div className="h-[500px] w-full max-w-[400px] rounded-[14px] bg-white shadow-auth-card" />
       }
     >
-      <AuthCardInner />
+      <AuthCardInner redirectUrl={redirectUrl} />
     </Suspense>
   );
 }

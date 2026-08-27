@@ -47,9 +47,9 @@ export function ApplicationsCardSkeleton() {
 
 export function RsvpsCardSkeleton() {
   return (
-    <Card className="flex w-full flex-col gap-[16px] xl:w-[320px] p-[29px]">
+    <Card className="flex w-full shrink-0 self-stretch flex-col gap-[16px] xl:w-[360px] p-[29px]">
       <SectionHeader title="Your RSVPs" />
-      <div className="flex flex-col gap-[20px]">
+      <div className="flex flex-1 flex-col gap-[20px]">
         {[1, 2, 3].map((i) => (
           <div key={i} className="flex items-center gap-[12px]">
             <div className="flex size-[48px] flex-col items-center justify-center rounded-[8px] bg-gray-200 animate-pulse" />
@@ -74,7 +74,7 @@ export async function DashboardStatusStrip({ userId }: { userId: string }) {
   ]);
 
   const since = (date: Date) =>
-    new Date(date).toLocaleDateString([], { month: "short", year: "2-digit" });
+    new Date(date).toLocaleDateString([], {timeZone: "America/Chicago", month: "short", year: "2-digit" });
 
   const statusStats: Stat[] = [
     {
@@ -194,16 +194,29 @@ export async function DashboardApplicationsCard({ userId }: { userId: string }) 
 }
 
 export async function DashboardRsvpsCard({ userId }: { userId: string }) {
-  const rsvps = await getRSVPs(userId, 5);
+  const rsvps = await getRSVPs(userId); 
+  const now = new Date();
 
   const items: RsvpItem[] = rsvps.map((rsvp) => {
     const d = new Date(rsvp.event.startTime);
+    const endTime = new Date(rsvp.event.endTime ?? rsvp.event.startTime);
+
     return {
       id: rsvp.id,
-      day: d.getDate().toString().padStart(2, "0"),
+      isoDate: d.toISOString(), // Required for Month/Year grouping
+      day: d.toLocaleDateString("en-US", {
+        timeZone: "America/Chicago",
+        day: "2-digit",
+      }),
       title: rsvp.event.title,
-      detail: `${d.toLocaleTimeString([], { timeZone: 'America/Chicago', hour: 'numeric', minute: '2-digit' })} · ${rsvp.event.location}`,
-      eventId: rsvp.eventId
+      detail: `${d.toLocaleTimeString([], {
+        timeZone: "America/Chicago",
+        hour: "numeric",
+        minute: "2-digit",
+      })} · ${rsvp.event.location}`,
+      eventId: rsvp.eventId,
+      attended: Boolean(rsvp.attendance),
+      isPast: endTime < now,
     };
   });
 
@@ -216,6 +229,9 @@ export async function DashboardRecommendedCard({ userId }: { userId: string }) {
   const items: RecommendedItem[] = events.map((event) => ({
     id: event.id,
     title: event.title,
+    imageUrl: event.imageUrl,
+    startTime: event.startTime,
+    location: event.location,
     tags: [
       { label: "Upcoming", bg: "#e1e8ff", color: "#1f3aa3" },
     ],

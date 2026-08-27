@@ -13,26 +13,29 @@ export const metadata: Metadata = {
 async function getEventsData(userId: string | null) {
   const now = new Date();
 
-  // Fetch upcoming events (ascending order: soonest first)
+  // Fetch active/upcoming events (where event has NOT ended yet)
   const upcomingRaw = await prisma.event.findMany({
     where: { 
       isPublished: true,
-      startTime: { gte: now } 
+      endTime: { gte: now } 
     },
     orderBy: { startTime: "asc" },
     take: 20,
     include: {
       rsvps: userId
-        ? { where: { userId: userId, status: "GOING" } }
+        ? { 
+            where: { userId: userId, status: "GOING" },
+            include: { attendance: true }
+          }
         : false,
     },
   });
 
-  // Fetch past events (descending order: most recent past first)
+  // Fetch past events (where event has completely ended)
   const pastRaw = await prisma.event.findMany({
     where: { 
       isPublished: true, 
-      startTime: { lt: now } 
+      endTime: { lt: now } 
     },
     orderBy: { startTime: "desc" },
     take: 10,
@@ -47,15 +50,26 @@ async function getEventsData(userId: string | null) {
   });
 
   const mapEvents = (events: typeof upcomingRaw) =>
-    events.map((event) => ({
-      id: event.id,
-      title: event.title,
-      description: event.description,
-      location: event.location,
-      startTime: event.startTime.toISOString(),
-      tags: event.tags || [],
-      isRsvpd: !!(event.rsvps && event.rsvps.length > 0),
-    }));
+    events.map((event) => {
+      const userRsvp = event.rsvps && event.rsvps.length > 0 ? event.rsvps[0] : null;
+      const isRsvpd = !!userRsvp;
+      const hasAttended = userRsvp && 'attendance' in userRsvp ? !!userRsvp.attendance : false;
+      const isLive = now >= event.startTime && now <= event.endTime;
+
+      return {
+        id: event.id,
+        title: event.title,
+        description: event.description,
+        location: event.location,
+        startTime: event.startTime.toISOString(),
+        endTime: event.endTime.toISOString(),
+        imageUrl: event.imageUrl ?? null,
+        tags: event.tags || [],
+        isRsvpd,
+        hasAttended,
+        isLive,
+      };
+    });
   
   const mapPastEvents = (events: typeof pastRaw) =>
     events.map((event) => {
@@ -70,10 +84,13 @@ async function getEventsData(userId: string | null) {
         description: event.description,
         location: event.location,
         startTime: event.startTime.toISOString(),
+        endTime: event.endTime.toISOString(),
+        imageUrl: event.imageUrl ?? null,
         tags: event.tags || [],
         isRsvpd,
         hasAttended,
         missedEvent,
+        isLive: false,
       };
     });
 
@@ -84,8 +101,9 @@ async function getEventsData(userId: string | null) {
 }
 
 export default async function EventsBrowsePage() {
-  const user = await getAuthenticatedUser();
-  const userId = user?.id ?? null;
+  const session = await getAuthenticatedUser();
+  // FIXED: Access profile.userId to match CheckInPage & RSVP queries
+  const userId = session?.profile?.userId ?? null;
   const { upcomingEvents, pastEvents } = await getEventsData(userId);
 
   return <EventsBrowseClient upcomingEvents={upcomingEvents} pastEvents={pastEvents} />;

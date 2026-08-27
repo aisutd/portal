@@ -20,7 +20,7 @@ function ApplicationRow({ item }: { item: ApplicationItem }) {
   return (
     <div className="flex w-full flex-col gap-[10px]">
       <div className="flex items-center justify-between">
-        <span className="style-card-title  leading-[22.5px] text-ink">
+        <span className="style-card-title leading-[22.5px] text-ink">
           {item.title}
         </span>
         {item.status.variant === "outline" ? (
@@ -47,38 +47,71 @@ function ApplicationRow({ item }: { item: ApplicationItem }) {
 export function ApplicationsCard({ items }: { items: ApplicationItem[] }) {
   return (
     <Card className="flex w-full shrink-0 flex-col gap-[16px] self-stretch p-[29px] xl:w-[440px]">
+      {/* --- COMING SOON BANNER --- */}
+      <div className="flex w-full items-center justify-between rounded-xl border border-brand/20 bg-brand/5 px-3.5 py-2.5">
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-75"></span>
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-brand"></span>
+          </span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-brand">
+            Coming Soon
+          </span>
+        </div>
+        <span className="text-xs font-medium text-ink-muted">
+          Opens Sept 3 @ 7pm
+        </span>
+      </div>
+
       <SectionHeader
         title="Your Applications"
         action={
           <a
-            href="#"
-            className="style-meta-text  leading-[16.8px] tracking-[0.2px] text-brand"
+            href="/applications"
+            className="style-meta-text leading-[16.8px] tracking-[0.2px] text-brand"
           >
             View all
           </a>
         }
       />
       {items.length === 0 ? (
-        <div className="flex w-full flex-1 flex-col items-center justify-center gap-[8px] rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6] h-[170px] p-[12px]">
+        <div className="flex w-full flex-1 flex-col items-center justify-center gap-[8px] rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6] p-[16px] text-center">
           <div className="flex size-[40px] items-center justify-center rounded-full bg-[#f4effc]">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5d3999" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#5d3999"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
               <path d="m15 5 4 4"></path>
             </svg>
           </div>
-          <h2 className="style-card-title  text-ink">No applications</h2>
-          <p className="style-body-text  text-ink-muted text-center max-w-[280px] leading-tight">
-            When you apply to a team or program, it'll show up here.
+          <h2 className="style-card-title text-ink">Opening Soon</h2>
+          <p className="style-body-text text-ink-muted max-w-[280px] leading-tight">
+            Applications open at Kickoff on September 3, at 7pm.
           </p>
-          <Link href="/applications" className="mt-[2px]">
-            <Button variant="soft" size="sm" pill className="font-black px-[20px]">
-              Explore programs
+          {/* <Link href="/applications" className="mt-[2px]">
+            <Button
+              variant="soft"
+              size="sm"
+              pill
+              className="px-[20px] font-black"
+            >
+              View Schedule
             </Button>
-          </Link>
+          </Link> */}
         </div>
       ) : (
         items.map((item, index) => (
-          <div key={item.id ?? `${item.title}-${index}`} className={index === 0 ? "w-full" : "w-full pt-[8px]"}>
+          <div
+            key={item.id ?? `${item.title}-${index}`}
+            className={index === 0 ? "w-full" : "w-full pt-[8px]"}
+          >
             <ApplicationRow item={item} />
           </div>
         ))
