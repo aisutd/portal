@@ -6,7 +6,7 @@ import { Button } from "../ui/button";
 const NAV_ITEMS = ["Applications", "Events", "Members", "Exit"] as const;
 
 const NAV_ROUTES: Record<(typeof NAV_ITEMS)[number], string> = {
-  Applications: "/admin/applications/1",
+  Applications: "/admin/applications",
   Events: "/admin/events",
   Members: "/admin/members",
   Exit: "/dashboard",
