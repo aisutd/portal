@@ -85,6 +85,7 @@ export default async function EditEventPage({
           eventId={event.id} 
           defaultValues={defaultValues} 
           isPublished={event.isPublished} 
+          userRole={user.role}
         />
       </div>
 
@@ -121,7 +122,7 @@ export default async function EditEventPage({
                 <SettingsCard items={eventSettings} />
                 
                 <div className="flex flex-col gap-2.5">
-                  <EventActionButtons isPublished={event.isPublished} />
+                  <EventActionButtons isPublished={event.isPublished} userRole={user.role}/>
 
                   <div className="mt-4 border-t border-border-soft pt-4">
                     <DeleteEventButton eventId={event.id} deleteAction={deleteEvent} />

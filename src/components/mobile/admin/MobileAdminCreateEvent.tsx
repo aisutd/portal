@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { EventForm } from "@/components/admin/event-form";
 import { CoverPhotoCard } from "@/components/admin/cover-photo-card";
 import { SettingsCard } from "@/components/admin/settings-card";
@@ -9,7 +8,11 @@ import { eventTags, eventSettings } from "@/lib/data";
 import { createEvent } from "@/app/admin/events/actions";
 import { EventActionButtons } from "@/components/admin/admin-event-actions";
 
-export function MobileAdminCreateEvent() {
+interface MobileAdminCreateEventProps {
+  userRole?: string;
+}
+
+export function MobileAdminCreateEvent({userRole}: MobileAdminCreateEventProps) {
   return (
     <MobileScreen withBottomNavPadding={false}>
       <MobileAdminNav active="Events" />
@@ -33,7 +36,7 @@ export function MobileAdminCreateEvent() {
         <SettingsCard items={eventSettings} />
 
         <div className="flex flex-col gap-[10px]">
-          <EventActionButtons isPublished={false}/>
+          <EventActionButtons isPublished={false} userRole={userRole}/>
         </div>
       </form>
     </MobileScreen>

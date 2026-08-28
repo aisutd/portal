@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { EventForm } from "@/components/admin/event-form";
 import { CoverPhotoCard } from "@/components/admin/cover-photo-card";
 import { SettingsCard } from "@/components/admin/settings-card";
@@ -28,6 +27,7 @@ type MobileAdminEditEventProps = {
   eventId: string;
   defaultValues: EventDefaultValues;
   isPublished: boolean;
+  userRole: string;
 };
 
 /** Formats input values cleanly into Central time */
@@ -57,7 +57,7 @@ function toCentralDateTimeInput(dateStr?: string | null): string {
   return `${partMap.year}-${partMap.month}-${partMap.day}T${hour}:${partMap.minute}`;
 }
 
-export function MobileAdminEditEvent({ eventId, defaultValues, isPublished }: MobileAdminEditEventProps) {
+export function MobileAdminEditEvent({ eventId, defaultValues, isPublished, userRole}: MobileAdminEditEventProps) {
   const formattedDefaultValues = {
     ...defaultValues,
     startTime: toCentralDateTimeInput(defaultValues.startTime),
@@ -85,7 +85,7 @@ export function MobileAdminEditEvent({ eventId, defaultValues, isPublished }: Mo
         <SettingsCard items={eventSettings} />
 
         <div className="flex flex-col gap-2.5">
-          <EventActionButtons isPublished={isPublished}/>
+          <EventActionButtons isPublished={isPublished} userRole={userRole}/>
           
           <div className="mt-2 border-t border-border-soft pt-4">
             <DeleteEventButton eventId={eventId} deleteAction={deleteEvent} />

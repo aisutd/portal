@@ -5,9 +5,12 @@ import { Button } from "@/components/ui/button";
 
 interface EventActionButtonsProps {
   isPublished: boolean;
+  userRole?: string;
 }
 
-export function EventActionButtons({ isPublished }: EventActionButtonsProps) {
+export function EventActionButtons({ isPublished, userRole }: EventActionButtonsProps) {
+  const isExecutive = userRole === "EXECUTIVE";
+
   const handlePublishClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     const confirmed = window.confirm(
       "Are you sure you want to publish? This will be visible to all users if so."
@@ -31,29 +34,31 @@ export function EventActionButtons({ isPublished }: EventActionButtonsProps) {
           Save changes
         </Button>
 
-        {isPublished ? (
-          <Button 
-            type="submit" 
-            name="action" 
-            value="unpublish" 
-            variant="accent" 
-            size="md"
-            className="flex-1"
-          >
-            Unpublish
-          </Button>
-        ) : (
-          <Button 
-            type="submit" 
-            name="action" 
-            value="publish" 
-            variant="primary" 
-            size="md"
-            className="flex-1"
-            onClick={handlePublishClick}
-          >
-            Publish
-          </Button>
+        {isExecutive && (
+          isPublished ? (
+            <Button 
+              type="submit" 
+              name="action" 
+              value="unpublish" 
+              variant="accent" 
+              size="md"
+              className="flex-1"
+            >
+              Unpublish
+            </Button>
+          ) : (
+            <Button 
+              type="submit" 
+              name="action" 
+              value="publish" 
+              variant="primary" 
+              size="md"
+              className="flex-1"
+              onClick={handlePublishClick}
+            >
+              Publish
+            </Button>
+          )
         )}
       </div>
 

@@ -4,22 +4,25 @@ import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { EventForm } from "@/components/admin/event-form";
 import { CoverPhotoCard } from "@/components/admin/cover-photo-card";
 import { SettingsCard } from "@/components/admin/settings-card";
-import { Button } from "@/components/ui/button";
 import { MobileAdminCreateEvent } from "@/components/mobile/admin/MobileAdminCreateEvent";
 import { eventTags, eventSettings } from "@/lib/data";
 import { createEvent } from "@/app/admin/events/actions";
 import { EventActionButtons } from "@/components/admin/admin-event-actions";
+import { getAuthenticatedUser } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "AIS Admin — Create Event",
   description: "Create and publish a new AIS event.",
 };
 
-export default function CreateEventPage() {
+export default async function CreateEventPage() {
+  const user = await getAuthenticatedUser();
+  const userRole = user?.role;
+
   return (
     <>
       <div className="md:hidden">
-        <MobileAdminCreateEvent />
+        <MobileAdminCreateEvent userRole={userRole}/>
       </div>
 
       <div className="hidden md:block">
@@ -51,7 +54,7 @@ export default function CreateEventPage() {
                 <SettingsCard items={eventSettings} />
                 
                 <div className="flex flex-col gap-2.5">
-                  <EventActionButtons isPublished={false}/>
+                  <EventActionButtons isPublished={false} userRole={userRole}/>
                 </div>
               </div>
             </form>
