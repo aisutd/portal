@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { MobileAdminCreateEvent } from "@/components/mobile/admin/MobileAdminCreateEvent";
 import { eventTags, eventSettings } from "@/lib/data";
 import { createEvent } from "@/app/admin/events/actions";
+import { EventActionButtons } from "@/components/admin/admin-event-actions";
 
 export const metadata: Metadata = {
   title: "AIS Admin — Create Event",
@@ -49,30 +50,8 @@ export default function CreateEventPage() {
                 <CoverPhotoCard defaultImageUrl={null} />
                 <SettingsCard items={eventSettings} />
                 
-                <div className="flex gap-2.5">
-                  {/* Save Draft Button passes action: 'draft' */}
-                  <Button 
-                    type="submit" 
-                    name="action" 
-                    value="draft" 
-                    variant="ghost" 
-                    size="md"
-                    className="flex-1"
-                  >
-                    Save draft
-                  </Button>
-
-                  {/* Publish Button passes action: 'publish' */}
-                  <Button 
-                    type="submit" 
-                    name="action" 
-                    value="publish" 
-                    variant="primary" 
-                    size="md"
-                    className="flex-1"
-                  >
-                    Publish
-                  </Button>
+                <div className="flex flex-col gap-2.5">
+                  <EventActionButtons isPublished={false}/>
                 </div>
               </div>
             </form>

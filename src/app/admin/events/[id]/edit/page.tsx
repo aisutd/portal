@@ -12,6 +12,7 @@ import { MobileAdminEditEvent } from "@/components/mobile/admin/MobileAdminEditE
 import { eventTags, eventSettings } from "@/lib/data";
 import { updateEvent, deleteEvent } from "./actions";
 import { DeleteEventButton } from "@/components/admin/delete-event-button";
+import { EventActionButtons } from "@/components/admin/admin-event-actions";
 
 export const metadata: Metadata = {
   title: "AIS Admin — Edit Event",
@@ -119,49 +120,8 @@ export default async function EditEventPage({
                 <CoverPhotoCard defaultImageUrl={event.imageUrl} />
                 <SettingsCard items={eventSettings} />
                 
-                <div className="flex flex-col gap-[10px]">
-                  <div className="flex gap-[10px]">
-                    <Button 
-                      type="submit" 
-                      name="action" 
-                      value="draft" 
-                      variant="ghost" 
-                      size="md" 
-                      className="flex-1"
-                    >
-                      Save changes
-                    </Button>
-
-                    {event.isPublished ? (
-                      <Button 
-                        type="submit" 
-                        name="action" 
-                        value="unpublish" 
-                        variant="accent" 
-                        size="md"
-                        className="flex-1"
-                      >
-                        Unpublish
-                      </Button>
-                    ) : (
-                      <Button 
-                        type="submit" 
-                        name="action" 
-                        value="publish" 
-                        variant="primary" 
-                        size="md"
-                        className="flex-1"
-                      >
-                        Publish
-                      </Button>
-                    )}
-                  </div>
-
-                  <Link href="/admin/events" className="w-full">
-                    <Button type="button" variant="ghost" size="md" className="w-full text-ink-faint">
-                      Cancel
-                    </Button>
-                  </Link>
+                <div className="flex flex-col gap-2.5">
+                  <EventActionButtons isPublished={event.isPublished} />
 
                   <div className="mt-4 border-t border-border-soft pt-4">
                     <DeleteEventButton eventId={event.id} deleteAction={deleteEvent} />

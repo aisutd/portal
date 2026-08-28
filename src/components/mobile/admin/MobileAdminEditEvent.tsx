@@ -8,6 +8,7 @@ import { MobileAdminNav } from "@/components/mobile/admin/MobileAdminNav";
 import { eventTags, eventSettings } from "@/lib/data";
 import { updateEvent, deleteEvent } from "@/app/admin/events/[id]/edit/actions";
 import { DeleteEventButton } from "@/components/admin/delete-event-button";
+import { EventActionButtons } from "@/components/admin/admin-event-actions";
 
 type EventDefaultValues = {
   title: string;
@@ -84,48 +85,7 @@ export function MobileAdminEditEvent({ eventId, defaultValues, isPublished }: Mo
         <SettingsCard items={eventSettings} />
 
         <div className="flex flex-col gap-2.5">
-          <div className="flex gap-2.5">
-            <Button 
-              type="submit" 
-              name="action" 
-              value="draft" 
-              variant="ghost" 
-              size="md" 
-              className="flex-1"
-            >
-              Save changes
-            </Button>
-
-            {isPublished ? (
-              <Button 
-                type="submit" 
-                name="action" 
-                value="unpublish" 
-                variant="accent" 
-                size="md"
-                className="flex-1"
-              >
-                Unpublish
-              </Button>
-            ) : (
-              <Button 
-                type="submit" 
-                name="action" 
-                value="publish" 
-                variant="primary" 
-                size="md"
-                className="flex-1"
-              >
-                Publish
-              </Button>
-            )}
-          </div>
-
-          <Link href="/admin/events" className="w-full">
-            <Button type="button" variant="ghost" size="md" className="w-full text-ink-faint">
-              Cancel
-            </Button>
-          </Link>
+          <EventActionButtons isPublished={isPublished}/>
           
           <div className="mt-2 border-t border-border-soft pt-4">
             <DeleteEventButton eventId={eventId} deleteAction={deleteEvent} />
