@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Tag } from "@/components/ui/tag";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,8 @@ function MobileApplicationSection({
   emptyMessage,
   action,
   buildRow,
+  collapsible = false,
+  initialLimit = 2,
 }: {
   title: string;
   items: Application[];
@@ -48,7 +51,14 @@ function MobileApplicationSection({
   emptyMessage: string;
   action?: React.ReactNode;
   buildRow: (application: Application) => ReturnType<typeof buildOpenRow>;
+  collapsible?: boolean;
+  initialLimit?: number;
 }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const shouldCollapse = collapsible && items.length > initialLimit;
+  const displayedItems = shouldCollapse && !isExpanded ? items.slice(0, initialLimit) : items;
+
   return (
     <div className="flex flex-col gap-[12px]">
       <div className="flex items-center justify-between gap-[8px]">
@@ -64,9 +74,28 @@ function MobileApplicationSection({
         </div>
       ) : items.length > 0 ? (
         <div className="flex flex-col gap-[12px]">
-          {items.map((application) => (
+          {displayedItems.map((application) => (
             <OpenAppRow key={application.id} {...buildRow(application)} />
           ))}
+
+          {shouldCollapse && (
+            <div className="mt-1 flex justify-center">
+              <Button
+                variant="soft"
+                size="sm"
+                pill
+                onClick={() => setIsExpanded(!isExpanded)}
+                type="button"
+                className="gap-1 font-bold text-xs shadow-2xs"
+              >
+                {isExpanded ? (
+                  <>Show less ↑</>
+                ) : (
+                  <>View more ({items.length - initialLimit} more) ↓</>
+                )}
+              </Button>
+            </div>
+          )}
         </div>
       ) : (
         <div className="rounded-[14px] border border-border-soft bg-white p-[16px] font-mobile-body text-[13px] text-ink-muted">
@@ -118,7 +147,7 @@ export function MobileApply() {
     <MobileScreen>
       <div className="flex flex-col gap-2 pt-4">
         <h1 className="font-mobile-display text-[36px] font-bold leading-7.5 text-ink">
-          Choose Your <span className="text-brand">AIS Path</span>
+          Choose Your <span className="bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">AIS Path</span>
         </h1>
         <p className="font-mobile-body text-[14px] text-ink">
           Welcome to the enrollment hub. Whether you&apos;re here to learn,
@@ -135,12 +164,27 @@ export function MobileApply() {
             style={{ borderColor: program.borderColor }}
           >
             <div className="flex items-center justify-between">
-              <span
-                className="flex size-[40px] items-center justify-center rounded-[10px] text-[18px]"
-                style={{ backgroundColor: program.iconBg, color: program.iconColor }}
-              >
-                {program.icon}
-              </span>
+              {program.image ? (
+                <div
+                  className="relative flex size-[52px] shrink-0 items-center justify-center rounded-[12px] p-[2px] overflow-hidden border border-border-soft/60"
+                  style={{ backgroundColor: program.iconBg }}
+                >
+                  <Image
+                    src={program.image}
+                    alt={`${program.title} Logo`}
+                    width={48}
+                    height={48}
+                    className="h-[95%] w-[95%] object-contain mix-blend-multiply"
+                  />
+                </div>
+              ) : (
+                <span
+                  className="flex size-[40px] items-center justify-center rounded-[10px] text-[18px]"
+                  style={{ backgroundColor: program.iconBg, color: program.iconColor }}
+                >
+                  {program.icon}
+                </span>
+              )}
               {program.badge && (
                 <Badge label={program.badge} bg="#fbe3cb" color="#7a4416" />
               )}
@@ -148,7 +192,7 @@ export function MobileApply() {
             <h3 className="font-mobile-display text-[17px] font-bold text-ink">
               {program.title}
             </h3>
-            <p className="font-mobile-body text-[13px] text-ink-muted">
+            <p className="font-mobile-body text-[13px] text-ink-muted line-clamp-3">
               {program.description}
             </p>
             <div className="flex flex-wrap gap-[6px]">
@@ -162,13 +206,6 @@ export function MobileApply() {
                 />
               ))}
             </div>
-            <Button variant={program.cta} size="md" pill block>
-              Apply Now →
-            </Button>
-            {/* TODO: point at the real AIS website page for this program once it exists. */}
-            <Button variant="soft" size="md" pill block href="#">
-              Learn more →
-            </Button>
           </div>
         ))}
       </div>
@@ -184,6 +221,8 @@ export function MobileApply() {
         loading={loading}
         emptyMessage="There are no open applications right now."
         buildRow={buildOpenRow}
+        collapsible={true}
+        initialLimit={2}
       />
       <MobileApplicationSection
         title="Upcoming Applications"
@@ -191,13 +230,8 @@ export function MobileApply() {
         loading={loading}
         emptyMessage="There are no upcoming applications."
         buildRow={buildOpenRow}
-      />
-      <MobileApplicationSection
-        title="Closed Applications"
-        items={closedApplications}
-        loading={loading}
-        emptyMessage="There are no closed applications to show."
-        buildRow={buildOpenRow}
+        collapsible={true}
+        initialLimit={2}
       />
       <MobileApplicationSection
         title="Submitted Applications"
@@ -210,6 +244,17 @@ export function MobileApply() {
           </Button>
         }
         buildRow={buildSubmittedRow}
+        collapsible={true}
+        initialLimit={2}
+      />
+      <MobileApplicationSection
+        title="Closed Applications"
+        items={closedApplications}
+        loading={loading}
+        emptyMessage="There are no closed applications to show."
+        buildRow={buildOpenRow}
+        collapsible={true}
+        initialLimit={2}
       />
 
       <BottomNav />

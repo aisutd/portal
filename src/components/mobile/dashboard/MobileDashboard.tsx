@@ -46,14 +46,14 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
 
   return (
     <MobileScreen>
-      <h1 className="style-mobile-title text-brand">
+      <h1 className="style-mobile-title text-2xl font-bold bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">
         Welcome back, {userName}!
       </h1>
 
       {/* Up Next */}
       <Card
         className={cn(
-          "flex flex-col gap-4 p-5 transition-all duration-300",
+          "flex flex-col gap-4 p-5 transition-all duration-300 relative overflow-hidden border-t-4 border-t-brand",
           isGlowing &&
             "border-green bg-checked/60 shadow-[0_0_20px_rgba(53,107,46,0.35)] ring-1 ring-green/50"
         )}
@@ -80,11 +80,12 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
             </div>
 
             {nextRsvp.qrToken && (
-              <div className="flex flex-col items-center gap-2">
-                <p className="style-mobile-body text-center text-ink">
+              <div className="flex flex-col items-center gap-2 pt-1">
+                <div className="h-1 w-16 rounded-full bg-brand" />
+                <p className="style-mobile-body text-center text-ink font-medium">
                   Ticket: Claiming Items / Late Check-in
                 </p>
-                <div className="flex w-fit items-center justify-center rounded-xl border border-ink bg-white p-4">
+                <div className="flex w-fit items-center justify-center rounded-xl border border-border-soft border-t-4 border-t-brand bg-white p-4 shadow-2xs">
                   <div className="w-full max-w-70">
                     <QRCode
                       value={nextRsvp.qrToken}
@@ -135,7 +136,12 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
         <DashboardRsvpsCard userId={userId} />
       </Suspense>
 
-      {/* Recommended */}
+      {/* Applications */}
+      <Suspense fallback={<ApplicationsCardSkeleton />}>
+        <DashboardApplicationsCard userId={userId} />
+      </Suspense>
+
+      {/* Recommended (Placed at the very bottom) */}
       <Suspense
         fallback={
           <div className="flex min-h-[150px] items-center justify-center rounded-2xl bg-white">
@@ -146,11 +152,6 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
         }
       >
         <DashboardRecommendedCard userId={userId} />
-      </Suspense>
-
-      {/* Applications */}
-      <Suspense fallback={<ApplicationsCardSkeleton />}>
-        <DashboardApplicationsCard userId={userId} />
       </Suspense>
 
       <BottomNav />

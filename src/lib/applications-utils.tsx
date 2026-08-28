@@ -103,6 +103,10 @@ export function sortApplications(
           ? new Date(right.openAt).getTime()
           : new Date(right.closeAt).getTime();
 
+      if (phase === "closed") {
+        return rightDate - leftDate;
+      }
+
       return leftDate - rightDate;
     });
 }
@@ -168,6 +172,7 @@ export function buildOpenRow(application: Application): OpenApp {
     description: application.description,
     meta,
     borderColor,
+    closeAt: application.closeAt,
     metaMedium: application.phase !== "upcoming",
     dim: application.phase !== "open",
     statusBadge: getStatusBadge(application.draft, application.submissionStatus),

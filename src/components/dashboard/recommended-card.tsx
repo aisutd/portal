@@ -157,14 +157,6 @@ export function RecommendedCard({ items }: { items: RecommendedItem[] }) {
     <Card className="flex h-auto min-w-0 flex-1 flex-col gap-[14px] self-stretch p-[27px]">
       <SectionHeader
         title="Recommended for you"
-        action={
-          <Link
-            href="/events"
-            className="style-meta-text flex items-center gap-1 font-semibold leading-[16.8px] tracking-[0.2px] text-brand hover:underline"
-          >
-            Browse Events →
-          </Link>
-        }
       />
 
       <div className="flex flex-col gap-[14px] h-auto w-full">

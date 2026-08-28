@@ -130,6 +130,7 @@ export const programs: Program[] = [
     icon: "◇",
     iconBg: "#e1e8ff",
     iconColor: "#1f3aa3",
+    image: "/images/programs/ai-academy.png",
     borderColor: "#e7e2d4",
     title: "AI Academy",
     description:
@@ -141,6 +142,7 @@ export const programs: Program[] = [
     icon: "◈",
     iconBg: "#fbe3cb",
     iconColor: "#7a4416",
+    image: "/images/programs/aim.png",
     borderColor: "#f2a968",
     badge: "High demand",
     title: "AI Mentorship",
@@ -153,6 +155,7 @@ export const programs: Program[] = [
     icon: "◆",
     iconBg: "#e9e5f6",
     iconColor: "#4b4178",
+    image: "/images/programs/innovation-lab.png",
     borderColor: "#e7e2d4",
     title: "Innovation Labs",
     description:
