@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { EventForm } from "@/components/admin/event-form";
 import { CoverPhotoCard } from "@/components/admin/cover-photo-card";
 import { SettingsCard } from "@/components/admin/settings-card";
@@ -8,6 +7,7 @@ import { MobileAdminNav } from "@/components/mobile/admin/MobileAdminNav";
 import { eventTags, eventSettings } from "@/lib/data";
 import { updateEvent, deleteEvent } from "@/app/admin/events/[id]/edit/actions";
 import { DeleteEventButton } from "@/components/admin/delete-event-button";
+import { EventActionButtons } from "@/components/admin/admin-event-actions";
 
 type EventDefaultValues = {
   title: string;
@@ -27,6 +27,7 @@ type MobileAdminEditEventProps = {
   eventId: string;
   defaultValues: EventDefaultValues;
   isPublished: boolean;
+  userRole: string;
 };
 
 /** Formats input values cleanly into Central time */
@@ -56,7 +57,7 @@ function toCentralDateTimeInput(dateStr?: string | null): string {
   return `${partMap.year}-${partMap.month}-${partMap.day}T${hour}:${partMap.minute}`;
 }
 
-export function MobileAdminEditEvent({ eventId, defaultValues, isPublished }: MobileAdminEditEventProps) {
+export function MobileAdminEditEvent({ eventId, defaultValues, isPublished, userRole}: MobileAdminEditEventProps) {
   const formattedDefaultValues = {
     ...defaultValues,
     startTime: toCentralDateTimeInput(defaultValues.startTime),
@@ -84,52 +85,13 @@ export function MobileAdminEditEvent({ eventId, defaultValues, isPublished }: Mo
         <SettingsCard items={eventSettings} />
 
         <div className="flex flex-col gap-2.5">
-          <div className="flex gap-2.5">
-            <Button 
-              type="submit" 
-              name="action" 
-              value="draft" 
-              variant="ghost" 
-              size="md" 
-              className="flex-1"
-            >
-              Save changes
-            </Button>
-
-            {isPublished ? (
-              <Button 
-                type="submit" 
-                name="action" 
-                value="unpublish" 
-                variant="accent" 
-                size="md"
-                className="flex-1"
-              >
-                Unpublish
-              </Button>
-            ) : (
-              <Button 
-                type="submit" 
-                name="action" 
-                value="publish" 
-                variant="primary" 
-                size="md"
-                className="flex-1"
-              >
-                Publish
-              </Button>
-            )}
-          </div>
-
-          <Link href="/admin/events" className="w-full">
-            <Button type="button" variant="ghost" size="md" className="w-full text-ink-faint">
-              Cancel
-            </Button>
-          </Link>
+          <EventActionButtons isPublished={isPublished} userRole={userRole}/>
           
-          <div className="mt-2 border-t border-border-soft pt-4">
-            <DeleteEventButton eventId={eventId} deleteAction={deleteEvent} />
-          </div>
+            {userRole === "EXECUTIVE" && (
+              <div className="mt-2 border-t border-border-soft pt-4">
+                <DeleteEventButton eventId={eventId} deleteAction={deleteEvent} />
+              </div>
+            )}
         </div>
       </form>
     </MobileScreen>
