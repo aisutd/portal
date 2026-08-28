@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import type { MemberBadge } from "@/components/admin/members-table";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { MobileField } from "@/components/mobile/ui/MobileField";
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
@@ -10,12 +11,15 @@ import { MobileEyebrow as Eyebrow } from "@/components/mobile/ui/MobileEyebrow";
 import { SignOutButton } from "@clerk/nextjs";
 import { PasswordResetButton } from "@/components/profile/PasswordResetButton";
 import { ResumeUploadButton } from "@/components/profile/ResumeUploadButton";
+import { SaveStatusToast } from "@/components/profile/SaveStatusToast";
 import { UTD_MAJORS, UTD_DEGREES, ACADEMIC_YEARS } from "@/lib/utd-data";
 
 type MobileProfileProps = {
   profile: Profile & { resumeFile?: { fileName: string } | null };
   completion: { percent: number; missingFields: string[] };
   updateProfile: (formData: FormData) => Promise<void>;
+  roleBadges?: MemberBadge[];
+  activityBadge?: MemberBadge | null;
 };
 
 function MobileSelect({
@@ -53,7 +57,7 @@ function MobileSelect({
   );
 }
 
-export function MobileProfile({ profile, completion, updateProfile }: MobileProfileProps) {
+export function MobileProfile({ profile, completion, updateProfile, roleBadges, activityBadge }: MobileProfileProps) {
   return (
     <MobileScreen>
       {completion.percent < 100 && (
@@ -71,11 +75,30 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
           <p className="style-card-title uppercase tracking-[0.5px] text-ink">
             {profile.firstName} {profile.lastName}
           </p>
-          <Badge
-            label={`${profile.major || "No Major"} · ${profile.year || "N/A"}`}
-            bg="#fbe3cb"
-            color="#7a4416"
-          />
+          <div className="flex flex-wrap items-center gap-[8px]">
+            {roleBadges?.map((badge) => (
+              <Badge
+                key={badge.label}
+                label={badge.label}
+                variant={badge.outline ? "outline" : "solid"}
+                bg={badge.bg}
+                color={badge.color}
+              />
+            ))}
+            {activityBadge && (
+              <Badge
+                label={activityBadge.label}
+                variant={activityBadge.outline ? "outline" : "solid"}
+                bg={activityBadge.bg}
+                color={activityBadge.color}
+              />
+            )}
+            <Badge
+              label={`${profile.major || "No Major"} · ${profile.year || "N/A"}`}
+              bg="#fbe3cb"
+              color="#7a4416"
+            />
+          </div>
         </Card>
 
         {/* Links */}
@@ -183,6 +206,7 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
             Apply Changes
           </Button>
         </div>
+        <SaveStatusToast />
       </form>
 
       <div className="mt-2 flex w-full items-center">

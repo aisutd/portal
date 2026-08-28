@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "@/components/ui/section-header";
 import { currentUser } from "@clerk/nextjs/server";
@@ -8,10 +10,13 @@ import { SignOutButton } from "@clerk/nextjs";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { getProfileCompletion } from "@/lib/dashboard-utils";
+import { getMemberById } from "@/lib/members/view-model";
+import { getActivityBadge } from "@/lib/profile-activity";
 import { revalidatePath } from "next/cache";
 import { MobileProfile } from "@/components/mobile/profile/MobileProfile";
 import { PasswordResetButton } from "@/components/profile/PasswordResetButton";
 import { ResumeUploadButton } from "@/components/profile/ResumeUploadButton";
+import { SaveStatusToast } from "@/components/profile/SaveStatusToast";
 import { UTD_MAJORS, UTD_DEGREES, ACADEMIC_YEARS } from "@/lib/utd-data";
 
 export default async function ProfilePage() {
@@ -37,6 +42,8 @@ export default async function ProfilePage() {
 
   const profile = user.profile;
   const completion = await getProfileCompletion(user.id);
+  const member = await getMemberById(user.id);
+  const activityBadge = await getActivityBadge(user.id);
 
   async function updateProfile(formData: FormData) {
     "use server";
@@ -68,7 +75,13 @@ export default async function ProfilePage() {
   return (
     <>
       <div className="md:hidden">
-        <MobileProfile profile={profile} completion={completion} updateProfile={updateProfile} />
+        <MobileProfile
+          profile={profile}
+          completion={completion}
+          updateProfile={updateProfile}
+          roleBadges={member?.roles}
+          activityBadge={activityBadge}
+        />
       </div>
 
       <div className="hidden md:block">
@@ -76,7 +89,7 @@ export default async function ProfilePage() {
           <Navbar active="Profile" />
 
           <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[28px] px-[46px] pb-[46px] pt-[45px]">
-            <h1 className="style-page-title leading-[43.2px] tracking-[-0.4px] text-brand">
+            <h1 className="style-page-title leading-[43.2px] tracking-[-0.4px] bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">
               Profile
             </h1>
 
@@ -94,10 +107,27 @@ export default async function ProfilePage() {
                 <h2 className="style-card-title tracking-[-0.4px] text-ink uppercase">
                   {profile.firstName} {profile.lastName}
                 </h2>
-                <div className="rounded-full bg-pill-amber px-[20px] py-[6px]">
-                  <span className="style-badge-text text-orange-text tracking-widest uppercase">
-                    {profile.major} · {profile.year}
-                  </span>
+                <div className="flex flex-wrap items-center gap-[10px]">
+                  {member?.roles.map((roleBadge) => (
+                    <Badge
+                      key={roleBadge.label}
+                      label={roleBadge.label}
+                      variant={roleBadge.outline ? "outline" : "solid"}
+                      bg={roleBadge.bg}
+                      color={roleBadge.color}
+                    />
+                  ))}
+                  <Badge
+                    label={activityBadge.label}
+                    variant={activityBadge.outline ? "outline" : "solid"}
+                    bg={activityBadge.bg}
+                    color={activityBadge.color}
+                  />
+                  <div className="rounded-full bg-pill-amber px-[20px] py-[6px]">
+                    <span className="style-badge-text text-orange-text tracking-widest uppercase">
+                      {profile.major} · {profile.year}
+                    </span>
+                  </div>
                 </div>
               </Card>
 
@@ -306,8 +336,10 @@ export default async function ProfilePage() {
 
               </div>
               </div>
+              <SaveStatusToast />
             </form>
           </div>
+          <Footer />
         </div>
       </div>
     </>

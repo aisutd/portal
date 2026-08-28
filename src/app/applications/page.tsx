@@ -3,6 +3,7 @@
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
 // import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 // import { SectionHeader } from "@/components/ui/section-header";
 // import { StepCard } from "@/components/apply/step-card";
 // import { ProgramCard } from "@/components/apply/program-card";
@@ -496,6 +497,7 @@ export default function ApplyPage() {
               </div>
             </section>
           </main>
+          <Footer />
         </div>
       </div>
     </>
