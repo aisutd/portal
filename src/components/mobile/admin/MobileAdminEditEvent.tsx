@@ -87,9 +87,11 @@ export function MobileAdminEditEvent({ eventId, defaultValues, isPublished, user
         <div className="flex flex-col gap-2.5">
           <EventActionButtons isPublished={isPublished} userRole={userRole}/>
           
-          <div className="mt-2 border-t border-border-soft pt-4">
-            <DeleteEventButton eventId={eventId} deleteAction={deleteEvent} />
-          </div>
+            {userRole === "EXECUTIVE" && (
+              <div className="mt-2 border-t border-border-soft pt-4">
+                <DeleteEventButton eventId={eventId} deleteAction={deleteEvent} />
+              </div>
+            )}
         </div>
       </form>
     </MobileScreen>

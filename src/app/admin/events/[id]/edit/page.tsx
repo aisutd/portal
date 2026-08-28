@@ -124,9 +124,11 @@ export default async function EditEventPage({
                 <div className="flex flex-col gap-2.5">
                   <EventActionButtons isPublished={event.isPublished} userRole={user.role}/>
 
-                  <div className="mt-4 border-t border-border-soft pt-4">
-                    <DeleteEventButton eventId={event.id} deleteAction={deleteEvent} />
-                  </div>
+                    {user.role === "EXECUTIVE" && (
+                      <div className="mt-4 border-t border-border-soft pt-4">
+                        <DeleteEventButton eventId={event.id} deleteAction={deleteEvent} />
+                      </div>
+                    )}
                 </div>
               </div>
             </form>
