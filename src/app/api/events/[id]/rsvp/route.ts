@@ -79,8 +79,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       eventId: eventId 
     });
     console.log("RSVP confirmation email dispatched successfully.");
-  } catch (error: any) {
-    console.error("Failed to send RSVP email:", error.message);
+  } catch (error: unknown) {
+    console.error("Failed to send RSVP email:", error instanceof Error ? error.message : error);
   }
 
   // Always return the database record confirmation to your client frontend
@@ -120,9 +120,9 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
       eventId: eventId 
     });
     console.log("RSVP cancellation email dispatched successfully.");
-  } catch (error: any) {
+  } catch (error: unknown) {
 
-    console.error("Failed to send RSVP cancel email:", error.message);
+    console.error("Failed to send RSVP cancel email:", error instanceof Error ? error.message : error);
   }
 
   return NextResponse.json({ success: true });

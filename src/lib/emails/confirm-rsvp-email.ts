@@ -61,7 +61,7 @@ export async function sendRsvpConfirmationEmail({ userId, eventId }: SendRsvpEma
     timeStyle: "short",
   });
 
-  const { googleUrl, outlookUrl, icsContent } = generateCalendarLinks({
+  const { googleUrl, icsContent } = generateCalendarLinks({
     id: eventId,
     title: event.title,
     description: event.description,

@@ -126,7 +126,7 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
                     No events found.
                   </p>
                   <p className="mt-1.5 style-mobile-body text-ink-muted">
-                    We didn't find any events with the selected filters.
+                    We didn&apos;t find any events with the selected filters.
                   </p>
                   {selectedTags.length > 0 && (
                     <button

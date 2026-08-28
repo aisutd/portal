@@ -33,7 +33,6 @@ export function OpenAppRow({
   description,
   meta,
   borderColor,
-  metaMedium = false,
   dim = false,
   statusBadge,
   actions,

@@ -35,11 +35,6 @@ export function EventDetailActions({
   const [isRsvpd, setIsRsvpd] = useState(initialRsvpd);
   const [loading, setLoading] = useState(false);
 
-  // Synchronize state if props update from router.refresh()
-  useEffect(() => {
-    setIsRsvpd(initialRsvpd);
-  }, [initialRsvpd]);
-
   const executeRsvp = useCallback(
     async (method: "POST" | "DELETE") => {
       setLoading(true);
@@ -72,9 +67,25 @@ export function EventDetailActions({
       // Clear cookie immediately so it only executes once
       document.cookie =
         "pending_rsvp_event_id=; path=/; max-age=0; SameSite=Lax";
-      executeRsvp("POST");
+
+      async function completePendingRsvp() {
+        setLoading(true);
+        try {
+          const response = await fetch(`/api/events/${eventId}/rsvp`, { method: "POST" });
+          if (response.ok) {
+            setIsRsvpd(true);
+            router.refresh();
+          }
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      void completePendingRsvp();
     }
-  }, [isLoaded, isSignedIn, isRsvpd, eventId, executeRsvp]);
+  }, [isLoaded, isSignedIn, isRsvpd, eventId, router]);
 
   async function handleRsvpToggle() {
     if (!isSignedIn) {

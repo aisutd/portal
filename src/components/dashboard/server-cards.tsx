@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { StatusStrip, Stat } from "./status-strip";
 import { ApplicationsCard, ApplicationItem } from "./applications-card";
 import { RsvpsCard, RsvpItem } from "./rsvps-card";
