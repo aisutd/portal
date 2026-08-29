@@ -5,9 +5,18 @@ import { useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FormField, FormTextarea } from "@/components/ui/form-field";
+import { ReadOnlyField } from "@/components/apply/read-only-field";
 import { SectionHeader } from "@/components/ui/section-header";
-import { applicationFormStepFields, applicationSteps } from "@/lib/data";
+import { personalFields } from "@/lib/data";
+import {
+  EMPTY_LAYOUT,
+  buildFormLayout,
+  collectExtraAnswers,
+  extractStringValues,
+  toFieldValues,
+  type ApplicationFormLayout,
+  type FieldValues,
+} from "@/lib/application-form";
 import { MobileSubmitted } from "@/components/mobile/apply/MobileSubmitted";
 
 type SubmissionResponse = {
@@ -19,22 +28,10 @@ type SubmissionResponse = {
     application: {
       title: string;
       retentionUntil: string | null;
+      questions: string[];
     };
   };
 };
-
-type FieldValues = Record<string, string>;
-
-const stepFieldGroups: string[][] = applicationFormStepFields;
-const allFieldLabels = stepFieldGroups.flat();
-
-const DEFAULT_FIELD_VALUES: FieldValues = allFieldLabels.reduce(
-  (acc, field) => {
-    acc[field] = "";
-    return acc;
-  },
-  {} as FieldValues,
-);
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "long",
@@ -89,41 +86,22 @@ function getStatusBadge(status: string) {
   return <Badge label={label} bg="#e1e8ff" color="#1f3aa3" />;
 }
 
-function toFieldValues(payload: unknown) {
-  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
-    return DEFAULT_FIELD_VALUES;
-  }
-
-  const record = payload as Record<string, unknown>;
-
-  return allFieldLabels.reduce(
-    (acc, field) => {
-      const value = record[field];
-      acc[field] = typeof value === "string" ? value : "";
-      return acc;
-    },
-    { ...DEFAULT_FIELD_VALUES },
-  );
-}
-
 function LoadingState() {
   return (
     <div className="flex flex-col gap-[20px]">
       <div className="h-[28px] w-[280px] rounded-full bg-[#efece3]" />
       <div className="h-[18px] w-[180px] rounded-full bg-[#f4f1ea]" />
-      {applicationSteps.map((step, stepIndex) => (
-        <div key={step} className="flex flex-col gap-[12px]">
-          <div className="h-[18px] w-[180px] rounded-full bg-[#f4f1ea]" />
-          <div className="grid grid-cols-1 gap-x-[28px] gap-y-[20px] sm:grid-cols-2">
-            {stepFieldGroups[stepIndex]?.map((label) => (
-              <div key={label} className="flex flex-col gap-[7px]">
-                <div className="h-[14px] w-[120px] rounded-full bg-[#f4f1ea]" />
-                <div className="h-[42px] rounded-[8px] bg-[#f4f1ea]" />
-              </div>
-            ))}
-          </div>
+      <div className="flex flex-col gap-[12px]">
+        <div className="h-[18px] w-[180px] rounded-full bg-[#f4f1ea]" />
+        <div className="grid grid-cols-1 gap-x-[28px] gap-y-[20px] sm:grid-cols-2">
+          {personalFields.map((label) => (
+            <div key={label} className="flex flex-col gap-[7px]">
+              <div className="h-[14px] w-[120px] rounded-full bg-[#f4f1ea]" />
+              <div className="h-[42px] rounded-[8px] bg-[#f4f1ea]" />
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
     </div>
   );
 }
@@ -136,57 +114,15 @@ function NotFoundState({ message }: { message: string }) {
   );
 }
 
-function renderReadOnlyField(label: string, value: string) {
-  const commonProps = {
-    label,
-    value,
-    readOnly: true,
-    tabIndex: -1,
-    className: "cursor-default",
-  };
-
-  if (
-    label === "Why do you want to join AIS? *" ||
-    label === "What skills or experience do you bring? *" ||
-    label === "Anything else you'd like the reviewers to know?"
-  ) {
-    return (
-      <FormTextarea
-        key={label}
-        {...commonProps}
-        className="cursor-default h-[140px]"
-      />
-    );
-  }
-
-  if (label === "Resume *") {
-    return (
-      <div key={label} className="flex w-full flex-col gap-[7px]">
-        <label className="style-body-text leading-[20.3px] text-ink-muted">
-          {label}
-        </label>
-        <a
-          href="/api/profile/resume/download"
-          className="flex h-[42px] w-full items-center rounded-[8px] bg-search-field px-[14px] style-caption text-search-ink transition-colors hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/40"
-          title={value}
-        >
-          <span className="truncate">{value || "Download resume"}</span>
-        </a>
-      </div>
-    );
-  }
-
-  return <FormField key={label} {...commonProps} />;
-}
-
 function SubmittedContent() {
   const searchParams = useSearchParams();
   const submissionId = searchParams.get("submissionId");
   const [submission, setSubmission] = useState<
     SubmissionResponse["submission"] | null
   >(null);
-  const [fieldValues, setFieldValues] =
-    useState<FieldValues>(DEFAULT_FIELD_VALUES);
+  const [layout, setLayout] = useState<ApplicationFormLayout>(EMPTY_LAYOUT);
+  const [fieldValues, setFieldValues] = useState<FieldValues>({});
+  const [extraAnswers, setExtraAnswers] = useState<Array<[string, string]>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -223,8 +159,20 @@ function SubmittedContent() {
         }
 
         const payload = (await response.json()) as SubmissionResponse;
+        const nextLayout = buildFormLayout(
+          payload.submission.application.questions,
+        );
+        const answers = payload.submission.formPayloadJson;
+
         setSubmission(payload.submission);
-        setFieldValues(toFieldValues(payload.submission.formPayloadJson));
+        setLayout(nextLayout);
+        setFieldValues(
+          toFieldValues(
+            nextLayout.allFieldLabels,
+            extractStringValues(nextLayout.allFieldLabels, answers),
+          ),
+        );
+        setExtraAnswers(collectExtraAnswers(nextLayout.allFieldLabels, answers));
       } catch (caught) {
         if ((caught as Error).name !== "AbortError") {
           setSubmission(null);
@@ -303,20 +251,48 @@ function SubmittedContent() {
                   </p>
                 ) : null}
 
-                {applicationSteps.map((step, index) => {
-                  const fields = stepFieldGroups[index] ?? [];
+                {/* The review step shows no answers of its own. */}
+                {layout.steps
+                  .slice(0, layout.reviewStepIndex)
+                  .map((step, index) => {
+                  const fields = layout.stepFieldGroups[index] ?? [];
 
                   return (
                     <div key={step} className="flex flex-col gap-[14px]">
                       <SectionHeader title={step} />
                       <div className="grid grid-cols-1 gap-x-[28px] gap-y-[20px] sm:grid-cols-2">
-                        {fields.map((label) =>
-                          renderReadOnlyField(label, fieldValues[label] ?? ""),
-                        )}
+                        {fields.map((label) => (
+                          <ReadOnlyField
+                            key={label}
+                            label={label}
+                            value={fieldValues[label] ?? ""}
+                            multiline={index > 0}
+                            linkResume
+                          />
+                        ))}
                       </div>
                     </div>
                   );
                 })}
+
+                {/* Answers whose question is no longer on the application —
+                    shown so a submitted answer is never silently dropped. */}
+                {extraAnswers.length > 0 ? (
+                  <div className="flex flex-col gap-[14px]">
+                    <SectionHeader title="Other Answers" />
+                    <div className="grid grid-cols-1 gap-x-[28px] gap-y-[20px] sm:grid-cols-2">
+                      {extraAnswers.map(([label, value]) => (
+                        <ReadOnlyField
+                          key={label}
+                          label={label}
+                          value={value}
+                          multiline
+                          linkResume
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
               </div>
             ) : null}
           </div>

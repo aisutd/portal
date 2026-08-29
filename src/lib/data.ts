@@ -373,8 +373,10 @@ export const recentActivityWidths = ["88%", "74%", "80%", "62%"];
 
 /* -------------------------------------------------------- Apply · Form (step) */
 
-export const applicationSteps = ["Personal", "Long Answers", "Review"];
-
+/**
+ * The fixed first step of the applicant form. Everything after it comes from
+ * the application's own questions — see `lib/application-form.ts`.
+ */
 export const personalFields = [
   "First Name",
   "Last Name",
@@ -384,15 +386,6 @@ export const personalFields = [
   "UTD Email *",
   "Resume *",
   "LinkedIn *",
-];
-
-export const applicationFormStepFields = [
-  personalFields,
-  [
-    "Why do you want to join AIS? *",
-    "What skills or experience do you bring? *",
-  ],
-  ["Anything else you'd like the reviewers to know?"],
 ];
 
 /* ------------------------------------------------------- Apply · Detail (roles) */

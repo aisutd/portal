@@ -5,12 +5,20 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { FormStepper } from "@/components/apply/form-stepper";
 import { FormField, FormTextarea } from "@/components/ui/form-field";
+import { ReadOnlyField } from "@/components/apply/read-only-field";
+import { SectionHeader } from "@/components/ui/section-header";
 import { MobileApplyForm } from "@/components/mobile/apply/MobileApplyForm";
+import { personalFields } from "@/lib/data";
 import {
-  applicationFormStepFields,
-  applicationSteps,
-  personalFields,
-} from "@/lib/data";
+  EMPTY_LAYOUT,
+  buildFormLayout,
+  extractStringValues,
+  findFirstStepWithError,
+  toFieldValues,
+  validateFields,
+  type ApplicationFormLayout,
+  type FieldValues,
+} from "@/lib/application-form";
 
 type ProfileResponse = {
   profile: {
@@ -44,53 +52,15 @@ type DraftResponse = {
 type ApplicationResponse = {
   application: {
     title: string;
+    questions: string[];
   };
   submissionStatus: string | null;
 };
 
-type FieldValues = Record<string, string>;
 type FieldErrors = Record<string, string>;
 
-const stepFieldGroups: string[][] = applicationFormStepFields;
-const allFieldLabels = stepFieldGroups.flat();
 const RESUME_ACCEPT =
   ".doc,.docx,.pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf";
-
-const DEFAULT_FIELD_VALUES: FieldValues = allFieldLabels.reduce(
-  (acc, field) => {
-    acc[field] = "";
-    return acc;
-  },
-  {} as FieldValues,
-);
-
-function toFieldValues(values: Partial<FieldValues>) {
-  return allFieldLabels.reduce(
-    (acc, field) => {
-      acc[field] = values[field] ?? "";
-      return acc;
-    },
-    { ...DEFAULT_FIELD_VALUES },
-  );
-}
-
-function extractStringValues(payload: unknown): Partial<FieldValues> {
-  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
-    return {};
-  }
-
-  const record = payload as Record<string, unknown>;
-  const values: Partial<FieldValues> = {};
-
-  for (const field of allFieldLabels) {
-    const value = record[field];
-    if (typeof value === "string") {
-      values[field] = value;
-    }
-  }
-
-  return values;
-}
 
 function profileToFieldValues(
   profile: ProfileResponse["profile"],
@@ -107,42 +77,6 @@ function profileToFieldValues(
     "LinkedIn *": profile.linkedinUrl ?? "",
     "Resume *": profile.resumeFile?.fileName ?? "",
   };
-}
-
-function isRequiredField(label: string) {
-  return label.trim().endsWith("*");
-}
-
-function validateStep(values: FieldValues, fields: string[]) {
-  const nextErrors: FieldErrors = {};
-
-  for (const field of fields) {
-    if (!isRequiredField(field)) {
-      continue;
-    }
-
-    if (!values[field]?.trim()) {
-      nextErrors[field] = "This field is required.";
-    }
-  }
-
-  return nextErrors;
-}
-
-function validateAllRequiredFields(values: FieldValues) {
-  const nextErrors: FieldErrors = {};
-
-  for (const fields of stepFieldGroups) {
-    for (const field of fields) {
-      if (!isRequiredField(field) || values[field]?.trim()) {
-        continue;
-      }
-
-      nextErrors[field] = "This field is required.";
-    }
-  }
-
-  return nextErrors;
 }
 
 function LoadingState() {
@@ -179,8 +113,8 @@ function ApplyFormContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const applicationId = searchParams.get("id");
-  const [fieldValues, setFieldValues] =
-    useState<FieldValues>(DEFAULT_FIELD_VALUES);
+  const [layout, setLayout] = useState<ApplicationFormLayout>(EMPTY_LAYOUT);
+  const [fieldValues, setFieldValues] = useState<FieldValues>({});
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -191,7 +125,8 @@ function ApplyFormContent() {
   const [submitting, setSubmitting] = useState(false);
   const saveTimerRef = useRef<number | null>(null);
   const resumeInputRef = useRef<HTMLInputElement | null>(null);
-  const fieldValuesRef = useRef<FieldValues>(DEFAULT_FIELD_VALUES);
+  const fieldValuesRef = useRef<FieldValues>({});
+  const isReviewStep = activeStep === layout.reviewStepIndex;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -228,19 +163,28 @@ function ApplyFormContent() {
           ? ((await applicationResponse.json()) as ApplicationResponse)
           : null;
 
+        const nextLayout = buildFormLayout(
+          applicationPayload?.application.questions,
+        );
+        setLayout(nextLayout);
+
         const mergedValues = {
           ...profileToFieldValues(profilePayload.profile),
-          ...extractStringValues(draftPayload.draft?.formPayloadJson),
+          ...extractStringValues(
+            nextLayout.allFieldLabels,
+            draftPayload.draft?.formPayloadJson,
+          ),
         };
 
-        const nextValues = toFieldValues(mergedValues);
+        const nextValues = toFieldValues(nextLayout.allFieldLabels, mergedValues);
         setFieldValues(nextValues);
         fieldValuesRef.current = nextValues;
+        // A draft saved against a longer question set can point past the end.
         setActiveStep(
           draftPayload.draft
             ? Math.min(
                 Math.max(draftPayload.draft.stepIndex, 0),
-                applicationSteps.length - 1,
+                nextLayout.steps.length - 1,
               )
             : 0,
         );
@@ -353,8 +297,11 @@ function ApplyFormContent() {
   }
 
   function handleNextStep() {
-    const currentFields = stepFieldGroups[activeStep] ?? [];
-    const nextErrors = validateStep(fieldValuesRef.current, currentFields);
+    const currentFields = layout.stepFieldGroups[activeStep] ?? [];
+    const nextErrors = validateFields(
+      fieldValuesRef.current,
+      currentFields,
+    );
 
     if (Object.keys(nextErrors).length > 0) {
       setFieldErrors(nextErrors);
@@ -362,8 +309,18 @@ function ApplyFormContent() {
     }
 
     setSubmitError(null);
-    const nextStepIndex = Math.min(activeStep + 1, applicationSteps.length - 1);
+    const nextStepIndex = Math.min(activeStep + 1, layout.steps.length - 1);
     setFieldErrors({});
+
+    if (nextStepIndex !== activeStep) {
+      setActiveStep(nextStepIndex);
+      scheduleDraftSave(fieldValuesRef.current, nextStepIndex);
+    }
+  }
+
+  function handleEditStep(nextStepIndex: number) {
+    setFieldErrors({});
+    setSubmitError(null);
 
     if (nextStepIndex !== activeStep) {
       setActiveStep(nextStepIndex);
@@ -372,21 +329,28 @@ function ApplyFormContent() {
   }
 
   function handleBackStep() {
-    const nextStepIndex = Math.max(activeStep - 1, 0);
-    setFieldErrors({});
-    setSubmitError(null);
-
-    if (nextStepIndex !== activeStep) {
-      setActiveStep(nextStepIndex);
-      scheduleDraftSave(fieldValuesRef.current, nextStepIndex);
-    }
+    handleEditStep(Math.max(activeStep - 1, 0));
   }
 
   async function handleSubmitApplication() {
-    const nextErrors = validateAllRequiredFields(fieldValuesRef.current);
+    const nextErrors = validateFields(
+      fieldValuesRef.current,
+      layout.allFieldLabels,
+    );
 
     if (Object.keys(nextErrors).length > 0) {
       setFieldErrors(nextErrors);
+
+      const errorStep = findFirstStepWithError(
+        layout.stepFieldGroups,
+        nextErrors,
+      );
+
+      if (errorStep >= 0 && errorStep !== activeStep) {
+        setActiveStep(errorStep);
+        scheduleDraftSave(fieldValuesRef.current, errorStep);
+      }
+
       return;
     }
 
@@ -417,6 +381,19 @@ function ApplyFormContent() {
         if (response.status === 409) {
           setSubmitError(
             "You have already submitted an application for this program.",
+          );
+          return;
+        }
+
+        // The server re-checks the answers; surface what it objected to.
+        if (response.status === 400) {
+          const payload = (await response.json().catch(() => null)) as {
+            error?: { message?: string };
+          } | null;
+
+          setSubmitError(
+            payload?.error?.message ??
+              "Some answers are missing or incorrectly formatted.",
           );
           return;
         }
@@ -590,10 +567,12 @@ function ApplyFormContent() {
               {applicationTitle ?? "Application"}
             </h1>
 
-            <FormStepper steps={applicationSteps} active={activeStep} />
+            <FormStepper steps={layout.steps} active={activeStep} />
 
             <p className="style-body-text  leading-[20.3px] text-ink">
-              * Please verify that the following information is correct
+              {isReviewStep
+                ? "Check every answer below before you submit. An application cannot be edited once it is submitted."
+                : "* Please verify that the following information is correct"}
             </p>
 
             {loading ? (
@@ -602,12 +581,49 @@ function ApplyFormContent() {
               <NotFoundState message={error} />
             ) : (
               <>
-                {/* Field grid */}
-                <div className="grid grid-cols-1 gap-x-[28px] gap-y-[20px] sm:grid-cols-2">
-                  {(stepFieldGroups[activeStep] ?? []).map((label) =>
-                    renderField(label),
-                  )}
-                </div>
+                {isReviewStep ? (
+                  /* Every answer, read-only, one section per editable step. */
+                  <div className="flex flex-col gap-[24px]">
+                    {layout.steps
+                      .slice(0, layout.reviewStepIndex)
+                      .map((step, stepIndex) => (
+                        <div key={step} className="flex flex-col gap-[14px]">
+                          <SectionHeader
+                            title={step}
+                            action={
+                              <button
+                                type="button"
+                                aria-label={`Edit ${step}`}
+                                className="style-body-text leading-none text-brand underline underline-offset-[3px]"
+                                onClick={() => handleEditStep(stepIndex)}
+                              >
+                                Edit
+                              </button>
+                            }
+                          />
+                          <div className="grid grid-cols-1 gap-x-[28px] gap-y-[20px] sm:grid-cols-2">
+                            {(layout.stepFieldGroups[stepIndex] ?? []).map(
+                              (label) => (
+                                <ReadOnlyField
+                                  key={label}
+                                  label={label}
+                                  value={fieldValues[label] ?? ""}
+                                  multiline={stepIndex > 0}
+                                />
+                              ),
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  /* Field grid */
+                  <div className="grid grid-cols-1 gap-x-[28px] gap-y-[20px] sm:grid-cols-2">
+                    {(layout.stepFieldGroups[activeStep] ?? []).map((label) =>
+                      renderField(label),
+                    )}
+                  </div>
+                )}
 
                 {submitError ? (
                   <p className="style-body-text leading-[18px] ">
@@ -628,13 +644,13 @@ function ApplyFormContent() {
                   <button
                     type="button"
                     aria-label={
-                      activeStep >= applicationSteps.length - 1
+                      activeStep >= layout.steps.length - 1
                         ? "Submit application"
                         : "Next step"
                     }
                     className="flex h-[44px] min-w-[96px] items-center justify-center rounded-[11px] bg-brand px-[18px]  font-bold leading-none text-white disabled:cursor-not-allowed disabled:opacity-50"
                     onClick={
-                      activeStep >= applicationSteps.length - 1
+                      activeStep >= layout.steps.length - 1
                         ? handleSubmitApplication
                         : handleNextStep
                     }
@@ -645,7 +661,7 @@ function ApplyFormContent() {
                   >
                     {submitting
                       ? "Submitting..."
-                      : activeStep >= applicationSteps.length - 1
+                      : activeStep >= layout.steps.length - 1
                         ? "Done"
                         : "Next"}
                   </button>
