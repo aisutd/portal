@@ -34,7 +34,7 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
   let isGlowing = false;
 
   if (nextRsvp) {
-    const now = Date.now();
+    const now = new Date().getTime();
     const startTime = new Date(nextRsvp.event.startTime).getTime();
     const endTime = nextRsvp.event.endTime ? new Date(nextRsvp.event.endTime).getTime() : Infinity;
 

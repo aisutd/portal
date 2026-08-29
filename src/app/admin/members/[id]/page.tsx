@@ -415,7 +415,7 @@ export default async function MemberProfilePage({
                     })
                   ) : (
                     <div className="p-[40px] text-center style-body-text text-ink-muted">
-                      This user has not RSVP'd to any events.
+                      This user has not RSVP&apos;d to any events.
                     </div>
                   )}
                 </div>

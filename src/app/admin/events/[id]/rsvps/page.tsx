@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { MobileAdminNav } from "@/components/mobile/admin/MobileAdminNav";
+import type { Prisma } from "@prisma/client";
 
 export const metadata: Metadata = {
   title: "AIS Admin — Event RSVPs",
@@ -12,6 +13,9 @@ export const metadata: Metadata = {
 
 // --- Formatters ---
 const TIME_FORMAT = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" });
+type RsvpWithUser = Prisma.RSVPGetPayload<{
+  include: { attendance: true; user: { include: { profile: true } } };
+}>;
 
 // --- Inline UI Components ---
 function StatusBadge({ label, bg, color }: { label: string; bg: string; color: string }) {
@@ -79,7 +83,7 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
   const { event, attended, unattended, stats, itemStats } = data;
 
   // Reusable User Row Component linking to user's admin profile
-  const UserRow = ({ rsvp, isAttended }: { rsvp: any; isAttended: boolean }) => {
+  const UserRow = ({ rsvp, isAttended }: { rsvp: RsvpWithUser; isAttended: boolean }) => {
     const name = rsvp.user.profile
       ? `${rsvp.user.profile.prefName || rsvp.user.profile.firstName} ${rsvp.user.profile.lastName}`.trim()
       : rsvp.user.email.split("@")[0];
@@ -103,7 +107,7 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
             <>
               <StatusBadge label="Checked In" bg="bg-green-50" color="text-green-700" />
               <span className="style-caption md: text-ink-faint">
-                {TIME_FORMAT.format(rsvp.attendance.checkedInAt)}
+                {TIME_FORMAT.format(rsvp.attendance!.checkedInAt)}
               </span>
             </>
           ) : (

@@ -2,8 +2,6 @@ import { Card } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Badge } from "@/components/ui/badge";
 import { ProgressBar } from "@/components/ui/progress-bar";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
 export type ApplicationItem = {
   id?: string;

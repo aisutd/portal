@@ -1,6 +1,5 @@
 import nodemailer from "nodemailer";
 import { prisma } from "@/lib/prisma";
-import { generateCalendarLinks } from "@/lib/calendar";
 import path from "path";
 
 interface SendRsvpEmailArgs {
@@ -59,16 +58,6 @@ export async function sendRsvpCancellationEmail({ userId, eventId }: SendRsvpEma
     timeZone: "America/Chicago",
     dateStyle: "full",
     timeStyle: "short",
-  });
-
-  const { googleUrl, outlookUrl, icsContent } = generateCalendarLinks({
-    id: eventId,
-    title: event.title,
-    description: event.description,
-    location: event.location,
-    startTime: event.startTime,
-    endTime: event.endTime,
-    userId: userId
   });
 
   const mailOptions = {

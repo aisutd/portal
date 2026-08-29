@@ -65,7 +65,7 @@ export async function verifyQRToken(token: string): Promise<VerifiedQRToken> {
     algorithms: [ALG],
   });
 
-  const { user_id, event_id, nonce, iat, exp } = payload;
+  const { user_id, event_id, iat, exp } = payload;
 
   if (!user_id) throw new Error("Token missing user_id");
   if (!event_id) throw new Error("Token missing event_id");

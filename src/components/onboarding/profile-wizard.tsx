@@ -9,9 +9,6 @@ import { cn } from "@/lib/utils";
 import { UTD_DEGREES, UTD_MAJORS, ACADEMIC_YEARS } from "@/lib/utd-data";
 
 const STEPS = ["Personal", "Academic", "Links"];
-const YEARS = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"];
-const DEGREES = ["Bachelors", "Masters", "PhD"];
-
 type ProfileWizardProps = {
   email: string;
 };

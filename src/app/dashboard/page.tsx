@@ -28,9 +28,6 @@ export default async function DashboardPage() {
   const nextRsvp = await getNextUpcomingRsvp(user.id);
   const userName = user.profile.firstName || "Member";
 
-  // Event has concluded only if endTime is in the past
-  const isPastEvent = nextRsvp ? new Date(nextRsvp.event.endTime) < new Date() : false;
-  
   let calendarLinksObj = null;
   if (nextRsvp) {
     calendarLinksObj = generateCalendarLinks({

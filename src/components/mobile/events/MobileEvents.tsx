@@ -14,7 +14,6 @@ import {
   miniEvent,
   pastTiles,
 } from "@/lib/data";
-import { deprecate } from "util";
 
 export function MobileEvents() {
   const featuredTags = normalizeEventTags(featuredEvent.tags);
