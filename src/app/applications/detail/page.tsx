@@ -369,16 +369,18 @@ function ApplyDetailContent() {
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-[8px]">
-                  <h2 className="style-section-header leading-[23.56px] text-ink [font-variation-settings:'wdth'_100]">
-                    Eligibility
-                  </h2>
-                  <ul className="flex list-disc flex-col gap-[8px] pl-[18px] style-body-text leading-[20.3px] text-ink-muted">
-                    {application.application.eligibility.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
+                {Array.isArray(application.application.eligibility) && application.application.eligibility.length > 0 ? (
+                  <div className="flex flex-col gap-[8px]">
+                    <h2 className="style-section-header leading-[23.56px] text-ink [font-variation-settings:'wdth'_100]">
+                      Eligibility
+                    </h2>
+                    <ul className="flex list-disc flex-col gap-[8px] pl-[18px] style-body-text leading-[20.3px] text-ink-muted">
+                      {application.application.eligibility.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
               </div>
             </div>
 

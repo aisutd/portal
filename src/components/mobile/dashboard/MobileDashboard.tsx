@@ -29,31 +29,31 @@ type MobileDashboardProps = {
   calendarLinks?: CalendarLinksObject | null;
 };
 
+function isRsvpGlowing(nextRsvp: MobileDashboardProps["nextRsvp"]) {
+  if (!nextRsvp) return false;
+
+  const now = Date.now();
+  const startTime = new Date(nextRsvp.event.startTime).getTime();
+  const endTime = nextRsvp.event.endTime ? new Date(nextRsvp.event.endTime).getTime() : Infinity;
+
+  // Starting within 30 mins or currently live
+  const isStartingSoon = startTime - now <= 30 * 60 * 1000 && now <= endTime;
+  return Boolean(nextRsvp.isLive || isStartingSoon);
+}
+
 export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: MobileDashboardProps) {
-  // Compute glowing state in outer scope so it's accessible to the Card class list
-  let isGlowing = false;
-
-  if (nextRsvp) {
-    const now = new Date().getTime();
-    const startTime = new Date(nextRsvp.event.startTime).getTime();
-    const endTime = nextRsvp.event.endTime ? new Date(nextRsvp.event.endTime).getTime() : Infinity;
-
-    // Starting within 30 mins or currently live
-    const isStartingSoon = startTime - now <= 30 * 60 * 1000 && now <= endTime;
-    isGlowing = Boolean(nextRsvp.isLive || isStartingSoon);
-
-  }
+  const isGlowing = isRsvpGlowing(nextRsvp);
 
   return (
     <MobileScreen>
-      <h1 className="style-mobile-title text-brand">
+      <h1 className="style-mobile-title text-2xl font-bold bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">
         Welcome back, {userName}!
       </h1>
 
       {/* Up Next */}
       <Card
         className={cn(
-          "flex flex-col gap-4 p-5 transition-all duration-300",
+          "flex flex-col gap-4 p-5 transition-all duration-300 relative overflow-hidden border-t-4 border-t-brand",
           isGlowing &&
             "border-green bg-checked/60 shadow-[0_0_20px_rgba(53,107,46,0.35)] ring-1 ring-green/50"
         )}
@@ -80,11 +80,12 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
             </div>
 
             {nextRsvp.qrToken && (
-              <div className="flex flex-col items-center gap-2">
-                <p className="style-mobile-body text-center text-ink">
+              <div className="flex flex-col items-center gap-2 pt-1">
+                <div className="h-1 w-16 rounded-full bg-brand" />
+                <p className="style-mobile-body text-center text-ink font-medium">
                   Ticket: Claiming Items / Late Check-in
                 </p>
-                <div className="flex w-fit items-center justify-center rounded-xl border border-ink bg-white p-4">
+                <div className="flex w-fit items-center justify-center rounded-xl border border-border-soft border-t-4 border-t-brand bg-white p-4 shadow-2xs">
                   <div className="w-full max-w-70">
                     <QRCode
                       value={nextRsvp.qrToken}
@@ -101,6 +102,18 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
                   />
                 )}
               </div>
+            )}
+
+            {!nextRsvp.isLive && (
+              <Button
+                href="https://calendar.google.com/calendar/render?action=TEMPLATE&dates=20260904T000000Z%2F20260904T020000Z&details=Whether%20you%27re%20a%20newbie%20or%20looking%20to%20innovate%20in%20AI%2FML%2C%20we%27ve%20got%20a%20place%20for%20you%21%20Learn%20all%20about%20the%20programs%20and%20events%20we%20hold%20all%20throughout%20the%20year%2C%20including%20AI%20Academy%2C%20AIM%2C%20and%20AI%20Innovation%20Labs.%20Get%20an%20opportunity%20to%20network%20with%20the%20brightest%20minds%20and%20industry%20professionals%20at%20Kickoff%20and%20become%20part%20of%20the%20largest%20AI%20organization%20in%20North%20Texas.%20Oh%2C%20and%20there%27s%20free%20food...&location=ECSW%201.315&text=AIS%20Fall%20Kickoff%202026"
+                variant="primary"
+                size="sm"
+                className="font-black"
+                block
+              >
+                Add to Calendar
+              </Button>
             )}
           </>
         ) : (
@@ -123,7 +136,12 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
         <DashboardRsvpsCard userId={userId} />
       </Suspense>
 
-      {/* Recommended */}
+      {/* Applications */}
+      <Suspense fallback={<ApplicationsCardSkeleton />}>
+        <DashboardApplicationsCard userId={userId} />
+      </Suspense>
+
+      {/* Recommended (Placed at the very bottom) */}
       <Suspense
         fallback={
           <div className="flex min-h-[150px] items-center justify-center rounded-2xl bg-white">
@@ -134,11 +152,6 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
         }
       >
         <DashboardRecommendedCard userId={userId} />
-      </Suspense>
-
-      {/* Applications */}
-      <Suspense fallback={<ApplicationsCardSkeleton />}>
-        <DashboardApplicationsCard userId={userId} />
       </Suspense>
 
       <BottomNav />

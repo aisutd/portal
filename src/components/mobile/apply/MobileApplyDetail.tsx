@@ -184,16 +184,18 @@ export function MobileApplyDetail() {
               </p>
             </div>
 
-            <div className="flex flex-col gap-[6px]">
-              <h2 className="style-mobile-title text-ink">
-                Eligibility
-              </h2>
-              <ul className="flex list-disc flex-col gap-[4px] pl-[16px] style-mobile-body text-ink-muted">
-                {application.application.eligibility.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
+            {Array.isArray(application.application.eligibility) && application.application.eligibility.length > 0 ? (
+              <div className="flex flex-col gap-[6px]">
+                <h2 className="style-mobile-title text-ink">
+                  Eligibility
+                </h2>
+                <ul className="flex list-disc flex-col gap-[4px] pl-[16px] style-mobile-body text-ink-muted">
+                  {application.application.eligibility.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </div>
 
           <div className="flex items-center gap-[10px]">

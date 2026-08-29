@@ -76,8 +76,10 @@ export function BottomNav() {
                     ? "/onboarding?mode=login"
                     : tab.href
                 }
-                className={`rounded-full px-3 py-2 style-nav-link transition-colors whitespace-nowrap ${
-                  active ? "bg-purple-soft text-brand" : "text-ink-muted hover:text-ink"
+                className={`rounded-full px-3.5 py-1.5 style-nav-link transition-all duration-200 whitespace-nowrap ${
+                  active
+                    ? "bg-[linear-gradient(135deg,#f2a968_0%,#7d64c4_100%)] text-white font-semibold shadow-xs"
+                    : "text-ink-muted hover:text-ink"
                 }`}
               >
                 {tab.label}

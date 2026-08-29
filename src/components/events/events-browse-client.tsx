@@ -59,7 +59,9 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
 
       {/* Desktop & Tablet Layout */}
       <div className="hidden md:block">
-        <div className="flex min-h-screen w-full flex-col bg-cream">
+        <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-cream">
+          <div aria-hidden className="pointer-events-none absolute -top-20 right-[15%] -z-10 h-[400px] w-[400px] rounded-full bg-purple-400/20 blur-[110px]" />
+          <div aria-hidden className="pointer-events-none absolute top-[40%] left-[-5%] -z-10 h-[340px] w-[340px] rounded-full bg-orange-300/20 blur-[110px]" />
           <Navbar active="Events" />
           <div className="flex w-full flex-col md:flex-row md:items-stretch">
             
