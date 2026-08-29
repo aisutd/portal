@@ -201,18 +201,6 @@ export function UpNextCard({
                           Google Calendar
                         </a>
                       )}
-                      {outlookUrl && (
-                        <a
-                          href={outlookUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 border-t border-gray-100 transition-colors"
-                          role="menuitem"
-                          onClick={() => setDropdownOpen(false)}
-                        >
-                          Outlook Web
-                        </a>
-                      )}
                       {icsContent && (
                         <button
                           onClick={handleIcsDownload}

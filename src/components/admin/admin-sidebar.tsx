@@ -39,7 +39,7 @@ export async function AdminSidebar({
       <h1 className="style-section-header leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
         AIS Admin
       </h1>
-      <span className="rounded-full bg-brand-soft w-fit px-[8px] py-[2px] style-caption font-bold uppercase tracking-[0.5px] text-brand">
+      <span className="rounded-full flex items-center bg-brand-soft w-fit px-2 py-0.5 style-caption font-bold uppercase tracking-[0.5px] text-brand">
         {displayRole}
       </span>
       </div>

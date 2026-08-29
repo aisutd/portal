@@ -68,17 +68,6 @@ export function MobileCalendarDropdown({
                 Google Calendar
               </a>
             )}
-            {calendarLinks.outlookUrl && (
-              <a
-                href={calendarLinks.outlookUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block px-4 py-3 text-sm text-gray-700 active:bg-gray-100 border-b border-gray-50 transition-colors"
-                onClick={() => setDropdownOpen(false)}
-              >
-                Outlook Web
-              </a>
-            )}
             {calendarLinks.icsContent && (
               <button
                 onClick={handleIcsDownload}

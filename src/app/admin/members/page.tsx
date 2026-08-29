@@ -43,14 +43,14 @@ export default async function AdminMembersPage({
           <h2 className="style-section-header leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
             Members
           </h2>
-          <div className="flex gap-[10px]">
+          {/* <div className="flex gap-[10px]">
             <Button variant="ghost" size="md">
               Export CSV
             </Button>
-            <Button variant="primary" size="md">
+            <Button variant="primary" size="md"> 
               + Invite
             </Button>
-          </div>
+          </div> */}
         </div>
 
         {/* Stat cards */}
