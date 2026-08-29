@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
@@ -43,11 +43,6 @@ export function EventGridCard({
   const [message, setMessage] = useState<string | null>(null);
   
   const normalizedTags = normalizeEventTags(tags);
-
-  // Sync state if Next.js fetches new data
-  useEffect(() => {
-    setHasRsvpd(isRsvpd);
-  }, [isRsvpd]);
 
   async function handleAction(e: React.MouseEvent) {
     e.preventDefault(); // Prevent triggering parent Link click
@@ -138,7 +133,7 @@ export function EventGridCard({
                 </span>
               ) : (
                 <span className="rounded-full bg-stone-100 px-3 py-1 text-ink-muted">
-                  Not RSVP'd
+                  Not RSVP&apos;d
                 </span>
               )}
             </div>
@@ -158,7 +153,7 @@ export function EventGridCard({
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
                     <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
                   </svg>
-                  RSVP'd
+                  RSVP&apos;d
                 </>
               ) : (
                 "RSVP"

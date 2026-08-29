@@ -45,7 +45,7 @@ export function MobileAdminOverview() {
         <p className="style-mobile-body text-orange-ink">
           Applications waiting on your review.
         </p>
-        <Button href="/admin/applications/1" variant="primary" size="sm" className="self-start rounded-[8px]">
+        <Button href="/admin/applications" variant="primary" size="sm" className="self-start rounded-[8px]">
           Review now →
         </Button>
       </div>

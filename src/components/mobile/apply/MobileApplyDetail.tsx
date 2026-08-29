@@ -87,6 +87,7 @@ export function MobileApplyDetail() {
   const [application, setApplication] = useState<ApplicationDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const alreadySubmitted = Boolean(application?.submissionStatus);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -161,9 +162,15 @@ export function MobileApplyDetail() {
             </p>
             <div className="flex items-center gap-[10px]">
               {getStatusBadge(application.draft, application.submissionStatus)}
-              <Button href={`/applications/form?id=${application.application.id}`} size="sm">
-                Apply
-              </Button>
+              {alreadySubmitted ? (
+                <span className="rounded-full border border-border-soft bg-[#efece3] px-[12px] py-[7px] style-caption text-ink-muted">
+                  Already submitted
+                </span>
+              ) : (
+                <Button href={`/applications/form?id=${application.application.id}`} size="sm">
+                  Apply
+                </Button>
+              )}
             </div>
           </div>
 

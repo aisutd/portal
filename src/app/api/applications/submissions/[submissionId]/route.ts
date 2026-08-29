@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { createErrorResponse } from "@/lib/api-error";
 import { prisma } from "@/lib/prisma";
+import { normalizeQuestions } from "@/lib/application-form";
 
 async function getCurrentUser() {
   const session = await auth();
@@ -55,6 +56,7 @@ export async function GET(
         select: {
           title: true,
           retentionUntil: true,
+          questionsJson: true,
         },
       },
     },
@@ -64,7 +66,18 @@ export async function GET(
     return createErrorResponse("Submission not found", "NOT_FOUND", 404);
   }
 
+  const { application, ...rest } = submission;
+  const { questionsJson, ...applicationRest } = application;
+
   return NextResponse.json({
-    submission,
+    submission: {
+      ...rest,
+      application: {
+        ...applicationRest,
+        // The read-only view needs the admin-authored questions to label the
+        // answers stored in formPayloadJson.
+        questions: normalizeQuestions(questionsJson),
+      },
+    },
   });
 }

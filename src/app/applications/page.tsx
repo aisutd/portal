@@ -354,6 +354,11 @@ function ProgramFlowArrow() {
   );
 }
 
+/**
+ * This page intentionally uses the same live application list on every
+ * breakpoint. It is backed by /api/applications, so applications created by
+ * administrators appear here as soon as they are visible to users.
+ */
 export default function ApplyPage() {
   const [applications, setApplications] = useState<
     ApplicationResponse["applications"]

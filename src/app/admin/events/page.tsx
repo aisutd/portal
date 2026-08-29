@@ -10,6 +10,7 @@ import { MobileAdminEvents } from "@/components/mobile/admin/MobileAdminEvents";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import type { EventRowData } from "@/components/admin/event-row";
+import type { Prisma } from "@prisma/client";
 
 export const metadata: Metadata = {
   title: "AIS Admin — Events",
@@ -30,6 +31,10 @@ function toDisplayStatus(event: { startTime: Date; endTime: Date; isPublished: b
   return { label: "Live", bg: "#d2ecd9", color: "#2c5d3e" };
 }
 
+type EventWithRsvps = Prisma.EventGetPayload<{
+  include: { rsvps: { include: { attendance: true } } };
+}>;
+
 // Helper to convert an event into an EventRowData item
 function mapEventToRow(event: EventWithRsvps): EventRowData {
   const now = new Date();
@@ -38,10 +43,10 @@ function mapEventToRow(event: EventWithRsvps): EventRowData {
   // 1. Filter out cancelled RSVPs
   // NOTE: Adjust `rsvp.status === "GOING"` (or `!rsvp.isCancelled`) to match your Prisma schema
   const activeRsvps = event.rsvps.filter(
-    (rsvp: any) => rsvp.status !== "CANCELED" && !rsvp.isCancelled
+    (rsvp) => rsvp.status !== "CANCELED"
   );
 
-  const checkedInCountForEvent = activeRsvps.filter((rsvp: any) => Boolean(rsvp.attendance)).length;
+  const checkedInCountForEvent = activeRsvps.filter((rsvp) => Boolean(rsvp.attendance)).length;
   const capacity = event.capacity ?? 0;
   const progress = capacity > 0 ? Math.round((checkedInCountForEvent / capacity) * 100) : 0;
   const baseStatus = toDisplayStatus(event);
@@ -114,7 +119,7 @@ async function getEventViewModel() {
     (sum, event) =>
       sum +
       event.rsvps.filter(
-        (rsvp: any) => (rsvp.status !== "CANCELED" && !rsvp.isCancelled) && Boolean(rsvp.attendance)
+        (rsvp) => rsvp.status !== "CANCELED" && Boolean(rsvp.attendance)
       ).length,
     0
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Tag } from "@/components/ui/tag";
 import { EventGridCard } from "@/components/events/event-grid-card";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
@@ -45,19 +45,11 @@ function EventCardSkeleton() {
   );
 }
 
-export function MobileEventsBrowse({ upcomingEvents: initialUpcoming, pastEvents: initialPast }: MobileEventsBrowseProps) {
-  const [upcomingEvents, setUpcomingEvents] = useState<EventRecord[]>(initialUpcoming);
-  const [pastEvents, setPastEvents] = useState<EventRecord[]>(initialPast);
+export function MobileEventsBrowse({ upcomingEvents, pastEvents }: MobileEventsBrowseProps) {
   const [loading] = useState(false);
   const [error] = useState<string | null>(null);
   
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-
-  // Sync state whenever props from server update
-  useEffect(() => {
-    setUpcomingEvents(initialUpcoming);
-    setPastEvents(initialPast);
-  }, [initialUpcoming, initialPast]);
 
   const handleTagClick = (tagLabel: string) => {
     setSelectedTags((prev) =>

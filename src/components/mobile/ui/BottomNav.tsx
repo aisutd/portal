@@ -16,19 +16,11 @@ export function BottomNav() {
   // 1. Initialize state instantly using metadata if it exists
   const rawMetadataRole = (user?.publicMetadata as { role?: string } | undefined)?.role;
   const metadataRole = isKnownRole(rawMetadataRole) ? rawMetadataRole : undefined;
-  const [role, setRole] = useState<string | null>(metadataRole ?? null);
+  const [fetchedRole, setFetchedRole] = useState<string | null>(null);
 
   // 2. Fetch fallback logic identical to the desktop navbar
   useEffect(() => {
-    if (!isSignedIn) {
-      setRole(null);
-      return;
-    }
-
-    if (metadataRole) {
-      setRole(metadataRole);
-      return;
-    }
+    if (!isSignedIn || metadataRole) return;
 
     let isMounted = true;
     async function loadRole() {
@@ -36,13 +28,13 @@ export function BottomNav() {
         const response = await fetch("/api/me");
         if (!isMounted) return;
         if (!response.ok) {
-          setRole(null);
+          setFetchedRole(null);
           return;
         }
         const data = await response.json();
-        setRole(data?.role ?? null);
+        setFetchedRole(data?.role ?? null);
       } catch {
-        if (isMounted) setRole(null);
+        if (isMounted) setFetchedRole(null);
       }
     }
 
@@ -52,6 +44,7 @@ export function BottomNav() {
     };
   }, [isSignedIn, metadataRole]);
 
+  const role = isSignedIn ? metadataRole ?? fetchedRole : null;
   const isAdmin = isAdminRole(role);
 
   // 3. Base navigation array

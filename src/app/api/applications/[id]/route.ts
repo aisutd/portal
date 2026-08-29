@@ -87,6 +87,7 @@ export async function GET(
       id: true,
       title: true,
       description: true,
+      questionsJson: true,
       programType: true,
       openAt: true,
       closeAt: true,
@@ -140,6 +141,9 @@ export async function GET(
       ...application,
       phase: getPhase(application.openAt, application.closeAt, new Date()),
       eligibility: getEligibility(application.programType),
+      questions: Array.isArray(application.questionsJson)
+        ? application.questionsJson.filter((question): question is string => typeof question === "string")
+        : [],
     },
     draft: draft ?? null,
     submissionStatus: submission?.status ?? null,

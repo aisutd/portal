@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
@@ -140,17 +140,13 @@ function RecommendedRow({
 }
 
 export function RecommendedCard({ items }: { items: RecommendedItem[] }) {
-  const [displayItems, setDisplayItems] = useState(() => 
-    items.filter(isUpcomingOrOngoing)
+  const [dismissedItemIds, setDismissedItemIds] = useState<string[]>([]);
+  const displayItems = items.filter(
+    (item) => isUpcomingOrOngoing(item) && !dismissedItemIds.includes(item.id),
   );
 
-  useEffect(() => {
-    // Re-filter whenever props update
-    setDisplayItems(items.filter(isUpcomingOrOngoing));
-  }, [items]);
-
   function handleRsvpSuccess(eventId: string) {
-    setDisplayItems((prev) => prev.filter((item) => item.id !== eventId));
+    setDismissedItemIds((prev) => [...prev, eventId]);
   }
 
   return (

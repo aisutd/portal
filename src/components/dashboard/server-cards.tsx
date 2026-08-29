@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { StatusStrip, Stat } from "./status-strip";
 import { ApplicationsCard, ApplicationItem } from "./applications-card";
 import { RsvpsCard, RsvpItem } from "./rsvps-card";
@@ -226,7 +225,9 @@ export async function DashboardRsvpsCard({ userId }: { userId: string }) {
 export async function DashboardRecommendedCard({ userId }: { userId: string }) {
   const events = await getUpcomingEvents(2, userId);
 
-  const items: RecommendedItem[] = events.map((event) => ({
+  const items: RecommendedItem[] = events
+    .filter((event) => (event.isPublished))
+    .map((event) => ({
     id: event.id,
     title: event.title,
     imageUrl: event.imageUrl,
