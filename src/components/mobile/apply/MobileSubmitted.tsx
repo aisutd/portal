@@ -3,10 +3,19 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { FormField } from "@/components/ui/form-field";
+import { MobileReadOnlyField } from "@/components/mobile/apply/MobileReadOnlyField";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
 import { personalFields } from "@/lib/data";
+import {
+  EMPTY_LAYOUT,
+  buildFormLayout,
+  collectExtraAnswers,
+  extractStringValues,
+  toFieldValues,
+  type ApplicationFormLayout,
+  type FieldValues,
+} from "@/lib/application-form";
 
 type SubmissionResponse = {
   submission: {
@@ -17,19 +26,10 @@ type SubmissionResponse = {
     application: {
       title: string;
       retentionUntil: string | null;
+      questions: string[];
     };
   };
 };
-
-type FieldValues = Record<(typeof personalFields)[number], string>;
-
-const DEFAULT_FIELD_VALUES: FieldValues = personalFields.reduce(
-  (acc, field) => {
-    acc[field] = "";
-    return acc;
-  },
-  {} as FieldValues
-);
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "long",
@@ -68,20 +68,6 @@ function getStatusBadge(status: string) {
   return <Badge label={label} bg="#e1e8ff" color="#1f3aa3" />;
 }
 
-function toFieldValues(payload: unknown) {
-  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
-    return DEFAULT_FIELD_VALUES;
-  }
-
-  const record = payload as Record<string, unknown>;
-
-  return personalFields.reduce((acc, field) => {
-    const value = record[field];
-    acc[field] = typeof value === "string" ? value : "";
-    return acc;
-  }, { ...DEFAULT_FIELD_VALUES });
-}
-
 function LoadingState() {
   return (
     <div className="flex flex-col gap-[12px]">
@@ -111,7 +97,9 @@ export function MobileSubmitted() {
   const searchParams = useSearchParams();
   const submissionId = searchParams.get("submissionId");
   const [submission, setSubmission] = useState<SubmissionResponse["submission"] | null>(null);
-  const [fieldValues, setFieldValues] = useState<FieldValues>(DEFAULT_FIELD_VALUES);
+  const [layout, setLayout] = useState<ApplicationFormLayout>(EMPTY_LAYOUT);
+  const [fieldValues, setFieldValues] = useState<FieldValues>({});
+  const [extraAnswers, setExtraAnswers] = useState<Array<[string, string]>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -145,8 +133,18 @@ export function MobileSubmitted() {
         }
 
         const payload = (await response.json()) as SubmissionResponse;
+        const nextLayout = buildFormLayout(payload.submission.application.questions);
+        const answers = payload.submission.formPayloadJson;
+
         setSubmission(payload.submission);
-        setFieldValues(toFieldValues(payload.submission.formPayloadJson));
+        setLayout(nextLayout);
+        setFieldValues(
+          toFieldValues(
+            nextLayout.allFieldLabels,
+            extractStringValues(nextLayout.allFieldLabels, answers)
+          )
+        );
+        setExtraAnswers(collectExtraAnswers(nextLayout.allFieldLabels, answers));
       } catch (caught) {
         if ((caught as Error).name !== "AbortError") {
           setSubmission(null);
@@ -202,35 +200,38 @@ export function MobileSubmitted() {
             </p>
           ) : null}
 
-          <div className="flex flex-col gap-[14px]">
-            {personalFields.map((label) =>
-              label === "Resume *" ? (
-                <div key={label} className="flex flex-col gap-[6px]">
-                  <label className="style-mobile-body font-bold text-ink">
-                    {label}
-                  </label>
-                  <a
-                    href="/api/profile/resume/download"
-                    className="flex h-[40px] items-center rounded-[10px] bg-field px-[13px] style-caption text-ink transition-colors hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/40"
-                    title={fieldValues[label]}
-                  >
-                    <span className="truncate">
-                      {fieldValues[label] || "Download resume"}
-                    </span>
-                  </a>
-                </div>
-              ) : (
-                <FormField
+          {/* The review step shows no answers of its own. */}
+          {layout.steps.slice(0, layout.reviewStepIndex).map((step, index) => (
+            <div key={step} className="flex flex-col gap-[14px]">
+              <p className="style-mobile-body font-bold text-ink">{step}</p>
+              {(layout.stepFieldGroups[index] ?? []).map((label) => (
+                <MobileReadOnlyField
                   key={label}
                   label={label}
-                  value={fieldValues[label]}
-                  readOnly
-                  tabIndex={-1}
-                  className="cursor-default"
+                  value={fieldValues[label] ?? ""}
+                  multiline={index > 0}
+                  linkResume
                 />
-              ),
-            )}
-          </div>
+              ))}
+            </div>
+          ))}
+
+          {/* Answers whose question is no longer on the application — shown so
+              a submitted answer is never silently dropped. */}
+          {extraAnswers.length > 0 ? (
+            <div className="flex flex-col gap-[14px]">
+              <p className="style-mobile-body font-bold text-ink">Other Answers</p>
+              {extraAnswers.map(([label, value]) => (
+                <MobileReadOnlyField
+                  key={label}
+                  label={label}
+                  value={value}
+                  multiline
+                  linkResume
+                />
+              ))}
+            </div>
+          ) : null}
         </div>
       ) : null}
 

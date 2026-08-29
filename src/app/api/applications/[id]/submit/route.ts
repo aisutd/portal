@@ -2,6 +2,12 @@ import { auth } from "@clerk/nextjs/server";
 import { ApplicationStatus, Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { createErrorResponse } from "@/lib/api-error";
+import {
+  buildFormLayout,
+  extractStringValues,
+  toFieldValues,
+  validateFields,
+} from "@/lib/application-form";
 import { prisma } from "@/lib/prisma";
 
 async function getCurrentUser() {
@@ -48,12 +54,15 @@ export async function POST(
     },
     select: {
       id: true,
+      questionsJson: true,
     },
   });
 
   if (!application) {
     return createErrorResponse("Application not found", "NOT_FOUND", 404);
   }
+
+  const layout = buildFormLayout(application.questionsJson);
 
   const result = await prisma.$transaction(async (tx) => {
     const draft = await tx.applicationDraft.findUnique({
@@ -105,6 +114,23 @@ export async function POST(
     if (latestSubmission) {
       return {
         error: createErrorResponse("Application already submitted", "ALREADY_SUBMITTED", 409),
+      } as const;
+    }
+
+    const answers = toFieldValues(
+      layout.allFieldLabels,
+      extractStringValues(layout.allFieldLabels, draft.formPayloadJson),
+    );
+    const fieldErrors = validateFields(answers, layout.allFieldLabels);
+
+    if (Object.keys(fieldErrors).length > 0) {
+      return {
+        error: createErrorResponse(
+          "Some answers are missing or incorrectly formatted.",
+          "INVALID_APPLICATION",
+          400,
+          { fields: fieldErrors },
+        ),
       } as const;
     }
 
