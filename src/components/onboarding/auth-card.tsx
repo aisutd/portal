@@ -140,7 +140,7 @@ function AuthCardInner({ redirectUrl }: AuthCardProps) {
       setFieldErrors(
         toFieldErrors(
           error,
-          "That code didn't work — double-check it and try again."
+          "That code didn't work; double-check it and try again."
         )
       );
       setSubmitting(false);
@@ -259,7 +259,7 @@ function AuthCardInner({ redirectUrl }: AuthCardProps) {
         setFieldErrors(
           toFieldErrors(
             error,
-            "That code didn't work — double-check it and try again."
+            "That code didn't work; double-check it and try again."
           )
         );
         setSubmitting(false);

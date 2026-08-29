@@ -10,7 +10,6 @@ import { MobileAdminEvents } from "@/components/mobile/admin/MobileAdminEvents";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import type { EventRowData } from "@/components/admin/event-row";
-import type { Prisma } from "@prisma/client";
 
 export const metadata: Metadata = {
   title: "AIS Admin — Events",
@@ -30,10 +29,6 @@ function toDisplayStatus(event: { startTime: Date; endTime: Date; isPublished: b
   if (now > new Date(event.endTime)) return { label: "Past", bg: "#efece3", color: "#8a8a93" };
   return { label: "Live", bg: "#d2ecd9", color: "#2c5d3e" };
 }
-
-type EventWithRsvps = Prisma.EventGetPayload<{
-  include: { rsvps: { include: { attendance: true } } };
-}>;
 
 // Helper to convert an event into an EventRowData item
 function mapEventToRow(event: EventWithRsvps): EventRowData {

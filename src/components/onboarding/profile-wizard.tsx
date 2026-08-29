@@ -232,7 +232,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
         {step === 2 && (
           <div className="flex flex-col gap-[16px]">
             <p className="style-body-text leading-[20.3px] text-ink-muted">
-              These are all optional — you can always add them later from your
+              These are all optional. You can always add them later from your
               profile.
             </p>
             <Field

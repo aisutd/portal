@@ -305,7 +305,7 @@ export function MemberRolesEditor({ memberId, memberName, role, programs }: Prop
                   role="status"
                   className="rounded-[8px] bg-[#eaf4e8] px-[10px] py-[7px] style-body-text "
                 >
-                  ✓ Saved — the row now shows these badges.
+                  ✓ Saved. The row now shows these badges.
                 </p>
               )}
 
