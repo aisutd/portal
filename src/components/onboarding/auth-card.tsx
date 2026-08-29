@@ -345,7 +345,7 @@ function AuthCardInner({ redirectUrl }: AuthCardProps) {
         <form onSubmit={handleResetRequestSubmit} className="flex flex-col">
           <div className="mt-[36px] min-h-[170px]">
             <Field
-              label="UTD Email"
+              label="AIS or UTD Email"
               id="reset-email"
               type="email"
               inputMode="email"
@@ -490,7 +490,7 @@ function AuthCardInner({ redirectUrl }: AuthCardProps) {
       >
         <div className="mt-6 min-h-[90px]">
           <Field
-            label="UTD Email"
+            label="AIS or UTD Email"
             id="auth-email"
             type="email"
             inputMode="email"
