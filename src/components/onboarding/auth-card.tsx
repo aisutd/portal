@@ -89,6 +89,13 @@ function AuthCardInner({ redirectUrl }: AuthCardProps) {
     await signIn?.reset();
   };
 
+  const backToSignUp = async () => {
+    clearResetState();
+    setView("form");
+    setTab("Log in");
+    await signUp?.reset();
+  }
+
   const handleSignUpSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!signUp) return;
@@ -154,6 +161,25 @@ function AuthCardInner({ redirectUrl }: AuthCardProps) {
       setFieldErrors({ form: "Couldn't complete sign-up. Please try again." });
       setSubmitting(false);
     }
+  };
+
+  const handleResendSignUpCode = async () => {
+    if (!signUp) return;
+    setSubmitting(true);
+    setFieldErrors({});
+    setNotice("");
+
+    const { error } = await signUp.verifications.sendEmailCode();
+    if (error) {
+      console.error("signUp.verifications.sendEmailCode error:", error);
+      setFieldErrors(
+        toFieldErrors(error, "Couldn't resend code. Please try again.")
+      );
+    } else {
+      setNotice(`A new code was sent to ${email}`);
+    }
+
+    setSubmitting(false);
   };
 
   const handleLoginSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -295,12 +321,14 @@ function AuthCardInner({ redirectUrl }: AuthCardProps) {
   if (view === "verify-signup") {
     return (
       <div className={CARD}>
-        <h2 className="mt-[17px] font-chakra font-bold leading-[normal] text-ink-card">
+        <h2 className="mt-4 text-xl font-chakra font-bold leading-[normal] text-ink-card">
           Check your email
         </h2>
-
+        <p className="mt-2 font-mono-alt text-helper-ink">
+          We sent a 6-digit code to {email}
+        </p>
         <form onSubmit={handleVerifySubmit} className="flex flex-col">
-          <div className="mt-[59px] min-h-[191px]">
+          <div className="flex flex-col mt-9 min-h-42.5">
             <Field
               label="Verification code"
               id="auth-code"
@@ -325,9 +353,26 @@ function AuthCardInner({ redirectUrl }: AuthCardProps) {
           </Button>
         </form>
 
-        <p className="mt-[16px] text-center font-mono-alt leading-[normal] text-helper-ink">
-          We sent a 6-digit code to {email}
-        </p>
+        <div className="mt-4 flex flex-col items-center gap-4">
+          <button
+            type="button"
+            onClick={handleResendSignUpCode}
+            disabled={submitting}
+            className={`text-brand disabled:opacity-50 ${CARD_LINK}`}
+          >
+            Didn't get it? Send a new code
+          </button>
+          <p className="text-center text-xs font-mono-alt text-helper-ink">
+            UTD applies long security filters. The code can take up to a minute to arrive in your inbox.
+          </p>
+          <button
+            type="button"
+            onClick={backToSignUp}
+            className={`text-helper-ink ${CARD_LINK}`}
+          >
+            ← Back to sign up
+          </button>
+        </div>
       </div>
     );
   }
@@ -335,15 +380,15 @@ function AuthCardInner({ redirectUrl }: AuthCardProps) {
   if (view === "reset-request") {
     return (
       <div className={CARD}>
-        <h2 className="mt-[17px] font-chakra font-bold leading-[normal] text-ink-card">
+        <h2 className="mt-4 text-xl font-chakra font-bold leading-[normal] text-ink-card">
           Reset your password
         </h2>
-        <p className="mt-[8px] style-body-text leading-[19px] text-ink-muted">
-          We&apos;ll email you a 6-digit code to set a new password.
+        <p className="mt-2 style-body-text text-ink-muted">
+          We'll email you a 6-digit code to set a new password.
         </p>
 
         <form onSubmit={handleResetRequestSubmit} className="flex flex-col">
-          <div className="mt-[36px] min-h-[170px]">
+          <div className="mt-9 min-h-42.5">
             <Field
               label="AIS or UTD Email"
               id="reset-email"
@@ -373,7 +418,7 @@ function AuthCardInner({ redirectUrl }: AuthCardProps) {
         <button
           type="button"
           onClick={backToLogin}
-          className={`mt-[16px] text-center text-brand ${CARD_LINK}`}
+          className={`mt-4 text-center text-helper-ink ${CARD_LINK}`}
         >
           ← Back to log in
         </button>
@@ -384,15 +429,15 @@ function AuthCardInner({ redirectUrl }: AuthCardProps) {
   if (view === "reset-code") {
     return (
       <div className={CARD}>
-        <h2 className="mt-[17px] font-chakra font-bold leading-[normal] text-ink-card">
+        <h2 className="mt-4 text-xl font-chakra font-bold leading-[normal] text-ink-card">
           Choose a new password
         </h2>
-        <p className="mt-[8px] style-body-text leading-[19px] text-ink-muted">
+        <p className="mt-2 style-body-text text-ink-muted">
           Enter the code we sent to {email}, then pick a new password.
         </p>
 
         <form onSubmit={handleResetSubmit} className="flex flex-col">
-          <div className="mt-[24px] min-h-[100px]">
+          <div className="mt-6 min-h-25">
             <Field
               label="Reset code"
               id="reset-code"
@@ -413,14 +458,14 @@ function AuthCardInner({ redirectUrl }: AuthCardProps) {
             {notice && (
               <p
                 role="status"
-                className="mt-[8px] style-body-text leading-[16.8px] text-green"
+                className="mt-2 style-body-text leading-[16.8px] text-green"
               >
                 {notice}
               </p>
             )}
           </div>
 
-          <div className="min-h-[101px]">
+          <div className="min-h-25">
             <Field
               label="New password"
               id="reset-new-password"
@@ -446,15 +491,18 @@ function AuthCardInner({ redirectUrl }: AuthCardProps) {
           </Button>
         </form>
 
-        <div className="mt-[16px] flex flex-col items-center gap-[10px]">
+        <div className="mt-4 flex flex-col items-center gap-4">
           <button
             type="button"
             onClick={handleResendResetCode}
             disabled={submitting}
             className={`text-brand disabled:opacity-50 ${CARD_LINK}`}
           >
-            Didn&apos;t get it? Send a new code
+            Didn't get it? Send a new code
           </button>
+          <p className="text-center text-xs text-helper-ink">
+            UTD applies long security filters. The code can take up to a minute to arrive in your inbox.
+          </p>
           <button
             type="button"
             onClick={backToLogin}
@@ -488,7 +536,7 @@ function AuthCardInner({ redirectUrl }: AuthCardProps) {
         onSubmit={isSignUp ? handleSignUpSubmit : handleLoginSubmit}
         className="flex flex-col"
       >
-        <div className="mt-6 min-h-[90px]">
+        <div className="mt-6 min-h-22.5">
           <Field
             label="AIS or UTD Email"
             id="auth-email"
@@ -507,7 +555,7 @@ function AuthCardInner({ redirectUrl }: AuthCardProps) {
           <ErrorText id="auth-email-error" message={fieldErrors.email} />
         </div>
 
-        <div className="min-h-[101px]">
+        <div className="min-h-25">
           <Field
             label="Password"
             id="auth-password"
@@ -547,10 +595,10 @@ function AuthCardInner({ redirectUrl }: AuthCardProps) {
         </Button>
       </form>
 
-      <p className="mt-4 text-center font-mono-alt text-xs leading-[normal] text-helper-ink">
+      <p className="mt-4 text-center font-mono-alt leading-[normal] text-helper-ink">
         {isSignUp
-          ? "we'll email you a 6-digit code to verify your account"
-          : "welcome back to AIS"}
+          ? "We'll email you a 6-digit code to verify your account"
+          : "Welcome back to AIS"}
       </p>
     </div>
   );
@@ -560,7 +608,7 @@ export function AuthCard({ redirectUrl }: AuthCardProps) {
   return (
     <Suspense
       fallback={
-        <div className="h-[500px] w-full max-w-[400px] rounded-[14px] bg-white shadow-auth-card" />
+        <div className="h-125 w-full max-w-100 rounded-[14px] bg-white shadow-auth-card" />
       }
     >
       <AuthCardInner redirectUrl={redirectUrl} />
