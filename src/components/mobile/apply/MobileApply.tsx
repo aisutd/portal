@@ -167,7 +167,7 @@ export function MobileApply() {
               {program.image ? (
                 <div
                   className="relative flex size-[52px] shrink-0 items-center justify-center rounded-[12px] p-[2px] overflow-hidden border border-border-soft/60"
-                  style={{ backgroundColor: program.iconBg }}
+                  style={{ backgroundColor: `color-mix(in srgb, ${program.iconBg} 20%, transparent)` }}
                 >
                   <Image
                     src={program.image}

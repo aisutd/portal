@@ -123,39 +123,39 @@ export const applySteps: Step[] = [
 export const programs: Program[] = [
   {
     icon: "◇",
-    iconBg: "#e1e8ff",
+    iconBg: "#3d6cfa",
     iconColor: "#1f3aa3",
     image: "/images/programs/ai-academy.png",
     borderColor: "#e7e2d4",
     title: "AI Academy",
     description:
       "Master the fundamentals of machine learning through our guided 10-week curriculum.",
-    tags: ["Beginner", "10 weeks"],
+    tags: ["Beginner", "Workshops", "10 weeks"],
     cta: "primary",
   },
   {
     icon: "◈",
-    iconBg: "#fbe3cb",
+    iconBg: "#7ed857",
     iconColor: "#7a4416",
     image: "/images/programs/aim.png",
     borderColor: "#f2a968",
     badge: "High demand",
     title: "AI Mentorship",
     description:
-      "Get paired with industry professionals or senior students to accelerate your career in AI.",
-    tags: ["Career", "Team based"],
+      "Get paired with senior students to accelerate your career in AI.",
+    tags: ["Project", "Team-based", "Mentorship", "Industry"],
     cta: "accent",
   },
   {
     icon: "◆",
-    iconBg: "#e9e5f6",
+    iconBg: "#9c14dc",
     iconColor: "#4b4178",
     image: "/images/programs/innovation-lab.png",
     borderColor: "#e7e2d4",
     title: "Innovation Labs",
     description:
       "Selected teams deepen their AIM project in a lab/research setting, providing niche ML/AI experience.",
-    tags: ["Advanced", "Project based"],
+    tags: ["Advanced", "Team based", "Research"],
     cta: "primary",
   },
 ];

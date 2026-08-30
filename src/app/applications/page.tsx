@@ -196,9 +196,10 @@ function buildSubmittedRow(
 
 function ApplicationSkeleton() {
   return (
-    <div className="flex w-full flex-col items-start gap-4 rounded-[16px] border border-border-soft bg-white/80 p-6 sm:flex-row sm:items-center sm:justify-between sm:gap-6 shadow-xs">
+    <div className="flex w-full flex-col items-start gap-4 rounded-2xl border border-border-soft bg-white/80 p-6 
+      sm:flex-row sm:items-center sm:justify-between sm:gap-6 shadow-xs">
       <div className="min-w-0 flex-1 animate-pulse space-y-2.5">
-        <div className="h-5 w-64 rounded-full bg-[#efece3]" />
+        <div className="h-5 w-64 rounded-full bg-stone-soft" />
         <div className="h-3.5 w-full max-w-lg rounded-full bg-[#f4f1ea]" />
         <div className="h-3 w-48 rounded-full bg-[#f4f1ea]" />
       </div>
@@ -212,7 +213,7 @@ function ApplicationSkeleton() {
 
 function ApplicationEmptyState({ message }: { message: string }) {
   return (
-    <div className="rounded-[16px] border border-border-soft/80 bg-white/60 px-6 py-6 style-body-text leading-relaxed text-ink-muted transition-colors">
+    <div className="rounded-2xl border border-border-soft/80 bg-white/60 px-6 py-6 style-body-text leading-relaxed text-ink-muted transition-colors">
       {message}
     </div>
   );
