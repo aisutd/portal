@@ -22,7 +22,7 @@ function ErrorText({ id, message }: { id: string; message?: string }) {
     <p
       id={id}
       role="alert"
-      className="mt-[8px] style-body-text leading-[16.8px] text-red-600"
+      className="mt-2 style-body-text leading-[16.8px] text-red-600"
     >
       {message}
     </p>

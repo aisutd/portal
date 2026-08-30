@@ -25,7 +25,7 @@ export function OnboardingHero() {
       </h1>
 
       {/* Supporting copy */}
-      <p className="max-w-[420px] style-body-text text-base font-normal leading-relaxed text-ink md:text-lg">
+      <p className="max-w-105 style-body-text text-base font-normal leading-relaxed text-ink md:text-lg">
         The hub for creators, thinkers, and builders at UT Dallas. Whether you&apos;re training models or just here for the energy, welcome home.
       </p>
 

@@ -16,7 +16,7 @@ function SelectArrow() {
       aria-hidden
       viewBox="0 0 24 24"
       fill="none"
-      className="pointer-events-none absolute right-[13px] top-1/2 size-[16px] -translate-y-1/2 text-ink-muted"
+      className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-ink-muted"
     >
       <path
         d="M6 9l6 6 6-6"
@@ -112,10 +112,10 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
     <div>
       <FormStepper steps={STEPS} active={step} onDark />
 
-      <div className="mt-[20px] rounded-2xl border border-border-soft bg-white p-[30px]">
+      <div className="mt-5 rounded-2xl border border-border-soft bg-white p-7.5">
         {/* Step 1 — Personal */}
         {step === 0 && (
-          <div className="flex flex-col gap-[16px]">
+          <div className="flex flex-col gap-4">
             <Field
               label="First Name"
               value={form.firstName}
@@ -147,9 +147,9 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
 
         {/* Step 2 — Academic */}
         {step === 1 && (
-          <div className="flex flex-col gap-[16px]">
+          <div className="flex flex-col gap-4">
             <div className="flex flex-col">
-              <label className="mb-[10px] font-grotesk text-[13px] font-semibold leading-[normal] text-label-ink">
+              <label className="mb-2.5 font-grotesk text-[13px] font-semibold leading-[normal] text-label-ink">
                 Year
               </label>
               <div className="relative">
@@ -170,7 +170,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
             </div>
 
             <div className="flex flex-col">
-              <label className="mb-[10px] font-grotesk text-[13px] font-semibold leading-[normal] text-label-ink">
+              <label className="mb-2.5 font-grotesk text-[13px] font-semibold leading-[normal] text-label-ink">
                 Degree
               </label>
               <div className="relative">
@@ -191,7 +191,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
             </div>
 
             <div className="flex flex-col">
-              <label className="mb-[10px] font-grotesk text-[13px] font-semibold leading-[normal] text-label-ink">
+              <label className="mb-2.5 font-grotesk text-[13px] font-semibold leading-[normal] text-label-ink">
                 Major
               </label>
               <div className="relative">
@@ -230,7 +230,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
 
         {/* Step 3 — Links */}
         {step === 2 && (
-          <div className="flex flex-col gap-[16px]">
+          <div className="flex flex-col gap-4">
             <p className="style-body-text leading-[20.3px] text-ink-muted">
               These are all optional. You can always add them later from your
               profile.
@@ -257,11 +257,11 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
         )}
 
         {error && (
-          <p className="mt-[12px] text-[12px] text-red-600">{error}</p>
+          <p className="mt-3 text-[12px] text-red-600">{error}</p>
         )}
 
         {/* Navigation */}
-        <div className="mt-[24px] flex items-center justify-between">
+        <div className="mt-6 flex items-center justify-between">
           {step > 0 ? (
             <Button variant="primary" size="sm" type="button" onClick={back}>
               Back

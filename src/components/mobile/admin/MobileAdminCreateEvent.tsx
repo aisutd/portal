@@ -21,7 +21,7 @@ export function MobileAdminCreateEvent({userRole}: MobileAdminCreateEventProps) 
         <Link href="/admin/events" className="style-caption text-brand">
           ← Back to Events
         </Link>
-        <h2 className="mt-[6px] style-mobile-title text-ink">
+        <h2 className="mt-1.5 style-mobile-title text-ink">
           Create Event
         </h2>
       </div>
@@ -29,13 +29,13 @@ export function MobileAdminCreateEvent({userRole}: MobileAdminCreateEventProps) 
       <form 
         action={createEvent} 
         // encType="multipart/form-data" 
-        className="flex flex-col gap-[24px]"
+        className="flex flex-col gap-6"
       >
         <EventForm tags={eventTags} />
         <CoverPhotoCard defaultImageUrl={null} />
         <SettingsCard items={eventSettings} />
 
-        <div className="flex flex-col gap-[10px]">
+        <div className="flex flex-col gap-2.5">
           <EventActionButtons isPublished={false} userRole={userRole}/>
         </div>
       </form>
