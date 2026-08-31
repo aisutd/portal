@@ -272,17 +272,45 @@ export const applicantDetail: ApplicantDetailData = {
   combinedAvg: "4.0",
 };
 
-/* ---------------------------------------------------- Admin · Create Event */
+const PROGRAM_TAG_PALETTE: Record<string, { bg: string; color: string }> = {
+  academy: { bg: "#cbe6f2", color: "#175a75" },
+  innovation: { bg: "#e6efc5", color: "#566d15" },
+  mentor: { bg: "#ebd9f3", color: "#653a80" },
+  mentee: { bg: "#f8d9e6", color: "#8e3a5d" },
+  officer: { bg: "#e0dfe4", color: "#403f4a" },
+  industry: { bg: "#ded9f4", color: "#463e86" },
+};
 
-export const eventTags: TagData[] = [
-  { label: "food", bg: "#f9d5d3", color: "#9a3b36" },
-  { label: "drink", bg: "#fbe3c6", color: "#8a4e18" },
-  { label: "social", bg: "#f6ecbb", color: "#766411" },
-  { label: "learn", bg: "#d3eccf", color: "#356b2e" },
-  { label: "workshop", bg: "#cde9e5", color: "#1d6a61" },
-  { label: "networking", bg: "#d6e2ff", color: "#284b9c" },
-  { label: "industry", bg: "#ded9f4", color: "#463e86" },
+const ACTIVITY_TAG_PALETTE: Record<string, { bg: string; color: string }> = {
+  food: { bg: "#f9d5d3", color: "#9a3b36" },
+  drink: { bg: "#fbe3c6", color: "#8a4e18" },
+  social: { bg: "#f6ecbb", color: "#766411" },
+  learn: { bg: "#d3eccf", color: "#356b2e" },
+  workshop: { bg: "#cde9e5", color: "#1d6a61" },
+  networking: { bg: "#d6e2ff", color: "#284b9c" },
+};
+
+const TAG_PALETTE: Record<string, { bg: string; color: string }> = {
+  ...PROGRAM_TAG_PALETTE,
+  ...ACTIVITY_TAG_PALETTE,
+};
+
+const tag = (label: keyof typeof TAG_PALETTE): TagData => ({
+  label,
+  ...TAG_PALETTE[label],
+});
+
+export const programEventTags: TagData[] = Object.keys(PROGRAM_TAG_PALETTE).map(tag);
+export const activityEventTags: TagData[] = Object.keys(ACTIVITY_TAG_PALETTE).map(tag);
+
+/** The two groups, in render order, each with the heading it renders under. */
+export const eventTagGroups: Array<{ title: string; tags: TagData[] }> = [
+  { title: "Programs", tags: programEventTags },
+  { title: "Events", tags: activityEventTags },
 ];
+
+/** Every tag, programs first. For consumers that don't care about the split. */
+export const eventTags: TagData[] = eventTagGroups.flatMap((group) => group.tags);
 
 export const eventSettings: SettingRow[] = [
   { label: "Require check-in QR", type: "toggle", on: true },
@@ -482,25 +510,6 @@ export const pastTiles: PastTileData[] = [
 ];
 
 /* ----------------------------------------------------- Events · Browse (grid) */
-
-const TAG_PALETTE: Record<string, { bg: string; color: string }> = {
-  food: { bg: "#f9d5d3", color: "#9a3b36" },
-  drink: { bg: "#fbe3c6", color: "#8a4e18" },
-  social: { bg: "#f6ecbb", color: "#766411" },
-  learn: { bg: "#d3eccf", color: "#356b2e" },
-  workshop: { bg: "#cde9e5", color: "#1d6a61" },
-  networking: { bg: "#d6e2ff", color: "#284b9c" },
-  industry: { bg: "#ded9f4", color: "#463e86" },
-};
-
-const tag = (label: keyof typeof TAG_PALETTE): TagData => ({
-  label,
-  ...TAG_PALETTE[label],
-});
-
-export const eventFilterTags: TagData[] = (
-  Object.keys(TAG_PALETTE) as (keyof typeof TAG_PALETTE)[]
-).map(tag);
 
 export const browseEvents: EventGridItem[] = [
   {

@@ -5,7 +5,7 @@ import { Navbar } from "@/components/navbar";
 import { Tag } from "@/components/ui/tag";
 import { EventGridCard } from "@/components/events/event-grid-card";
 import { MobileEventsBrowse } from "@/components/mobile/events/MobileEventsBrowse";
-import { eventFilterTags } from "@/lib/data";
+import { eventTagGroups } from "@/lib/data";
 import { formatEventDate } from "@/lib/utils";
 
 type EventRecord = {
@@ -65,10 +65,6 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
             
             {/* Tag filter sidebar */}
             <aside className="flex flex-col gap-[10px] border-b border-border-soft px-6 py-8 md:w-[220px] md:shrink-0 md:border-b-0 md:border-r">
-              <p className="font-techno uppercase leading-normal tracking-[3px] text-ink-faint">
-                Tags
-              </p>
-              
               <div className="flex flex-wrap gap-[10px] md:flex-col md:items-start">
                 <button
                   type="button"
@@ -83,29 +79,40 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
                   All Events
                 </button>
 
-                {eventFilterTags.map((t) => {
-                  const isSelected = selectedTags.includes(t.label);
-                  return (
-                    <button
-                      key={t.label}
-                      type="button"
-                      aria-pressed={isSelected}
-                      onClick={() => handleTagClick(t.label)}
-                      className="text-left transition-transform active:scale-95"
-                    >
-                      <Tag
-                        label={t.label}
-                        bg={t.bg}
-                        color={t.color}
-                        className={
-                          isSelected
-                            ? "ring-2 ring-brand/30 ring-offset-2 ring-offset-cream"
-                            : "opacity-75 transition-opacity hover:opacity-100"
-                        }
-                      />
-                    </button>
-                  );
-                })}
+                {/* Each group renders under its own heading. */}
+                {eventTagGroups.map((group) => (
+                  <div
+                    key={group.title}
+                    className="flex flex-wrap gap-[10px] mt-[18px] md:mt-[22px] md:flex-col md:items-start"
+                  >
+                    <p className="w-full font-techno uppercase leading-normal tracking-[3px] text-ink-faint">
+                      {group.title}
+                    </p>
+                    {group.tags.map((t) => {
+                      const isSelected = selectedTags.includes(t.label);
+                      return (
+                        <button
+                          key={t.label}
+                          type="button"
+                          aria-pressed={isSelected}
+                          onClick={() => handleTagClick(t.label)}
+                          className="text-left transition-transform active:scale-95"
+                        >
+                          <Tag
+                            label={t.label}
+                            bg={t.bg}
+                            color={t.color}
+                            className={
+                              isSelected
+                                ? "ring-2 ring-brand/30 ring-offset-2 ring-offset-cream"
+                                : "opacity-75 transition-opacity hover:opacity-100"
+                            }
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))}
               </div>
             </aside>
 

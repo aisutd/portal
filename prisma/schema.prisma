@@ -36,6 +36,11 @@ enum EventTag {
   WORKSHOP
   NETWORKING
   INDUSTRY
+  ACADEMY
+  INNOVATION
+  MENTOR
+  MENTEE
+  OFFICER
 }
 
 enum RSVPStatus {
