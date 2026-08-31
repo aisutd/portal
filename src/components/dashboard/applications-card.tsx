@@ -46,8 +46,8 @@ function ApplicationRow({ item }: { item: ApplicationItem }) {
 
 export function ApplicationsCard({ items }: { items: ApplicationItem[] }) {
   return (
-    <Card className="relative flex w-full shrink-0 flex-col gap-[16px] self-stretch overflow-hidden p-[29px] xl:w-[440px]">
-      <div aria-hidden className="absolute inset-x-0 top-0 h-[4px] bg-orange-300" />
+    <Card className="relative flex w-full shrink-0 flex-col gap-[16px] self-stretch p-[29px] xl:w-[440px]">
+      <div aria-hidden className="absolute inset-x-0 top-0 h-[4px] rounded-t-2xl bg-orange-300" />
       {/* --- COMING SOON BANNER --- */}
       <div className="flex w-full items-center justify-between rounded-xl border border-brand/20 bg-brand/5 px-3.5 py-2.5">
         <div className="flex items-center gap-2">

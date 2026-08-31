@@ -46,18 +46,25 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
 
   return (
     <MobileScreen>
-      <h1 className="style-mobile-title text-brand">
+      <h1 className="style-mobile-title bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">
         Welcome back, {userName}!
       </h1>
 
       {/* Up Next */}
       <Card
         className={cn(
-          "flex flex-col gap-4 p-5 transition-all duration-300",
+          "relative flex flex-col gap-4 p-5 transition-all duration-300",
           isGlowing &&
             "border-green bg-checked/60 shadow-[0_0_20px_rgba(53,107,46,0.35)] ring-1 ring-green/50"
         )}
       >
+        <div
+          aria-hidden
+          className={cn(
+            "absolute inset-x-0 top-0 h-[4px] rounded-t-2xl transition-colors duration-300",
+            isGlowing ? "bg-green" : "bg-brand/60"
+          )}
+        />
         {nextRsvp ? (
           <>
             <div className="flex flex-col gap-1">
@@ -95,24 +102,12 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
                   </div>
                 </div>
                 {!nextRsvp.isLive && calendarLinks && (
-                  <MobileCalendarDropdown 
-                    calendarLinks={calendarLinks} 
-                    eventId={nextRsvp.event.id} 
+                  <MobileCalendarDropdown
+                    calendarLinks={calendarLinks}
+                    eventId={nextRsvp.event.id}
                   />
                 )}
               </div>
-            )}
-
-            {!nextRsvp.isLive && (
-              <Button
-                href="https://calendar.google.com/calendar/render?action=TEMPLATE&dates=20260904T000000Z%2F20260904T020000Z&details=Whether%20you%27re%20a%20newbie%20or%20looking%20to%20innovate%20in%20AI%2FML%2C%20we%27ve%20got%20a%20place%20for%20you%21%20Learn%20all%20about%20the%20programs%20and%20events%20we%20hold%20all%20throughout%20the%20year%2C%20including%20AI%20Academy%2C%20AIM%2C%20and%20AI%20Innovation%20Labs.%20Get%20an%20opportunity%20to%20network%20with%20the%20brightest%20minds%20and%20industry%20professionals%20at%20Kickoff%20and%20become%20part%20of%20the%20largest%20AI%20organization%20in%20North%20Texas.%20Oh%2C%20and%20there%27s%20free%20food...&location=ECSW%201.315&text=AIS%20Fall%20Kickoff%202026"
-                variant="primary"
-                size="sm"
-                className="font-black"
-                block
-              >
-                Add to Calendar
-              </Button>
             )}
           </>
         ) : (
