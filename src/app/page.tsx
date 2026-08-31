@@ -37,7 +37,7 @@ export default function EventsPage() {
             {/* Hero */}
             <div className="flex flex-col gap-[16px] px-[46px] pt-[45px] lg:flex-row lg:items-start lg:justify-between">
               <div className="flex flex-col gap-[10px]">
-                <h1 className="style-page-title leading-[53.76px] tracking-[-0.5px] text-brand">
+                <h1 className="style-page-title leading-[53.76px] tracking-[-0.5px] bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">
                   {eventsHero.title}
                 </h1>
                 <p className="max-w-[560px] style-body-text leading-[24px] text-ink">

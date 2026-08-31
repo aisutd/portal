@@ -154,7 +154,8 @@ export function RecommendedCard({ items }: { items: RecommendedItem[] }) {
   }
 
   return (
-    <Card className="flex h-auto min-w-0 flex-1 flex-col gap-[14px] self-stretch p-[27px]">
+    <Card className="relative flex h-auto min-w-0 flex-1 flex-col gap-[14px] self-stretch p-[27px]">
+      <div aria-hidden className="absolute inset-x-0 top-0 h-[4px] rounded-t-2xl bg-rose-300" />
       <SectionHeader
         title="Recommended for you"
         action={

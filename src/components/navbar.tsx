@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { Show, UserButton, useAuth, useUser } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import { useAccount } from "@/components/account-provider";
@@ -17,10 +19,23 @@ const NAV_ROUTES: Record<(typeof NAV_ITEMS)[number] | typeof ADMIN_LABEL, string
   Admin: "/admin/events",
 };
 
+const ACTIVE_PILL_GRADIENT = "linear-gradient(135deg, #f2a968 0%, #7d64c4 100%)";
+
 type NavbarProps = {
   /** Which primary link is highlighted. Defaults to the dashboard. */
   active?: (typeof NAV_ITEMS)[number] | "Profile" | typeof ADMIN_LABEL;
 };
+
+function ActivePill() {
+  return (
+    <motion.span
+      layoutId="nav-active-pill"
+      transition={{ type: "spring", stiffness: 420, damping: 34 }}
+      className="absolute inset-0 -z-10 rounded-full"
+      style={{ background: ACTIVE_PILL_GRADIENT }}
+    />
+  );
+}
 
 export function Navbar({ active = "Dashboard" }: NavbarProps) {
   const { isSignedIn } = useAuth();
@@ -37,17 +52,33 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
   const showAdminLink = role ? isAdminRole(role) : false;
   const accountLabel = account?.firstName?.trim() || user?.firstName?.trim() || "Profile";
 
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 8);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-[#f0f0f0] bg-white">
+    <header
+      className={cn(
+        "sticky top-0 z-50 w-full transition-all duration-300",
+        isScrolled
+          ? "border-b border-border-soft bg-white/80 shadow-md shadow-purple-400/10 backdrop-blur-md"
+          : "border-b border-transparent bg-white"
+      )}
+    >
       <nav className="flex h-[72px] items-center justify-between px-[38px]">
         {/* Logo */}
-        <Link href="/" className="shrink-0 flex items-center">
-          <Image 
-            src="/ais_logo_black.png" 
-            alt="AIS Logo" 
+        <Link href="/" className="shrink-0 flex items-center transition-transform duration-200 hover:scale-110">
+          <Image
+            src="/ais_logo_black.png"
+            alt="AIS Logo"
             width={150}               // Explicit width prevents layout shifts
             height={44}              // Matches your h-[44px] height constraint
-            className="h-[44px] w-auto object-contain" 
+            className="h-[44px] w-auto object-contain"
             priority                 // Loads the logo immediately to improve LCP
           />
         </Link>
@@ -66,10 +97,11 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
                       : NAV_ROUTES[label]
                   }
                   className={cn(
-                    "style-nav-link  tracking-[0.5px] px-[24px] py-[10px] rounded-full transition-colors flex items-center justify-center",
-                    isActive ? "bg-[#e1e8ff] " : " hover:bg-gray-100"
+                    "relative style-nav-link tracking-[0.5px] px-[24px] py-[10px] rounded-full transition-all duration-200 flex items-center justify-center",
+                    isActive ? "text-white" : "text-ink hover:bg-gray-100 hover:scale-105"
                   )}
                 >
+                  {isActive && <ActivePill />}
                   {label}
                 </Link>
               </li>
@@ -81,10 +113,11 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
               <Link
                 href={NAV_ROUTES.Admin}
                 className={cn(
-                  "style-nav-link  tracking-[0.5px] px-[24px] py-[10px] rounded-full transition-colors flex items-center justify-center",
-                  active === ADMIN_LABEL ? "bg-[#e1e8ff] " : " hover:bg-gray-100"
+                  "relative style-nav-link tracking-[0.5px] px-[24px] py-[10px] rounded-full transition-all duration-200 flex items-center justify-center",
+                  active === ADMIN_LABEL ? "text-white" : "text-ink hover:bg-gray-100 hover:scale-105"
                 )}
               >
+                {active === ADMIN_LABEL && <ActivePill />}
                 Admin
               </Link>
             </li>
@@ -102,7 +135,8 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
             </Link>
             <Link
               href="/onboarding?mode=signup"
-              className="rounded-[10px] border border-brand bg-brand px-[15px] py-[9px] style-nav-link  text-white"
+              className="rounded-[10px] px-[15px] py-[9px] style-nav-link text-white shadow-sm transition-transform duration-200 hover:scale-105"
+              style={{ background: ACTIVE_PILL_GRADIENT }}
             >
               Sign Up
             </Link>
@@ -112,28 +146,24 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
             <Link
               href="/profile"
               className={cn(
-                "flex shrink-0 items-center gap-[11px] hover:opacity-80 transition-colors px-[20px] py-[8px] rounded-full",
-                active === "Profile" ? "bg-[#e1e8ff]" : ""
+                "relative flex shrink-0 items-center gap-[11px] hover:opacity-90 transition-all duration-200 px-[20px] py-[8px] rounded-full",
+                active === "Profile" ? "text-white" : "hover:scale-105"
               )}
             >
+              {active === "Profile" && <ActivePill />}
               <div className="pointer-events-none flex items-center">
                 <UserButton
                   appearance={{
                     elements: {
                       avatarBox: cn(
-                        "bg-brand text-white size-[36px] rounded-full border border-white",
-                        active === "Profile" ? "border-[#2f5fe8]" : "border-[#8a8a93]"
+                        "bg-brand text-white size-[36px] rounded-full border-2",
+                        active === "Profile" ? "border-white" : "border-[#8a8a93]"
                       ),
                     },
                   }}
                 />
               </div>
-              <span
-                className={cn(
-                  "whitespace-nowrap style-nav-link ",
-                  active === "Profile" ? "" : ""
-                )}
-              >
+              <span className="whitespace-nowrap style-nav-link">
                 {accountLabel}
               </span>
             </Link>

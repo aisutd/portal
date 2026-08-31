@@ -29,35 +29,42 @@ type MobileDashboardProps = {
   calendarLinks?: CalendarLinksObject | null;
 };
 
+function isRsvpGlowing(nextRsvp: MobileDashboardProps["nextRsvp"]) {
+  if (!nextRsvp) return false;
+
+  const now = Date.now();
+  const startTime = new Date(nextRsvp.event.startTime).getTime();
+  const endTime = nextRsvp.event.endTime ? new Date(nextRsvp.event.endTime).getTime() : Infinity;
+
+  // Starting within 30 mins or currently live
+  const isStartingSoon = startTime - now <= 30 * 60 * 1000 && now <= endTime;
+  return Boolean(nextRsvp.isLive || isStartingSoon);
+}
+
 export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: MobileDashboardProps) {
-  // Compute glowing state in outer scope so it's accessible to the Card class list
-  let isGlowing = false;
-
-  if (nextRsvp) {
-    const now = Date.now();
-    const startTime = new Date(nextRsvp.event.startTime).getTime();
-    const endTime = nextRsvp.event.endTime ? new Date(nextRsvp.event.endTime).getTime() : Infinity;
-
-    // Starting within 30 mins or currently live
-    const isStartingSoon = startTime - now <= 30 * 60 * 1000 && now <= endTime;
-    isGlowing = Boolean(nextRsvp.isLive || isStartingSoon);
-
-  }
+  const isGlowing = isRsvpGlowing(nextRsvp);
 
   return (
     <MobileScreen>
-      <h1 className="style-mobile-title text-brand">
+      <h1 className="style-mobile-title bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">
         Welcome back, {userName}!
       </h1>
 
       {/* Up Next */}
       <Card
         className={cn(
-          "flex flex-col gap-4 p-5 transition-all duration-300",
+          "relative flex flex-col gap-4 p-5 transition-all duration-300",
           isGlowing &&
             "border-green bg-checked/60 shadow-[0_0_20px_rgba(53,107,46,0.35)] ring-1 ring-green/50"
         )}
       >
+        <div
+          aria-hidden
+          className={cn(
+            "absolute inset-x-0 top-0 h-[4px] rounded-t-2xl transition-colors duration-300",
+            isGlowing ? "bg-green" : "bg-brand/60"
+          )}
+        />
         {nextRsvp ? (
           <>
             <div className="flex flex-col gap-1">
@@ -95,9 +102,9 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
                   </div>
                 </div>
                 {!nextRsvp.isLive && calendarLinks && (
-                  <MobileCalendarDropdown 
-                    calendarLinks={calendarLinks} 
-                    eventId={nextRsvp.event.id} 
+                  <MobileCalendarDropdown
+                    calendarLinks={calendarLinks}
+                    eventId={nextRsvp.event.id}
                   />
                 )}
               </div>

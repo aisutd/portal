@@ -89,7 +89,7 @@ export function MobileEventsBrowse({ upcomingEvents: initialUpcoming, pastEvents
   return (
     <MobileScreen>
       <div className="flex flex-col gap-[6px]">
-        <h1 className="style-page-title leading-tight tracking-tight text-brand">
+        <h1 className="style-page-title leading-tight tracking-tight bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">
           Pick Your Next Sidequest
         </h1>
         <p className="style-page-subtitle text-ink-muted">
@@ -211,7 +211,7 @@ export function MobileEventsBrowse({ upcomingEvents: initialUpcoming, pastEvents
               No events found
             </p>
             <p className="mt-[6px] font-sans text-ink-muted">
-              We didn't have any events with the selected filters. Look out in the near future!
+              We didn&apos;t have any events with the selected filters. Look out in the near future!
             </p>
             {selectedTags.length > 0 && (
               <button

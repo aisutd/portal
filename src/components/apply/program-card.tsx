@@ -106,7 +106,19 @@ export function ProgramCard({
         >
           Apply Now →
         </Button>
-      ) : null}
+      ) : (
+        // TODO: point at the real AIS website page for this program once it exists.
+        <Button
+          variant="soft"
+          size="md"
+          pill
+          block
+          href="#"
+          className="mt-[2px]"
+        >
+          Learn more →
+        </Button>
+      )}
     </div>
   );
 }

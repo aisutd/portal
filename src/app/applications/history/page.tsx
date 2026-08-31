@@ -140,7 +140,7 @@ export default function ApplicationHistoryPage() {
               Back to Applications
             </Button>
 
-            <h1 className="style-page-title  leading-tight text-ink">
+            <h1 className="style-page-title leading-tight bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">
               Application History
             </h1>
             <p className="style-page-subtitle  text-ink-muted">
@@ -198,7 +198,7 @@ export default function ApplicationHistoryPage() {
               </Button>
 
               <section className="flex flex-col gap-[8px]">
-                <h1 className="style-page-title  leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+                <h1 className="style-page-title leading-[34.56px] tracking-[-0.4px] [font-variation-settings:'wdth'_100] bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">
                   Application History
                 </h1>
                 <p className="style-page-subtitle  leading-[21.75px] text-ink-muted">

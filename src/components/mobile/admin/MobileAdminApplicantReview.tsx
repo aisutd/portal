@@ -59,6 +59,9 @@ export function MobileAdminApplicantReview() {
               </span>
             )
           )}
+          <span className="shrink-0">
+            <Badge label="sort: score ↓" variant="outline" />
+          </span>
         </div>
       </div>
 
@@ -77,7 +80,11 @@ export function MobileAdminApplicantReview() {
               {applicantDetail.name}
             </h3>
             <p className="style-caption leading-[15px] text-ink-faint">
-              {applicantDetail.netid} · {applicantDetail.phone}
+              {applicantDetail.netid} ·{" "}
+              <a href={`mailto:${applicantDetail.email}`} className="text-[#0000ee] underline">
+                {applicantDetail.email}
+              </a>{" "}
+              · {applicantDetail.phone}
             </p>
           </div>
         </div>

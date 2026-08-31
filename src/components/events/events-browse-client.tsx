@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 import { Tag } from "@/components/ui/tag";
 import { EventGridCard } from "@/components/events/event-grid-card";
 import { MobileEventsBrowse } from "@/components/mobile/events/MobileEventsBrowse";
@@ -59,7 +60,9 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
 
       {/* Desktop & Tablet Layout */}
       <div className="hidden md:block">
-        <div className="flex min-h-screen w-full flex-col bg-cream">
+        <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-cream">
+          <div aria-hidden className="pointer-events-none absolute -top-20 right-[15%] -z-10 h-[400px] w-[400px] rounded-full bg-purple-400/20 blur-[110px]" />
+          <div aria-hidden className="pointer-events-none absolute top-[40%] left-[-5%] -z-10 h-[340px] w-[340px] rounded-full bg-orange-300/20 blur-[110px]" />
           <Navbar active="Events" />
           <div className="flex w-full flex-col md:flex-row md:items-stretch">
             
@@ -112,7 +115,7 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
             {/* Main Content Area */}
             <div className="min-w-0 flex-1 flex-col gap-10 p-6 lg:p-11 flex">
               <div>
-                <h1 className="style-page-title mb-3 text-brand">
+                <h1 className="style-page-title mb-3 bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">
                   Pick Your Next Sidequest
                 </h1>
                 <p className="style-page-subtitle text-ink-muted">
@@ -126,7 +129,7 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
                     No events found.
                   </p>
                   <p className="mt-1.5 style-mobile-body text-ink-muted">
-                    We didn't find any events with the selected filters.
+                    We didn&apos;t find any events with the selected filters.
                   </p>
                   {selectedTags.length > 0 && (
                     <button
@@ -200,6 +203,7 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
             </div>
 
           </div>
+          <Footer />
         </div>
       </div>
     </>

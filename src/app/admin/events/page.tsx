@@ -8,12 +8,17 @@ import { EventRow } from "@/components/admin/event-row";
 import { Button } from "@/components/ui/button";
 import { MobileAdminEvents } from "@/components/mobile/admin/MobileAdminEvents";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 import type { EventRowData } from "@/components/admin/event-row";
 
 export const metadata: Metadata = {
   title: "AIS Admin — Events",
   description: "Manage AIS events, RSVPs, and check-ins.",
 };
+
+type EventWithRsvps = Prisma.EventGetPayload<{
+  include: { rsvps: { include: { attendance: true } } };
+}>;
 
 function toDisplayStatus(event: { startTime: Date; endTime: Date; isPublished: boolean }) {
   if (!event.isPublished) {
@@ -26,7 +31,7 @@ function toDisplayStatus(event: { startTime: Date; endTime: Date; isPublished: b
 }
 
 // Helper to convert an event into an EventRowData item
-function mapEventToRow(event: any): EventRowData {
+function mapEventToRow(event: EventWithRsvps): EventRowData {
   const now = new Date();
   const isPast = new Date(event.endTime) < now;
 
