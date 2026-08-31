@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Tag } from "@/components/ui/tag";
 import { EventGridCard } from "@/components/events/event-grid-card";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
-import { eventFilterTags } from "@/lib/data";
+import { eventTagGroups } from "@/lib/data";
 import { normalizeEventTags } from "@/lib/event-tags";
 import { formatEventDate } from "@/lib/utils";
 
@@ -111,34 +111,46 @@ export function MobileEventsBrowse({ upcomingEvents: initialUpcoming, pastEvents
           All Events
         </button>
 
-        {eventFilterTags.map((t) => {
-          const isSelected = selectedTags.includes(t.label);
-          return (
-            <button
-              key={t.label}
-              type="button"
-              aria-pressed={isSelected}
-              onClick={() => handleTagClick(t.label)}
-              className="shrink-0 snap-start transition-transform active:scale-95"
-            >
-              {isSelected ? (
-                <Tag
-                  label={t.label}
-                  bg={t.bg}
-                  color={t.color}
-                  className="ring-2 ring-brand/30 ring-offset-2 ring-offset-cream"
-                />
-              ) : (
-                <Tag
-                  label={t.label}
-                  bg={t.bg}
-                  color={t.color}
-                  className="opacity-75 transition-opacity hover:opacity-100"
-                />
-              )}
-            </button>
-          );
-        })}
+        {/* Program tags lead the row; a hairline sets the activity tags apart,
+            the horizontal equivalent of the gap the desktop sidebar uses. */}
+        {eventTagGroups.map((group, groupIndex) => (
+          <Fragment key={group.title}>
+            {groupIndex > 0 && (
+              <span
+                aria-hidden="true"
+                className="mx-[6px] my-[4px] w-px shrink-0 self-stretch bg-border-soft"
+              />
+            )}
+            {group.tags.map((t) => {
+              const isSelected = selectedTags.includes(t.label);
+              return (
+                <button
+                  key={t.label}
+                  type="button"
+                  aria-pressed={isSelected}
+                  onClick={() => handleTagClick(t.label)}
+                  className="shrink-0 snap-start transition-transform active:scale-95"
+                >
+                  {isSelected ? (
+                    <Tag
+                      label={t.label}
+                      bg={t.bg}
+                      color={t.color}
+                      className="ring-2 ring-brand/30 ring-offset-2 ring-offset-cream"
+                    />
+                  ) : (
+                    <Tag
+                      label={t.label}
+                      bg={t.bg}
+                      color={t.color}
+                      className="opacity-75 transition-opacity hover:opacity-100"
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </Fragment>
+        ))}
       </div>
 
       <div className="flex flex-col gap-[28px]">

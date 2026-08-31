@@ -13,15 +13,7 @@ type EventItemInput = {
   type: ItemType;
 };
 
-const validTagValues = [
-  "FOOD",
-  "DRINK",
-  "SOCIAL",
-  "LEARN",
-  "WORKSHOP",
-  "NETWORKING",
-  "INDUSTRY",
-] as const;
+const validTagValues = Object.values(EventTag);
 
 function parseChicagoTimeToUtc(localDateTimeString: string): Date {
   if (!localDateTimeString) return new Date(NaN);
