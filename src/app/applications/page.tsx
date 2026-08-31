@@ -3,6 +3,7 @@
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
 // import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 // import { SectionHeader } from "@/components/ui/section-header";
 // import { StepCard } from "@/components/apply/step-card";
 // import { ProgramCard } from "@/components/apply/program-card";
@@ -370,8 +371,8 @@ export default function ApplyPage() {
     //       <main className="relative w-full pb-16 pt-8">
     //         {/* Header Hero Section */}
     //         <section className="px-8 lg:px-12 pt-4">
-    //           <h1 className="font-display style-page-title lg: font-bold leading-[1.05] tracking-[-0.02em] text-ink [font-variation-settings:'wdth'_100]">
-    //             Choose Your <span className="text-brand">AIS Path</span>
+    //           <h1 className="font-display style-page-title lg: font-bold leading-[1.05] tracking-[-0.02em] [font-variation-settings:'wdth'_100] bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">
+    //             Choose Your AIS Path
     //           </h1>
     //           <p className="mt-3 max-w-4xl style-page-subtitle lg: font-normal leading-relaxed text-ink/80">
     //             Welcome to the enrollment hub. Whether you&apos;re here to learn,
@@ -454,7 +455,9 @@ export default function ApplyPage() {
     // </>
     <>
       {/* --- MOBILE LAYOUT --- */}
-      <div className="flex min-h-screen w-full flex-col bg-cream antialiased md:hidden">
+      <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-cream antialiased md:hidden">
+        <div aria-hidden className="pointer-events-none absolute -top-16 left-[10%] -z-10 h-[300px] w-[300px] rounded-full bg-orange-300/25 blur-[100px]" />
+        <div aria-hidden className="pointer-events-none absolute top-[30%] right-[-10%] -z-10 h-[260px] w-[260px] rounded-full bg-purple-400/20 blur-[100px]" />
         <BottomNav/>
         <main className="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
           <div className="w-full max-w-md rounded-2xl border border-border-soft bg-white/80 p-8 shadow-sm backdrop-blur-xs">
@@ -473,7 +476,10 @@ export default function ApplyPage() {
 
       {/* --- DESKTOP LAYOUT --- */}
       <div className="hidden md:block">
-        <div className="flex min-h-screen w-full flex-col bg-cream antialiased">
+        <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-cream antialiased">
+          <div aria-hidden className="pointer-events-none absolute -top-24 left-[15%] -z-10 h-[420px] w-[420px] rounded-full bg-orange-300/25 blur-[110px]" />
+          <div aria-hidden className="pointer-events-none absolute top-[20%] right-[10%] -z-10 h-[380px] w-[380px] rounded-full bg-purple-400/20 blur-[110px]" />
+
           <Navbar active="Apply" />
 
           <main className="relative flex flex-1 w-full flex-col items-center justify-center pb-16 pt-8">
@@ -491,6 +497,7 @@ export default function ApplyPage() {
               </div>
             </section>
           </main>
+          <Footer />
         </div>
       </div>
     </>

@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "@/components/ui/section-header";
 import { currentUser } from "@clerk/nextjs/server";
@@ -8,11 +10,14 @@ import { SignOutButton } from "@clerk/nextjs";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { getProfileCompletion } from "@/lib/dashboard-utils";
+import { getMemberById } from "@/lib/members/view-model";
+import { getActivityBadge } from "@/lib/profile-activity";
 import { revalidatePath } from "next/cache";
 import { MobileProfile } from "@/components/mobile/profile/MobileProfile";
 import { PasswordResetButton } from "@/components/profile/PasswordResetButton";
-import { UTD_MAJORS, UTD_DEGREES, ACADEMIC_YEARS } from "@/lib/utd-data";
 import { ResumeUploadButton } from "@/components/profile/ResumeUploadButton";
+import { SaveStatusToast } from "@/components/profile/SaveStatusToast";
+import { UTD_MAJORS, UTD_DEGREES, ACADEMIC_YEARS } from "@/lib/utd-data";
 
 export default async function ProfilePage() {
   const clerkUser = await currentUser();
@@ -37,6 +42,8 @@ export default async function ProfilePage() {
 
   const profile = user.profile;
   const completion = await getProfileCompletion(user.id);
+  const member = await getMemberById(user.id);
+  const activityBadge = await getActivityBadge(user.id);
 
   async function updateProfile(formData: FormData) {
     "use server";
@@ -68,79 +75,100 @@ export default async function ProfilePage() {
   return (
     <>
       <div className="md:hidden">
-        <MobileProfile profile={profile} completion={completion} updateProfile={updateProfile} />
+        <MobileProfile
+          profile={profile}
+          completion={completion}
+          updateProfile={updateProfile}
+          roleBadges={member?.roles}
+          activityBadge={activityBadge}
+        />
       </div>
 
       <div className="hidden md:block">
-        <div className="flex min-h-screen w-full flex-col bg-cream font-[Inter]">
+        <div className="flex min-h-screen w-full flex-col bg-cream">
           <Navbar active="Profile" />
 
           <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[28px] px-[46px] pb-[46px] pt-[45px]">
-            <h1 className="style-page-title  leading-[43.2px] tracking-[-0.4px] text-brand">
+            <h1 className="style-page-title leading-[43.2px] tracking-[-0.4px] bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">
               Profile
             </h1>
 
             {completion.percent < 100 && (
               <div className="flex w-full items-center justify-between rounded-lg bg-[#f9d5d3] px-[21px] py-[16px] mt-[16px]">
-                <span className="style-body-text  font-bold ">
+                <span className="style-body-text font-bold text-[#9a3b36]">
                   Your profile is {completion.percent}% complete. Please complete the highlighted fields to reach 100%!
                 </span>
               </div>
             )}
 
-            <form key={profile.updatedAt.toString()} action={updateProfile} className="flex flex-col xl:flex-row gap-[24px] mt-[28px]">
-              {/* LEFT COLUMN */}
-              <div className="flex w-full xl:w-[400px] shrink-0 flex-col gap-[24px]">
-                
-                {/* USER INFO CARD */}
-                <Card className="flex flex-col items-center justify-center p-[40px] gap-[20px]">
-                  <div className="flex size-[140px] shrink-0 items-center justify-center rounded-full bg-photo">
-                    <span className="style-meta-text  tracking-[1.5px] text-photo-text">PHOTO</span>
-                  </div>
-                  <h2 className="style-card-title  tracking-[-0.4px] text-ink uppercase">
-                    {profile.firstName} {profile.lastName}
-                  </h2>
+            <form key={profile.updatedAt.toString()} action={updateProfile} className="flex flex-col gap-[24px] mt-[28px]">
+              {/* USER INFO BAR */}
+              <Card className="flex w-full flex-col items-start justify-between gap-[16px] p-[29px] sm:flex-row sm:items-center">
+                <h2 className="style-card-title tracking-[-0.4px] text-ink uppercase">
+                  {profile.firstName} {profile.lastName}
+                </h2>
+                <div className="flex flex-wrap items-center gap-[10px]">
+                  {member?.roles.map((roleBadge) => (
+                    <Badge
+                      key={roleBadge.label}
+                      label={roleBadge.label}
+                      variant={roleBadge.outline ? "outline" : "solid"}
+                      bg={roleBadge.bg}
+                      color={roleBadge.color}
+                    />
+                  ))}
+                  <Badge
+                    label={activityBadge.label}
+                    variant={activityBadge.outline ? "outline" : "solid"}
+                    bg={activityBadge.bg}
+                    color={activityBadge.color}
+                  />
                   <div className="rounded-full bg-pill-amber px-[20px] py-[6px]">
-                    <span className="style-badge-text text-orange-text  tracking-widest uppercase">
+                    <span className="style-badge-text text-orange-text tracking-widest uppercase">
                       {profile.major} · {profile.year}
                     </span>
                   </div>
-                </Card>
+                </div>
+              </Card>
+
+              <div className="flex flex-col xl:flex-row gap-[24px]">
+              {/* LEFT COLUMN */}
+              <div className="flex w-full xl:w-[400px] shrink-0 flex-col gap-[24px]">
 
                 {/* LINKS CARD */}
                 <Card className="flex flex-col p-[29px] gap-[20px]">
                   <SectionHeader title="Links" />
-                  
+
                   <div className="flex flex-col gap-[16px]">
                     <div className="flex items-center gap-[16px]">
-                      <span className="style-label-text  text-ink w-[80px]">LinkedIn</span>
-                      <input 
+                      <span className="style-label-text text-ink w-[80px]">LinkedIn</span>
+                      <input
                         name="linkedinUrl"
                         defaultValue={profile.linkedinUrl || ""}
                         placeholder="https://linkedin.com/in/..."
                         className={cn(
-                          "h-[40px] flex-1 rounded-lg bg-field border px-[16px] style-input-text  text-ink focus:outline-none focus:border-brand",
+                          "h-[40px] flex-1 rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
                           !profile.linkedinUrl ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
                         )}
                       />
                     </div>
 
                     <div className="flex items-center gap-[16px]">
-                      <span className="style-label-text  text-ink w-[80px]">Github</span>
-                      <input 
+                      <span className="style-label-text text-ink w-[80px]">Github</span>
+                      <input
                         name="githubUrl"
                         defaultValue={profile.githubUrl || ""}
                         placeholder="https://github.com/..."
                         className={cn(
-                          "h-[40px] flex-1 rounded-lg bg-field border px-[16px] style-input-text  text-ink focus:outline-none focus:border-brand",
+                          "h-[40px] flex-1 rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
                           !profile.githubUrl ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
                         )}
                       />
                     </div>
-                  </div>
-                  <div className="flex items-center gap-[16px]">
-                      <span className="style-label-text font-bold  text-ink w-[80px]">Portfolio</span>
-                      <input 
+
+                    <div className="flex items-center gap-[16px]">
+                      <span className="style-label-text text-ink w-[80px]">Portfolio</span>
+                      <input
                         name="portfolioUrl"
                         defaultValue={profile.portfolioUrl || ""}
                         placeholder="https://..."
@@ -150,66 +178,75 @@ export default async function ProfilePage() {
                         )}
                       />
                     </div>
+                  </div>
+                </Card>
+
+                {/* RESUME UPLOAD CARD */}
+                <Card className="flex flex-col p-[29px] gap-[20px]">
+                  <SectionHeader title="Resume Upload" />
+
+                  <ResumeUploadButton
+                    initialFileName={profile.resumeFile?.fileName}
+                    hasResume={!!profile.resumeFileId}
+                  />
                 </Card>
               </div>
 
               {/* RIGHT COLUMN */}
               <div className="flex w-full flex-1 flex-col gap-[24px]">
-                
+
                 {/* PERSONAL INFO CARD */}
                 <Card className="flex flex-col p-[29px] gap-[20px]">
                   <SectionHeader title="Personal Info" />
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-[32px] gap-y-[20px]">
                     <div className="flex flex-col gap-2">
-                      <span className="style-label-text  text-ink-muted">First Name</span>
-                      <input 
+                      <span className="style-label-text text-ink-muted">First Name</span>
+                      <input
                         name="firstName"
                         defaultValue={profile.firstName}
                         className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
-                        readOnly
                       />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <span className="style-label-text  text-ink-muted">Last Name</span>
-                      <input 
+                      <span className="style-label-text text-ink-muted">Last Name</span>
+                      <input
                         name="lastName"
                         defaultValue={profile.lastName}
                         className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
-                        readOnly
                       />
-                    </div><div className="flex flex-col gap-2">
-                      <span className="style-label-text font-bold  text-ink-muted">Preferred Name</span>
-                      <input 
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <span className="style-label-text text-ink-muted">Preferred Name</span>
+                      <input
                         name="prefName"
                         defaultValue={profile.prefName ?? ""}
                         className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
                       />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <span className="style-label-text  text-ink-muted">Email</span>
-                      <input 
+                      <span className="style-label-text text-ink-muted">Email</span>
+                      <input
                         name="utdEmail"
                         defaultValue={profile.utdEmail || ""}
                         className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
-                        
                       />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <span className="style-label-text  text-ink-muted">UTD ID</span>
-                      <input 
+                      <span className="style-label-text text-ink-muted">UTD ID</span>
+                      <input
                         name="utdNetId"
                         defaultValue={profile.utdNetId || ""}
-                        className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text  text-ink focus:outline-none focus:border-brand"
+                        className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
                       />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <span className="style-label-text  text-ink-muted">Major</span>
-                      <select 
+                      <span className="style-label-text text-ink-muted">Major</span>
+                      <select
                         name="major"
                         defaultValue={profile.major ?? ""}
                         className={cn(
-                          "h-11 rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
+                          "h-11 w-full rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
                           !profile.major ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
                         )}
                       >
@@ -222,14 +259,15 @@ export default async function ProfilePage() {
                       </select>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <span className="font-[Inter] font-bold  text-ink-muted">Degree</span>
-                      <select 
+                      <span className="style-label-text text-ink-muted">Degree</span>
+                      <select
                         name="degree"
                         defaultValue={profile.degree ?? ""}
                         className={cn(
-                          "h-11 rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
+                          "h-11 w-full rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
                           !profile.degree ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
-                        )}                      >
+                        )}
+                      >
                         <option value="">Select your degree</option>
                         {UTD_DEGREES.map((degree) => (
                           <option key={degree} value={degree}>
@@ -239,12 +277,12 @@ export default async function ProfilePage() {
                       </select>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <span className="style-label-text  text-ink-muted">Academic Year</span>
-                      <select 
+                      <span className="style-label-text text-ink-muted">Academic Year</span>
+                      <select
                         name="year"
                         defaultValue={profile.year ?? ""}
                         className={cn(
-                          "h-11 rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
+                          "h-11 w-full rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
                           !profile.year ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
                         )}
                       >
@@ -265,41 +303,12 @@ export default async function ProfilePage() {
 
                   <div className="flex items-center justify-between rounded-[12px] bg-[var(--color-pill-amber)] p-[20px]">
                     <div className="flex flex-col gap-[4px] pr-4">
-                      <span className="style-card-title  text-orange-text">Change Password</span>
-                      <span className="style-body-text  text-orange-text leading-tight">Update your account password safely.</span>
+                      <span className="style-card-title text-orange-text">Change Password</span>
+                      <span className="style-body-text text-orange-text leading-tight">Update your account password safely.</span>
                     </div>
-                    
+
                     {/* Render the Client Component Button here */}
                     <PasswordResetButton />
-                  </div>
-                </Card>
-
-                {/* RESUME UPLOAD CARD */}
-                <Card className="flex flex-col p-[29px] gap-[20px]">
-                  <SectionHeader title="Resume Upload" />
-                  
-                  <div className={cn(
-                    "flex flex-col md:flex-row items-start md:items-center justify-between rounded-[12px] border-[2px] p-[24px] gap-[20px]",
-                    !profile.resumeFileId ? "border-red-500 border-solid bg-red-50" : "border-dashed border-frame bg-[#f9f8f6]"
-                  )}>
-                    <div className="flex items-center gap-[20px]">
-                      <div className="flex size-[64px] shrink-0 items-center justify-center rounded-full bg-featured">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2f5fe8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                          <path d="M14 2v6h6"></path>
-                          <path d="M12 18v-6"></path>
-                          <path d="M9 15l3-3 3 3"></path>
-                        </svg>
-                      </div>
-                      <div className="flex flex-col gap-[4px]">
-                        <span className="style-card-title  text-ink">Upload New Resume</span>
-                        <span className="style-meta-text  text-ink-muted uppercase tracking-wide">PDF, DOC, DOCX, UP TO 10MB.</span>
-                      </div>
-                    </div>
-                    <ResumeUploadButton
-                      initialFileName={profile.resumeFile?.fileName}
-                      hasResume={!!profile.resumeFileId}
-                    />
                   </div>
                 </Card>
 
@@ -307,16 +316,16 @@ export default async function ProfilePage() {
                 <div className="mt-auto flex items-center justify-end gap-[16px] pt-[16px]">
                   {/* SIGN OUT BUTTON */}
                   <SignOutButton redirectUrl="/">
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      size="lg" 
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="lg"
                       className="mr-auto font-black px-[32px] text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
                       Sign Out
                     </Button>
                   </SignOutButton>
-                  
+
                   <Button type="reset" variant="ghost" size="lg" className="font-black px-[32px]">
                     Cancel
                   </Button>
@@ -324,10 +333,13 @@ export default async function ProfilePage() {
                     Apply Changes
                   </Button>
                 </div>
-                
+
               </div>
+              </div>
+              <SaveStatusToast />
             </form>
           </div>
+          <Footer />
         </div>
       </div>
     </>

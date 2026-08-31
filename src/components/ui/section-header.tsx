@@ -28,7 +28,7 @@ export function SectionHeader({
     >
       <h2
         className={cn(
-          "style-section-header  leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]",
+          "style-section-header leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]",
           titleClassName
         )}
       >

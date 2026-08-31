@@ -3,7 +3,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { AccountProvider } from "@/components/account-provider";
 import { getNavAccount } from "@/lib/nav-account";
 import { Analytics } from "@vercel/analytics/next";
-import { Inter, Bricolage_Grotesque } from "next/font/google";
+import { Inter } from "next/font/google";
 import localFont from 'next/font/local';
 
 import "./globals.css";

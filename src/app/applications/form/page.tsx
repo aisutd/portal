@@ -295,7 +295,7 @@ function ApplyFormContent() {
               <div className="inline-flex w-fit rounded-full bg-[#efece3] px-[14px] py-[6px]  font-semibold leading-none text-ink-muted">
                 Already submitted
               </div>
-              <h1 className="style-page-title  leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+              <h1 className="style-page-title leading-[34.56px] tracking-[-0.4px] [font-variation-settings:'wdth'_100] bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">
                 {applicationTitle ?? "Application"}
               </h1>
               <p className="max-w-[560px] style-page-subtitle  leading-[21.75px] text-ink-muted">
@@ -586,7 +586,7 @@ function ApplyFormContent() {
         {/* Application card */}
         <div className="w-full max-w-[1346px] rounded-[18px] border border-border-soft bg-white p-[35px] [filter:drop-shadow(0px_8px_11px_rgba(0,0,0,0.04))]">
           <div className="flex flex-col gap-[24px]">
-            <h1 className="style-page-title  leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+            <h1 className="style-page-title leading-[34.56px] tracking-[-0.4px] [font-variation-settings:'wdth'_100] bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">
               {applicationTitle ?? "Application"}
             </h1>
 
