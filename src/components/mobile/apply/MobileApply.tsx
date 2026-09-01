@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Tag } from "@/components/ui/tag";
 import { Button } from "@/components/ui/button";
@@ -24,13 +25,23 @@ type ApplicationResponse = {
 
 function ApplicationSkeleton() {
   return (
-    <div className="flex flex-col gap-[10px] rounded-[14px] border border-border-soft bg-white p-[16px]">
+    <div className="flex flex-col gap-[10px] rounded-[14px] border border-border-soft bg-white p-[16px] shadow-xs">
       <div className="h-[16px] w-[70%] animate-pulse rounded-full bg-[#efece3]" />
       <div className="h-[12px] w-[90%] animate-pulse rounded-full bg-[#f4f1ea]" />
       <div className="flex gap-[8px]">
         <div className="h-[34px] flex-1 animate-pulse rounded-[8px] bg-[#f4f1ea]" />
         <div className="h-[34px] flex-1 animate-pulse rounded-[8px] bg-[#f4f1ea]" />
       </div>
+    </div>
+  );
+}
+
+function ProgramFlowArrow() {
+  return (
+    <div className="flex justify-center text-brand py-1" aria-hidden="true">
+      <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border-soft bg-[#fbfaf7] text-sm font-medium shadow-xs">
+        ↓
+      </span>
     </div>
   );
 }
@@ -60,7 +71,13 @@ function MobileApplicationSection({
   const displayedItems = shouldCollapse && !isExpanded ? items.slice(0, initialLimit) : items;
 
   return (
-    <div className="flex flex-col gap-[12px]">
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="flex flex-col gap-[12px]"
+    >
       <div className="flex items-center justify-between gap-[8px]">
         <h2 className="font-mobile-display text-[17px] font-bold text-ink">
           {title}
@@ -74,8 +91,19 @@ function MobileApplicationSection({
         </div>
       ) : items.length > 0 ? (
         <div className="flex flex-col gap-[12px]">
-          {displayedItems.map((application) => (
-            <OpenAppRow key={application.id} {...buildRow(application)} />
+          {displayedItems.map((application, idx) => (
+            <motion.div
+              key={application.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.3,
+                delay: idx * 0.06,
+                ease: "easeOut",
+              }}
+            >
+              <OpenAppRow {...buildRow(application)} />
+            </motion.div>
           ))}
 
           {shouldCollapse && (
@@ -86,7 +114,7 @@ function MobileApplicationSection({
                 pill
                 onClick={() => setIsExpanded(!isExpanded)}
                 type="button"
-                className="gap-1 font-bold text-xs shadow-2xs"
+                className="gap-1 font-bold text-xs shadow-2xs transition-all duration-200 hover:shadow-xs"
               >
                 {isExpanded ? (
                   <>Show less ↑</>
@@ -102,7 +130,7 @@ function MobileApplicationSection({
           {emptyMessage}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
 
@@ -143,119 +171,182 @@ export function MobileApply() {
   const closedApplications = sortApplications(applications, "closed");
   const submittedApplications = sortSubmittedApplications(applications);
 
+  const hasActiveApplications = openApplications.length > 0 || upcomingApplications.length > 0;
+
+  const renderOpenSection = () => (
+    <MobileApplicationSection
+      key="open"
+      title="Open Applications"
+      items={openApplications}
+      loading={loading}
+      emptyMessage="There are no open applications right now."
+      buildRow={buildOpenRow}
+      collapsible={true}
+      initialLimit={2}
+    />
+  );
+
+  const renderUpcomingSection = () => (
+    <MobileApplicationSection
+      key="upcoming"
+      title="Upcoming Applications"
+      items={upcomingApplications}
+      loading={loading}
+      emptyMessage="There are no upcoming applications."
+      buildRow={buildOpenRow}
+      collapsible={true}
+      initialLimit={2}
+    />
+  );
+
+  const renderSubmittedSection = () => (
+    <MobileApplicationSection
+      key="submitted"
+      title="Submitted Applications"
+      items={submittedApplications}
+      loading={loading}
+      emptyMessage="You have not submitted any applications yet."
+      action={
+        <Button href="/applications/history" variant="ghost" size="sm">
+          View Your Submitted Applications
+        </Button>
+      }
+      buildRow={buildSubmittedRow}
+      collapsible={true}
+      initialLimit={2}
+    />
+  );
+
+  const renderClosedSection = () => (
+    <MobileApplicationSection
+      key="closed"
+      title="Closed Applications"
+      items={closedApplications}
+      loading={loading}
+      emptyMessage="There are no closed applications to show."
+      buildRow={buildOpenRow}
+      collapsible={true}
+      initialLimit={2}
+    />
+  );
+
   return (
     <MobileScreen>
-      <div className="flex flex-col gap-2 pt-4">
-        <h1 className="font-mobile-display font-bold leading-7.5 text-ink">
+      <div className="flex flex-col gap-[6px]">
+        <h1 className="style-page-title leading-tight tracking-tight text-ink">
           Choose Your <span className="bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent pr-3">AIS Path</span>
         </h1>
-        <p className="font-mobile-body text-[14px] text-ink">
+        <p className="style-page-subtitle text-ink-muted">
           Welcome to the enrollment hub. Whether you&apos;re here to learn,
           lead, or build, there&apos;s a place waiting for you.
         </p>
       </div>
 
-      {/* Programs */}
+      {/* Program Flow */}
       <div className="flex flex-col gap-[12px]">
-        {programs.map((program) => (
-          <div
-            key={program.title}
-            className="flex flex-col gap-[12px] rounded-[16px] border bg-white p-[18px]"
-            style={{ borderColor: program.borderColor }}
-          >
-            <div className="flex items-center justify-between">
-              {program.image ? (
-                <div
-                  className="relative flex size-[52px] shrink-0 items-center justify-center rounded-[12px] p-[2px] overflow-hidden border border-border-soft/60"
-                  style={{ backgroundColor: `color-mix(in srgb, ${program.iconBg} 20%, transparent)` }}
-                >
-                  <Image
-                    src={program.image}
-                    alt={`${program.title} Logo`}
-                    width={48}
-                    height={48}
-                    className="h-[95%] w-[95%] object-contain mix-blend-multiply"
+        {programs.map((program, index) => (
+          <Fragment key={program.title}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 16 }}
+              whileInView={{ opacity: 1, scale: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{
+                duration: 0.4,
+                delay: index * 0.1,
+                ease: "easeOut",
+              }}
+              className="flex flex-col gap-[12px] rounded-[16px] border bg-white p-[18px]"
+              style={{ borderColor: program.borderColor }}
+            >
+              <div className="flex items-center justify-between">
+                {program.image ? (
+                  <div
+                    className="relative flex size-[52px] shrink-0 items-center justify-center rounded-[12px] p-[2px] overflow-hidden border border-border-soft/60"
+                    style={{ backgroundColor: `color-mix(in srgb, ${program.iconBg} 20%, transparent)` }}
+                  >
+                    <Image
+                      src={program.image}
+                      alt={`${program.title} Logo`}
+                      width={48}
+                      height={48}
+                      className="h-[95%] w-[95%] object-contain mix-blend-multiply"
+                    />
+                  </div>
+                ) : (
+                  <span
+                    className="flex size-[40px] items-center justify-center rounded-[10px] text-[18px]"
+                    style={{ backgroundColor: program.iconBg, color: program.iconColor }}
+                  >
+                    {program.icon}
+                  </span>
+                )}
+                {program.badge && (
+                  <Badge label={program.badge} bg="#fbe3cb" color="#7a4416" />
+                )}
+              </div>
+              <h3 className="font-mobile-display text-[17px] font-bold text-ink">
+                {program.title}
+              </h3>
+              <p className="font-mobile-body text-[13px] text-ink-muted line-clamp-3">
+                {program.description}
+              </p>
+              <div className="flex flex-wrap gap-[6px]">
+                {program.tags.map((label) => (
+                  <Tag
+                    key={label}
+                    label={label}
+                    bg="#efece3"
+                    color="#6a685f"
+                    border="#e2ded2"
                   />
-                </div>
-              ) : (
-                <span
-                  className="flex size-[40px] items-center justify-center rounded-[10px] text-[18px]"
-                  style={{ backgroundColor: program.iconBg, color: program.iconColor }}
-                >
-                  {program.icon}
-                </span>
-              )}
-              {program.badge && (
-                <Badge label={program.badge} bg="#fbe3cb" color="#7a4416" />
-              )}
-            </div>
-            <h3 className="font-mobile-display text-[17px] font-bold text-ink">
-              {program.title}
-            </h3>
-            <p className="font-mobile-body text-[13px] text-ink-muted line-clamp-3">
-              {program.description}
-            </p>
-            <div className="flex flex-wrap gap-[6px]">
-              {program.tags.map((label) => (
-                <Tag
-                  key={label}
-                  label={label}
-                  bg="#efece3"
-                  color="#6a685f"
-                  border="#e2ded2"
-                />
-              ))}
-            </div>
-          </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {index < programs.length - 1 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.3, delay: index * 0.1 + 0.05 }}
+              >
+                <ProgramFlowArrow />
+              </motion.div>
+            )}
+          </Fragment>
         ))}
       </div>
 
-      {/* Slogan banner (bleeds past the screen padding) */}
+      {/* Slogan banner */}
       <div className="-mx-[20px]">
         <Marquee text="JOIN THE MOVEMENT · AIS UTD · BUILD THE FUTURE · LEARN. BUILD. LEAD. · YOUR AI COMMUNITY AT UTD · AIS UTD" />
       </div>
 
-      <MobileApplicationSection
-        title="Open Applications"
-        items={openApplications}
-        loading={loading}
-        emptyMessage="There are no open applications right now."
-        buildRow={buildOpenRow}
-        collapsible={true}
-        initialLimit={2}
-      />
-      <MobileApplicationSection
-        title="Upcoming Applications"
-        items={upcomingApplications}
-        loading={loading}
-        emptyMessage="There are no upcoming applications."
-        buildRow={buildOpenRow}
-        collapsible={true}
-        initialLimit={2}
-      />
-      <MobileApplicationSection
-        title="Submitted Applications"
-        items={submittedApplications}
-        loading={loading}
-        emptyMessage="You have not submitted any applications yet."
-        action={
-          <Button href="/applications/history" variant="ghost" size="sm">
-            View history
-          </Button>
-        }
-        buildRow={buildSubmittedRow}
-        collapsible={true}
-        initialLimit={2}
-      />
-      <MobileApplicationSection
-        title="Closed Applications"
-        items={closedApplications}
-        loading={loading}
-        emptyMessage="There are no closed applications to show."
-        buildRow={buildOpenRow}
-        collapsible={true}
-        initialLimit={2}
-      />
+      {/* Dynamic Section Rendering */}
+      <div className="flex flex-col gap-6">
+        {loading ? (
+          <>
+            {renderOpenSection()}
+            {renderUpcomingSection()}
+            {renderSubmittedSection()}
+            {renderClosedSection()}
+          </>
+        ) : hasActiveApplications ? (
+          <>
+            {renderOpenSection()}
+            {renderUpcomingSection()}
+            {renderSubmittedSection()}
+            {renderClosedSection()}
+          </>
+        ) : (
+          <>
+            {renderSubmittedSection()}
+            {renderOpenSection()}
+            {renderUpcomingSection()}
+            {renderClosedSection()}
+          </>
+        )}
+      </div>
 
       <BottomNav />
     </MobileScreen>

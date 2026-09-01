@@ -11,11 +11,9 @@ function extractCleanFileName(urlOrPath: string): string {
   try {
     const parsed = new URL(urlOrPath);
     const rawName = parsed.pathname.split("/").pop() || "Uploaded File";
-    // Decodes URI components and strips standard UUID prefixes (36 chars + optional underscore)
     const decoded = decodeURIComponent(rawName);
     return decoded.replace(/^[a-f0-9-]{36}_?/i, "").replace(/^\d+_\s*/, "");
   } catch {
-    // Direct string fallback
     return decodeURIComponent(urlOrPath.split("/").pop() || "Uploaded File")
       .replace(/^[a-f0-9-]{36}_?/i, "")
       .replace(/^\d+_\s*/, "");
@@ -60,7 +58,11 @@ export function ReadOnlyField({ label, value, config }: ReadOnlyFieldProps) {
     }
   }
 
-  // Multi-line detection: config type, essay type, string length, or explicit newlines
+  // Fallback resume download link if non-JSON profile resume value
+  if (cleanLabel === "Resume" && !fileUrl) {
+    fileUrl = "/api/profile/resume/download";
+  }
+
   const isLongText =
     rawType === "LONG_TEXT" ||
     rawType === "LONGTEXT" ||
@@ -77,13 +79,13 @@ export function ReadOnlyField({ label, value, config }: ReadOnlyFieldProps) {
   if (isFileField) {
     return (
       <div className="flex w-full flex-col gap-1.5">
-        <label className="style-label-text text-ink-muted font-medium">{displayLabel}</label>
+        <label className="style-label-text font-medium text-ink-muted">{displayLabel}</label>
         <div className="flex h-11 w-full items-center justify-between rounded-xl border border-border-soft/60 bg-[#f5f4f0] px-3.5 text-sm">
           <div className="flex items-center gap-2 truncate">
             <svg className="h-4 w-4 shrink-0 text-ink-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <span className={`truncate ${isUnspecified ? "text-ink-faint italic" : "font-medium text-ink"}`}>
+            <span className={`truncate ${isUnspecified ? "italic text-ink-faint" : "font-medium text-ink"}`}>
               {displayFileName || "No file uploaded"}
             </span>
           </div>
@@ -106,8 +108,8 @@ export function ReadOnlyField({ label, value, config }: ReadOnlyFieldProps) {
   if (isLongText) {
     return (
       <div className="col-span-1 flex flex-col gap-1.5 sm:col-span-2">
-        <label className="style-label-text text-ink-muted font-medium">{displayLabel}</label>
-        <div className={`min-h-[140px] w-full rounded-xl border border-border-soft/60 bg-[#f5f4f0] p-4 style-body-text whitespace-pre-wrap leading-relaxed ${isUnspecified ? "text-ink-faint italic" : "text-ink"}`}>
+        <label className="style-label-text font-medium text-ink-muted">{displayLabel}</label>
+        <div className={`style-body-text min-h-[140px] w-full whitespace-pre-wrap rounded-xl border border-border-soft/60 bg-[#f5f4f0] p-4 leading-relaxed ${isUnspecified ? "italic text-ink-faint" : "text-ink"}`}>
           {formattedValue}
         </div>
       </div>
@@ -117,8 +119,8 @@ export function ReadOnlyField({ label, value, config }: ReadOnlyFieldProps) {
   // 3. STANDARD SINGLE-LINE REVIEW FIELD
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="style-label-text text-ink-muted font-medium">{displayLabel}</label>
-      <div className={`flex h-11 w-full items-center rounded-xl border border-border-soft/60 bg-[#f5f4f0] px-3.5 style-body-text ${isUnspecified ? "text-ink-faint italic" : "text-ink"}`}>
+      <label className="style-label-text font-medium text-ink-muted">{displayLabel}</label>
+      <div className={`style-body-text flex h-11 w-full items-center rounded-xl border border-border-soft/60 bg-[#f5f4f0] px-3.5 ${isUnspecified ? "italic text-ink-faint" : "text-ink"}`}>
         <span className="truncate">{formattedValue}</span>
       </div>
     </div>

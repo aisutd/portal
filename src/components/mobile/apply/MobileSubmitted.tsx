@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { MobileReadOnlyField } from "@/components/mobile/apply/MobileReadOnlyField";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
@@ -15,6 +17,7 @@ import {
   toFieldValues,
   type ApplicationFormLayout,
   type FieldValues,
+  type QuestionConfig,
 } from "@/lib/application-form";
 
 type SubmissionResponse = {
@@ -26,7 +29,7 @@ type SubmissionResponse = {
     application: {
       title: string;
       retentionUntil: string | null;
-      questions: string[];
+      questions: (string | QuestionConfig)[];
     };
   };
 };
@@ -70,7 +73,7 @@ function getStatusBadge(status: string) {
 
 function LoadingState() {
   return (
-    <div className="flex flex-col gap-[12px]">
+    <div className="flex flex-col gap-[12px] animate-pulse">
       <div className="h-[22px] w-[70%] rounded-full bg-[#efece3]" />
       <div className="h-[14px] w-[50%] rounded-full bg-[#f4f1ea]" />
       <div className="flex flex-col gap-[14px]">
@@ -98,6 +101,7 @@ export function MobileSubmitted() {
   const submissionId = searchParams.get("submissionId");
   const [submission, setSubmission] = useState<SubmissionResponse["submission"] | null>(null);
   const [layout, setLayout] = useState<ApplicationFormLayout>(EMPTY_LAYOUT);
+  const [questionsMap, setQuestionsMap] = useState<Record<string, QuestionConfig>>({});
   const [fieldValues, setFieldValues] = useState<FieldValues>({});
   const [extraAnswers, setExtraAnswers] = useState<Array<[string, string]>>([]);
   const [loading, setLoading] = useState(true);
@@ -133,9 +137,24 @@ export function MobileSubmitted() {
         }
 
         const payload = (await response.json()) as SubmissionResponse;
-        const nextLayout = buildFormLayout(payload.submission.application.questions);
+        const rawQuestions = payload.submission.application.questions ?? [];
+        const qMap: Record<string, QuestionConfig> = {};
+        const normalizedLabels: string[] = [];
+
+        rawQuestions.forEach((q) => {
+          if (typeof q === "string") {
+            qMap[q] = { label: q, type: "TEXT" };
+            normalizedLabels.push(q);
+          } else if (q && typeof q === "object" && q.label) {
+            qMap[q.label] = q;
+            normalizedLabels.push(q.label);
+          }
+        });
+
+        const nextLayout = buildFormLayout(normalizedLabels);
         const answers = payload.submission.formPayloadJson;
 
+        setQuestionsMap(qMap);
         setSubmission(payload.submission);
         setLayout(nextLayout);
         setFieldValues(
@@ -166,13 +185,30 @@ export function MobileSubmitted() {
 
   return (
     <MobileScreen>
-      <div className="flex flex-col gap-[6px]">
-        <h1 className="style-mobile-title text-ink">
-          Submitted Application
-        </h1>
-        <p className="style-mobile-body text-ink-muted">
-          View your submitted answers in read-only form.
-        </p>
+      <div className="flex flex-col gap-[14px]">
+        <Link
+          href="/applications"
+          className="style-caption leading-[16.8px] tracking-[0.2px] text-brand"
+        >
+          ← Back to Applications
+        </Link>
+
+        <div className="flex flex-col gap-[12px]">
+          <div className="flex flex-col gap-[6px]">
+            <h1 className="style-mobile-title text-ink">
+              Submitted Application
+            </h1>
+            <p className="style-mobile-body text-ink-muted">
+              View your submitted answers in read-only form.
+            </p>
+          </div>
+
+          <div>
+            <Button href="/applications/history" variant="ghost" size="md">
+              View Other Submitted Applications
+            </Button>
+          </div>
+        </div>
       </div>
 
       {loading ? (
@@ -209,8 +245,8 @@ export function MobileSubmitted() {
                   key={label}
                   label={label}
                   value={fieldValues[label] ?? ""}
+                  config={questionsMap[label]}
                   multiline={index > 0}
-                  linkResume
                 />
               ))}
             </div>
@@ -226,8 +262,8 @@ export function MobileSubmitted() {
                   key={label}
                   label={label}
                   value={value}
+                  config={questionsMap[label]}
                   multiline
-                  linkResume
                 />
               ))}
             </div>
