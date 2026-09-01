@@ -6,6 +6,7 @@ export type StatusKey = "active" | "atRisk" | "inactive";
 /** Permission badges. MEMBER has no badge of its own — see role.ts. */
 export const USER_ROLE_BADGES: Record<UserRole, MemberBadge> = {
   EXECUTIVE: { label: "Executive", bg: "#dfe0f6", color: "#332b78" },
+  DIRECTOR: { label: "Director", bg: "d9f2f2", color: "0d5c5c"},
   OFFICER: { label: "Officer", bg: "#e1e8ff", color: "#1f3aa3" },
   MEMBER: { label: "Member", outline: true },
 };
