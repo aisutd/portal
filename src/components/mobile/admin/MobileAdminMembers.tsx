@@ -12,6 +12,7 @@ import type { MembersViewModel } from "@/lib/members/view-model";
 import Link from "next/link";
 
 function RoleStatus({ badge }: { badge: MemberBadge }) {
+  if (!badge) return null;
   return badge.outline ? (
     <Badge label={badge.label} variant="outline" />
   ) : (
@@ -83,17 +84,19 @@ export function MobileAdminMembers({
                     memberId={m.id}
                     memberName={m.name}
                     role={m.userRole}
+                    team={m.team}
                     programs={m.programs}
                   />
                 ) : (
-                  <span aria-hidden className=" leading-none text-ink-faint">
+                  <span aria-hidden className="leading-none text-ink-faint">
                     ⋯
                   </span>
                 )}
               </div>
               <div className="flex flex-wrap items-center gap-[8px]">
-                {m.roles.map((badge) => (
-                  <RoleStatus key={badge.label} badge={badge} />
+                {/* Fixed: filter(Boolean) prevents undefined errors */}
+                {m.roles?.filter(Boolean).map((badge, idx) => (
+                  <RoleStatus key={badge.label ?? idx} badge={badge} />
                 ))}
                 <MemberStatusPopover
                   memberName={m.name}

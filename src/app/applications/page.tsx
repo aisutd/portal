@@ -426,8 +426,8 @@ export default function ApplyPage() {
           <main className="relative w-full pb-16 pt-8">
             {/* Header Hero Section */}
             <section className="px-8 lg:px-12 pt-4">
-              <h1 className="font-display style-page-title text-4xl lg:text-5xl font-bold leading-[1.05] tracking-[-0.02em] text-ink [font-variation-settings:'wdth'_100]">
-                Choose Your <span className="bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">AIS Path</span>
+              <h1 className="font-display style-page-title lg:text-5xl font-bold leading-[1.05] tracking-[-0.02em] text-ink [font-variation-settings:'wdth'_100]">
+                Choose Your <span className="bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent pr-3">AIS Path</span>
               </h1>
               <p className="mt-3 max-w-4xl style-page-subtitle lg: font-normal leading-relaxed text-ink/80">
                 Welcome to the enrollment hub. Whether you&apos;re here to learn,

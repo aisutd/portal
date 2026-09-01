@@ -121,12 +121,12 @@ async function resolveEventImageUrl(
 
   return publicUrl;
 }
+const ALLOWED_ROLES = ["EXECUTIVE", "DIRECTOR", "OFFICER"];
 
 function authorizeAdminUser(user: { role: string } | null) {
   if (!user) {
     redirect("/onboarding");
-  }
-  else if (user.role !== "EXECUTIVE" && user.role !== "OFFICER") {
+  } else if (!ALLOWED_ROLES.includes(user.role)) {
     throw new Error("Unauthorized action.");
   }
 }

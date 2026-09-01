@@ -49,6 +49,8 @@ export default async function ProfilePage() {
         firstName: formData.get("firstName") as string,
         lastName: formData.get("lastName") as string,
         prefName: formData.get("prefName") as string,
+        phoneNumber: formData.get("phoneNumber") as string,
+        personalEmail: formData.get("personalEmail") as string,
         utdEmail: formData.get("utdEmail") as string,
         utdNetId: formData.get("utdNetId") as string,
         major: formData.get("major") as string,
@@ -57,7 +59,7 @@ export default async function ProfilePage() {
         linkedinUrl: formData.get("linkedinUrl") as string,
         githubUrl: formData.get("githubUrl") as string,
         portfolioUrl: formData.get("portfolioUrl") as string,
-      }
+      },
     });
 
     revalidatePath("/profile");
@@ -96,215 +98,235 @@ export default async function ProfilePage() {
                 </h2>
                 <div className="rounded-full bg-pill-amber px-[20px] py-[6px]">
                   <span className="style-badge-text text-orange-text tracking-widest uppercase">
-                    {profile.major} · {profile.year}
+                    {profile.major || "No Major Set"} · {profile.year || "No Year Set"}
                   </span>
                 </div>
               </Card>
 
               <div className="flex flex-col xl:flex-row gap-[24px]">
-              {/* LEFT COLUMN */}
-              <div className="flex w-full xl:w-[400px] shrink-0 flex-col gap-[24px]">
+                {/* LEFT COLUMN */}
+                <div className="flex w-full xl:w-[400px] shrink-0 flex-col gap-[24px]">
+                  {/* LINKS CARD */}
+                  <Card className="flex flex-col p-[29px] gap-[20px]">
+                    <SectionHeader title="Links" />
 
-                {/* LINKS CARD */}
-                <Card className="flex flex-col p-[29px] gap-[20px]">
-                  <SectionHeader title="Links" />
+                    <div className="flex flex-col gap-[16px]">
+                      <div className="flex items-center gap-[16px]">
+                        <span className="style-label-text text-ink w-[80px]">LinkedIn</span>
+                        <input
+                          name="linkedinUrl"
+                          defaultValue={profile.linkedinUrl || ""}
+                          placeholder="https://linkedin.com/in/..."
+                          className={cn(
+                            "h-[40px] flex-1 rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
+                            !profile.linkedinUrl ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                          )}
+                        />
+                      </div>
 
-                  <div className="flex flex-col gap-[16px]">
-                    <div className="flex items-center gap-[16px]">
-                      <span className="style-label-text text-ink w-[80px]">LinkedIn</span>
-                      <input
-                        name="linkedinUrl"
-                        defaultValue={profile.linkedinUrl || ""}
-                        placeholder="https://linkedin.com/in/..."
-                        className={cn(
-                          "h-[40px] flex-1 rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
-                          !profile.linkedinUrl ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
-                        )}
-                      />
+                      <div className="flex items-center gap-[16px]">
+                        <span className="style-label-text text-ink w-[80px]">Github</span>
+                        <input
+                          name="githubUrl"
+                          defaultValue={profile.githubUrl || ""}
+                          placeholder="https://github.com/..."
+                          className={cn(
+                            "h-[40px] flex-1 rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
+                            !profile.githubUrl ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                          )}
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-[16px]">
+                        <span className="style-label-text text-ink w-[80px]">Portfolio</span>
+                        <input
+                          name="portfolioUrl"
+                          defaultValue={profile.portfolioUrl || ""}
+                          placeholder="https://..."
+                          className={cn(
+                            "h-[40px] flex-1 rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
+                            !profile.portfolioUrl ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                          )}
+                        />
+                      </div>
                     </div>
+                  </Card>
 
-                    <div className="flex items-center gap-[16px]">
-                      <span className="style-label-text text-ink w-[80px]">Github</span>
-                      <input
-                        name="githubUrl"
-                        defaultValue={profile.githubUrl || ""}
-                        placeholder="https://github.com/..."
-                        className={cn(
-                          "h-[40px] flex-1 rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
-                          !profile.githubUrl ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
-                        )}
-                      />
-                    </div>
+                  {/* RESUME UPLOAD CARD */}
+                  <Card className="flex flex-col p-[29px] gap-[20px]">
+                    <SectionHeader title="Resume Upload" />
 
-                    <div className="flex items-center gap-[16px]">
-                      <span className="style-label-text text-ink w-[80px]">Portfolio</span>
-                      <input
-                        name="portfolioUrl"
-                        defaultValue={profile.portfolioUrl || ""}
-                        placeholder="https://..."
-                        className={cn(
-                          "h-[40px] flex-1 rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
-                          !profile.portfolioUrl ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
-                        )}
-                      />
-                    </div>
-                  </div>
-                </Card>
-
-                {/* RESUME UPLOAD CARD */}
-                <Card className="flex flex-col p-[29px] gap-[20px]">
-                  <SectionHeader title="Resume Upload" />
-
-                  <ResumeUploadButton
-                    initialFileName={profile.resumeFile?.fileName}
-                    hasResume={!!profile.resumeFileId}
-                  />
-                </Card>
-              </div>
-
-              {/* RIGHT COLUMN */}
-              <div className="flex w-full flex-1 flex-col gap-[24px]">
-
-                {/* PERSONAL INFO CARD */}
-                <Card className="flex flex-col p-[29px] gap-[20px]">
-                  <SectionHeader title="Personal Info" />
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-[32px] gap-y-[20px]">
-                    <div className="flex flex-col gap-2">
-                      <span className="style-label-text text-ink-muted">First Name</span>
-                      <input
-                        name="firstName"
-                        defaultValue={profile.firstName}
-                        className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <span className="style-label-text text-ink-muted">Last Name</span>
-                      <input
-                        name="lastName"
-                        defaultValue={profile.lastName}
-                        className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <span className="style-label-text text-ink-muted">Preferred Name</span>
-                      <input
-                        name="prefName"
-                        defaultValue={profile.prefName ?? ""}
-                        className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <span className="style-label-text text-ink-muted">Email</span>
-                      <input
-                        name="utdEmail"
-                        defaultValue={profile.utdEmail || ""}
-                        className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <span className="style-label-text text-ink-muted">UTD ID</span>
-                      <input
-                        name="utdNetId"
-                        defaultValue={profile.utdNetId || ""}
-                        className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <span className="style-label-text text-ink-muted">Major</span>
-                      <select
-                        name="major"
-                        defaultValue={profile.major ?? ""}
-                        className={cn(
-                          "h-11 w-full rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
-                          !profile.major ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
-                        )}
-                      >
-                        <option value="">Select your major</option>
-                        {UTD_MAJORS.map((major) => (
-                          <option key={major} value={major}>
-                            {major}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <span className="style-label-text text-ink-muted">Degree</span>
-                      <select
-                        name="degree"
-                        defaultValue={profile.degree ?? ""}
-                        className={cn(
-                          "h-11 w-full rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
-                          !profile.degree ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
-                        )}
-                      >
-                        <option value="">Select your degree</option>
-                        {UTD_DEGREES.map((degree) => (
-                          <option key={degree} value={degree}>
-                            {degree}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <span className="style-label-text text-ink-muted">Academic Year</span>
-                      <select
-                        name="year"
-                        defaultValue={profile.year ?? ""}
-                        className={cn(
-                          "h-11 w-full rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
-                          !profile.year ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
-                        )}
-                      >
-                        <option value="">Select your year</option>
-                        {ACADEMIC_YEARS.map((year) => (
-                          <option key={year} value={year}>
-                            {year}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </Card>
-
-                {/* SECURITY CARD */}
-                <Card className="flex flex-col p-[29px] gap-[20px]">
-                  <SectionHeader title="Security" />
-
-                  <div className="flex items-center justify-between rounded-[12px] bg-[var(--color-pill-amber)] p-[20px]">
-                    <div className="flex flex-col gap-[4px] pr-4">
-                      <span className="style-card-title text-orange-text">Change Password</span>
-                      <span className="style-body-text text-orange-text leading-tight">Update your account password safely.</span>
-                    </div>
-
-                    {/* Render the Client Component Button here */}
-                    <PasswordResetButton />
-                  </div>
-                </Card>
-
-                {/* ACTIONS */}
-                <div className="mt-auto flex items-center justify-end gap-[16px] pt-[16px]">
-                  {/* SIGN OUT BUTTON */}
-                  <SignOutButton redirectUrl="/">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="lg"
-                      className="mr-auto font-black px-[32px] text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      Sign Out
-                    </Button>
-                  </SignOutButton>
-
-                  <Button type="reset" variant="ghost" size="lg" className="font-black px-[32px]">
-                    Cancel
-                  </Button>
-                  <Button type="submit" variant="primary" size="lg" className="font-black px-[32px]">
-                    Apply Changes
-                  </Button>
+                    <ResumeUploadButton
+                      initialFileName={profile.resumeFile?.fileName}
+                      hasResume={!!profile.resumeFileId}
+                    />
+                  </Card>
                 </div>
 
-              </div>
+                {/* RIGHT COLUMN */}
+                <div className="flex w-full flex-1 flex-col gap-[24px]">
+                  {/* PERSONAL INFO CARD */}
+                  <Card className="flex flex-col p-[29px] gap-[20px]">
+                    <SectionHeader title="Personal Info" />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-[32px] gap-y-[20px]">
+                      <div className="flex flex-col gap-2">
+                        <span className="style-label-text text-ink-muted">First Name</span>
+                        <input
+                          name="firstName"
+                          defaultValue={profile.firstName}
+                          className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <span className="style-label-text text-ink-muted">Last Name</span>
+                        <input
+                          name="lastName"
+                          defaultValue={profile.lastName}
+                          className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <span className="style-label-text text-ink-muted">Preferred Name</span>
+                        <input
+                          name="prefName"
+                          defaultValue={profile.prefName ?? ""}
+                          className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <span className="style-label-text text-ink-muted">Phone Number</span>
+                        <input
+                          name="phoneNumber"
+                          defaultValue={profile.phoneNumber ?? ""}
+                          placeholder="(123) 456-7890"
+                          className={cn(
+                            "h-11 w-full rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
+                            !profile.phoneNumber ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                          )}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <span className="style-label-text text-ink-muted">Personal Email</span>
+                        <input
+                          name="personalEmail"
+                          type="email"
+                          defaultValue={profile.personalEmail ?? ""}
+                          placeholder="john@gmail.com"
+                          className={cn(
+                            "h-11 w-full rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
+                            !profile.personalEmail ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                          )}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <span className="style-label-text text-ink-muted">UTD Email</span>
+                        <input
+                          name="utdEmail"
+                          defaultValue={profile.utdEmail || ""}
+                          className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <span className="style-label-text text-ink-muted">UTD NetID</span>
+                        <input
+                          name="utdNetId"
+                          defaultValue={profile.utdNetId || ""}
+                          className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <span className="style-label-text text-ink-muted">Major</span>
+                        <select
+                          name="major"
+                          defaultValue={profile.major ?? ""}
+                          className={cn(
+                            "h-11 w-full rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
+                            !profile.major ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                          )}
+                        >
+                          <option value="">Select your major</option>
+                          {UTD_MAJORS.map((major) => (
+                            <option key={major} value={major}>
+                              {major}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <span className="style-label-text text-ink-muted">Degree</span>
+                        <select
+                          name="degree"
+                          defaultValue={profile.degree ?? ""}
+                          className={cn(
+                            "h-11 w-full rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
+                            !profile.degree ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                          )}
+                        >
+                          <option value="">Select your degree</option>
+                          {UTD_DEGREES.map((degree) => (
+                            <option key={degree} value={degree}>
+                              {degree}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <span className="style-label-text text-ink-muted">Academic Year</span>
+                        <select
+                          name="year"
+                          defaultValue={profile.year ?? ""}
+                          className={cn(
+                            "h-11 w-full rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
+                            !profile.year ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                          )}
+                        >
+                          <option value="">Select your year</option>
+                          {ACADEMIC_YEARS.map((year) => (
+                            <option key={year} value={year}>
+                              {year}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </Card>
+
+                  {/* SECURITY CARD */}
+                  <Card className="flex flex-col p-[29px] gap-[20px]">
+                    <SectionHeader title="Security" />
+
+                    <div className="flex items-center justify-between rounded-[12px] bg-[var(--color-pill-amber)] p-[20px]">
+                      <div className="flex flex-col gap-[4px] pr-4">
+                        <span className="style-card-title text-orange-text">Change Password</span>
+                        <span className="style-body-text text-orange-text leading-tight">Update your account password safely.</span>
+                      </div>
+
+                      <PasswordResetButton />
+                    </div>
+                  </Card>
+
+                  {/* ACTIONS */}
+                  <div className="mt-auto flex items-center justify-end gap-[16px] pt-[16px]">
+                    <SignOutButton redirectUrl="/">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="lg"
+                        className="mr-auto font-black px-[32px] text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        Sign Out
+                      </Button>
+                    </SignOutButton>
+
+                    <Button type="reset" variant="ghost" size="lg" className="font-black px-[32px]">
+                      Cancel
+                    </Button>
+                    <Button type="submit" variant="primary" size="lg" className="font-black px-[32px]">
+                      Apply Changes
+                    </Button>
+                  </div>
+                </div>
               </div>
             </form>
           </div>

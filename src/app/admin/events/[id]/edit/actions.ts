@@ -75,12 +75,15 @@ function parseTags(rawValue: FormDataEntryValue | FormDataEntryValue[] | null): 
     .filter((tag): tag is EventTag => (VALID_TAG_VALUES as readonly string[]).includes(tag));
 }
 
-async function authorizeAdminUser() {
-  const user = await getAuthenticatedUser();
-  if (!user || (user.role !== "EXECUTIVE" && user.role !== "OFFICER")) {
+const user = await getAuthenticatedUser();
+const ALLOWED_ROLES = ["EXECUTIVE", "DIRECTOR", "OFFICER"];
+
+function authorizeAdminUser(user: { role: string } | null) {
+  if (!user) {
+    redirect("/onboarding");
+  } else if (!ALLOWED_ROLES.includes(user.role)) {
     throw new Error("Unauthorized action.");
   }
-  return user;
 }
 
 async function resolveEventImageUrl(
@@ -135,7 +138,7 @@ async function resolveEventImageUrl(
 }
 
 export async function updateEvent(formData: FormData): Promise<void> {
-  await authorizeAdminUser();
+  authorizeAdminUser(user);
 
   const id = formData.get("id") as string;
   if (!id) throw new Error("Event ID is required.");
@@ -243,7 +246,7 @@ export async function updateEvent(formData: FormData): Promise<void> {
 }
 
 export async function deleteEvent(formData: FormData): Promise<void> {
-  await authorizeAdminUser();
+  authorizeAdminUser(user);
 
   const id = formData.get("id") as string;
   if (!id) throw new Error("Event ID is required for deletion.");

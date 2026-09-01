@@ -13,6 +13,19 @@ datasource db {
 enum UserRole {
   MEMBER
   OFFICER
+  DIRECTOR
+  EXECUTIVE
+}
+
+enum TEAM {
+  AI_ACADEMY
+  AI_INNOVATION
+  AIM
+  MARKETING
+  OPERATIONS
+  FINANCE
+  INDUSTRY
+  TECHNOLOGY
   EXECUTIVE
 }
 
@@ -73,6 +86,7 @@ enum ProgramType {
   AI_MENTORSHIP_MENTOR
   AI_MENTORSHIP_MENTEE
   OFFICER
+  OTHER
 }
 
 enum MembershipType {
@@ -91,6 +105,7 @@ model User {
   clerkId       String                  @unique
   email         String                  @unique
   role          UserRole                @default(MEMBER)
+  team          TEAM?
   verifiedAt    DateTime?
   lastLoginAt   DateTime?
   createdAt     DateTime                @default(now())
@@ -120,6 +135,8 @@ model Profile {
   major                   String?
   utdEmail                String?
   utdNetId                String?
+  phoneNumber             String?
+  personalEmail           String?
   githubUrl               String?
   linkedinUrl             String?
   portfolioUrl            String?

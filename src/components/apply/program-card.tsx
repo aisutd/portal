@@ -106,11 +106,19 @@ export function ProgramCard({
       whileHover={{ y: -4 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
       className="group flex h-full flex-1 flex-col justify-between gap-3.5 self-stretch rounded-[18px] border bg-white/95 backdrop-blur-xs px-[23px] pb-[25px] pt-[24px] shadow-xs transition-all duration-300 hover:shadow-md"
-      style={{ borderColor }}
+      style={{
+        borderColor,
+        "--hover-color": iconBg
+      } as React.CSSProperties}
     >
       <div className="flex flex-col gap-3.5">
         <div className="flex w-full items-center justify-between h-[60px]">
-          {iconChip}
+          <div className="flex items-center gap-3.5 max-w-4/5">
+            {iconChip}
+            <h3 className="style-card-title text-xl font-bold leading-snug text-ink [font-variation-settings:'wdth'_100] group-hover:text-(--hover-color) transition-colors duration-200">
+              {title}
+            </h3>
+          </div>
           {badge ? (
             <span className="inline-flex items-center rounded-full bg-orange-soft/90 border border-orange-soft/60 px-[14px] py-[5px] style-badge-text leading-[normal] text-orange-ink font-medium shadow-2xs">
               {badge}
@@ -118,11 +126,9 @@ export function ProgramCard({
           ) : <div className="h-[28px]" />}
         </div>
 
-      <h3 className="style-card-title text-xl font-bold leading-snug text-ink [font-variation-settings:'wdth'_100] group-hover:text-brand transition-colors duration-200">
-        {title}
-      </h3>
+      
 
-      <div className="flex flex-wrap gap-[6px]">
+      <div className="flex flex-wrap gap-1.5">
         {tags.map((label) => (
           <Tag
             key={label}

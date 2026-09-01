@@ -2,7 +2,7 @@ import { personalFields } from "@/lib/data";
 import { EMAIL_DOMAIN_ERROR, isAllowedEmail } from "@/lib/email-domains";
 
 export const PERSONAL_STEP = "Personal";
-export const QUESTIONS_STEP = "Long Answers";
+export const QUESTIONS_STEP = "Questions";
 export const REVIEW_STEP = "Review";
 
 export const RESUME_FIELD = "Resume *";
@@ -13,6 +13,16 @@ const UTD_EMAIL_FIELD = "UTD Email *";
 const LINKEDIN_FIELD = "LinkedIn *";
 
 export type FieldValues = Record<string, string>;
+
+export type QuestionConfig = {
+  id?: string;
+  label: string;
+  type?: string;
+  required?: boolean;
+  options?: string[];
+  placeholder?: string;
+  description?: string;
+};
 
 export type ApplicationFormLayout = {
   steps: string[];
@@ -31,11 +41,14 @@ export function normalizeQuestions(value: unknown): string[] {
   const questions: string[] = [];
 
   for (const entry of value) {
-    if (typeof entry !== "string") {
-      continue;
+    let label = "";
+
+    if (typeof entry === "string") {
+      label = entry.trim();
+    } else if (entry && typeof entry === "object" && "label" in entry) {
+      label = String((entry as QuestionConfig).label ?? "").trim();
     }
 
-    const label = entry.trim();
     if (!label || taken.has(label)) {
       continue;
     }
@@ -129,7 +142,13 @@ export function collectExtraAnswers(
     .sort(([a], [b]) => a.localeCompare(b));
 }
 
-export function isRequiredField(label: string) {
+export function isRequiredField(
+  label: string,
+  questionsMap?: Record<string, QuestionConfig>,
+) {
+  if (questionsMap?.[label]?.required !== undefined) {
+    return Boolean(questionsMap[label].required);
+  }
   return label.trim().endsWith("*");
 }
 
@@ -143,7 +162,6 @@ export function findFirstStepWithError(
 }
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
-
 const LINKEDIN_PATTERN = /^(https?:\/\/)?([\w-]+\.)*linkedin\.com\/\S+$/i;
 
 function isValidPhone(value: string) {
@@ -152,7 +170,6 @@ function isValidPhone(value: string) {
   }
 
   const digits = value.replace(/\D/g, "");
-
   return digits.length >= 10 && digits.length <= 15;
 }
 
@@ -181,6 +198,7 @@ const fieldFormatErrors: Record<string, (value: string) => string | null> = {
 export function validateFields(
   values: FieldValues,
   fields: readonly string[],
+  questionsMap: Record<string, QuestionConfig> = {},
 ): Record<string, string> {
   const errors: Record<string, string> = {};
 
@@ -188,19 +206,45 @@ export function validateFields(
     const value = values[field]?.trim() ?? "";
 
     if (!value) {
-      if (isRequiredField(field)) {
+      if (isRequiredField(field, questionsMap)) {
         errors[field] = "This field is required.";
       }
-
       continue;
     }
 
     const message = fieldFormatErrors[field]?.(value);
-
     if (message) {
       errors[field] = message;
     }
   }
 
   return errors;
+}
+
+/**
+ * Parses raw application question inputs (string JSONs or objects)
+ * into a key-value mapping of field labels to QuestionConfig.
+ */
+export function parseQuestionConfigs(
+  questions: Array<string | QuestionConfig>
+): Record<string, QuestionConfig> {
+  const map: Record<string, QuestionConfig> = {};
+
+  for (const q of questions) {
+    if (typeof q === "string") {
+      try {
+        const parsed = JSON.parse(q) as QuestionConfig;
+        const key = parsed.label || q;
+        map[key] = parsed;
+      } catch {
+        // Fallback for plain text question strings
+        map[q] = { label: q, type: "TEXT" };
+      }
+    } else if (q && typeof q === "object") {
+      const key = q.label || "";
+      if (key) map[key] = q;
+    }
+  }
+
+  return map;
 }

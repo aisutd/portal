@@ -39,8 +39,10 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isUtdEmail = email.endsWith("@utdallas.edu");
+  const isUtdEmail = email.endsWith("@utdallas.edu") || email.endsWith("@aisociety.io") || email.endsWith("@aisutd.org");
   const derivedNetId = isUtdEmail ? email.split("@")[0] : "";
+  const initialNetId = /^[a-z]{3}\d{5,6}$/i.test(derivedNetId) ? derivedNetId : "";
+
 
   const [form, setForm] = useState({
     firstName: "",
@@ -51,7 +53,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
     degree: "",
     major: "",
     utdEmail: isUtdEmail ? email : "",
-    utdNetId: derivedNetId,
+    utdNetId: initialNetId,
     githubUrl: "",
     linkedinUrl: "",
     portfolioUrl: "",
@@ -211,7 +213,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
               </div>
             </div>
             <Field
-              label="UTD Email"
+              label="AIS or UTD Email"
               value={form.utdEmail}
               onChange={set("utdEmail")}
               placeholder="netid@utdallas.edu"

@@ -266,8 +266,6 @@ function SubmittedContent() {
                             key={label}
                             label={label}
                             value={fieldValues[label] ?? ""}
-                            multiline={index > 0}
-                            linkResume
                           />
                         ))}
                       </div>
@@ -286,8 +284,6 @@ function SubmittedContent() {
                           key={label}
                           label={label}
                           value={value}
-                          multiline
-                          linkResume
                         />
                       ))}
                     </div>

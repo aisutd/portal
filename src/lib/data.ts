@@ -127,9 +127,10 @@ export const programs: Program[] = [
     iconColor: "#1f3aa3",
     image: "/images/programs/ai-academy.png",
     borderColor: "#e7e2d4",
+    badge: "Applications open now!",
     title: "AI Academy",
     description:
-      "Master the fundamentals of machine learning through our guided 10-week curriculum.",
+      "New to coding and/or AI? Join Academy's weekly workshops, no experience needed!",
     tags: ["Beginner", "Workshops", "10 weeks"],
     cta: "primary",
   },
@@ -139,12 +140,12 @@ export const programs: Program[] = [
     iconColor: "#7a4416",
     image: "/images/programs/aim.png",
     borderColor: "#f2a968",
-    badge: "High demand",
+    badge: "High Demand",
     title: "AI Mentorship",
     description:
-      "Get paired with senior students to accelerate your career in AI.",
-    tags: ["Project", "Team-based", "Mentorship", "Industry"],
-    cta: "accent",
+      "Get mentored through a real AI/ML project from senior students to present it to industry and accelerate your career in AI.",
+    tags: ["Intermediate", "Project", "Team based", "Mentorship"],
+    cta: "primary",
   },
   {
     icon: "◆",
@@ -381,14 +382,20 @@ export const recentActivityWidths = ["88%", "74%", "80%", "62%"];
  * the application's own questions — see `lib/application-form.ts`.
  */
 export const personalFields = [
-  "First Name",
-  "Last Name",
-  "NetID",
-  "Phone Number",
+  "First Name *",
+  "Last Name *",
+  "Preferred Name",
+  "NetID *",
+  "Year *",
+  "Major *",
+  "Degree *",
+  "Phone Number *",
   "Personal Email *",
   "UTD Email *",
   "Resume *",
   "LinkedIn *",
+  "GitHub",
+  "Portfolio",
 ];
 
 /* ------------------------------------------------------- Apply · Detail (roles) */

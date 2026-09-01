@@ -55,9 +55,9 @@ export async function POST(request: Request) {
   const openAt = typeof data.openAt === "string" ? new Date(data.openAt) : null;
   const closeAt = typeof data.closeAt === "string" ? new Date(data.closeAt) : null;
   const decisionDate = typeof data.decisionDate === "string" && data.decisionDate ? new Date(data.decisionDate) : null;
-  const questions = Array.isArray(data.questions) && data.questions.every((question) => typeof question === "string")
-    ? data.questions.map((question) => question.trim()).filter(Boolean)
-    : [];
+  
+  // ✅ FIX: Keep object-based question definitions intact instead of forcing string type check
+  const questions = Array.isArray(data.questions) ? data.questions : [];
 
   if (!title || !description || !programTypes.includes(programType as ProgramType) || !openAt || !closeAt || Number.isNaN(openAt.getTime()) || Number.isNaN(closeAt.getTime()) || openAt >= closeAt || (decisionDate && Number.isNaN(decisionDate.getTime()))) {
     return createErrorResponse("Provide a title, description, valid program type, and an opening time before closing time.", "BAD_REQUEST", 400);
@@ -65,11 +65,18 @@ export async function POST(request: Request) {
 
   const application = await prisma.programApplication.create({
     data: {
-      title, description, questionsJson: questions, programType: programType as ProgramType, openAt, closeAt, decisionDate,
+      title, 
+      description, 
+      questionsJson: questions, 
+      programType: programType as ProgramType, 
+      openAt, 
+      closeAt, 
+      decisionDate,
       visibleToUsers: data.visibleToUsers !== false,
       createdById: currentUser.user.id,
     },
   });
+  
   await logAction({ actorId: currentUser.user.id, actionType: "APPLICATION_CREATED", entityType: "ProgramApplication", entityId: application.id });
   return NextResponse.json({ application }, { status: 201 });
 }

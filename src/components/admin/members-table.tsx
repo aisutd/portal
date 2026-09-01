@@ -1,4 +1,4 @@
-import type { MembershipType, UserRole } from "@prisma/client";
+import type { MembershipType, UserRole, TEAM } from "@prisma/client";
 import { Badge } from "@/components/ui/badge";
 import { MemberRolesEditor } from "@/components/admin/member-roles-editor";
 import { MemberStatusPopover } from "@/components/admin/member-status-popover";
@@ -21,6 +21,7 @@ export type Member = {
   roles: MemberBadge[];
   /** Raw values, for the editor to seed its form. */
   userRole: UserRole;
+  team?: TEAM | null;
   programs: MembershipType[];
   events: string;
   joined: string;
@@ -51,11 +52,11 @@ export type MemberStatusDetail = {
 // Shared 7-column template so the header and every row align exactly.
 const GRID =
   "grid grid-cols-[minmax(0,2fr)_minmax(0,1.1fr)_minmax(0,1.6fr)_minmax(0,0.7fr)_minmax(0,1fr)_minmax(0,0.9fr)_40px] gap-x-[16px] px-[22px]";
-const LINK_GRID = "grid grid-cols-[minmax(0,2fr)_minmax(0,1.1fr)_minmax(0,1.6fr)_minmax(0,0.7fr)_minmax(0,1fr)] gap-x-[16px]";
 
 const HEADERS = ["Name", "NetID", "Roles", "Events", "Joined", "Status", ""];
 
 function RoleStatus({ badge }: { badge: MemberBadge }) {
+  if (!badge) return null;
   return badge.outline ? (
     <Badge label={badge.label} variant="outline" />
   ) : (
@@ -84,7 +85,7 @@ export function MembersTable({
         {HEADERS.map((h, i) => (
           <span
             key={i}
-            className="font-techno  uppercase tracking-[1px] text-ink-faint"
+            className="font-techno uppercase tracking-[1px] text-ink-faint"
           >
             {h}
           </span>
@@ -99,35 +100,40 @@ export function MembersTable({
             i < members.length - 1 ? "border-b border-table-line" : "rounded-b-[14px]"
           }`}
         >
-          <Link href={`/admin/members/${m.id}`}
-           className={`group col-span-5 ${LINK_GRID} items-center min-w-0 h-full`}>
-          {/* Name */}
-          <div className="flex items-center gap-[12px]">
+          {/* Name & Identity Direct Link */}
+          <Link
+            href={`/admin/members/${m.id}`}
+            className="group flex items-center gap-[12px] min-w-0"
+          >
             <span className="size-[34px] shrink-0 rounded-full border border-border-soft bg-photo" />
-            <span className="truncate style-body-text leading-[22.5px] text-ink">
+            <span className="truncate style-body-text leading-[22.5px] text-ink group-hover:underline">
               {m.name}
             </span>
-          </div>
+          </Link>
+
           {/* NetID */}
-          <span className="style-caption leading-[16.8px] tracking-[0.2px] text-ink-faint">
+          <span className="style-caption leading-[16.8px] tracking-[0.2px] text-ink-faint truncate">
             {m.netid}
           </span>
+
           {/* Roles */}
           <div className="flex flex-wrap items-center gap-[6px]">
-            {m.roles.map((badge) => (
-              <RoleStatus key={badge.label} badge={badge} />
+            {m.roles?.filter(Boolean).map((badge, idx) => (
+              <RoleStatus key={badge.label ?? idx} badge={badge} />
             ))}
           </div>
+
           {/* Events */}
           <span className="style-body-text leading-[20.3px] text-ink-muted">
             {m.events}
           </span>
+
           {/* Joined */}
           <span className="style-caption leading-[16.8px] tracking-[0.2px] text-ink-faint">
             {m.joined}
           </span>
-          </Link>
-          {/* Status */}
+
+          {/* Status Popover */}
           <div>
             <MemberStatusPopover
               memberName={m.name}
@@ -135,16 +141,18 @@ export function MembersTable({
               detail={m.statusDetail}
             />
           </div>
-          {/* Menu */}
+
+          {/* Role Editor Menu */}
           {canManageRoles ? (
             <MemberRolesEditor
               memberId={m.id}
               memberName={m.name}
               role={m.userRole}
+              team={m.team}
               programs={m.programs}
             />
           ) : (
-            <span aria-hidden className=" leading-none text-ink-faint">
+            <span aria-hidden className="leading-none text-ink-faint text-center">
               ⋯
             </span>
           )}

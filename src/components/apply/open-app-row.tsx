@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
-import type { ReactNode } from "react";
+import type { ReactNode, MouseEvent } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
@@ -27,8 +27,7 @@ export type OpenApp = {
 };
 
 /**
- * A single row in the applications list: details on the left and CTA(s) on the
- * right.
+ * A single row in the applications list: details on the left and CTA(s) on the right.
  */
 export function OpenAppRow({
   title,
@@ -44,8 +43,11 @@ export function OpenAppRow({
   const router = useRouter();
   const { isSignedIn } = useAuth();
 
-  const handleActionClick = (label: string) => {
-    if ((label === "Apply" || label === "Remind me") && !isSignedIn) {
+  const handleActionClick = (e: MouseEvent<HTMLAnchorElement | HTMLButtonElement>, action: RowAction) => {
+    // Intercept action if login is required
+    if ((action.label === "Apply" || action.label === "Remind me") && !isSignedIn) {
+      e.preventDefault(); // Stop default href navigation to prevent request cancellation
+      e.stopPropagation();
       router.push("/onboarding?mode=login");
     }
   };
@@ -123,7 +125,7 @@ export function OpenAppRow({
             type={action.href ? undefined : "button"}
             disabled={action.disabled}
             href={action.href}
-            onClick={() => handleActionClick(action.label)}
+            onClick={(e) => handleActionClick(e, action)}
             className="shadow-2xs transition-all duration-200 hover:shadow-xs active:scale-[0.98]"
           >
             {action.label}

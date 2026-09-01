@@ -23,7 +23,7 @@ export function FormStepper({ steps, active = 0, onDark = false }: FormStepperPr
           <div
             key={step}
             className={cn(
-              "flex flex-1 items-center justify-center py-[12px] text-center",
+              "flex flex-1 items-center justify-center py-3 text-center",
               i < steps.length - 1 && (onDark ? "border-r border-white/30" : "border-r border-border-soft"),
               isActive ? (onDark ? "bg-white" : "bg-brand") : "bg-transparent"
             )}
