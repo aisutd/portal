@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/navbar";
@@ -203,6 +204,12 @@ function SubmittedContent() {
           <Navbar active="Apply" />
 
           <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[24px] px-[46px] pb-[46px] pt-[45px]">
+            <Link
+              href="/applications"
+              className="style-caption leading-[16.8px] tracking-[0.2px] text-brand"
+            >
+              ← Back to Applications
+            </Link>
             <section className="flex flex-col gap-[14px] sm:flex-row sm:items-start sm:justify-between">
               <div className="flex flex-col gap-[8px]">
                 <h1 className="style-section-header leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
@@ -212,12 +219,10 @@ function SubmittedContent() {
                   View your submitted answers in read-only form.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-[10px]">
+              <div className="flex justify-between gap-[10px]">
+                
                 <Button href="/applications/history" variant="ghost" size="md">
-                  View History
-                </Button>
-                <Button href="/applications" variant="primary" size="md">
-                  Back to Applications
+                  View Other Submitted Applications
                 </Button>
               </div>
             </section>

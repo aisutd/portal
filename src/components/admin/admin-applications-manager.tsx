@@ -47,7 +47,7 @@ type Submission = {
       linkedinUrl: string | null;
       githubUrl: string | null;
       portfolioUrl: string | null;
-      resumeFile: { fileName: string } | null;
+      resumeFile: { id: string; fileName: string; storageKey: string } | null;
     } | null;
   };
   reviews: Array<{
@@ -772,7 +772,6 @@ export function AdminApplicationsManager({
                               <a
                                 className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
                                 href={`/api/admin/applications/${detail.id}/submissions/${selectedSubmission.id}/resume`}
-                                target="_blank"
                                 rel="noreferrer"
                               >
                                 Resume ↗

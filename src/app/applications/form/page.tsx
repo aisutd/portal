@@ -168,6 +168,7 @@ function ApplyFormContent() {
   const [applicationTitle, setApplicationTitle] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [uploadingResume, setUploadingResume] = useState(false);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
   
   // FIXED: Declared at the top level of component
   const [uploadingFields, setUploadingFields] = useState<Record<string, boolean>>({});
@@ -927,17 +928,17 @@ function ApplyFormContent() {
                         className="flex h-11 min-w-[96px] items-center justify-center rounded-xl bg-brand px-5 font-bold text-white transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
                         onClick={
                           activeStep >= layout.steps.length - 1
-                            ? handleSubmitApplication
+                            ? () => setShowSubmitModal(true)
                             : handleNextStep
                         }
                         disabled={submitting || uploadingResume}
-                      >
+                        >
                         {submitting
                           ? "Submitting..."
                           : activeStep >= layout.steps.length - 1
-                            ? "Done"
+                            ? "Submit Application"
                             : "Next"}
-                      </button>
+                        </button>
                     </div>
                   </>
                 )}
@@ -946,6 +947,42 @@ function ApplyFormContent() {
           </div>
         </div>
       </div>
+      {showSubmitModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-2xl border border-border-soft bg-white p-6 shadow-xl">
+            <h3 className="style-section-header text-xl font-bold text-ink">
+              Submit Your Application?
+            </h3>
+            
+            <p className="mt-2 text-sm text-ink-muted">
+              Are you sure you're ready to submit? You won't be able to edit your responses or uploaded files after finalizing your submission.
+            </p>
+
+            <div className="mt-6 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                className="rounded-xl border border-border-soft px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-stone-100"
+                onClick={() => setShowSubmitModal(false)}
+                disabled={submitting}
+              >
+                Review Responses
+              </button>
+
+              <button
+                type="button"
+                className="flex h-10 items-center justify-center rounded-xl bg-brand px-5 text-sm font-bold text-white transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={async () => {
+                  await handleSubmitApplication();
+                  setShowSubmitModal(false);
+                }}
+                disabled={submitting}
+              >
+                {submitting ? "Submitting..." : "Confirm & Submit"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }

@@ -6,6 +6,7 @@ import {
   PutBucketCorsCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { prisma } from "./prisma";
 
 const r2 = new S3Client({
   region: "auto",
@@ -107,6 +108,12 @@ export async function deleteObjectFromR2(storageKey: string): Promise<boolean> {
     });
     // FIXED: Changed r2Client to r2
     await r2.send(command);
+    
+   await prisma.file.deleteMany({
+      where: {
+        OR: [{ storageKey }, { storageKey: cleanKey }],
+      },
+    });
     return true;
   } catch (error) {
     console.error("Failed to delete object from R2:", error);

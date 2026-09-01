@@ -5,14 +5,13 @@ import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { Navbar } from "@/components/navbar";
 import { SectionHeader } from "@/components/ui/section-header";
-import { StepCard } from "@/components/apply/step-card";
 import { ProgramCard } from "@/components/apply/program-card";
 import { Marquee } from "@/components/apply/marquee";
 import { OpenAppRow, type OpenApp } from "@/components/apply/open-app-row";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MobileApply } from "@/components/mobile/apply/MobileApply";
-import { applySteps, programs } from "@/lib/data";
+import { programs } from "@/lib/data";
 
 type ApplicationResponse = {
   applications: Array<{
@@ -196,8 +195,7 @@ function buildSubmittedRow(
 
 function ApplicationSkeleton() {
   return (
-    <div className="flex w-full flex-col items-start gap-4 rounded-2xl border border-border-soft bg-white/80 p-6 
-      sm:flex-row sm:items-center sm:justify-between sm:gap-6 shadow-xs">
+    <div className="flex w-full flex-col items-start gap-4 rounded-2xl border border-border-soft bg-white/80 p-6 sm:flex-row sm:items-center sm:justify-between sm:gap-6 shadow-xs">
       <div className="min-w-0 flex-1 animate-pulse space-y-2.5">
         <div className="h-5 w-64 rounded-full bg-stone-soft" />
         <div className="h-3.5 w-full max-w-lg rounded-full bg-[#f4f1ea]" />
@@ -243,7 +241,8 @@ function ApplicationSection({
   const [isExpanded, setIsExpanded] = useState(false);
 
   const shouldCollapse = collapsible && items.length > initialLimit;
-  const displayedItems = shouldCollapse && !isExpanded ? items.slice(0, initialLimit) : items;
+  const displayedItems =
+    shouldCollapse && !isExpanded ? items.slice(0, initialLimit) : items;
 
   return (
     <motion.section
@@ -260,13 +259,17 @@ function ApplicationSection({
           <ApplicationSkeleton />
         </div>
       ) : items.length > 0 ? (
-        <div className="flex flex-col gap-3.5 relative">
+        <div className="relative flex flex-col gap-3.5">
           {displayedItems.map((application, idx) => (
             <motion.div
               key={application.id}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: idx * 0.06, ease: "easeOut" }}
+              transition={{
+                duration: 0.3,
+                delay: idx * 0.06,
+                ease: "easeOut",
+              }}
             >
               <OpenAppRow {...buildRow(application)} />
             </motion.div>
@@ -323,7 +326,9 @@ function sortApplications(
     });
 }
 
-function sortSubmittedApplications(items: ApplicationResponse["applications"]) {
+function sortSubmittedApplications(
+  items: ApplicationResponse["applications"],
+) {
   return items
     .filter((item) => item.submissionId)
     .slice()
@@ -355,11 +360,6 @@ function ProgramFlowArrow() {
   );
 }
 
-/**
- * This page intentionally uses the same live application list on every
- * breakpoint. It is backed by /api/applications, so applications created by
- * administrators appear here as soon as they are visible to users.
- */
 export default function ApplyPage() {
   const [applications, setApplications] = useState<
     ApplicationResponse["applications"]
@@ -408,6 +408,66 @@ export default function ApplyPage() {
   const closedApplications = sortApplications(applications, "closed");
   const submittedApplications = sortSubmittedApplications(applications);
 
+  const hasActiveApplications =
+    openApplications.length > 0 || upcomingApplications.length > 0;
+
+  const renderOpenSection = () => (
+    <ApplicationSection
+      key="open"
+      title="Open Applications"
+      items={openApplications}
+      loading={loading}
+      emptyMessage="There are no open applications right now."
+      buildRow={buildOpenRow}
+      collapsible={true}
+      initialLimit={2}
+    />
+  );
+
+  const renderUpcomingSection = () => (
+    <ApplicationSection
+      key="upcoming"
+      title="Upcoming Applications"
+      items={upcomingApplications}
+      loading={loading}
+      emptyMessage="There are no upcoming applications."
+      buildRow={buildOpenRow}
+      collapsible={true}
+      initialLimit={2}
+    />
+  );
+
+  const renderSubmittedSection = () => (
+    <ApplicationSection
+      key="submitted"
+      title="Submitted Applications"
+      items={submittedApplications}
+      loading={loading}
+      emptyMessage="You have not submitted any applications yet."
+      action={
+        <Button href="/applications/history" variant="ghost" size="sm">
+          View Your Submitted Applications
+        </Button>
+      }
+      buildRow={buildSubmittedRow}
+      collapsible={true}
+      initialLimit={2}
+    />
+  );
+
+  const renderClosedSection = () => (
+    <ApplicationSection
+      key="closed"
+      title="Closed Applications"
+      items={closedApplications}
+      loading={loading}
+      emptyMessage="There are no closed applications to show."
+      buildRow={buildOpenRow}
+      collapsible={true}
+      initialLimit={2}
+    />
+  );
+
   return (
     <>
       {/* --- MOBILE LAYOUT --- */}
@@ -418,48 +478,47 @@ export default function ApplyPage() {
       {/* --- DESKTOP LAYOUT --- */}
       <div className="hidden md:block">
         <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-cream antialiased">
-          <div aria-hidden className="pointer-events-none absolute -top-24 left-[15%] -z-10 h-[420px] w-[420px] rounded-full bg-orange-300/25 blur-[110px]" />
-          <div aria-hidden className="pointer-events-none absolute top-[20%] right-[10%] -z-10 h-[380px] w-[380px] rounded-full bg-purple-400/20 blur-[110px]" />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -top-24 left-[15%] -z-10 h-[420px] w-[420px] rounded-full bg-orange-300/25 blur-[110px]"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute top-[20%] right-[10%] -z-10 h-[380px] w-[380px] rounded-full bg-purple-400/20 blur-[110px]"
+          />
 
           <Navbar active="Apply" />
 
           <main className="relative w-full pb-16 pt-8">
             {/* Header Hero Section */}
-            <section className="px-8 lg:px-12 pt-4">
-              <h1 className="font-display style-page-title lg:text-5xl font-bold leading-[1.05] tracking-[-0.02em] text-ink [font-variation-settings:'wdth'_100]">
-                Choose Your <span className="bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent pr-3">AIS Path</span>
+            <section className="px-8 pt-4 lg:px-12">
+              <h1 className="font-display style-page-title font-bold leading-[1.05] tracking-[-0.02em] text-ink lg:text-5xl [font-variation-settings:'wdth'_100]">
+                Choose Your{" "}
+                <span className="bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text pr-3 text-transparent">
+                  AIS Path
+                </span>
               </h1>
-              <p className="mt-3 max-w-4xl style-page-subtitle lg: font-normal leading-relaxed text-ink/80">
+              <p className="style-page-subtitle lg: mt-3 max-w-4xl font-normal leading-relaxed text-ink/80">
                 Welcome to the enrollment hub. Whether you&apos;re here to learn,
                 lead, or build, there&apos;s a place waiting for you.
               </p>
             </section>
 
-            {/* How to Begin Steps */}
-            {/* <section className="mt-12 flex flex-col gap-4 px-8 lg:px-12">
-              <SectionHeader
-                title="How to Begin"
-                titleClassName=" lg: leading-tight font-semibold"
-              />
-              <div className="flex flex-col gap-5 lg:flex-row lg:items-stretch">
-                {applySteps.map((step) => (
-                  <StepCard key={step.step} {...step} />
-                ))}
-              </div>
-            </section> */}
-
             {/* Program Workflow */}
             <section className="mt-10 px-8 lg:px-12">
-              {/* <SectionHeader title="Our Pipeline" titleClassName=" pb-6" /> */}
-              <div className="flex flex-col gap-5 lg:flex-row lg:items-stretch pt-2">
+              <div className="flex flex-col gap-5 pt-2 lg:flex-row lg:items-stretch">
                 {programs.map((program, index) => (
                   <Fragment key={program.title}>
                     <motion.div
                       initial={{ opacity: 0, scale: 0.92, y: 20 }}
                       whileInView={{ opacity: 1, scale: 1, y: 0 }}
                       viewport={{ once: true }}
-                      transition={{ duration: 0.4, delay: index * 0.15, ease: "easeOut" }}
-                      className="flex-1 flex flex-col h-full"
+                      transition={{
+                        duration: 0.4,
+                        delay: index * 0.15,
+                        ease: "easeOut",
+                      }}
+                      className="flex h-full flex-1 flex-col"
                     >
                       <ProgramCard {...program} showActionButton={false} />
                     </motion.div>
@@ -468,7 +527,10 @@ export default function ApplyPage() {
                         initial={{ opacity: 0, scale: 0.8 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
-                        transition={{ duration: 0.3, delay: index * 0.15 + 0.1 }}
+                        transition={{
+                          duration: 0.3,
+                          delay: index * 0.15 + 0.1,
+                        }}
                         className="self-center"
                       >
                         <ProgramFlowArrow />
@@ -480,106 +542,38 @@ export default function ApplyPage() {
             </section>
 
             {/* Marquee Divider */}
-            <div className="overflow-visible mt-10">
+            <div className="mt-10 overflow-visible">
               <Marquee text="JOIN THE MOVEMENT · AIS UTD · BUILD THE FUTURE" />
             </div>
 
             {/* Application List Sections */}
             <div className="space-y-4">
-              <ApplicationSection
-                title="Open Applications"
-                items={openApplications}
-                loading={loading}
-                emptyMessage="There are no open applications right now."
-                buildRow={buildOpenRow}
-                collapsible={true}
-                initialLimit={2}
-              />
-              <ApplicationSection
-                title="Upcoming Applications"
-                items={upcomingApplications}
-                loading={loading}
-                emptyMessage="There are no upcoming applications."
-                buildRow={buildOpenRow}
-                collapsible={true}
-                initialLimit={2}
-              />
-              <ApplicationSection
-                title="Submitted Applications"
-                items={submittedApplications}
-                loading={loading}
-                emptyMessage="You have not submitted any applications yet."
-                action={
-                  <Button href="/applications/history" variant="ghost" size="sm">
-                    View history
-                  </Button>
-                }
-                buildRow={buildSubmittedRow}
-                collapsible={true}
-                initialLimit={2}
-              />
-              <ApplicationSection
-                title="Closed Applications"
-                items={closedApplications}
-                loading={loading}
-                emptyMessage="There are no closed applications to show."
-                buildRow={buildOpenRow}
-                collapsible={true}
-                initialLimit={2}
-              />
+              {loading ? (
+                <>
+                  {renderOpenSection()}
+                  {renderUpcomingSection()}
+                  {renderSubmittedSection()}
+                  {renderClosedSection()}
+                </>
+              ) : hasActiveApplications ? (
+                <>
+                  {renderOpenSection()}
+                  {renderUpcomingSection()}
+                  {renderSubmittedSection()}
+                  {renderClosedSection()}
+                </>
+              ) : (
+                <>
+                  {renderSubmittedSection()}
+                  {renderOpenSection()}
+                  {renderUpcomingSection()}
+                  {renderClosedSection()}
+                </>
+              )}
             </div>
           </main>
         </div>
       </div>
     </>
-    /*
-    <>
-      {/* --- TEMPORARY OPENING SOON MOBILE LAYOUT --- * /}
-      <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-cream antialiased md:hidden">
-        <div aria-hidden className="pointer-events-none absolute -top-16 left-[10%] -z-10 h-[300px] w-[300px] rounded-full bg-orange-300/25 blur-[100px]" />
-        <div aria-hidden className="pointer-events-none absolute top-[30%] right-[-10%] -z-10 h-[260px] w-[260px] rounded-full bg-purple-400/20 blur-[100px]" />
-        <BottomNav/>
-        <main className="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
-          <div className="w-full max-w-md rounded-2xl border border-border-soft bg-white/80 p-8 shadow-sm backdrop-blur-xs">
-            <span className="inline-block rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand">
-              Applications
-            </span>
-            <h1 className="mt-4 font-display text-3xl font-bold tracking-tight text-ink">
-              Opening Soon
-            </h1>
-            <p className="mt-3 text-sm leading-relaxed text-ink-muted">
-              This page will open up at Kickoff on September 3, at 7pm.
-            </p>
-          </div>
-        </main>
-      </div>
-
-      {/* --- TEMPORARY OPENING SOON DESKTOP LAYOUT --- * /}
-      <div className="hidden md:block">
-        <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-cream antialiased">
-          <div aria-hidden className="pointer-events-none absolute -top-24 left-[15%] -z-10 h-[420px] w-[420px] rounded-full bg-orange-300/25 blur-[110px]" />
-          <div aria-hidden className="pointer-events-none absolute top-[20%] right-[10%] -z-10 h-[380px] w-[380px] rounded-full bg-purple-400/20 blur-[110px]" />
-
-          <Navbar active="Apply" />
-
-          <main className="relative flex flex-1 w-full flex-col items-center justify-center pb-16 pt-8">
-            <section className="w-full max-w-2xl px-8 text-center lg:px-12">
-              <div className="rounded-2xl border border-border-soft bg-white/80 p-12 shadow-sm backdrop-blur-xs">
-                <span className="inline-block rounded-full bg-brand/10 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-brand">
-                  Applications
-                </span>
-                <h1 className="mt-4 font-display text-4xl font-bold tracking-tight text-ink lg:text-5xl">
-                  Opening Soon
-                </h1>
-                <p className="mt-4 text-base leading-relaxed text-ink-muted lg:text-lg">
-                  This page will open up at Kickoff on September 3, at 7pm.
-                </p>
-              </div>
-            </section>
-          </main>
-        </div>
-      </div>
-    </>
-    */
   );
 }
