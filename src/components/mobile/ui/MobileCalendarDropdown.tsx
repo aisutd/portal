@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 type CalendarLinksObject = {
   googleUrl: string;
-  outlookUrl: string;
+  // outlookUrl: string;
   icsContent: string;
 };
 
@@ -68,7 +68,7 @@ export function MobileCalendarDropdown({
                 Google Calendar
               </a>
             )}
-            {calendarLinks.outlookUrl && (
+            {/* {calendarLinks.outlookUrl && (
               <a
                 href={calendarLinks.outlookUrl}
                 target="_blank"
@@ -78,7 +78,7 @@ export function MobileCalendarDropdown({
               >
                 Outlook Web
               </a>
-            )}
+            )} */}
             {calendarLinks.icsContent && (
               <button
                 onClick={handleIcsDownload}

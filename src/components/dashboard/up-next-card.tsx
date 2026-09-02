@@ -55,7 +55,7 @@ export function UpNextCard({
   const dropdownRef = useRef<HTMLDivElement>(null);
   
   const googleUrl = calendarLinks?.googleUrl || "";
-  const outlookUrl = calendarLinks?.outlookUrl || "";
+  // const outlookUrl = calendarLinks?.outlookUrl || "";
   const icsContent = calendarLinks?.icsContent || "";
 
     // Close the dropdown if clicking outside
@@ -87,7 +87,7 @@ export function UpNextCard({
   return (
     <Card
       className={cn(
-        "relative flex flex-1 flex-col gap-[18px] self-stretch overflow-hidden p-[29px] transition-all duration-300",
+        "relative flex flex-1 flex-col gap-[18px] self-stretch overflow-visible p-[29px] transition-all duration-300",
         (isGlowing || isLive) &&
           "border-green bg-checked/20 shadow-[0_0_20px_rgba(53,107,46,0.35)] ring-1 ring-green/50"
       )}
@@ -131,7 +131,7 @@ export function UpNextCard({
           </Link>
         </div>
       ) : (
-        <div className="flex flex-wrap items-start gap-[24px]">
+        <div className="flex flex-wrap items-start gap-6">
           {/* Linked Event Content */}
           <Link
             href={eventLink}
@@ -208,7 +208,7 @@ export function UpNextCard({
                           Google Calendar
                         </a>
                       )}
-                      {outlookUrl && (
+                      {/* {outlookUrl && (
                         <a
                           href={outlookUrl}
                           target="_blank"
@@ -219,7 +219,7 @@ export function UpNextCard({
                         >
                           Outlook Web
                         </a>
-                      )}
+                      )} */}
                       {icsContent && (
                         <button
                           onClick={handleIcsDownload}
