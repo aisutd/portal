@@ -198,7 +198,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                     <EventQRCode value={userRsvp?.qrToken ?? `checkin-${userId}-${event.id}`} />
 
                     <p className="text-center style-caption text-ink-faint">
-                      This is your ticket to claim food, merch, drinks, etc. If you are late and don't see the attendance on the big screen, show this QR to an officer to check you in.
+                      This is your ticket to claim food, merch, drinks, etc. If you are late and don&apos;t see the attendance on the big screen, show this QR to an officer to check you in.
                     </p>
 
                     <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
@@ -211,8 +211,8 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                     
                     <p className="text-center style-body-text text-ink-muted">
                       {isLive
-                        ? "RSVP now to secure your attendance and to show your QR code for claiming food/drinks/merch."
-                        : "RSVP to secure your spot and unlock your QR code to claim food/drinks/merch at the event."}
+                        ? "RSVP now to secure your attendance and to show your QR code for claiming food/drinks/merch (no guarantees since resources were booked 24 hours ago)."
+                        : "RSVP to secure your spot and unlock your QR code to claim food/drinks/merch, if we offer it (check tags!) at the event."}
                     </p>
 
                     <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />

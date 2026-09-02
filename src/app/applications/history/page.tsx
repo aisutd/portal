@@ -136,15 +136,18 @@ export default function ApplicationHistoryPage() {
       <div className="md:hidden">
         <MobileScreen>
           <div className="flex flex-col gap-[16px]">
-            <Button href="/applications" variant="ghost" size="sm" className="w-fit">
-              Back to Applications
-            </Button>
+            <Link
+              href="/applications"
+              className="style-caption leading-[16.8px] tracking-[0.2px] text-brand"
+            >
+              ← Back to Applications
+            </Link>
 
             <h1 className="style-page-title  leading-tight text-ink">
               Application History
             </h1>
             <p className="style-page-subtitle  text-ink-muted">
-              Review your past submissions and retention window.
+              Review your past applications.
             </p>
 
             {loading ? (
@@ -193,16 +196,19 @@ export default function ApplicationHistoryPage() {
 
           <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[24px] px-[46px] pb-[46px] pt-[45px]">
             <div className="flex flex-col gap-[14px]">
-              <Button href="/applications" variant="ghost" size="sm" className="w-fit">
-                Back to Applications
-              </Button>
+              <Link
+                  href="/applications"
+                  className="style-caption leading-[16.8px] tracking-[0.2px] text-brand"
+                >
+                  ← Back to Applications
+                </Link>
 
               <section className="flex flex-col gap-[8px]">
                 <h1 className="style-page-title  leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
                   Application History
                 </h1>
                 <p className="style-page-subtitle  leading-[21.75px] text-ink-muted">
-                  Review your past submissions and retention window.
+                  Review your past applications.
                 </p>
               </section>
             </div>

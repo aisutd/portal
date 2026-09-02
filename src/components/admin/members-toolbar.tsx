@@ -1,39 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SearchInput } from "@/components/ui/search-input";
 import { membersHref, type MemberFilter, type MembersQuery } from "@/lib/members/query-params";
 import { FILTER_LABELS, NEXT_SORT, SORT_LABELS } from "@/lib/members/labels";
-
-const DEBOUNCE_MS = 300;
+import { useMemberFilters } from "@/lib/members/use-member-filters";
 
 export function MembersToolbar({ query }: { query: MembersQuery }) {
-  const router = useRouter();
-  const [term, setTerm] = useState(query.q);
-  const [syncedQ, setSyncedQ] = useState(query.q);
-
-  // Resync the box when the URL changes from outside (back button, filter
-  // chip). Adjusting during render rather than in an effect avoids a second
-  // render pass and keeps focus in the input while typing.
-  if (query.q !== syncedQ) {
-    setSyncedQ(query.q);
-    setTerm(query.q);
-  }
-
-  useEffect(() => {
-    if (term === query.q) return;
-    const timer = setTimeout(() => {
-      router.replace(membersHref(query, { q: term }));
-    }, DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [term, query, router]);
+  const { term, setTerm, isPending } = useMemberFilters(query);
 
   return (
-    <div className="flex w-full items-center gap-[12px]">
+    <div className={`flex w-full items-center gap-[12px] ${isPending ? "opacity-70 transition-opacity" : ""}`}>
       <SearchInput
         value={term}
         onChange={setTerm}
@@ -43,7 +22,7 @@ export function MembersToolbar({ query }: { query: MembersQuery }) {
       />
 
       {(Object.keys(FILTER_LABELS) as MemberFilter[]).map((filter) => (
-        <Link key={filter} href={membersHref(query, { filter })}>
+        <Link key={filter} href={membersHref(query, { filter, page: 1 })}>
           <Button
             variant={query.filter === filter ? "soft" : "ghost"}
             size="sm"

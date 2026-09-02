@@ -3,8 +3,10 @@ import {
   GetObjectCommand,
   PutObjectCommand,
   DeleteObjectCommand,
+  PutBucketCorsCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { prisma } from "./prisma";
 
 const r2 = new S3Client({
   region: "auto",
@@ -106,9 +108,42 @@ export async function deleteObjectFromR2(storageKey: string): Promise<boolean> {
     });
     // FIXED: Changed r2Client to r2
     await r2.send(command);
+    
+   await prisma.file.deleteMany({
+      where: {
+        OR: [{ storageKey }, { storageKey: cleanKey }],
+      },
+    });
     return true;
   } catch (error) {
     console.error("Failed to delete object from R2:", error);
     return false;
+  }
+}
+
+export async function setR2Cors() {
+  const command = new PutBucketCorsCommand({
+    Bucket: BUCKET_NAME,
+    CORSConfiguration: {
+      CORSRules: [
+        {
+          AllowedOrigins: [
+            "http://localhost:3000",
+            "https://portal.aisutd.org",
+          ],
+          AllowedMethods: ["GET", "PUT", "POST", "DELETE", "HEAD"],
+          AllowedHeaders: ["*"],
+          ExposeHeaders: ["ETag"],
+          MaxAgeSeconds: 3600,
+        },
+      ],
+    },
+  });
+
+  try {
+    await r2.send(command);
+    console.log("CORS policy successfully updated on R2 bucket");
+  } catch (err) {
+    console.error("Failed to set CORS policy:", err);
   }
 }

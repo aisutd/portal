@@ -6,26 +6,17 @@ import { prisma } from "@/lib/prisma";
 
 async function getCurrentUser() {
   const session = await auth();
-
   if (!session.userId) {
-    return {
-      error: createErrorResponse("Unauthorized", "UNAUTHENTICATED", 401),
-    } as const;
+    return { error: createErrorResponse("Unauthorized", "UNAUTHENTICATED", 401) } as const;
   }
 
   const user = await prisma.user.findUnique({
-    where: {
-      clerkId: session.userId,
-    },
-    select: {
-      id: true,
-    },
+    where: { clerkId: session.userId },
+    select: { id: true },
   });
 
   if (!user) {
-    return {
-      error: createErrorResponse("User not found", "USER_NOT_FOUND", 404),
-    } as const;
+    return { error: createErrorResponse("User not found", "USER_NOT_FOUND", 404) } as const;
   }
 
   return { userId: user.id } as const;
@@ -36,41 +27,34 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const currentUser = await getCurrentUser();
-  if ("error" in currentUser) {
-    return currentUser.error;
-  }
+  if ("error" in currentUser) return currentUser.error;
 
   const { id } = await params;
 
-  const application = await prisma.programApplication.findFirst({
-    where: {
-      id,
-    },
-    select: {
-      id: true,
-    },
-  });
+  const [application, draft] = await Promise.all([
+    prisma.programApplication.findUnique({
+      where: { id },
+      select: { id: true },
+    }),
+    prisma.applicationDraft.findUnique({
+      where: {
+        applicationId_userId: {
+          applicationId: id,
+          userId: currentUser.userId,
+        },
+      },
+      select: {
+        formPayloadJson: true,
+        stepIndex: true,
+      },
+    }),
+  ]);
 
   if (!application) {
     return createErrorResponse("Application not found", "NOT_FOUND", 404);
   }
 
-  const draft = await prisma.applicationDraft.findUnique({
-    where: {
-      applicationId_userId: {
-        applicationId: id,
-        userId: currentUser.userId,
-      },
-    },
-    select: {
-      formPayloadJson: true,
-      stepIndex: true,
-    },
-  });
-
-  return NextResponse.json({
-    draft: draft ?? null,
-  });
+  return NextResponse.json({ draft: draft ?? null });
 }
 
 export async function PUT(
@@ -78,27 +62,13 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const currentUser = await getCurrentUser();
-  if ("error" in currentUser) {
-    return currentUser.error;
-  }
+  if ("error" in currentUser) return currentUser.error;
 
   const { id } = await params;
+  const now = new Date();
 
-  const application = await prisma.programApplication.findFirst({
-    where: {
-      id,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (!application) {
-    return createErrorResponse("Application not found", "NOT_FOUND", 404);
-  }
-
+  // Validate request payload
   let body: unknown;
-
   try {
     body = await request.json();
   } catch {
@@ -126,6 +96,30 @@ export async function PUT(
     stepIndex < 0
   ) {
     return createErrorResponse("Invalid stepIndex", "BAD_REQUEST", 400);
+  }
+
+  // Pre-flight validation & existing submission check
+  const [application, existingSubmission] = await Promise.all([
+    prisma.programApplication.findUnique({
+      where: { id },
+      select: { openAt: true, closeAt: true },
+    }),
+    prisma.applicationSubmission.findFirst({
+      where: { applicationId: id, userId: currentUser.userId },
+      select: { id: true },
+    }),
+  ]);
+
+  if (!application) {
+    return createErrorResponse("Application not found", "NOT_FOUND", 404);
+  }
+
+  if (existingSubmission) {
+    return createErrorResponse("Cannot edit draft for an already submitted application", "ALREADY_SUBMITTED", 409);
+  }
+
+  if (now < application.openAt || now > application.closeAt) {
+    return createErrorResponse("Application window is not currently open.", "BAD_REQUEST", 400);
   }
 
   const normalizedFormPayloadJson =
@@ -156,7 +150,5 @@ export async function PUT(
     },
   });
 
-  return NextResponse.json({
-    draft,
-  });
+  return NextResponse.json({ draft });
 }

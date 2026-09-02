@@ -7,7 +7,6 @@ import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { EventForm } from "@/components/admin/event-form";
 import { CoverPhotoCard } from "@/components/admin/cover-photo-card";
 import { SettingsCard } from "@/components/admin/settings-card";
-import { Button } from "@/components/ui/button";
 import { MobileAdminEditEvent } from "@/components/mobile/admin/MobileAdminEditEvent";
 import { eventTags, eventSettings } from "@/lib/data";
 import { updateEvent, deleteEvent } from "./actions";

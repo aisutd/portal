@@ -110,6 +110,7 @@ export async function getRSVPs(userId: string, take: number = 5) {
         startTime: "desc",
       },
     },
+    take,
   });
 }
 

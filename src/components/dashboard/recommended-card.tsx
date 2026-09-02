@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
@@ -140,31 +140,19 @@ function RecommendedRow({
 }
 
 export function RecommendedCard({ items }: { items: RecommendedItem[] }) {
-  const [displayItems, setDisplayItems] = useState(() => 
-    items.filter(isUpcomingOrOngoing)
+  const [dismissedItemIds, setDismissedItemIds] = useState<string[]>([]);
+  const displayItems = items.filter(
+    (item) => isUpcomingOrOngoing(item) && !dismissedItemIds.includes(item.id),
   );
 
-  useEffect(() => {
-    // Re-filter whenever props update
-    setDisplayItems(items.filter(isUpcomingOrOngoing));
-  }, [items]);
-
   function handleRsvpSuccess(eventId: string) {
-    setDisplayItems((prev) => prev.filter((item) => item.id !== eventId));
+    setDismissedItemIds((prev) => [...prev, eventId]);
   }
 
   return (
     <Card className="flex h-auto min-w-0 flex-1 flex-col gap-[14px] self-stretch p-[27px]">
       <SectionHeader
         title="Recommended for you"
-        action={
-          <Link
-            href="/events"
-            className="style-meta-text flex items-center gap-1 font-semibold leading-[16.8px] tracking-[0.2px] text-brand hover:underline"
-          >
-            Browse Events →
-          </Link>
-        }
       />
 
       <div className="flex flex-col gap-[14px] h-auto w-full">

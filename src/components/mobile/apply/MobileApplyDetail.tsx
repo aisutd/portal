@@ -2,12 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tag } from "@/components/ui/tag";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
-import { applyDetailRoles } from "@/lib/data";
+import { RoleCard, type Role } from "@/components/apply/role-card";
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  Info,
+} from "lucide-react";
+
+type RoleItem = string | Role;
 
 type ApplicationDetailResponse = {
   application: {
@@ -15,20 +25,22 @@ type ApplicationDetailResponse = {
     title: string;
     description: string;
     decisionDate: string | null;
+    openAt?: string | null;
+    closeAt: string | null;
     phase: "open" | "upcoming" | "closed";
     eligibility: string[];
+    roles: RoleItem[];
   };
   draft: {
     stepIndex: number;
     isSubmitted: boolean;
   } | null;
   submissionStatus: string | null;
+  submissionId: string | null;
 };
 
-function formatDecisionDate(value: string | null) {
-  if (!value) {
-    return "Decision date TBD";
-  }
+function formatDate(value: string | null, fallbackText: string) {
+  if (!value) return fallbackText;
 
   return new Intl.DateTimeFormat("en-US", {
     month: "long",
@@ -49,19 +61,32 @@ function getStatusBadge(
       .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
       .join(" ");
 
-    if (submissionStatus === "ACCEPTED") return <Badge label={label} bg="#d3eccf" color="#356b2e" />;
-    if (submissionStatus === "REJECTED") return <Badge label={label} bg="#f9d5d3" color="#9a3b36" />;
-    if (submissionStatus === "WAITLISTED") return <Badge label={label} bg="#fbe3cb" color="#7a4416" />;
-    if (submissionStatus === "IN_REVIEW") return <Badge label={label} bg="#e1e8ff" color="#1f3aa3" />;
-    if (submissionStatus === "IN_CONSIDERATION") return <Badge label={label} bg="#e9e5f6" color="#4b4178" />;
-    if (submissionStatus === "COMPLETED" || submissionStatus === "ARCHIVED")
-      return <Badge label={label} bg="#efece3" color="#6a685f" />;
-
-    return <Badge label={label} bg="#e1e8ff" color="#1f3aa3" />;
+    switch (submissionStatus) {
+      case "ACCEPTED":
+        return <Badge label={label} bg="#d3eccf" color="#356b2e" />;
+      case "REJECTED":
+        return <Badge label={label} bg="#f9d5d3" color="#9a3b36" />;
+      case "WAITLISTED":
+        return <Badge label={label} bg="#fbe3cb" color="#7a4416" />;
+      case "IN_REVIEW":
+        return <Badge label={label} bg="#e1e8ff" color="#1f3aa3" />;
+      case "IN_CONSIDERATION":
+        return <Badge label={label} bg="#e9e5f6" color="#4b4178" />;
+      case "COMPLETED":
+      case "ARCHIVED":
+        return <Badge label={label} bg="#efece3" color="#6a685f" />;
+      default:
+        return <Badge label={label} bg="#e1e8ff" color="#1f3aa3" />;
+    }
   }
 
   if (draft) {
-    return <Badge label={draft.isSubmitted ? "Submitted" : "Draft"} variant="outline" />;
+    return (
+      <Badge
+        label={draft.isSubmitted ? "Submitted" : "Draft"}
+        variant="outline"
+      />
+    );
   }
 
   return null;
@@ -69,14 +94,14 @@ function getStatusBadge(
 
 function DetailSkeleton() {
   return (
-    <div className="flex flex-col gap-[14px]">
-      <div className="flex flex-col gap-[12px] rounded-[16px] border border-border-soft bg-white p-[20px]">
-        <div className="h-[24px] w-[80%] rounded-full bg-[#f4f1ea]" />
-        <div className="h-[14px] w-[50%] rounded-full bg-[#f4f1ea]" />
-        <div className="h-[14px] w-[90%] rounded-full bg-[#f4f1ea]" />
+    <div className="flex flex-col gap-4 animate-pulse">
+      <div className="flex flex-col gap-3 rounded-2xl border border-border-soft bg-white p-5">
+        <div className="h-6 w-3/4 rounded bg-stone-200" />
+        <div className="h-4 w-1/2 rounded bg-stone-200" />
+        <div className="h-9 w-28 rounded-lg bg-stone-200 mt-2" />
       </div>
-      <div className="h-[100px] rounded-[16px] border border-border-soft bg-white" />
-      <div className="h-[100px] rounded-[16px] border border-border-soft bg-white" />
+      <div className="h-36 rounded-2xl border border-border-soft bg-white p-5" />
+      <div className="h-28 rounded-2xl border border-border-soft bg-white p-5" />
     </div>
   );
 }
@@ -84,7 +109,8 @@ function DetailSkeleton() {
 export function MobileApplyDetail() {
   const searchParams = useSearchParams();
   const applicationId = searchParams.get("id");
-  const [application, setApplication] = useState<ApplicationDetailResponse | null>(null);
+  const [application, setApplication] =
+    useState<ApplicationDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -138,84 +164,181 @@ export function MobileApplyDetail() {
     };
   }, [applicationId]);
 
+  const appData = application?.application;
+  const alreadySubmitted = Boolean(application?.submissionStatus);
+
+  // Status checks for open / closed / upcoming dates
+  const now = new Date();
+  const isUpcoming = Boolean(
+    appData?.openAt && new Date(appData.openAt) > now
+  );
+  const isExpired = Boolean(
+    appData?.closeAt && new Date(appData.closeAt) < now
+  );
+
+  const submissionId = application?.submissionId ?? null;
+  const rawRoles = appData?.roles ?? [];
+  const normalizedRoles: Role[] = rawRoles.map((role) =>
+    typeof role === "string" ? { title: role } : role
+  );
+
   return (
     <MobileScreen>
-      <a href="/applications" className="style-caption text-brand">
-        ← Back to Apply
-      </a>
+      {/* Back Link */}
+      <Link
+        href="/applications"
+        className="inline-flex items-center gap-1.5 style-caption text-brand hover:underline w-fit"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" />
+        Back to Applications
+      </Link>
 
       {loading ? (
         <DetailSkeleton />
       ) : error ? (
-        <div className="rounded-[16px] border border-border-soft bg-white p-[20px] style-mobile-body text-ink-muted">
-          {error}
+        <div className="flex items-center gap-3 rounded-2xl border border-border-soft bg-white p-5 style-mobile-body text-ink-muted">
+          <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
+          <span>{error}</span>
         </div>
-      ) : application ? (
+      ) : application && appData ? (
         <>
-          <div className="flex flex-col gap-[12px] rounded-[16px] border border-border-soft bg-white p-[20px]">
-            <h1 className="style-mobile-title text-ink">
-              {application.application.title}
-            </h1>
-            <p className="style-mobile-body text-ink-muted">
-              {formatDecisionDate(application.application.decisionDate)}
-            </p>
-            <div className="flex items-center gap-[10px]">
-              {getStatusBadge(application.draft, application.submissionStatus)}
-              <Button href={`/applications/form?id=${application.application.id}`} size="sm">
-                Apply
-              </Button>
+          {/* Header Card */}
+          <div className="flex flex-col gap-4 rounded-2xl border border-border-soft bg-white p-5 shadow-sm">
+            <div className="flex flex-col gap-2">
+              <div className="flex items-start justify-between gap-2">
+                <h1 className="style-mobile-title text-ink font-bold leading-tight">
+                  {appData.title}
+                </h1>
+                {getStatusBadge(
+                  application.draft,
+                  application.submissionStatus
+                )}
+              </div>
+
+              <div className="flex items-center gap-1.5 style-mobile-body text-ink-muted text-xs">
+                <Calendar className="h-3.5 w-3.5 text-ink-faint shrink-0" />
+                <span>
+                  Decision Date: {formatDate(appData.decisionDate, "TBD")}
+                </span>
+              </div>
+            </div>
+
+            {/* Action Button */}
+            <div className="pt-1">
+              {alreadySubmitted ? (
+                <Button
+                  href={
+                    submissionId
+                      ? `/applications/submitted?submissionId=${submissionId}`
+                      : `/applications/submitted?submissionId=${appData.id}`
+                  }
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-center"
+                >
+                  View Application
+                </Button>
+              ) : isUpcoming ? (
+                <Button
+                  disabled
+                  size="sm"
+                  className="w-full justify-center cursor-not-allowed opacity-60 bg-stone-300 text-stone-600 border-stone-300 hover:bg-stone-300"
+                >
+                  Applications Open {formatDate(appData.openAt!, "")}
+                </Button>
+              ) : isExpired ? (
+                <div className="w-full text-center rounded-xl border border-border-soft bg-stone-100 py-2 style-caption text-ink-muted font-semibold">
+                  Application Closed
+                </div>
+              ) : (
+                <Button
+                  href={`/applications/form?id=${appData.id}`}
+                  size="sm"
+                  className="w-full justify-center shadow-sm"
+                >
+                  Apply Now
+                </Button>
+              )}
             </div>
           </div>
 
-          <div className="flex flex-col gap-[16px] rounded-[16px] border border-border-soft bg-white p-[20px]">
-            <div className="flex flex-col gap-[6px]">
-              <h2 className="style-mobile-title text-ink">
+          {/* Status Alerts */}
+          {alreadySubmitted && (
+            <div className="flex items-start gap-2.5 rounded-xl border border-brand-soft bg-brand-soft/30 p-4 style-mobile-body text-brand-dark text-xs">
+              <CheckCircle className="h-4 w-4 text-brand shrink-0 mt-0.5" />
+              <span>You have already submitted an application for this program.</span>
+            </div>
+          )}
+
+          {isUpcoming && (
+            <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50/70 p-4 style-mobile-body text-amber-900 text-xs">
+              <Clock className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+              <span>
+                Applications will open on{" "}
+                <strong className="font-semibold">
+                  {formatDate(appData.openAt!, "")}
+                </strong>
+                .
+              </span>
+            </div>
+          )}
+
+          {isExpired && !alreadySubmitted && (
+            <div className="flex items-start gap-2.5 rounded-xl border border-stone-200 bg-stone-100 p-4 style-mobile-body text-ink-muted text-xs">
+              <Info className="h-4 w-4 text-ink-faint shrink-0 mt-0.5" />
+              <span>
+                Applications for this program closed on{" "}
+                {formatDate(appData.closeAt, "")}.
+              </span>
+            </div>
+          )}
+
+          {/* Description & Eligibility Section */}
+          <div className="flex flex-col gap-5 rounded-2xl border border-border-soft bg-white p-5 shadow-sm">
+            <div className="flex flex-col gap-1.5">
+              <h2 className="style-mobile-title text-base text-ink font-semibold">
                 Description
               </h2>
-              <p className="style-mobile-body text-ink-muted">
-                {application.application.description}
+              <p className="style-mobile-body leading-relaxed text-ink-muted text-sm">
+                {appData.description}
               </p>
             </div>
 
-            <div className="flex flex-col gap-[6px]">
-              <h2 className="style-mobile-title text-ink">
-                Eligibility
-              </h2>
-              <ul className="flex list-disc flex-col gap-[4px] pl-[16px] style-mobile-body text-ink-muted">
-                {application.application.eligibility.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
+            {Array.isArray(appData.eligibility) &&
+            appData.eligibility.length > 0 ? (
+              <div className="flex flex-col gap-2 pt-3 border-t border-border-soft">
+                <h2 className="style-mobile-title text-base text-ink font-semibold">
+                  Eligibility Requirements
+                </h2>
+                <ul className="flex flex-col gap-1.5 style-mobile-body text-ink-muted text-sm pl-0.5">
+                  {appData.eligibility.map((item) => (
+                    <li key={item} className="flex items-start gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-brand mt-1.5 shrink-0" />
+                      <span className="leading-relaxed">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </div>
 
-          <div className="flex items-center gap-[10px]">
-            <h2 className="style-mobile-title text-ink">Roles</h2>
-            <span className="h-[1.5px] min-w-px flex-1 bg-border-soft" />
-          </div>
+          {/* Roles Section */}
+          {normalizedRoles.length > 0 ? (
+            <div className="flex flex-col gap-3 mt-1">
+              <div className="flex items-center gap-3">
+                <h2 className="style-mobile-title text-base text-ink shrink-0 font-semibold">
+                  Available Roles
+                </h2>
+                <span className="h-px flex-1 bg-border-soft" />
+              </div>
 
-          {applyDetailRoles.map((role) => (
-            <div
-              key={role.title}
-              className="flex flex-col gap-[10px] rounded-[16px] border border-border-soft bg-white p-[18px]"
-            >
-              <h3 className="style-mobile-title text-ink">
-                {role.title}
-              </h3>
-              <p className="style-mobile-body text-ink-muted">
-                {role.description}
-              </p>
-              <div className="flex flex-col gap-[6px]">
-                {role.tagRows.map((row, i) => (
-                  <div key={i} className="flex flex-wrap gap-[6px]">
-                    {row.map((t) => (
-                      <Tag key={t.label} label={t.label} bg={t.bg} color={t.color} border={t.border} />
-                    ))}
-                  </div>
+              <div className="flex flex-col gap-3">
+                {normalizedRoles.map((role, idx) => (
+                  <RoleCard key={role.title || idx} {...role} />
                 ))}
               </div>
             </div>
-          ))}
+          ) : null}
         </>
       ) : null}
 

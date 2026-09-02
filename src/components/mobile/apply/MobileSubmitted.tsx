@@ -1,12 +1,25 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { FormField } from "@/components/ui/form-field";
+import { Button } from "@/components/ui/button";
+import { MobileReadOnlyField } from "@/components/mobile/apply/MobileReadOnlyField";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
+import { SectionHeader } from "@/components/ui/section-header";
 import { personalFields } from "@/lib/data";
+import {
+  EMPTY_LAYOUT,
+  buildFormLayout,
+  collectExtraAnswers,
+  extractStringValues,
+  toFieldValues,
+  type ApplicationFormLayout,
+  type FieldValues,
+  type QuestionConfig,
+} from "@/lib/application-form";
 
 type SubmissionResponse = {
   submission: {
@@ -17,19 +30,10 @@ type SubmissionResponse = {
     application: {
       title: string;
       retentionUntil: string | null;
+      questions: (string | QuestionConfig)[];
     };
   };
 };
-
-type FieldValues = Record<(typeof personalFields)[number], string>;
-
-const DEFAULT_FIELD_VALUES: FieldValues = personalFields.reduce(
-  (acc, field) => {
-    acc[field] = "";
-    return acc;
-  },
-  {} as FieldValues
-);
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "long",
@@ -68,23 +72,9 @@ function getStatusBadge(status: string) {
   return <Badge label={label} bg="#e1e8ff" color="#1f3aa3" />;
 }
 
-function toFieldValues(payload: unknown) {
-  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
-    return DEFAULT_FIELD_VALUES;
-  }
-
-  const record = payload as Record<string, unknown>;
-
-  return personalFields.reduce((acc, field) => {
-    const value = record[field];
-    acc[field] = typeof value === "string" ? value : "";
-    return acc;
-  }, { ...DEFAULT_FIELD_VALUES });
-}
-
 function LoadingState() {
   return (
-    <div className="flex flex-col gap-[12px]">
+    <div className="flex flex-col gap-[12px] animate-pulse">
       <div className="h-[22px] w-[70%] rounded-full bg-[#efece3]" />
       <div className="h-[14px] w-[50%] rounded-full bg-[#f4f1ea]" />
       <div className="flex flex-col gap-[14px]">
@@ -111,7 +101,10 @@ export function MobileSubmitted() {
   const searchParams = useSearchParams();
   const submissionId = searchParams.get("submissionId");
   const [submission, setSubmission] = useState<SubmissionResponse["submission"] | null>(null);
-  const [fieldValues, setFieldValues] = useState<FieldValues>(DEFAULT_FIELD_VALUES);
+  const [layout, setLayout] = useState<ApplicationFormLayout>(EMPTY_LAYOUT);
+  const [questionsMap, setQuestionsMap] = useState<Record<string, QuestionConfig>>({});
+  const [fieldValues, setFieldValues] = useState<FieldValues>({});
+  const [extraAnswers, setExtraAnswers] = useState<Array<[string, string]>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -145,8 +138,33 @@ export function MobileSubmitted() {
         }
 
         const payload = (await response.json()) as SubmissionResponse;
+        const rawQuestions = payload.submission.application.questions ?? [];
+        const qMap: Record<string, QuestionConfig> = {};
+        const normalizedLabels: string[] = [];
+
+        rawQuestions.forEach((q) => {
+          if (typeof q === "string") {
+            qMap[q] = { label: q, type: "TEXT" };
+            normalizedLabels.push(q);
+          } else if (q && typeof q === "object" && q.label) {
+            qMap[q.label] = q;
+            normalizedLabels.push(q.label);
+          }
+        });
+
+        const nextLayout = buildFormLayout(normalizedLabels);
+        const answers = payload.submission.formPayloadJson;
+
+        setQuestionsMap(qMap);
         setSubmission(payload.submission);
-        setFieldValues(toFieldValues(payload.submission.formPayloadJson));
+        setLayout(nextLayout);
+        setFieldValues(
+          toFieldValues(
+            nextLayout.allFieldLabels,
+            extractStringValues(nextLayout.allFieldLabels, answers)
+          )
+        );
+        setExtraAnswers(collectExtraAnswers(nextLayout.allFieldLabels, answers));
       } catch (caught) {
         if ((caught as Error).name !== "AbortError") {
           setSubmission(null);
@@ -168,13 +186,30 @@ export function MobileSubmitted() {
 
   return (
     <MobileScreen>
-      <div className="flex flex-col gap-[6px]">
-        <h1 className="style-mobile-title text-ink">
-          Submitted Application
-        </h1>
-        <p className="style-mobile-body text-ink-muted">
-          View your submitted answers in read-only form.
-        </p>
+      <div className="flex flex-col gap-[14px]">
+        <Link
+          href="/applications"
+          className="style-caption leading-[16.8px] tracking-[0.2px] text-brand"
+        >
+          ← Back to Applications
+        </Link>
+
+        <div className="flex flex-col gap-[12px]">
+          <div className="flex flex-col gap-[6px]">
+            <h1 className="style-mobile-title text-ink">
+              Submitted Application
+            </h1>
+            <p className="style-mobile-body text-ink-muted">
+              View your submitted answers in read-only form.
+            </p>
+          </div>
+
+          <div>
+            <Button href="/applications/history" variant="ghost" size="md">
+              View Other Submitted Applications
+            </Button>
+          </div>
+        </div>
       </div>
 
       {loading ? (
@@ -182,7 +217,7 @@ export function MobileSubmitted() {
       ) : error ? (
         <NotFoundState message={error} />
       ) : submission ? (
-        <div className="flex flex-col gap-[16px] rounded-[16px] border border-border-soft bg-white p-[20px]">
+        <div className="flex flex-col gap-[20px] rounded-[16px] border border-border-soft bg-white p-[20px]">
           <div className="flex flex-col gap-[8px]">
             <div className="flex items-start justify-between gap-[10px]">
               <h2 className="style-mobile-title text-ink">
@@ -202,35 +237,43 @@ export function MobileSubmitted() {
             </p>
           ) : null}
 
-          <div className="flex flex-col gap-[14px]">
-            {personalFields.map((label) =>
-              label === "Resume *" ? (
-                <div key={label} className="flex flex-col gap-[6px]">
-                  <label className="style-mobile-body font-bold text-ink">
-                    {label}
-                  </label>
-                  <a
-                    href="/api/profile/resume/download"
-                    className="flex h-[40px] items-center rounded-[10px] bg-field px-[13px] style-caption text-ink transition-colors hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/40"
-                    title={fieldValues[label]}
-                  >
-                    <span className="truncate">
-                      {fieldValues[label] || "Download resume"}
-                    </span>
-                  </a>
+          {/* Render step sections aligned with desktop layout */}
+          {layout.steps.slice(0, layout.reviewStepIndex).map((step, index) => {
+            const fields = layout.stepFieldGroups[index] ?? [];
+
+            return (
+              <div key={step} className="flex flex-col gap-[14px]">
+                <SectionHeader title={step} />
+                <div className="grid grid-cols-1 gap-x-[28px] gap-y-[20px] sm:grid-cols-2">
+                  {fields.map((label) => (
+                    <MobileReadOnlyField
+                      key={label}
+                      label={label}
+                      value={fieldValues[label] ?? ""}
+                      config={questionsMap[label]}
+                    />
+                  ))}
                 </div>
-              ) : (
-                <FormField
-                  key={label}
-                  label={label}
-                  value={fieldValues[label]}
-                  readOnly
-                  tabIndex={-1}
-                  className="cursor-default"
-                />
-              ),
-            )}
-          </div>
+              </div>
+            );
+          })}
+
+          {/* Extra answers outside active application schema */}
+          {extraAnswers.length > 0 ? (
+            <div className="flex flex-col gap-[14px]">
+              <SectionHeader title="Other Answers" />
+              <div className="grid grid-cols-1 gap-x-[28px] gap-y-[20px] sm:grid-cols-2">
+                {extraAnswers.map(([label, value]) => (
+                  <MobileReadOnlyField
+                    key={label}
+                    label={label}
+                    value={value}
+                    config={questionsMap[label]}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
       ) : null}
 

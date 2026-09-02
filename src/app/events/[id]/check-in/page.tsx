@@ -62,7 +62,7 @@ export default async function CheckInPage({ searchParams }: CheckInProps) {
             Event Not Found
           </h1>
           <p className="mt-[8px] style-body-text text-ink-muted leading-[20px]">
-            We couldn't locate an event matching this check-in token.
+            We couldn&apos;t locate an event matching this check-in token.
           </p>
           <div className="mt-[24px]">
             <Link
@@ -120,12 +120,13 @@ export default async function CheckInPage({ searchParams }: CheckInProps) {
   let rsvp = existingRsvp;
 
   if (!rsvp) {
-    const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7);
+    const createdAt = new Date();
+    const expiresAt = new Date(createdAt.getTime() + 1000 * 60 * 60 * 24 * 7);
     const qrToken = await generateQRToken({
       userId: session.profile.userId,
       eventId: event.id,
-      ttl: Math.floor((expiresAt.getTime() - Date.now()) / 1000),
-      nonce: `${session.profile.userId}:${event.id}:${Date.now()}`,
+      ttl: Math.floor((expiresAt.getTime() - createdAt.getTime()) / 1000),
+      nonce: `${session.profile.userId}:${event.id}:${createdAt.getTime()}`,
     });
 
     rsvp = await prisma.rSVP.create({
@@ -175,7 +176,7 @@ export default async function CheckInPage({ searchParams }: CheckInProps) {
           {hadPriorRsvp ? (
             <>You are checked in for <span className="font-semibold">{event.title}</span>.</>
           ) : (
-            <>You're all set for <span className="font-semibold">{event.title}</span>. You didn't have an RSVP, but we checked you in!</>
+            <>You&apos;re all set for <span className="font-semibold">{event.title}</span>. You didn&apos;t have an RSVP, but we checked you in!</>
           )}
         </p>
 

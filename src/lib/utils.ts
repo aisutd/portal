@@ -31,3 +31,67 @@ export function formatEventDate(dateString: string, includeDayOfWeek = false) {
 
   return new Intl.DateTimeFormat("en-US", options).format(date).replace(", ", " · ");
 }
+
+/** Formats UTC Date or ISO string into Chicago timezone (YYYY-MM-DDTHH:mm) for HTML5 datetime-local inputs */
+export function formatChicagoDateTimeInput(dateInput?: Date | string | null): string {
+  if (!dateInput) return "";
+  const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
+  if (isNaN(date.getTime())) return "";
+
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(date);
+  const partMap: Record<string, string> = {};
+  for (const part of parts) {
+    partMap[part.type] = part.value;
+  }
+
+  const hour = partMap.hour === "24" ? "00" : partMap.hour;
+  return `${partMap.year}-${partMap.month}-${partMap.day}T${hour}:${partMap.minute}`;
+}
+
+export function getRelativeTimeString(eventStartTime: Date): { 
+  relativeText: string; 
+  headlineText: string;
+} {
+  const now = new Date();
+  const eventDate = new Date(eventStartTime);
+  
+  // Difference in milliseconds
+  const diffMs = eventDate.getTime() - now.getTime();
+  
+  // Fallback if event is already in the past
+  if (diffMs <= 0) {
+    return { 
+      relativeText: "starting right now", 
+      headlineText: "Event Started!" 
+    };
+  }
+
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffHours / 24);
+
+  // Scenario 1: Less than 24 hours away
+  if (diffHours < 24) {
+    const hoursText = diffHours <= 1 ? "1 hour" : `${diffHours} hours`;
+    return {
+      relativeText: `today in ${hoursText}`,
+      headlineText: `Starting today in ${hoursText}!`,
+    };
+  }
+
+  // Scenario 2: 24 hours or more away
+  const daysText = diffDays === 1 ? "1 day" : `${diffDays} days`;
+  return {
+    relativeText: `in ${daysText}`,
+    headlineText: `Happening in ${daysText}!`,
+  };
+}
