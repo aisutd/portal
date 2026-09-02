@@ -8,6 +8,116 @@ import Link from "next/link";
 import { z } from "zod";
 import { ApplicationStatus, MembershipType, ProgramType, UserRole } from "@prisma/client";
 
+
+export function ExportCustomizerModal({
+  application,
+  onClose,
+}: {
+  application: { id: string; title: string; questionsJson?: any };
+  onClose: () => void;
+}) {
+  const systemFields = [
+    { id: "profile.firstName", label: "First Name" },
+    { id: "profile.lastName", label: "Last Name" },
+    { id: "profile.middleName", label: "Middle Name" },
+    { id: "profile.prefName", label: "Preferred Name" },
+    { id: "user.email", label: "Email Address" },
+    { id: "profile.utdEmail", label: "UTD Email" },
+    { id: "profile.personalEmail", label: "Personal Email" },
+    { id: "profile.utdNetId", label: "UTD NetID" },
+    { id: "profile.phoneNumber", label: "Phone Number" },
+    { id: "profile.degree", label: "Degree" },
+    { id: "profile.major", label: "Major" },
+    { id: "profile.year", label: "Year" },
+    { id: "profile.githubUrl", label: "GitHub URL" },
+    { id: "profile.linkedinUrl", label: "LinkedIn URL" },
+    { id: "profile.portfolioUrl", label: "Portfolio URL" },
+    { id: "profile.resumeFileId", label: "Resume File ID" },
+    { id: "profile.profileCompletionStatus", label: "Profile Completion Status" },
+    { id: "profile.createdAt", label: "Profile Created At" },
+    { id: "profile.updatedAt", label: "Profile Updated At" },
+    { id: "submission.status", label: "Application Status" },
+    { id: "submission.submittedAt", label: "Submission Date" },
+  ];
+
+  const dynamicQuestions = (application.questionsJson as Array<{ id: string; label: string }>) || [];
+
+  const allAvailableFields = [
+    ...systemFields,
+    ...dynamicQuestions.map((q) => ({ id: `q_${q.id}`, label: `Question: ${q.label}` })),
+  ];
+
+  const [selectedFields, setSelectedFields] = useState<string[]>(
+    systemFields.map((f) => f.id)
+  );
+
+  const toggleAll = () => {
+    if (selectedFields.length === allAvailableFields.length) {
+      setSelectedFields([]);
+    } else {
+      setSelectedFields(allAvailableFields.map((f) => f.id));
+    }
+  };
+
+  const handleDownload = () => {
+    if (selectedFields.length === 0) {
+      alert("Please select at least one field to export.");
+      return;
+    }
+
+    const fieldsParam = encodeURIComponent(JSON.stringify(selectedFields));
+    window.open(
+      `/api/admin/applications/${application.id}/export?fields=${fieldsParam}`,
+      "_blank"
+    );
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-base font-bold text-ink">Export CSV Fields</h3>
+          <button
+            type="button"
+            onClick={toggleAll}
+            className="text-xs font-medium text-blue-600 hover:underline"
+          >
+            {selectedFields.length === allAvailableFields.length ? "Deselect All" : "Select All"}
+          </button>
+        </div>
+
+        <div className="max-h-80 overflow-y-auto border border-border-soft rounded-xl p-3 divide-y divide-border-soft/50">
+          {allAvailableFields.map((field) => (
+            <label key={field.id} className="flex items-center gap-2 text-xs py-1.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={selectedFields.includes(field.id)}
+                onChange={(e) => {
+                  setSelectedFields(
+                    e.target.checked
+                      ? [...selectedFields, field.id]
+                      : selectedFields.filter((id) => id !== field.id)
+                  );
+                }}
+              />
+              <span className="truncate">{field.label}</span>
+            </label>
+          ))}
+        </div>
+
+        <div className="flex justify-end gap-2 pt-2">
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button size="sm" onClick={handleDownload}>
+            Download CSV ({selectedFields.length})
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 type Status = ApplicationStatus;
 
 type Question = {
@@ -32,6 +142,7 @@ type Summary = {
   submissionCount: number;
   acceptedCount: number;
   inReviewCount: number;
+  questionsJson?: Question[];
 };
 
 type Submission = {
@@ -66,7 +177,6 @@ type Detail = Summary & {
   submissions: Submission[];
 };
 
-// Zod Validation for Date Logic
 const appDatesSchema = z
   .object({
     openAt: z.string().optional(),
@@ -85,7 +195,6 @@ const appDatesSchema = z
     }
   );
 
-// Debounce Hook
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
@@ -171,9 +280,12 @@ export function AdminApplicationsManager({
   const [detail, setDetail] = useState<Detail | null>(null);
   const [selectedSubmissionId, setSelectedSubmissionId] = useState("");
 
-  // Collapsible state controls
   const [isAppsListOpen, setIsAppsListOpen] = useState(true);
   const [isSubmissionsListOpen, setIsSubmissionsListOpen] = useState(true);
+
+  const [isBlindReviewMode, setIsBlindReviewMode] = useState(false);
+  const [selectedSubmissionIds, setSelectedSubmissionIds] = useState<string[]>([]);
+  const [showExportModal, setShowExportModal] = useState(false);
 
   const [rawQuery, setRawQuery] = useState("");
   const debouncedQuery = useDebounce(rawQuery, 300);
@@ -200,7 +312,6 @@ export function AdminApplicationsManager({
 
   const router = useRouter();
 
-  // Role checking logic
   const isAIMMentor = userMemberships.includes("AIM_MENTOR");
   const isExecutiveOrDirector = userRole === "EXECUTIVE" || userRole === "DIRECTOR";
   const isOfficerOrAbove = isExecutiveOrDirector || userRole === "OFFICER";
@@ -208,17 +319,9 @@ export function AdminApplicationsManager({
   const canEditOrPublish = isExecutiveOrDirector;
   const canDelete = userRole === "EXECUTIVE";
 
-  // Check if current user has permissions to alter status for the specific application
-  const canChangeStatus = useMemo(() => {
-    if (isExecutiveOrDirector) return true;
-    if (userRole === "OFFICER") return true;
-    if (userRole === "MEMBER" && isAIMMentor && detail?.programType === "AI_MENTORSHIP_MENTEE") {
-      return true;
-    }
-    return false;
-  }, [userRole, isAIMMentor, detail, isExecutiveOrDirector]);
+  // Restricted: ONLY Executives and Directors can accept/reject/shortlist candidates
+  const canChangeStatus = isExecutiveOrDirector;
 
-  // Filter application listings for members with AIM_MENTOR access
   const visibleApplications = useMemo(() => {
     return applications.filter((app) => {
       if (isOfficerOrAbove) return true;
@@ -269,6 +372,7 @@ export function AdminApplicationsManager({
         ? current
         : payload.application.submissions[0]?.id || ""
     );
+    setSelectedSubmissionIds([]);
   }
 
   useEffect(() => {
@@ -324,6 +428,29 @@ export function AdminApplicationsManager({
       if (!response.ok) throw new Error("Unable to save this review.");
 
       setPendingStatus(null);
+      await Promise.all([loadDetail(detail.id), loadApplications()]);
+    } catch (caught) {
+      setError((caught as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleBatchStatusUpdate(statusToApply: Status) {
+    if (!detail || selectedSubmissionIds.length === 0) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await Promise.all(
+        selectedSubmissionIds.map((subId) =>
+          fetch(`/api/admin/applications/${detail.id}/submissions/${subId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: statusToApply }),
+          })
+        )
+      );
+      setSelectedSubmissionIds([]);
       await Promise.all([loadDetail(detail.id), loadApplications()]);
     } catch (caught) {
       setError((caught as Error).message);
@@ -442,6 +569,20 @@ export function AdminApplicationsManager({
     );
   }
 
+  const toggleSelectAllSubmissions = () => {
+    if (selectedSubmissionIds.length === submissions.length) {
+      setSelectedSubmissionIds([]);
+    } else {
+      setSelectedSubmissionIds(submissions.map((s) => s.id));
+    }
+  };
+
+  const toggleSelectSubmission = (id: string) => {
+    setSelectedSubmissionIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
   const orderedResponses = useMemo(() => {
     if (!selectedSubmission) return [];
     const payload = (selectedSubmission.formPayloadJson ?? {}) as Record<string, unknown>;
@@ -520,7 +661,23 @@ export function AdminApplicationsManager({
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Blind Review Mode Toggle */}
+            <button
+              type="button"
+              onClick={() => setIsBlindReviewMode((prev) => !prev)}
+              className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all ${
+                isBlindReviewMode
+                  ? "border-amber-400 bg-amber-50 text-amber-900 shadow-xs"
+                  : "border-border-soft bg-white text-ink-muted hover:bg-stone-50"
+              }`}
+            >
+              <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a9.957 9.957 0 014.122-.963c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21f-18-18" />
+              </svg>
+              <span>{isBlindReviewMode ? "Blind Review ON" : "Blind Review OFF"}</span>
+            </button>
+
             {/* View Layout Toggles */}
             <div className="flex items-center rounded-lg border border-border-soft bg-white p-1 shadow-xs">
               <button
@@ -573,11 +730,11 @@ export function AdminApplicationsManager({
         <div
           className={`grid gap-5 transition-all duration-300 ease-in-out ${
             isAppsListOpen && isSubmissionsListOpen
-              ? "grid-cols-1 lg:grid-cols-[260px_300px_1fr]"
+              ? "grid-cols-1 lg:grid-cols-[260px_320px_1fr]"
               : isAppsListOpen && !isSubmissionsListOpen
               ? "grid-cols-1 lg:grid-cols-[280px_1fr]"
               : !isAppsListOpen && isSubmissionsListOpen
-              ? "grid-cols-1 lg:grid-cols-[320px_1fr]"
+              ? "grid-cols-1 lg:grid-cols-[340px_1fr]"
               : "grid-cols-1"
           }`}
         >
@@ -641,13 +798,25 @@ export function AdminApplicationsManager({
             </aside>
           ) : null}
 
-          {/* Submissions/Applicants Sidebar */}
+          {/* Submissions/Applicants Sidebar with Checkboxes */}
           {detail && isSubmissionsListOpen ? (
             <div className="flex flex-col gap-3 min-w-0 transition-all">
               <div className="flex items-center justify-between px-1">
-                <h2 className="style-body-text text-xs font-bold uppercase tracking-wider text-ink-muted">
-                  Applicants ({submissions.length})
-                </h2>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={
+                      submissions.length > 0 &&
+                      selectedSubmissionIds.length === submissions.length
+                    }
+                    onChange={toggleSelectAllSubmissions}
+                    className="rounded border-stone-300 text-brand focus:ring-brand"
+                    title="Select All Applicants"
+                  />
+                  <h2 className="style-body-text text-xs font-bold uppercase tracking-wider text-ink-muted">
+                    Applicants ({submissions.length})
+                  </h2>
+                </div>
                 <button
                   type="button"
                   onClick={() => setIsSubmissionsListOpen(false)}
@@ -658,11 +827,53 @@ export function AdminApplicationsManager({
                 </button>
               </div>
 
+              {/* Bulk Action Toolbar - Decisions hidden for Officers/Members */}
+              {selectedSubmissionIds.length > 0 && canChangeStatus ? (
+                <div className="rounded-xl border border-brand/30 bg-brand-soft/60 p-2.5 space-y-2">
+                  <div className="flex items-center justify-between text-xs font-semibold text-brand">
+                    <span>{selectedSubmissionIds.length} Selected</span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedSubmissionIds([])}
+                      className="text-[11px] underline text-ink-muted hover:text-ink"
+                    >
+                      Deselect
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-1">
+                    <Button
+                      size="sm"
+                      className="text-[10px] py-1 h-auto"
+                      variant="accent"
+                      onClick={() => handleBatchStatusUpdate("IN_CONSIDERATION")}
+                    >
+                      Shortlist
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="text-[10px] py-1 h-auto"
+                      variant="primary"
+                      onClick={() => handleBatchStatusUpdate("ACCEPTED")}
+                    >
+                      Accept
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="text-[10px] py-1 h-auto"
+                      variant="danger"
+                      onClick={() => handleBatchStatusUpdate("REJECTED")}
+                    >
+                      Reject
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
+
               <input
                 className="rounded-lg border border-border-soft bg-search-field px-3 py-2 text-xs focus:border-brand outline-none"
                 value={rawQuery}
                 onChange={(event) => setRawQuery(event.target.value)}
-                placeholder="Search candidate or NetID…"
+                placeholder={isBlindReviewMode ? "Filter by candidate status..." : "Search candidate or NetID…"}
               />
 
               <div className="flex flex-wrap gap-1">
@@ -683,40 +894,57 @@ export function AdminApplicationsManager({
               </div>
 
               <div className="max-h-[calc(100vh-280px)] overflow-y-auto space-y-2 pr-1">
-                {submissions.map((submission) => {
+                {submissions.map((submission, index) => {
                   const profile = submission.user.profile;
-                  const name = profile
+                  const candidateName = isBlindReviewMode
+                    ? `Applicant #${index + 1}`
+                    : profile
                     ? `${profile.firstName} ${profile.lastName}`
                     : submission.user.email;
+                  const candidateSubtext = isBlindReviewMode
+                    ? `ID: ${submission.id.slice(-6)}`
+                    : profile?.utdNetId ?? submission.user.email;
+
                   const isSelected = submission.id === selectedSubmissionId;
+                  const isChecked = selectedSubmissionIds.includes(submission.id);
 
                   return (
-                    <button
-                      type="button"
-                      onClick={() => setSelectedSubmissionId(submission.id)}
+                    <div
                       key={submission.id}
-                      className={`w-full rounded-xl border p-3 text-left transition-all ${
+                      className={`group flex items-center gap-2 rounded-xl border p-3 text-left transition-all ${
                         isSelected
                           ? "border-brand bg-brand-soft/40 shadow-xs"
                           : "border-border-soft bg-white hover:border-stone-300"
                       }`}
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="style-body-text font-semibold text-ink text-xs truncate">
-                          {name}
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => toggleSelectSubmission(submission.id)}
+                        className="rounded border-stone-300 text-brand focus:ring-brand shrink-0"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setSelectedSubmissionId(submission.id)}
+                        className="flex-1 min-w-0 text-left"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="style-body-text font-semibold text-ink text-xs truncate">
+                            {candidateName}
+                          </p>
+                          <span
+                            className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold border ${statusBadgeColor(
+                              submission.status
+                            )}`}
+                          >
+                            {statusLabel(submission.status)}
+                          </span>
+                        </div>
+                        <p className="style-caption mt-1 text-[11px] text-ink-faint truncate">
+                          {candidateSubtext}
                         </p>
-                        <span
-                          className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold border ${statusBadgeColor(
-                            submission.status
-                          )}`}
-                        >
-                          {statusLabel(submission.status)}
-                        </span>
-                      </div>
-                      <p className="style-caption mt-1 text-[11px] text-ink-faint truncate">
-                        {profile?.utdNetId ?? submission.user.email}
-                      </p>
-                    </button>
+                      </button>
+                    </div>
                   );
                 })}
                 {!submissions.length ? (
@@ -767,6 +995,14 @@ export function AdminApplicationsManager({
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setShowExportModal(true)}
+                      >
+                        ↓ Export Custom CSVs
+                      </Button>
+
                       {!isSubmissionsListOpen ? (
                         <button
                           type="button"
@@ -943,20 +1179,27 @@ export function AdminApplicationsManager({
                       <div className="rounded-xl border border-border-soft bg-row-soft p-4">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div>
-                            <Link 
-                              href={`/admin/members/${selectedSubmission.userId}`} 
-                              className="hover:underline transition-opacity hover:opacity-80 inline-block"
-                            >
-                              <h3 className="style-section-header text-lg font-bold text-ink">
-                                {selectedSubmission.user.profile
-                                  ? `${selectedSubmission.user.profile.firstName} ${selectedSubmission.user.profile.lastName}`
-                                  : selectedSubmission.user.email}
+                            {isBlindReviewMode ? (
+                              <h3 className="style-section-header text-lg font-bold text-amber-900">
+                                Anonymous Applicant #{submissions.findIndex((s) => s.id === selectedSubmission.id) + 1}
                               </h3>
-                            </Link>
+                            ) : (
+                              <Link 
+                                href={`/admin/members/${selectedSubmission.userId}`} 
+                                className="hover:underline transition-opacity hover:opacity-80 inline-block"
+                              >
+                                <h3 className="style-section-header text-lg font-bold text-ink">
+                                  {selectedSubmission.user.profile
+                                    ? `${selectedSubmission.user.profile.firstName} ${selectedSubmission.user.profile.lastName}`
+                                    : selectedSubmission.user.email}
+                                </h3>
+                              </Link>
+                            )}
                             <p className="style-caption text-xs text-ink-faint mt-0.5">
-                              {selectedSubmission.user.profile?.utdNetId ?? "No NetID"} ·{" "}
-                              {selectedSubmission.user.email} · Submitted{" "}
-                              {localValue(selectedSubmission.submittedAt)}
+                              {isBlindReviewMode
+                                ? `Submission ID: ${selectedSubmission.id}`
+                                : `${selectedSubmission.user.profile?.utdNetId ?? "No NetID"} · ${selectedSubmission.user.email}`}{" "}
+                              · Submitted {localValue(selectedSubmission.submittedAt)}
                             </p>
                           </div>
                           <span
@@ -968,47 +1211,50 @@ export function AdminApplicationsManager({
                           </span>
                         </div>
 
-                        <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-border-soft/60 pt-3">
-                          {selectedSubmission.user.profile?.resumeFile ? (
-                            <a
-                              className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
-                              href={`/api/admin/applications/${detail.id}/submissions/${selectedSubmission.id}/resume`}
-                              rel="noreferrer"
-                            >
-                              Resume ↗
-                            </a>
-                          ) : null}
-                          {selectedSubmission.user.profile?.linkedinUrl ? (
-                            <a
-                              className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
-                              href={selectedSubmission.user.profile.linkedinUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              LinkedIn ↗
-                            </a>
-                          ) : null}
-                          {selectedSubmission.user.profile?.githubUrl ? (
-                            <a
-                              className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
-                              href={selectedSubmission.user.profile.githubUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              GitHub ↗
-                            </a>
-                          ) : null}
-                          {selectedSubmission.user.profile?.portfolioUrl ? (
-                            <a
-                              className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
-                              href={selectedSubmission.user.profile.portfolioUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              Portfolio ↗
-                            </a>
-                          ) : null}
-                        </div>
+                        {/* Resume / Social Links (Hidden during Blind Review) */}
+                        {!isBlindReviewMode ? (
+                          <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-border-soft/60 pt-3">
+                            {selectedSubmission.user.profile?.resumeFile ? (
+                              <a
+                                className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
+                                href={`/api/admin/applications/${detail.id}/submissions/${selectedSubmission.id}/resume`}
+                                rel="noreferrer"
+                              >
+                                Resume ↗
+                              </a>
+                            ) : null}
+                            {selectedSubmission.user.profile?.linkedinUrl ? (
+                              <a
+                                className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
+                                href={selectedSubmission.user.profile.linkedinUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                LinkedIn ↗
+                              </a>
+                            ) : null}
+                            {selectedSubmission.user.profile?.githubUrl ? (
+                              <a
+                                className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
+                                href={selectedSubmission.user.profile.githubUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                GitHub ↗
+                              </a>
+                            ) : null}
+                            {selectedSubmission.user.profile?.portfolioUrl ? (
+                              <a
+                                className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
+                                href={selectedSubmission.user.profile.portfolioUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                Portfolio ↗
+                              </a>
+                            ) : null}
+                          </div>
+                        ) : null}
                       </div>
 
                       <div className="flex flex-col gap-4">
@@ -1053,7 +1299,7 @@ export function AdminApplicationsManager({
                           className="mt-3 min-h-24 w-full rounded-lg border border-border-soft bg-search-field p-3 text-xs focus:border-brand outline-none"
                           value={notes}
                           onChange={(event) => setNotes(event.target.value)}
-                          placeholder="Add internal evaluation feedback or notes for reviewers..."
+                          placeholder="ACCEPT: applicant meets all criteria..."
                         />
 
                         <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-border-soft pt-4">
@@ -1067,6 +1313,7 @@ export function AdminApplicationsManager({
                               Save Notes Only
                             </Button>
 
+                            {/* Status Decision Buttons (Only visible to Executives / Directors) */}
                             {canChangeStatus ? (
                               <>
                                 <Button
@@ -1215,6 +1462,14 @@ export function AdminApplicationsManager({
             </div>
           </div>
         </div>
+      ) : null}
+
+      {/* Render Export Customizer Modal */}
+      {showExportModal && detail ? (
+        <ExportCustomizerModal
+          application={detail}
+          onClose={() => setShowExportModal(false)}
+        />
       ) : null}
     </div>
   );
