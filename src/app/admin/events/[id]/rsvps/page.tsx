@@ -146,21 +146,28 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
           <MobileAdminNav active="Events" />
 
           {/* Header */}
-          <div className="flex items-center justify-between pb-[16px]">
-            <div className="flex items-center gap-[12px]">
-              <Link href={`/admin/events`} className="flex h-[32px] w-[32px] items-center justify-center rounded-full border border-border-soft bg-white text-ink-faint hover:bg-gray-50">
+          <div className="relative z-10 flex items-center justify-between pb-[16px] gap-[12px]">
+            <div className="flex items-center gap-[12px] min-w-0 flex-1">
+              <Link 
+                href={`/admin/events`} 
+                className="flex h-[32px] w-[32px] shrink-0 items-center justify-center rounded-full border border-border-soft bg-white text-ink-faint hover:bg-gray-50"
+              >
                 <span aria-hidden>←</span>
               </Link>
-              <div className="flex flex-col">
-                <h2 className="style-mobile-title text-ink leading-tight truncate w-[160px]">{event.title}</h2>
+              <div className="flex flex-col min-w-0 flex-1">
+                <h2 className="style-mobile-title text-ink leading-tight truncate">{event.title}</h2>
                 <span className="style-caption text-ink-faint">Attendance Dashboard</span>
               </div>
             </div>
-            <SendReminderButton
-              eventId={event.id}
-              eventTitle={event.title}
-              rsvpCount={stats.totalRsvps}
-            />
+
+            {/* Wrapped Button Container to prevent shrinkage */}
+            <div className="shrink-0">
+              <SendReminderButton
+                eventId={event.id}
+                eventTitle={event.title}
+                rsvpCount={stats.totalRsvps}
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-[16px] pb-[40px]">
