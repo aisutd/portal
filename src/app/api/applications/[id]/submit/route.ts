@@ -9,6 +9,7 @@ import {
   parseQuestionConfigs,
   validateFields,
 } from "@/lib/application-form";
+import { sendApplicationConfirmationEmail } from "@/lib/emails/submit-application";
 import { prisma } from "@/lib/prisma";
 
 async function getCurrentUser() {
@@ -219,6 +220,12 @@ export async function POST(
   if ("error" in result) {
     return result.error;
   }
+
+  // Send confirmation email asynchronously (un-awaited or safely caught)
+  sendApplicationConfirmationEmail({
+    userId: currentUser.userId,
+    applicationId: id,
+  }).catch((err) => console.error("Email trigger error:", err));
 
   return NextResponse.json({ submission: result.submission });
 }
