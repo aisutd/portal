@@ -234,7 +234,7 @@ export function MobileApply() {
     <MobileScreen>
       <div className="flex flex-col gap-[6px]">
         <h1 className="style-page-title leading-tight tracking-tight text-ink">
-          Choose Your <span className="bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent pr-3">AIS Path</span>
+          Choose Your <span className="inline-block pr-1 bg-[linear-gradient(90deg,#f2a968_0%,#7d64c4_100%)] bg-clip-text text-transparent">AIS Path</span>
         </h1>
         <p className="style-page-subtitle text-ink-muted">
           Welcome to the enrollment hub. Whether you&apos;re here to learn,
