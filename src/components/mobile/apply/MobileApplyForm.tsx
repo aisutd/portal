@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { type ChangeEvent, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormStepper } from "@/components/apply/form-stepper";
@@ -17,6 +18,7 @@ import {
   findFirstStepWithError,
   toFieldValues,
   validateFields,
+  normalizeFieldLabel,
   isRequiredField,
   type ApplicationFormLayout,
   type FieldValues,
@@ -80,6 +82,15 @@ type DraftResponse = {
   } | null;
 };
 
+type RequiredProfileFields = {
+  requirePhoneNumber?: boolean;
+  requirePersonalEmail?: boolean;
+  requireResume?: boolean;
+  requireLinkedin?: boolean;
+  requireGithub?: boolean;
+  requirePortfolio?: boolean;
+};
+
 type ApplicationResponse = {
   application: {
     id: string;
@@ -87,6 +98,7 @@ type ApplicationResponse = {
     description?: string;
     phase?: string;
     questions: (string | QuestionConfig)[];
+    requiredProfileFields?: RequiredProfileFields;
   };
   submissionStatus: string | null;
 };
@@ -123,6 +135,36 @@ function profileToFieldValues(
     [getLabel("Portfolio")]: profile.portfolioUrl ?? "",
     [getLabel("Resume")]: profile.resumeFile?.fileName ?? "",
   };
+}
+
+function SaveIndicator({ status }: { status: "idle" | "saving" | "saved" }) {
+  if (status === "idle") return null;
+
+  return (
+    <div className="flex items-center gap-1.5 text-xs font-medium transition-all duration-200">
+      {status === "saving" && (
+        <>
+          <span className="h-2 w-2 animate-spin rounded-full border-2 border-brand border-t-transparent" />
+          <span className="text-ink-muted">Saving...</span>
+        </>
+      )}
+
+      {status === "saved" && (
+        <>
+          <svg
+              className="h-3.5 w-3.5 text-emerald-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.5}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          <span className="text-emerald-700">Saved</span>
+        </>
+      )}
+    </div>
+  );
 }
 
 function LoadingState() {
@@ -169,6 +211,7 @@ export function MobileApplyForm() {
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
 
   const saveTimerRef = useRef<number | null>(null);
   const fieldValuesRef = useRef<FieldValues>({});
@@ -209,15 +252,38 @@ export function MobileApplyForm() {
           ? ((await applicationResponse.json()) as ApplicationResponse)
           : null;
 
-        const rawQuestions = applicationPayload?.application.questions ?? [];
+        const rawQuestions = applicationPayload?.application?.questions ?? [];
+        const rawRequirements = applicationPayload?.application?.requiredProfileFields as
+          | Record<string, boolean>
+          | undefined;
+
         const qMap: Record<string, QuestionConfig> = {};
         const normalizedLabels: string[] = [];
 
-        rawQuestions.forEach((q) => {
+        if (rawRequirements) {
+          const profileMap: Record<string, boolean | undefined> = {
+            "Phone Number": rawRequirements.requirePhoneNumber,
+            "Personal Email": rawRequirements.requirePersonalEmail,
+            Resume: rawRequirements.requireResume,
+            LinkedIn: rawRequirements.requireLinkedin,
+            GitHub: rawRequirements.requireGithub,
+            Portfolio: rawRequirements.requirePortfolio,
+          };
+
+          Object.entries(profileMap).forEach(([fieldLabel, isRequired]) => {
+            const config = { label: fieldLabel, required: Boolean(isRequired) };
+            qMap[fieldLabel] = config;
+            qMap[`${fieldLabel} *`] = config;
+          });
+        }
+
+        rawQuestions.forEach((q, idx) => {
           if (typeof q === "string") {
-            qMap[q] = { label: q, type: "TEXT" };
-            normalizedLabels.push(q);
-          } else if (q && typeof q === "object" && q.label) {
+            const cleanLabel = q.trim() || `Question ${idx + 1}`;
+            qMap[cleanLabel] = { label: cleanLabel, type: "TEXT" };
+            normalizedLabels.push(cleanLabel);
+          } else if (q && typeof q === "object") {
+            const cleanLabel = q.label?.trim() || `Question ${idx + 1}`;
             const rawType = String(q.type || "").toUpperCase().trim();
             let normalizedType: QuestionType = "TEXT";
 
@@ -238,45 +304,48 @@ export function MobileApplyForm() {
               normalizedType = "TEXT";
             }
 
-            qMap[q.label] = {
+            qMap[cleanLabel] = {
               ...q,
+              label: cleanLabel,
               type: normalizedType,
             };
-            normalizedLabels.push(q.label);
+            normalizedLabels.push(cleanLabel);
           }
         });
 
-        setQuestionsMap(qMap);
+        if (!controller.signal.aborted) {
+          setQuestionsMap(qMap);
 
-        const nextLayout = buildFormLayout(normalizedLabels);
-        setLayout(nextLayout);
+          const nextLayout = buildFormLayout(normalizedLabels);
+          setLayout(nextLayout);
 
-        const mergedValues = {
-          ...profileToFieldValues(profilePayload.profile),
-          ...extractStringValues(
-            nextLayout.allFieldLabels,
-            draftPayload.draft?.formPayloadJson
-          ),
-        };
+          const mergedValues = {
+            ...profileToFieldValues(profilePayload.profile),
+            ...extractStringValues(
+              nextLayout.allFieldLabels,
+              draftPayload.draft?.formPayloadJson
+            ),
+          };
 
-        const nextValues = toFieldValues(nextLayout.allFieldLabels, mergedValues);
-        setFieldValues(nextValues);
-        fieldValuesRef.current = nextValues;
+          const nextValues = toFieldValues(nextLayout.allFieldLabels, mergedValues);
+          setFieldValues(nextValues);
+          fieldValuesRef.current = nextValues;
 
-        setActiveStep(
-          draftPayload.draft
-            ? Math.min(
-                Math.max(draftPayload.draft.stepIndex, 0),
-                nextLayout.steps.length - 1
-              )
-            : 0
-        );
+          setActiveStep(
+            draftPayload.draft
+              ? Math.min(
+                  Math.max(draftPayload.draft.stepIndex, 0),
+                  nextLayout.steps.length - 1
+                )
+              : 0
+          );
 
-        setAlreadySubmitted(Boolean(applicationPayload?.submissionStatus));
-        setApplicationTitle(applicationPayload?.application.title ?? null);
+          setAlreadySubmitted(Boolean(applicationPayload?.submissionStatus));
+          setApplicationTitle(applicationPayload?.application?.title ?? null);
 
-        if (!applicationResponse.ok && applicationResponse.status === 404) {
-          setError("Application not found.");
+          if (!applicationResponse.ok && applicationResponse.status === 404) {
+            setError("Application not found.");
+          }
         }
       } catch (caught) {
         if ((caught as Error).name !== "AbortError") {
@@ -343,17 +412,27 @@ export function MobileApplyForm() {
   async function persistDraft(nextValues: FieldValues, nextStepIndex: number) {
     if (!applicationId) return;
 
-    const response = await fetch(`/api/applications/${applicationId}/draft`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        formPayloadJson: nextValues,
-        stepIndex: nextStepIndex,
-      }),
-    });
+    setSaveStatus("saving");
 
-    if (!response.ok) {
-      throw new Error(`Failed to save draft: ${response.status}`);
+    try {
+      const response = await fetch(`/api/applications/${applicationId}/draft`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          formPayloadJson: nextValues,
+          stepIndex: nextStepIndex,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save draft: ${response.status}`);
+      }
+
+      // Stays visible as "Saved"
+      setSaveStatus("saved");
+    } catch (err) {
+      setSaveStatus("idle");
+      throw err;
     }
   }
 
@@ -370,6 +449,7 @@ export function MobileApplyForm() {
   }
 
   function handleValueChange(label: string, value: string) {
+    setSaveStatus("saving");
     const nextValues = {
       ...fieldValuesRef.current,
       [label]: value,
@@ -385,7 +465,7 @@ export function MobileApplyForm() {
       });
     }
 
-    if (personalFields.includes(label)) {
+    if (personalFields.includes(label) || personalFields.includes(label.replace(/\s*\*$/, ""))) {
       patchProfileValues(label, value);
     }
   }
@@ -404,7 +484,7 @@ export function MobileApplyForm() {
         throw new Error(res.error || "Upload failed");
       }
 
-      handleValueChange("Resume *", file.name);
+      handleValueChange("Resume", file.name);
       scheduleDraftSave(fieldValuesRef.current, activeStep);
     } catch (err) {
       setFieldErrors((prev) => ({
@@ -570,12 +650,13 @@ export function MobileApplyForm() {
 
   function renderField(label: string) {
     const value = fieldValues[label] ?? "";
-    const errorMessage = fieldErrors[label];
-    const config = questionsMap[label];
+    const cleanLabel = normalizeFieldLabel(label);
+    const errorMessage = fieldErrors[cleanLabel] || fieldErrors[label];
+    const inputId = `mobile-f-${label.toLowerCase().replace(/\s+/g, "-")}`;
+    const config = questionsMap[cleanLabel] || questionsMap[label];
     const required = isRequiredField(label, questionsMap);
     const displayLabel = required && !label.includes("*") ? `${label} *` : label;
 
-    const cleanLabel = label.replace(/\s*\*$/, "");
     const rawType = String(config?.type || "").toUpperCase().trim();
 
     let resolvedType: QuestionType = "TEXT";
@@ -637,8 +718,12 @@ export function MobileApplyForm() {
 
       return (
         <div key={label} className="flex flex-col gap-[6px]">
-          <label className="font-sans font-bold text-ink">{displayLabel}</label>
+          <label htmlFor={inputId} className="font-sans font-bold text-ink">{displayLabel}</label>
+          {config?.description ? (
+            <p className="font-sans text-ink-faint text-xs -mt-1">{config.description}</p>
+          ) : null}
           <input
+            id={inputId}
             type="file"
             accept={acceptTypes}
             className="hidden"
@@ -720,8 +805,12 @@ export function MobileApplyForm() {
     if (resolvedType === "DROPDOWN") {
       return (
         <div key={label} className="flex flex-col gap-[6px]">
-          <label className="font-sans font-bold text-ink">{displayLabel}</label>
+          <label htmlFor={inputId} className="font-sans font-bold text-ink">{displayLabel}</label>
+          {config?.description ? (
+            <p className="font-sans text-ink-faint text-xs -mt-1">{config.description}</p>
+          ) : null}
           <select
+            id={inputId}
             value={value}
             aria-invalid={Boolean(errorMessage)}
             className={`h-[40px] rounded-[8px] border border-border-soft bg-[#faf9f6] px-[12px] font-sans text-ink outline-none ${
@@ -745,9 +834,14 @@ export function MobileApplyForm() {
     }
 
     if (resolvedType === "CHECKBOX") {
-      const currentSelected = value
-        ? value.split(",").map((s) => s.trim()).filter(Boolean)
-        : [];
+      const currentSelected: string[] = (() => {
+        if (!value) return [];
+        try {
+          const parsed = JSON.parse(value);
+          if (Array.isArray(parsed)) return parsed.filter((item): item is string => typeof item === "string");
+        } catch {}
+        return value.split(",").map((s) => s.trim()).filter((s) => s.length > 0);
+      })();
 
       const handleCheckboxToggle = (option: string) => {
         let updated: string[];
@@ -756,7 +850,7 @@ export function MobileApplyForm() {
         } else {
           updated = [...currentSelected, option];
         }
-        const updatedVal = updated.join(", ");
+        const updatedVal = JSON.stringify(updated);
         handleValueChange(label, updatedVal);
         scheduleDraftSave(fieldValuesRef.current, activeStep);
       };
@@ -764,22 +858,28 @@ export function MobileApplyForm() {
       return (
         <div key={label} className="flex flex-col gap-[6px]">
           <label className="font-sans font-bold text-ink">{displayLabel}</label>
-          <div className="flex flex-col gap-2">
-            {options?.map((opt) => (
-              <label
-                key={opt}
-                className="inline-flex items-center gap-2 style-mobile-body text-ink cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  value={opt}
-                  checked={currentSelected.includes(opt)}
-                  className="accent-brand h-4 w-4 rounded"
-                  onChange={() => handleCheckboxToggle(opt)}
-                />
-                {opt}
-              </label>
-            ))}
+          {config?.description ? (
+            <p className="font-sans text-ink-faint text-xs -mt-1">{config.description}</p>
+          ) : null}
+          <div className="flex flex-col gap-2 pt-1">
+            {options?.map((opt, optIdx) => {
+              const isChecked = currentSelected.includes(opt);
+              return (
+                <label
+                  key={`${opt}-${optIdx}`}
+                  className="inline-flex items-center gap-2 style-mobile-body text-ink cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    value={opt}
+                    checked={isChecked}
+                    className="accent-brand h-4 w-4 rounded cursor-pointer"
+                    onChange={() => handleCheckboxToggle(opt)}
+                  />
+                  {opt}
+                </label>
+              );
+            })}
           </div>
           {errorMessage ? (
             <p className="font-sans text-[#9a3b36]">{errorMessage}</p>
@@ -809,6 +909,9 @@ export function MobileApplyForm() {
         ) : (
           <FormField {...commonProps} />
         )}
+        {config?.description ? (
+          <p className="font-sans text-ink-faint text-xs -mt-1">{config.description}</p>
+        ) : null}
         {errorMessage ? (
           <p className="style-mobile-body text-[#9a3b36]">{errorMessage}</p>
         ) : null}
@@ -818,10 +921,22 @@ export function MobileApplyForm() {
 
   return (
     <MobileScreen>
+      <div className="mt-2 flex items-center">
+          <Link
+            href="/applications"
+            className="style-caption leading-[16.8px] tracking-[0.2px] text-brand"
+          >
+            ← Back to Applications
+          </Link>
+      </div>
       <div className="flex flex-col gap-[18px] rounded-[16px] border border-border-soft bg-white p-[20px] [filter:drop-shadow(0px_8px_11px_rgba(0,0,0,0.04))]">
-        <h1 className="style-mobile-title text-ink">
-          {applicationTitle || "Application Form"}
-        </h1>
+        <div className="flex justify-between">
+          <h1 className="style-mobile-title text-ink">
+            {applicationTitle || "Application Form"}
+          </h1>
+          <SaveIndicator status={saveStatus} />
+        </div>
+        
 
         <FormStepper steps={layout.steps} active={activeStep} />
 

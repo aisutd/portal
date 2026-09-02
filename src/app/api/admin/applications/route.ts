@@ -68,10 +68,10 @@ export async function POST(request: Request) {
     data: {
       title,
       description,
-      roles: data.roles,              // 👈 Pass to Prisma
-      eligibility: data.eligibility,
+      roles: (data.roles as string[]) ?? [],
+      eligibility: (data.eligibility as string[]) ?? [],
       questionsJson: questions,
-      requiredProfileFields: data.requiredProfileFields ?? {}, // Stores the whole object
+      requiredProfileFields: data.requiredProfileFields ?? {},
       programType: programType as ProgramType,
       openAt,
       closeAt,

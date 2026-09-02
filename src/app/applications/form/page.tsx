@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { type ChangeEvent, useEffect, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/navbar";
@@ -179,6 +180,8 @@ function ApplyFormContent() {
   const [uploadingResume, setUploadingResume] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [uploadingFields, setUploadingFields] = useState<Record<string, boolean>>({});
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const savedTimeoutRef = useRef<number | null>(null);
 
   const saveTimerRef = useRef<number | null>(null);
   const fieldValuesRef = useRef<FieldValues>({});
@@ -356,6 +359,36 @@ function ApplyFormContent() {
   }, [fieldValues]);
 
 
+  function SaveIndicator({ status }: { status: "idle" | "saving" | "saved" }) {
+    if (status === "idle") return null;
+
+    return (
+      <div className="flex items-center gap-1.5 text-xs font-medium transition-all duration-200">
+        {status === "saving" && (
+          <>
+            <span className="h-2 w-2 animate-spin rounded-full border-2 border-brand border-t-transparent" />
+            <span className="text-ink-muted">Saving...</span>
+          </>
+        )}
+
+        {status === "saved" && (
+          <>
+            <svg
+              className="h-3.5 w-3.5 text-emerald-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.5}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="text-emerald-700">All changes saved</span>
+          </>
+        )}
+      </div>
+    );
+  }
+
   async function patchProfileValues(label: string, value: string) {
     const cleanLabel = label.replace(/\s*\*$/, "");
     const fieldMapping: Record<string, string> = {
@@ -473,7 +506,7 @@ function ApplyFormContent() {
                 className="inline-flex h-11 w-fit items-center justify-center rounded-xl bg-brand px-5 font-bold text-white transition-opacity hover:opacity-95"
                 onClick={() => router.push("/applications")}
               >
-                Back to applications
+                ← Back to Applications
               </button>
             </div>
           </div>
@@ -485,14 +518,28 @@ function ApplyFormContent() {
   async function persistDraft(nextValues: FieldValues, nextStepIndex: number) {
     if (!applicationId) return;
 
-    await fetch(`/api/applications/${applicationId}/draft`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        formPayloadJson: nextValues,
-        stepIndex: nextStepIndex,
-      }),
-    });
+    setSaveStatus("saving");
+
+    try {
+      const response = await fetch(`/api/applications/${applicationId}/draft`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          formPayloadJson: nextValues,
+          stepIndex: nextStepIndex,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save draft: ${response.status}`);
+      }
+
+      setSaveStatus("saved");
+
+    } catch (err) {
+      setSaveStatus("idle");
+      throw err;
+    }
   }
 
   function scheduleDraftSave(nextValues: FieldValues, nextStepIndex: number) {
@@ -618,6 +665,7 @@ function ApplyFormContent() {
     };
     fieldValuesRef.current = nextValues;
     setFieldValues(nextValues);
+    setSaveStatus("saving");
 
     if (fieldErrors[label]) {
       setFieldErrors((current) => {
@@ -899,14 +947,25 @@ function ApplyFormContent() {
       <div className="hidden md:block">
         <div className="flex min-h-screen w-full flex-col bg-cream">
           <Navbar active="Apply" />
-
+          
           <div className="flex w-full flex-col items-center px-10 pt-8 pb-32">
+            <div className="flex w-full px-32 mb-6">
+              <Link
+                href="/applications"
+                className="style-caption leading-[16.8px] tracking-[0.2px] text-brand"
+              >
+                ← Back to Applications
+              </Link>
+            </div>
             <div className="w-full max-w-[1346px] rounded-2xl border border-border-soft bg-white p-9 shadow-sm">
               <div className="flex flex-col gap-6">
-                <h1 className="style-page-title text-ink">
-                  {applicationTitle ?? "Application"}
-                </h1>
-
+                <div className="flex justify-between">
+                  <h1 className="style-page-title text-ink">
+                    {applicationTitle ?? "Application"}
+                  </h1>
+                  <SaveIndicator status={saveStatus} />
+                </div>
+                
                 <FormStepper steps={layout.steps} active={activeStep} />
 
                 <p className="style-body-text text-ink-muted">

@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tag } from "@/components/ui/tag";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
-import { applyDetailRoles } from "@/lib/data";
+import { RoleCard, type Role, type RoleTagData } from "@/components/apply/role-card";
+
+type RoleItem = string | Role;
 
 type ApplicationDetailResponse = {
   application: {
@@ -17,6 +19,7 @@ type ApplicationDetailResponse = {
     decisionDate: string | null;
     phase: "open" | "upcoming" | "closed";
     eligibility: string[];
+    roles: RoleItem[];
   };
   draft: {
     stepIndex: number;
@@ -87,6 +90,7 @@ export function MobileApplyDetail() {
   const [application, setApplication] = useState<ApplicationDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const alreadySubmitted = Boolean(application?.submissionStatus);
 
   useEffect(() => {
@@ -139,11 +143,17 @@ export function MobileApplyDetail() {
     };
   }, [applicationId]);
 
+  // Normalize dynamic roles (handles strings or standard Role objects)
+  const rawRoles = application?.application.roles ?? [];
+  const normalizedRoles: Role[] = rawRoles.map((role) =>
+    typeof role === "string" ? { title: role } : role
+  );
+
   return (
     <MobileScreen>
-      <a href="/applications" className="style-caption text-brand">
+      <Link href="/applications" className="style-caption text-brand">
         ← Back to Apply
-      </a>
+      </Link>
 
       {loading ? (
         <DetailSkeleton />
@@ -174,6 +184,12 @@ export function MobileApplyDetail() {
             </div>
           </div>
 
+          {alreadySubmitted ? (
+            <div className="rounded-[16px] border border-border-soft bg-[#fbfaf7] px-[16px] py-[12px] style-mobile-body text-ink-muted">
+              You have already submitted an application for this program.
+            </div>
+          ) : null}
+
           <div className="flex flex-col gap-[16px] rounded-[16px] border border-border-soft bg-white p-[20px]">
             <div className="flex flex-col gap-[6px]">
               <h2 className="style-mobile-title text-ink">
@@ -198,33 +214,18 @@ export function MobileApplyDetail() {
             ) : null}
           </div>
 
-          <div className="flex items-center gap-[10px]">
-            <h2 className="style-mobile-title text-ink">Roles</h2>
-            <span className="h-[1.5px] min-w-px flex-1 bg-border-soft" />
-          </div>
-
-          {applyDetailRoles.map((role) => (
-            <div
-              key={role.title}
-              className="flex flex-col gap-[10px] rounded-[16px] border border-border-soft bg-white p-[18px]"
-            >
-              <h3 className="style-mobile-title text-ink">
-                {role.title}
-              </h3>
-              <p className="style-mobile-body text-ink-muted">
-                {role.description}
-              </p>
-              <div className="flex flex-col gap-[6px]">
-                {role.tagRows.map((row, i) => (
-                  <div key={i} className="flex flex-wrap gap-[6px]">
-                    {row.map((t) => (
-                      <Tag key={t.label} label={t.label} bg={t.bg} color={t.color} border={t.border} />
-                    ))}
-                  </div>
-                ))}
+          {normalizedRoles.length > 0 ? (
+            <>
+              <div className="flex items-center gap-[10px]">
+                <h2 className="style-mobile-title text-ink">Roles</h2>
+                <span className="h-[1.5px] min-w-px flex-1 bg-border-soft" />
               </div>
-            </div>
-          ))}
+
+              {normalizedRoles.map((role, idx) => (
+                <RoleCard key={role.title || idx} {...role} />
+              ))}
+            </>
+          ) : null}
         </>
       ) : null}
 
