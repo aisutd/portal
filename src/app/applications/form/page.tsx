@@ -18,19 +18,18 @@ import {
   findFirstStepWithError,
   toFieldValues,
   validateFields,
+  normalizeFieldLabel,
   isRequiredField,
   type ApplicationFormLayout,
   type FieldValues,
 } from "@/lib/application-form";
 
-// Aligned directly with admin/applications/new/page.tsx
 export type QuestionType =
   | "TEXT"
   | "LONG_TEXT"
   | "DROPDOWN"
   | "CHECKBOX"
   | "FILE"
-  // Fallback lowercase types for legacy/compat
   | "text"
   | "long_text"
   | "textarea"
@@ -83,10 +82,20 @@ type DraftResponse = {
   } | null;
 };
 
+type RequiredProfileFields = {
+  requirePhoneNumber?: boolean;
+  requirePersonalEmail?: boolean;
+  requireResume?: boolean;
+  requireLinkedin?: boolean;
+  requireGithub?: boolean;
+  requirePortfolio?: boolean;
+};
+
 type ApplicationResponse = {
   application: {
     title: string;
     questions: (string | QuestionConfig)[];
+    requiredProfileFields?: RequiredProfileFields;
   };
   submissionStatus: string | null;
 };
@@ -169,12 +178,9 @@ function ApplyFormContent() {
   const [submitting, setSubmitting] = useState(false);
   const [uploadingResume, setUploadingResume] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
-  
-  // FIXED: Declared at the top level of component
   const [uploadingFields, setUploadingFields] = useState<Record<string, boolean>>({});
 
   const saveTimerRef = useRef<number | null>(null);
-  const resumeInputRef = useRef<HTMLInputElement | null>(null);
   const fieldValuesRef = useRef<FieldValues>({});
   const isReviewStep = activeStep === layout.reviewStepIndex;
 
@@ -209,22 +215,50 @@ function ApplyFormContent() {
         const profilePayload = profileResponse.ok
           ? ((await profileResponse.json()) as ProfileResponse)
           : { profile: null };
+
         const draftPayload = draftResponse.ok
           ? ((await draftResponse.json()) as DraftResponse)
           : { draft: null };
+
         const applicationPayload = applicationResponse.ok
           ? ((await applicationResponse.json()) as ApplicationResponse)
           : null;
 
-        const rawQuestions = applicationPayload?.application.questions ?? [];
+        // Extract raw data with null coalescing to protect against missing properties
+        const rawQuestions = applicationPayload?.application?.questions ?? [];
+        const rawRequirements = applicationPayload?.application?.requiredProfileFields as
+          | Record<string, boolean>
+          | undefined;
+
         const qMap: Record<string, QuestionConfig> = {};
         const normalizedLabels: string[] = [];
 
-        rawQuestions.forEach((q) => {
+        // Map profile field dynamic requirements directly from Prisma JSON
+        if (rawRequirements) {
+          const profileMap: Record<string, boolean | undefined> = {
+            "Phone Number": rawRequirements.requirePhoneNumber,
+            "Personal Email": rawRequirements.requirePersonalEmail,
+            "Resume": rawRequirements.requireResume,
+            "LinkedIn": rawRequirements.requireLinkedin,
+            "GitHub": rawRequirements.requireGithub,
+            "Portfolio": rawRequirements.requirePortfolio,
+          };
+
+          Object.entries(profileMap).forEach(([fieldLabel, isRequired]) => {
+            const config = { label: fieldLabel, required: Boolean(isRequired) };
+            qMap[fieldLabel] = config;
+            qMap[`${fieldLabel} *`] = config;
+          });
+        }
+
+        // Process custom dynamic application questions
+        rawQuestions.forEach((q, idx) => {
           if (typeof q === "string") {
-            qMap[q] = { label: q, type: "TEXT" };
-            normalizedLabels.push(q);
-          } else if (q && typeof q === "object" && q.label) {
+            const cleanLabel = q.trim() || `Question ${idx + 1}`;
+            qMap[cleanLabel] = { label: cleanLabel, type: "TEXT" };
+            normalizedLabels.push(cleanLabel);
+          } else if (q && typeof q === "object") {
+            const cleanLabel = q.label?.trim() || `Question ${idx + 1}`;
             const rawType = String(q.type || "").toUpperCase().trim();
             let normalizedType: QuestionType = "TEXT";
 
@@ -248,44 +282,48 @@ function ApplyFormContent() {
               normalizedType = "TEXT";
             }
 
-            qMap[q.label] = {
+            qMap[cleanLabel] = {
               ...q,
+              label: cleanLabel,
               type: normalizedType,
             };
-            normalizedLabels.push(q.label);
+            normalizedLabels.push(cleanLabel);
           }
         });
 
-        setQuestionsMap(qMap);
+        // Update state if request wasn't aborted
+        if (!controller.signal.aborted) {
+          setQuestionsMap(qMap);
 
-        const nextLayout = buildFormLayout(normalizedLabels);
-        setLayout(nextLayout);
+          const nextLayout = buildFormLayout(normalizedLabels);
+          setLayout(nextLayout);
 
-        const mergedValues = {
-          ...profileToFieldValues(profilePayload.profile),
-          ...extractStringValues(
-            nextLayout.allFieldLabels,
-            draftPayload.draft?.formPayloadJson,
-          ),
-        };
+          const mergedValues = {
+            ...profileToFieldValues(profilePayload.profile),
+            ...extractStringValues(
+              nextLayout.allFieldLabels,
+              draftPayload.draft?.formPayloadJson,
+            ),
+          };
 
-        const nextValues = toFieldValues(nextLayout.allFieldLabels, mergedValues);
-        setFieldValues(nextValues);
-        fieldValuesRef.current = nextValues;
+          const nextValues = toFieldValues(nextLayout.allFieldLabels, mergedValues);
+          setFieldValues(nextValues);
+          fieldValuesRef.current = nextValues;
 
-        setActiveStep(
-          draftPayload.draft
-            ? Math.min(
-                Math.max(draftPayload.draft.stepIndex, 0),
-                nextLayout.steps.length - 1,
-              )
-            : 0,
-        );
-        setAlreadySubmitted(Boolean(applicationPayload?.submissionStatus));
-        setApplicationTitle(applicationPayload?.application.title ?? null);
+          setActiveStep(
+            draftPayload.draft
+              ? Math.min(
+                  Math.max(draftPayload.draft.stepIndex, 0),
+                  nextLayout.steps.length - 1,
+                )
+              : 0,
+          );
+          setAlreadySubmitted(Boolean(applicationPayload?.submissionStatus));
+          setApplicationTitle(applicationPayload?.application?.title ?? null);
 
-        if (!applicationResponse.ok && applicationResponse.status === 404) {
-          setError("Application not found.");
+          if (!applicationResponse.ok && applicationResponse.status === 404) {
+            setError("Application not found.");
+          }
         }
       } catch (caught) {
         if ((caught as Error).name !== "AbortError") {
@@ -317,6 +355,7 @@ function ApplyFormContent() {
     fieldValuesRef.current = fieldValues;
   }, [fieldValues]);
 
+
   async function patchProfileValues(label: string, value: string) {
     const cleanLabel = label.replace(/\s*\*$/, "");
     const fieldMapping: Record<string, string> = {
@@ -345,7 +384,7 @@ function ApplyFormContent() {
         body: JSON.stringify({ [targetKey]: value }),
       });
     } catch {
-      // Fail silently in background
+      // Background patch silently fails
     }
   }
 
@@ -363,7 +402,7 @@ function ApplyFormContent() {
         throw new Error(res.error || "Upload failed");
       }
 
-      handleValueChange("Resume *", file.name);
+      handleValueChange("Resume", file.name);
       scheduleDraftSave(fieldValuesRef.current, activeStep);
     } catch (err) {
       setFieldErrors((prev) => ({
@@ -396,9 +435,8 @@ function ApplyFormContent() {
         throw new Error(data.error?.message || "Upload failed");
       }
 
-      // Save JSON string with the user's original file.name
       const filePayload = JSON.stringify({
-        fileName: file.name, // Preserves exact original user file name
+        fileName: file.name,
         url: data.url || data.key,
       });
 
@@ -589,26 +627,25 @@ function ApplyFormContent() {
       });
     }
 
-    if (personalFields.includes(label)) {
+    if (personalFields.includes(label) || personalFields.includes(label.replace(/\s*\*$/, ""))) {
       patchProfileValues(label, value);
     }
   }
 
   function renderField(label: string) {
     const value = fieldValues[label] ?? "";
-    const errorMessage = fieldErrors[label];
+    const cleanLabel = normalizeFieldLabel(label);
+    const errorMessage = fieldErrors[cleanLabel] || fieldErrors[label];;
     const inputId = `f-${label.toLowerCase().replace(/\s+/g, "-")}`;
-    const config = questionsMap[label];
+    const config = questionsMap[cleanLabel] || questionsMap[label];
     const required = isRequiredField(label, questionsMap);
     const displayLabel = required && !label.includes("*") ? `${label} *` : label;
 
-    const cleanLabel = label.replace(/\s*\*$/, "");
     const rawType = String(config?.type || "").toUpperCase().trim();
 
     let resolvedType: QuestionType = "TEXT";
     let options = config?.options;
 
-    // Direct Predefined Profile Overrides
     if (cleanLabel === "Major") {
       resolvedType = "DROPDOWN";
       options = UTD_MAJORS;
@@ -637,7 +674,6 @@ function ApplyFormContent() {
       resolvedType = "TEXT";
     }
 
-    // FILE FIELD (Interactive)
     if (resolvedType === "FILE") {
       const isProfileResume = cleanLabel === "Resume";
       const acceptTypes = isProfileResume ? RESUME_ACCEPT : GENERIC_FILE_ACCEPT;
@@ -667,6 +703,9 @@ function ApplyFormContent() {
           <label htmlFor={inputId} className="style-label-text text-ink-muted font-medium">
             {displayLabel}
           </label>
+          {config?.description ? (
+            <p className="style-caption text-ink-faint -mt-0.5">{config.description}</p>
+          ) : null}
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <input
@@ -713,7 +752,6 @@ function ApplyFormContent() {
               {isUploading ? "Uploading..." : "Upload file"}
             </button>
 
-            {/* Display File Capsule */}
             {displayFileName ? (
               <div className="flex h-11 items-center gap-2 rounded-xl border border-border-soft bg-[#fbfaf7] px-3.5 text-sm text-ink truncate">
                 <svg className="h-4 w-4 shrink-0 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -740,13 +778,15 @@ function ApplyFormContent() {
       );
     }
 
-    // DROPDOWN FIELD (Interactive)
     if (resolvedType === "DROPDOWN") {
       return (
         <div key={label} className="flex flex-col gap-1.5">
           <label htmlFor={inputId} className="style-label-text text-ink-muted font-medium">
             {displayLabel}
           </label>
+          {config?.description ? (
+            <p className="style-caption text-ink-faint -mt-0.5">{config.description}</p>
+          ) : null}
           <select
             id={inputId}
             value={value}
@@ -770,7 +810,15 @@ function ApplyFormContent() {
     }
 
     if (resolvedType === "CHECKBOX") {
-      const currentSelected = value ? value.split(",").map((s) => s.trim()).filter(Boolean) : [];
+      // Filter out empty strings so index 0 doesn't get matched against [""]
+      const currentSelected: string[] = (() => {
+        if (!value) return [];
+        try {
+          const parsed = JSON.parse(value);
+          if (Array.isArray(parsed)) return parsed.filter((item): item is string => typeof item === "string");
+        } catch {}
+        return value.split(",").map((s) => s.trim()).filter((s) => s.length > 0);
+      })();
 
       const handleCheckboxToggle = (option: string) => {
         let updated: string[];
@@ -779,35 +827,38 @@ function ApplyFormContent() {
         } else {
           updated = [...currentSelected, option];
         }
-        const updatedVal = updated.join(", ");
+        const updatedVal = JSON.stringify(updated);
         handleValueChange(label, updatedVal);
         scheduleDraftSave(fieldValuesRef.current, activeStep);
       };
 
       return (
         <div key={label} className="flex flex-col gap-2">
-          <label className="style-label-text text-ink-muted">{displayLabel}</label>
-          <div className="flex flex-col gap-2">
-            {options?.map((opt) => (
-              <label key={opt} className="inline-flex items-center gap-2 style-body-text text-ink cursor-pointer">
-                <input
-                  type="checkbox"
-                  value={opt}
-                  checked={currentSelected.includes(opt)}
-                  className="accent-brand h-4 w-4 rounded"
-                  onChange={() => handleCheckboxToggle(opt)}
-                />
-                {opt}
-              </label>
-            ))}
-          </div>
-          {errorMessage ? (
-            <p className="style-caption text-[#9a3b36]">{errorMessage}</p>
+          <label className="style-label-text text-ink-muted font-medium">{displayLabel}</label>
+          {config?.description ? (
+            <p className="style-caption text-ink-faint -mt-1">{config.description}</p>
           ) : null}
+          <div className="flex flex-col gap-2 pt-1">
+            {options?.map((opt, optIdx) => {
+              const isChecked = currentSelected.includes(opt);
+              return (
+                <label key={`${opt}-${optIdx}`} className="inline-flex items-center gap-2 style-body-text text-ink cursor-pointer">
+                  <input
+                    type="checkbox"
+                    value={opt}
+                    checked={isChecked}
+                    className="accent-brand h-4 w-4 rounded cursor-pointer"
+                    onChange={() => handleCheckboxToggle(opt)}
+                  />
+                  {opt}
+                </label>
+              );
+            })}
+          </div>
+          {errorMessage ? <p className="style-caption text-[#9a3b36]">{errorMessage}</p> : null}
         </div>
       );
     }
-
     const commonProps = {
       label: displayLabel,
       value,
@@ -829,6 +880,9 @@ function ApplyFormContent() {
         ) : (
           <FormField {...commonProps} />
         )}
+        {config?.description ? (
+          <p className="style-caption text-ink-faint -mt-1">{config.description}</p>
+        ) : null}
         {errorMessage ? (
           <p className="style-caption text-[#9a3b36]">{errorMessage}</p>
         ) : null}
@@ -893,7 +947,7 @@ function ApplyFormContent() {
                                       key={label}
                                       label={label}
                                       value={fieldValues[label] ?? ""}
-                                      config={questionsMap[label]}
+                                      config={questionsMap[label.replace(/\s*\*$/, "")] || questionsMap[label]}
                                     />
                                   ),
                                 )}
@@ -913,7 +967,6 @@ function ApplyFormContent() {
                       <p className="style-body-text text-[#9a3b36]">{submitError}</p>
                     ) : null}
 
-                    {/* Navigation Bar */}
                     <div className="flex w-full justify-between pt-4">
                       <button
                         type="button"
@@ -932,13 +985,13 @@ function ApplyFormContent() {
                             : handleNextStep
                         }
                         disabled={submitting || uploadingResume}
-                        >
+                      >
                         {submitting
                           ? "Submitting..."
                           : activeStep >= layout.steps.length - 1
                             ? "Submit Application"
                             : "Next"}
-                        </button>
+                      </button>
                     </div>
                   </>
                 )}

@@ -245,7 +245,10 @@ model ProgramApplication {
   id             String                  @id @default(cuid())
   title          String
   description    String
+  roles          String[]                @default([])
+  eligibility    String[]                @default([])
   questionsJson  Json?
+  requiredProfileFields Json?
   programType    ProgramType
   openAt         DateTime
   closeAt        DateTime

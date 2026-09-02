@@ -9,32 +9,30 @@ export type QuestionType = "TEXT" | "LONG_TEXT" | "DROPDOWN" | "CHECKBOX" | "FIL
 export type Question = {
   id: string;
   label: string;
+  description?: string;
   type: QuestionType;
   required: boolean;
   options: string[];
+  placeholder?: string;
 };
 
+export type ProfileFieldRequirements = {
+  requirePhoneNumber: boolean;
+  requirePersonalEmail: boolean;
+  requireResume: boolean;
+  requireLinkedin: boolean;
+  requireGithub: boolean;
+  requirePortfolio: boolean;
+};
+
+/**
+ * Converts a standard local datetime string (YYYY-MM-DDTHH:mm) 
+ * assuming standard Central Time ISO representation.
+ */
 function parseChicagoInputToUTC(dateTimeString: string): string | null {
   if (!dateTimeString) return null;
-  const [datePart, timePart] = dateTimeString.split("T");
-  if (!datePart || !timePart) return new Date(dateTimeString).toISOString();
-
-  const [year, month, day] = datePart.split("-").map(Number);
-  const [hour, minute] = timePart.split(":").map(Number);
-
-  const targetDate = new Date(Date.UTC(year, month - 1, day, hour, minute));
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Chicago",
-    timeZoneName: "shortOffset",
-  });
-
-  const parts = formatter.formatToParts(targetDate);
-  const timeZonePart = parts.find((p) => p.type === "timeZoneName")?.value || "";
-  const match = timeZonePart.match(/GMT([+-]\d+)/);
-  const offsetHours = match ? parseInt(match[1], 10) : -5;
-
-  targetDate.setUTCHours(targetDate.getUTCHours() - offsetHours);
-  return targetDate.toISOString();
+  const date = new Date(dateTimeString);
+  return isNaN(date.getTime()) ? null : date.toISOString();
 }
 
 export default function CreateApplicationPage({ embedded = true }: { embedded?: boolean }) {
@@ -46,16 +44,61 @@ export default function CreateApplicationPage({ embedded = true }: { embedded?: 
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [pendingFormData, setPendingFormData] = useState<FormData | null>(null);
 
+  const [profileRequirements, setProfileRequirements] = useState<ProfileFieldRequirements>({
+    requireResume: true,
+    requireLinkedin: false,
+    requireGithub: false,
+    requirePortfolio: false,
+    requirePhoneNumber: false,
+    requirePersonalEmail: true,
+  });
+
   const [questions, setQuestions] = useState<Question[]>([
-    { id: `q_${Date.now()}_0`, label: "", type: "TEXT", required: true, options: [""] },
+    {
+      id: `q_${Date.now()}_0`,
+      label: "",
+      description: "",
+      type: "TEXT",
+      required: true,
+      options: [""],
+    },
   ]);
+
+  const [rolesInput, setRolesInput] = useState("");
+  const [eligibilityInput, setEligibilityInput] = useState("");
+
+  const createQuestionId = () =>
+    typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `q_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+
+  const handleDuplicateQuestion = (idToDuplicate: string) => {
+    setQuestions((prevQuestions) => {
+      const index = prevQuestions.findIndex((q) => q.id === idToDuplicate);
+      if (index === -1) return prevQuestions;
+
+      const original = prevQuestions[index];
+
+      const duplicatedQuestion: Question = {
+        ...original,
+        id: createQuestionId(),
+        label: `${original.label} (Copy)`,
+        options: original.options ? [...original.options] : [],
+      };
+
+      const updated = [...prevQuestions];
+      updated.splice(index + 1, 0, duplicatedQuestion);
+      return updated;
+    });
+  };
 
   function addQuestion() {
     setQuestions((prev) => [
       ...prev,
       {
-        id: `q_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        id: createQuestionId(),
         label: "",
+        description: "",
         type: "TEXT",
         required: true,
         options: [""],
@@ -128,6 +171,7 @@ export default function CreateApplicationPage({ embedded = true }: { embedded?: 
 
     const cleanedQuestions = questions.map((q) => ({
       ...q,
+      description: q.description?.trim() || undefined,
       options:
         q.type === "DROPDOWN" || q.type === "CHECKBOX"
           ? q.options.filter((opt) => opt.trim() !== "")
@@ -137,13 +181,38 @@ export default function CreateApplicationPage({ embedded = true }: { embedded?: 
     const openAtRaw = pendingFormData.get("openAt") as string;
     const closeAtRaw = pendingFormData.get("closeAt") as string;
     const decisionDateRaw = pendingFormData.get("decisionDate") as string;
+    const rawVisible = pendingFormData.get("visibleToUsers");
+    const visibleToUsers = rawVisible === "true" || rawVisible === "on";
+
+    // Split newline inputs into String Arrays to align with backend schema
+    const roles = rolesInput
+      .split("\n")
+      .map((r) => r.trim())
+      .filter(Boolean);
+
+    const eligibility = eligibilityInput
+      .split("\n")
+      .map((e) => e.trim())
+      .filter(Boolean);
 
     const payload = {
-      ...Object.fromEntries(pendingFormData),
+      title: pendingFormData.get("title") as string,
+      programType: pendingFormData.get("programType") as string,
+      description: pendingFormData.get("description") as string,
+      roles,
+      eligibility,
       openAt: parseChicagoInputToUTC(openAtRaw),
       closeAt: parseChicagoInputToUTC(closeAtRaw),
       decisionDate: parseChicagoInputToUTC(decisionDateRaw),
-      visibleToUsers: pendingFormData.get("visibleToUsers") === "true",
+      visibleToUsers,
+      requiredProfileFields: {
+        requirePhoneNumber: profileRequirements.requirePhoneNumber,
+        requirePersonalEmail: profileRequirements.requirePersonalEmail,
+        requireResume: profileRequirements.requireResume,
+        requireLinkedin: profileRequirements.requireLinkedin,
+        requireGithub: profileRequirements.requireGithub,
+        requirePortfolio: profileRequirements.requirePortfolio,
+      },
       questions: cleanedQuestions,
     };
 
@@ -173,7 +242,6 @@ export default function CreateApplicationPage({ embedded = true }: { embedded?: 
   return (
     <div className={embedded ? "min-w-0 flex-1 p-6 lg:p-10" : "min-h-screen bg-cream p-5 md:p-10"}>
       <div className="mx-auto max-w-4xl">
-        {/* Header */}
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-border-soft pb-4">
           <div>
             <h1 className="style-section-header text-2xl font-bold text-ink">
@@ -195,7 +263,6 @@ export default function CreateApplicationPage({ embedded = true }: { embedded?: 
         ) : null}
 
         <form onSubmit={handleFormSubmitIntent} className="flex flex-col gap-8">
-          {/* General Info Card */}
           <div className="flex flex-col gap-6 rounded-2xl border border-border-soft bg-white p-6 shadow-sm">
             <h2 className="style-body-text font-semibold text-ink text-lg">General Info</h2>
 
@@ -243,6 +310,34 @@ export default function CreateApplicationPage({ embedded = true }: { embedded?: 
                   rows={4}
                   placeholder="Provide instructions and co-op details for prospective applicants..."
                   className="rounded-lg border border-border-soft bg-white p-3.5 style-body-text text-ink outline-none transition-colors focus:border-brand"
+                />
+              </div>
+
+              {/* Roles Input */}
+              <div className="flex flex-col gap-2">
+                <label htmlFor="roles" className="text-sm font-medium">Available Roles (One per line)</label>
+                <textarea
+                  id="roles"
+                  name="roles"
+                  value={rolesInput}
+                  onChange={(e) => setRolesInput(e.target.value)}
+                  placeholder="e.g. Full Stack Developer&#10;UI/UX Designer&#10;ML Engineer"
+                  rows={3}
+                  className="border rounded-md p-2"
+                />
+              </div>
+
+              {/* Eligibility Input */}
+              <div className="flex flex-col gap-2">
+                <label htmlFor="eligibility" className="text-sm font-medium">Eligibility Requirements (One per line)</label>
+                <textarea
+                  id="eligibility"
+                  name="eligibility"
+                  value={eligibilityInput}
+                  onChange={(e) => setEligibilityInput(e.target.value)}
+                  placeholder="e.g. Open to enrolled UTD students&#10;Must be able to commit 5 hrs/week"
+                  rows={3}
+                  className="border rounded-md p-2"
                 />
               </div>
 
@@ -300,18 +395,99 @@ export default function CreateApplicationPage({ embedded = true }: { embedded?: 
             </div>
           </div>
 
-          {/* Form Questions Card */}
+          <div className="flex flex-col gap-4 rounded-2xl border border-border-soft bg-white p-6 shadow-sm">
+            <div>
+              <h2 className="style-body-text font-semibold text-ink text-lg">
+                Personal & Profile Field Requirements
+              </h2>
+              <p className="style-caption mt-0.5 text-ink-faint">
+                Select which standard profile credentials applicants must submit for this specific application.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 pt-2">
+              <label className="flex items-center gap-2.5 rounded-xl border border-border-soft p-3.5 cursor-pointer hover:bg-row-soft transition-colors">
+                <input
+                  type="checkbox"
+                  checked={profileRequirements.requirePhoneNumber}
+                  onChange={(e) =>
+                    setProfileRequirements((prev) => ({ ...prev, requirePhoneNumber: e.target.checked }))
+                  }
+                  className="h-4 w-4 rounded accent-brand cursor-pointer"
+                />
+                <span className="style-body-text text-ink font-medium">Phone Number</span>
+              </label>
+
+              <label className="flex items-center gap-2.5 rounded-xl border border-border-soft p-3.5 cursor-pointer hover:bg-row-soft transition-colors">
+                <input
+                  type="checkbox"
+                  checked={profileRequirements.requirePersonalEmail}
+                  onChange={(e) =>
+                    setProfileRequirements((prev) => ({ ...prev, requirePersonalEmail: e.target.checked }))
+                  }
+                  className="h-4 w-4 rounded accent-brand cursor-pointer"
+                />
+                <span className="style-body-text text-ink font-medium">Personal Email</span>
+              </label>
+
+              <label className="flex items-center gap-2.5 rounded-xl border border-border-soft p-3.5 cursor-pointer hover:bg-row-soft transition-colors">
+                <input
+                  type="checkbox"
+                  checked={profileRequirements.requireResume}
+                  onChange={(e) =>
+                    setProfileRequirements((prev) => ({ ...prev, requireResume: e.target.checked }))
+                  }
+                  className="h-4 w-4 rounded accent-brand cursor-pointer"
+                />
+                <span className="style-body-text text-ink font-medium">Resume PDF</span>
+              </label>
+
+              <label className="flex items-center gap-2.5 rounded-xl border border-border-soft p-3.5 cursor-pointer hover:bg-row-soft transition-colors">
+                <input
+                  type="checkbox"
+                  checked={profileRequirements.requireLinkedin}
+                  onChange={(e) =>
+                    setProfileRequirements((prev) => ({ ...prev, requireLinkedin: e.target.checked }))
+                  }
+                  className="h-4 w-4 rounded accent-brand cursor-pointer"
+                />
+                <span className="style-body-text text-ink font-medium">LinkedIn URL</span>
+              </label>
+
+              <label className="flex items-center gap-2.5 rounded-xl border border-border-soft p-3.5 cursor-pointer hover:bg-row-soft transition-colors">
+                <input
+                  type="checkbox"
+                  checked={profileRequirements.requireGithub}
+                  onChange={(e) =>
+                    setProfileRequirements((prev) => ({ ...prev, requireGithub: e.target.checked }))
+                  }
+                  className="h-4 w-4 rounded accent-brand cursor-pointer"
+                />
+                <span className="style-body-text text-ink font-medium">GitHub Profile</span>
+              </label>
+
+              <label className="flex items-center gap-2.5 rounded-xl border border-border-soft p-3.5 cursor-pointer hover:bg-row-soft transition-colors">
+                <input
+                  type="checkbox"
+                  checked={profileRequirements.requirePortfolio}
+                  onChange={(e) =>
+                    setProfileRequirements((prev) => ({ ...prev, requirePortfolio: e.target.checked }))
+                  }
+                  className="h-4 w-4 rounded accent-brand cursor-pointer"
+                />
+                <span className="style-body-text text-ink font-medium">Portfolio / Website</span>
+              </label>
+            </div>
+          </div>
+
           <div className="flex flex-col gap-6 rounded-2xl border border-border-soft bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="style-body-text font-semibold text-ink text-lg">Form Questions Schema</h2>
                 <p className="style-caption mt-0.5 text-ink-faint">
-                  Define questions, adjust sequence order, and specify input rules.
+                  Define questions, add supporting descriptions, adjust sequence order, and specify input rules.
                 </p>
               </div>
-              <Button type="button" size="sm" variant="outline" onClick={addQuestion}>
-                + Add Question
-              </Button>
             </div>
 
             <div className="flex flex-col gap-4">
@@ -320,16 +496,18 @@ export default function CreateApplicationPage({ embedded = true }: { embedded?: 
                   key={q.id}
                   className="flex flex-col gap-4 rounded-xl border border-border-soft bg-row-soft p-5 transition-colors"
                 >
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    {/* Reorder Buttons */}
-                    <div className="flex items-center gap-1 sm:self-end sm:pb-1">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-soft/60 pb-3">
+                    <div className="flex items-center gap-1">
+                      <span className="style-caption font-semibold text-ink-muted mr-2">
+                        #{qIndex + 1}
+                      </span>
                       <Button
                         type="button"
                         size="sm"
                         variant="ghost"
                         disabled={qIndex === 0}
                         onClick={() => moveQuestion(qIndex, "UP")}
-                        className="h-[36px] w-[32px] p-0 text-ink-muted disabled:opacity-30"
+                        className="h-8 w-8 p-0 text-ink-muted disabled:opacity-30"
                         title="Move Up"
                       >
                         ↑
@@ -340,27 +518,83 @@ export default function CreateApplicationPage({ embedded = true }: { embedded?: 
                         variant="ghost"
                         disabled={qIndex === questions.length - 1}
                         onClick={() => moveQuestion(qIndex, "DOWN")}
-                        className="h-[36px] w-[32px] p-0 text-ink-muted disabled:opacity-30"
+                        className="h-8 w-8 p-0 text-ink-muted disabled:opacity-30"
                         title="Move Down"
                       >
                         ↓
                       </Button>
                     </div>
 
-                    <div className="flex-1 flex flex-col gap-[6px]">
-                      <label className="style-caption font-medium text-ink-muted">
-                        Question #{qIndex + 1} Label
+                    <div className="flex items-center gap-3">
+                      <label
+                        htmlFor={`req_${q.id}`}
+                        className="flex items-center gap-2 cursor-pointer select-none"
+                      >
+                        <input
+                          id={`req_${q.id}`}
+                          type="checkbox"
+                          checked={q.required}
+                          onChange={(e) => updateQuestion(qIndex, { required: e.target.checked })}
+                          className="h-4 w-4 rounded accent-brand cursor-pointer"
+                        />
+                        <span className="style-caption font-medium text-ink">Required</span>
                       </label>
-                      <input
-                        required
-                        value={q.label}
-                        onChange={(e) => updateQuestion(qIndex, { label: e.target.value })}
-                        placeholder="e.g. What is your academic standing?"
-                        className="h-[42px] w-full rounded-lg border border-border-soft bg-white px-3.5 style-body-text text-ink outline-none transition-colors focus:border-brand"
-                      />
+
+                      <div className="h-4 w-[1px] bg-border-soft" />
+
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDuplicateQuestion(q.id)}
+                        className="h-8 px-2.5 style-caption font-semibold text-ink hover:bg-white"
+                        title="Duplicate Question"
+                      >
+                        Duplicate
+                      </Button>
+
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        disabled={questions.length === 1}
+                        onClick={() => removeQuestion(qIndex)}
+                        className="h-8 px-2.5 style-caption font-semibold text-danger-ink hover:bg-danger-border/20 disabled:opacity-40"
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <div className="md:col-span-2 flex flex-col gap-3">
+                      <div className="flex flex-col gap-[6px]">
+                        <label className="style-caption font-medium text-ink-muted">
+                          Question Label
+                        </label>
+                        <input
+                          required
+                          value={q.label}
+                          onChange={(e) => updateQuestion(qIndex, { label: e.target.value })}
+                          placeholder="e.g. What is your academic standing?"
+                          className="h-[42px] w-full rounded-lg border border-border-soft bg-white px-3.5 style-body-text text-ink outline-none transition-colors focus:border-brand"
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-[6px]">
+                        <label className="style-caption font-medium text-ink-muted">
+                          Subtext / Helper Description (Optional)
+                        </label>
+                        <input
+                          value={q.description ?? ""}
+                          onChange={(e) => updateQuestion(qIndex, { description: e.target.value })}
+                          placeholder="Provide context or guidelines for answering this question..."
+                          className="h-[38px] w-full rounded-lg border border-border-soft bg-white px-3 style-caption text-ink outline-none transition-colors focus:border-brand"
+                        />
+                      </div>
                     </div>
 
-                    <div className="w-full sm:w-48 flex flex-col gap-[6px]">
+                    <div className="flex flex-col gap-[6px]">
                       <label className="style-caption font-medium text-ink-muted">
                         Input Type
                       </label>
@@ -369,7 +603,7 @@ export default function CreateApplicationPage({ embedded = true }: { embedded?: 
                         onChange={(e) =>
                           updateQuestion(qIndex, { type: e.target.value as QuestionType })
                         }
-                        className="h-[42px] rounded-lg border border-border-soft bg-white px-3.5 style-body-text text-ink outline-none transition-colors focus:border-brand"
+                        className="h-[42px] w-full rounded-lg border border-border-soft bg-white px-3.5 style-body-text text-ink outline-none transition-colors focus:border-brand"
                       >
                         <option value="TEXT">Short Text</option>
                         <option value="LONG_TEXT">Paragraph Text</option>
@@ -378,42 +612,15 @@ export default function CreateApplicationPage({ embedded = true }: { embedded?: 
                         <option value="FILE">File Upload</option>
                       </select>
                     </div>
-
-                    <div className="flex items-center gap-2 sm:self-end sm:pb-2">
-                      <input
-                        id={`req_${q.id}`}
-                        type="checkbox"
-                        checked={q.required}
-                        onChange={(e) => updateQuestion(qIndex, { required: e.target.checked })}
-                        className="h-4 w-4 rounded accent-brand cursor-pointer"
-                      />
-                      <label htmlFor={`req_${q.id}`} className="style-caption text-ink cursor-pointer select-none font-medium">
-                        Required
-                      </label>
-                    </div>
-
-                    <div className="flex items-end sm:self-end">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="ghost"
-                        disabled={questions.length === 1}
-                        onClick={() => removeQuestion(qIndex)}
-                        className="h-[42px] px-3 text-danger-ink hover:bg-danger-border/20 disabled:opacity-40"
-                      >
-                        Remove
-                      </Button>
-                    </div>
                   </div>
 
-                  {/* Options List for Dropdown / Checkbox */}
                   {(q.type === "DROPDOWN" || q.type === "CHECKBOX") && (
-                    <div className="ml-2 border-l-2 border-border-soft pl-4 pt-2 flex flex-col gap-3">
+                    <div className="ml-1 border-l-2 border-border-soft pl-4 pt-2 flex flex-col gap-3">
                       <span className="style-caption font-medium text-ink-muted">
                         Configured Options
                       </span>
                       <div className="flex flex-col gap-2">
-                        {q.options.map((option, oIndex) => (
+                        {(q.options ?? []).map((option, oIndex) => (
                           <div key={oIndex} className="flex items-center gap-2">
                             <input
                               required
@@ -449,9 +656,14 @@ export default function CreateApplicationPage({ embedded = true }: { embedded?: 
                 </div>
               ))}
             </div>
+
+            <div className="flex justify-center pt-2">
+              <Button type="button" size="sm" variant="outline" onClick={addQuestion}>
+                + Add Question
+              </Button>
+            </div>
           </div>
 
-          {/* Form Actions */}
           <div className="flex items-center justify-end gap-3 pt-2">
             <Button
               type="button"
@@ -468,7 +680,6 @@ export default function CreateApplicationPage({ embedded = true }: { embedded?: 
         </form>
       </div>
 
-      {/* Confirmation Modal */}
       {showConfirmModal ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
           <div className="w-full max-w-md rounded-2xl border border-border-soft bg-white p-6 shadow-xl">
@@ -490,7 +701,6 @@ export default function CreateApplicationPage({ embedded = true }: { embedded?: 
         </div>
       ) : null}
 
-      {/* Cancel Warning Modal */}
       {showCancelModal ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
           <div className="w-full max-w-md rounded-2xl border border-border-soft bg-white p-6 shadow-xl">

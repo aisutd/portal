@@ -35,7 +35,7 @@ export async function AdminSidebar({
   const lname = user?.profile?.lastName;
   return (
     <aside className="flex min-h-screen w-[248px] shrink-0 flex-col border-r border-border-soft bg-white px-[24px] pb-[30px] pt-[30px]">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col gap-2">
       <h1 className="style-section-header leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
         AIS Admin
       </h1>

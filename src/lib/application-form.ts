@@ -4,13 +4,11 @@ import { EMAIL_DOMAIN_ERROR, isAllowedEmail } from "@/lib/email-domains";
 export const PERSONAL_STEP = "Personal";
 export const QUESTIONS_STEP = "Questions";
 export const REVIEW_STEP = "Review";
-
-export const RESUME_FIELD = "Resume *";
-
+export const RESUME_FIELD = "Resume";
 const PHONE_FIELD = "Phone Number";
-const PERSONAL_EMAIL_FIELD = "Personal Email *";
-const UTD_EMAIL_FIELD = "UTD Email *";
-const LINKEDIN_FIELD = "LinkedIn *";
+const PERSONAL_EMAIL_FIELD = "Personal Email";
+const UTD_EMAIL_FIELD = "UTD Email";
+const LINKEDIN_FIELD = "LinkedIn";
 
 export type FieldValues = Record<string, string>;
 
@@ -58,6 +56,10 @@ export function normalizeQuestions(value: unknown): string[] {
   }
 
   return questions;
+}
+
+export function normalizeFieldLabel(label: string): string {
+  return label.replace(/\s*\*$/, "").trim();
 }
 
 export function buildFormLayout(questions: unknown): ApplicationFormLayout {
@@ -143,14 +145,19 @@ export function collectExtraAnswers(
 }
 
 export function isRequiredField(
-  label: string,
-  questionsMap?: Record<string, QuestionConfig>,
-) {
-  if (questionsMap?.[label]?.required !== undefined) {
-    return Boolean(questionsMap[label].required);
+  label: string, 
+  questionsMap: Record<string, QuestionConfig> = {}
+): boolean {
+  const cleanLabel = label.replace(/\s*\*$/, "").trim();
+  const config = questionsMap[cleanLabel] ?? questionsMap[label];
+
+  if (config && typeof config.required === "boolean") {
+    return config.required;
   }
-  return label.trim().endsWith("*");
+
+  return label.includes("*");
 }
+
 
 export function findFirstStepWithError(
   stepFieldGroups: readonly (readonly string[])[],
@@ -203,7 +210,11 @@ export function validateFields(
   const errors: Record<string, string> = {};
 
   for (const field of fields) {
-    const value = values[field]?.trim() ?? "";
+    const normalizedField = normalizeFieldLabel(field);
+    const value =
+      values[field]?.trim() ??
+      values[normalizedField]?.trim() ??
+      "";
 
     if (!value) {
       if (isRequiredField(field, questionsMap)) {
@@ -212,7 +223,10 @@ export function validateFields(
       continue;
     }
 
-    const message = fieldFormatErrors[field]?.(value);
+    const message =
+      fieldFormatErrors[normalizedField]?.(value) ??
+      fieldFormatErrors[field]?.(value);
+
     if (message) {
       errors[field] = message;
     }

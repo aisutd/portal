@@ -1,8 +1,8 @@
-import { auth } from "@clerk/nextjs/server";
 import { ProgramType } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { createErrorResponse } from "@/lib/api-error";
 import { prisma } from "@/lib/prisma";
+import { getAuthenticatedUser } from "@/lib/auth";
 
 export interface Question {
   id: string;
@@ -15,18 +15,8 @@ export interface Question {
 }
 
 async function getCurrentUser() {
-  const session = await auth();
-
-  if (!session.userId) {
-    return {
-      error: createErrorResponse("Unauthorized", "UNAUTHENTICATED", 401),
-    } as const;
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { clerkId: session.userId },
-    select: { id: true },
-  });
+  // Fix 1: Properly destructure userId from Clerk's auth() helper
+  const user = await getAuthenticatedUser();
 
   if (!user) {
     return {
@@ -34,7 +24,7 @@ async function getCurrentUser() {
     } as const;
   }
 
-  return { userId: user.id } as const;
+  return { userId: user.id, role: user.role } as const;
 }
 
 function getPhase(openAt: Date, closeAt: Date, now: Date) {
@@ -118,6 +108,9 @@ export async function GET(
         title: true,
         description: true,
         questionsJson: true,
+        eligibility: true,
+        roles: true,
+        requiredProfileFields: true,
         programType: true,
         openAt: true,
         closeAt: true,
@@ -149,13 +142,23 @@ export async function GET(
     return createErrorResponse("Application not found", "NOT_FOUND", 404);
   }
 
+  // Fix 2: Guard hidden applications for non-admin applicants
+  if (!application.visibleToUsers && currentUser.role === "MEMBER") {
+    return createErrorResponse("Application not available", "NOT_FOUND", 404);
+  }
+
   const questions = parseQuestions(application.questionsJson);
+  const eligibilityList = (application.eligibility as string[] ?? []);
 
   return NextResponse.json({
     application: {
       ...application,
+      eligibility:
+        eligibilityList.length > 0
+          ? application.eligibility
+          : getEligibility(application.programType),
+      roles: application.roles,
       phase: getPhase(application.openAt, application.closeAt, new Date()),
-      eligibility: getEligibility(application.programType),
       questions,
     },
     draft: draft ?? null,

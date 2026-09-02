@@ -1,38 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SearchInput } from "@/components/ui/search-input";
 import { membersHref, type MemberFilter, type MembersQuery } from "@/lib/members/query-params";
 import { FILTER_LABELS, NEXT_SORT, SORT_LABELS } from "@/lib/members/labels";
-
-const DEBOUNCE_MS = 300;
+import { useMemberFilters } from "@/lib/members/use-member-filters";
 
 /** Mobile counterpart of MembersToolbar: same URL contract, stacked layout. */
 export function MobileMembersToolbar({ query }: { query: MembersQuery }) {
-  const router = useRouter();
-  const [term, setTerm] = useState(query.q);
-  const [syncedQ, setSyncedQ] = useState(query.q);
-
-  // Resync when the URL changes from outside (back button, filter chip).
-  if (query.q !== syncedQ) {
-    setSyncedQ(query.q);
-    setTerm(query.q);
-  }
-
-  useEffect(() => {
-    if (term === query.q) return;
-    const timer = setTimeout(() => {
-      router.replace(membersHref(query, { q: term }));
-    }, DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [term, query, router]);
+  const { term, setTerm, isPending } = useMemberFilters(query);
 
   return (
-    <div className="flex flex-col gap-[10px]">
+    <div className={`flex flex-col gap-[10px] ${isPending ? "opacity-70 transition-opacity" : ""}`}>
       <SearchInput
         value={term}
         onChange={setTerm}
@@ -42,7 +23,7 @@ export function MobileMembersToolbar({ query }: { query: MembersQuery }) {
       />
       <div className="-mx-[20px] flex items-center gap-[8px] overflow-x-auto px-[20px]">
         {(Object.keys(FILTER_LABELS) as MemberFilter[]).map((filter) => (
-          <Link key={filter} href={membersHref(query, { filter })} className="shrink-0">
+          <Link key={filter} href={membersHref(query, { filter, page: 1 })} className="shrink-0">
             <Button
               variant={query.filter === filter ? "soft" : "ghost"}
               size="sm"

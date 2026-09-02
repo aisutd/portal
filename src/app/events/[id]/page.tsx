@@ -211,8 +211,8 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                     
                     <p className="text-center style-body-text text-ink-muted">
                       {isLive
-                        ? "RSVP now to secure your attendance and to show your QR code for claiming food/drinks/merch."
-                        : "RSVP to secure your spot and unlock your QR code to claim food/drinks/merch at the event."}
+                        ? "RSVP now to secure your attendance and to show your QR code for claiming food/drinks/merch (no guarantees since resources were booked 24 hours ago)."
+                        : "RSVP to secure your spot and unlock your QR code to claim food/drinks/merch, if we offer it (check tags!) at the event."}
                     </p>
 
                     <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />

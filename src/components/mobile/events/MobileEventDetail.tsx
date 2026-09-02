@@ -177,8 +177,8 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
             
             <p className="text-center style-mobile-body text-ink-muted">
               {isLive
-                ? "RSVP now to secure your attendance and show your QR code for claiming food/drinks/merch."
-                : "RSVP to secure your spot and unlock your QR code to claim food/drinks/merch."}
+                ? "RSVP now to secure your attendance and to show your QR code for claiming food/drinks/merch (no guarantees since resources were booked 24 hours ago)."
+                : "RSVP to secure your spot and unlock your QR code to claim food/drinks/merch, if we offer it (check tags!) at this event."}
             </p>
 
             <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
