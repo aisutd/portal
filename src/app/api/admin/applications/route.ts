@@ -44,6 +44,13 @@ export async function GET() {
 export async function POST(request: Request) {
   const currentUser = await getAdminUser();
   if ("error" in currentUser) return currentUser.error;
+  if (currentUser.user.role === "OFFICER") {
+    return createErrorResponse(
+      "Officers are not permitted to create applications.",
+      "FORBIDDEN",
+      403
+    );
+  }
 
   let body: unknown;
   try { body = await request.json(); } catch { return createErrorResponse("Invalid JSON body", "BAD_REQUEST", 400); }

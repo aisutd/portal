@@ -74,10 +74,10 @@ export function ApplicationsCard({ items }: { items: ApplicationItem[] }) {
               <path d="m15 5 4 4"></path>
             </svg>
           </div>
-          <h2 className="style-card-title text-ink">Opening Soon</h2>
+          {/* <h2 className="style-card-title text-ink">Opening Soon</h2>
           <p className="style-body-text text-ink-muted max-w-[280px] leading-tight">
             Applications open at Kickoff on September 3, at 7pm.
-          </p>
+          </p> */}
           {/* <Link href="/applications" className="mt-[2px]">
             <Button
               variant="soft"

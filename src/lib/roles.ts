@@ -14,7 +14,7 @@ import type { MembershipType, UserRole, TEAM } from "@prisma/client";
 export const ADMIN_ROLES = ["OFFICER", "DIRECTOR", "EXECUTIVE"] as const satisfies readonly UserRole[];
 
 /** Roles permitted to assign or modify user roles and team affiliations. */
-export const ROLE_MANAGER_ROLES = ["EXECUTIVE"] as const satisfies readonly UserRole[];
+export const ROLE_MANAGER_ROLES = ["EXECUTIVE", "DIRECTOR"] as const satisfies readonly UserRole[];
 
 /** All valid permission roles. */
 export const ALL_USER_ROLES = ["MEMBER", "OFFICER", "DIRECTOR", "EXECUTIVE"] as const satisfies readonly UserRole[];

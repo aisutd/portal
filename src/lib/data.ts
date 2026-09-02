@@ -143,7 +143,7 @@ export const programs: Program[] = [
     badge: "High Demand",
     title: "AI Mentorship",
     description:
-      "Learn AI. Build together. AIM",
+      "Learn AI. Build together. AIM.",
     tags: ["Intermediate", "Project", "Team based", "Learn"],
     cta: "primary",
   },
