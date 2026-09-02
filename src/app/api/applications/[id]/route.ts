@@ -134,7 +134,7 @@ export async function GET(
     prisma.applicationSubmission.findFirst({
       where: { applicationId: id, userId: currentUser.userId },
       orderBy: [{ submittedAt: "desc" }, { updatedAt: "desc" }],
-      select: { status: true },
+      select: { id: true, status: true },
     }),
   ]);
 
@@ -163,5 +163,6 @@ export async function GET(
     },
     draft: draft ?? null,
     submissionStatus: submission?.status ?? null,
+    submissionId: submission?.id ?? null
   });
 }

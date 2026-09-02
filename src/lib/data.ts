@@ -123,7 +123,7 @@ export const applySteps: Step[] = [
 export const programs: Program[] = [
   {
     icon: "◇",
-    iconBg: "#3d6cfa",
+    iconBg: "#f7d000",
     iconColor: "#1f3aa3",
     image: "/images/programs/ai-academy.png",
     borderColor: "#e7e2d4",
@@ -143,7 +143,7 @@ export const programs: Program[] = [
     badge: "High Demand",
     title: "AI Mentorship",
     description:
-      "Get mentored through a real AI/ML project from senior students to present it to industry and accelerate your career in AI.",
+      "Learn AI. Build together. AIM",
     tags: ["Intermediate", "Project", "Team based", "Mentorship"],
     cta: "primary",
   },
@@ -153,7 +153,7 @@ export const programs: Program[] = [
     iconColor: "#4b4178",
     image: "/images/programs/innovation-lab.png",
     borderColor: "#e7e2d4",
-    title: "Innovation Labs",
+    title: "AI Innovation Labs",
     description:
       "Build products for people and work hands-on with industry-standard AI technologies.",
     tags: ["Advanced", "Team based", "Research"],

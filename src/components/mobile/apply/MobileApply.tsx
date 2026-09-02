@@ -208,7 +208,7 @@ export function MobileApply() {
       emptyMessage="You have not submitted any applications yet."
       action={
         <Button href="/applications/history" variant="ghost" size="sm">
-          View Your Submitted Applications
+          View All
         </Button>
       }
       buildRow={buildSubmittedRow}
@@ -243,83 +243,94 @@ export function MobileApply() {
       </div>
 
       {/* Program Flow */}
-      <div className="flex flex-col gap-[12px]">
-        {programs.map((program, index) => (
-          <Fragment key={program.title}>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 16 }}
-              whileInView={{ opacity: 1, scale: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{
-                duration: 0.4,
-                delay: index * 0.1,
-                ease: "easeOut",
-              }}
-              className="flex flex-col gap-[12px] rounded-[16px] border bg-white p-[18px]"
-              style={{ borderColor: program.borderColor }}
+<div className="flex flex-col">
+  {programs.map((program, index) => (
+    <Fragment key={program.title}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 16 }}
+        whileInView={{ opacity: 1, scale: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{
+          duration: 0.4,
+          delay: index * 0.1,
+          ease: "easeOut",
+        }}
+        className="flex flex-row rounded-[16px] border bg-white overflow-hidden"
+        style={{ borderColor: program.borderColor }}
+      >
+        {/* Left Side: Full-height Icon / Image Container */}
+        <div
+          className="relative flex w-[80px] sm:w-[100px] shrink-0 items-center justify-center p-3 border-r border-border-soft/60"
+          style={{
+            backgroundColor: program.image
+              ? `color-mix(in srgb, ${program.iconBg} 20%, transparent)`
+              : program.iconBg,
+          }}
+        >
+          {program.image ? (
+            <Image
+              src={program.image}
+              alt={`${program.title} Logo`}
+              width={64}
+              height={64}
+              className="max-h-full max-w-full object-contain mix-blend-multiply"
+            />
+          ) : (
+            <span
+              className="text-[24px]"
+              style={{ color: program.iconColor }}
             >
-              <div className="flex items-center justify-between">
-                {program.image ? (
-                  <div
-                    className="relative flex size-[52px] shrink-0 items-center justify-center rounded-[12px] p-[2px] overflow-hidden border border-border-soft/60"
-                    style={{ backgroundColor: `color-mix(in srgb, ${program.iconBg} 20%, transparent)` }}
-                  >
-                    <Image
-                      src={program.image}
-                      alt={`${program.title} Logo`}
-                      width={48}
-                      height={48}
-                      className="h-[95%] w-[95%] object-contain mix-blend-multiply"
-                    />
-                  </div>
-                ) : (
-                  <span
-                    className="flex size-[40px] items-center justify-center rounded-[10px] text-[18px]"
-                    style={{ backgroundColor: program.iconBg, color: program.iconColor }}
-                  >
-                    {program.icon}
-                  </span>
-                )}
-                {program.badge && (
-                  <Badge label={program.badge} bg="#fbe3cb" color="#7a4416" />
-                )}
-              </div>
-              <h3 className="font-mobile-display text-[17px] font-bold text-ink">
-                {program.title}
-              </h3>
-              <p className="font-mobile-body text-[13px] text-ink-muted line-clamp-3">
-                {program.description}
-              </p>
-              <div className="flex flex-wrap gap-[6px]">
-                {program.tags.map((label) => (
-                  <Tag
-                    key={label}
-                    label={label}
-                    bg="#efece3"
-                    color="#6a685f"
-                    border="#e2ded2"
-                  />
-                ))}
-              </div>
-            </motion.div>
+              {program.icon}
+            </span>
+          )}
+        </div>
 
-            {index < programs.length - 1 && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.3, delay: index * 0.1 + 0.05 }}
-              >
-                <ProgramFlowArrow />
-              </motion.div>
+        {/* Right Side: Content */}
+        <div className="flex flex-1 flex-col gap-[10px] p-[18px]">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="font-mobile-display text-[17px] font-bold text-ink">
+              {program.title}
+            </h3>
+            {program.badge && (
+              <Badge label={program.badge} bg="#fbe3cb" color="#7a4416" />
             )}
-          </Fragment>
-        ))}
-      </div>
+          </div>
+
+          <p className="font-mobile-body text-[13px] text-ink-muted line-clamp-3">
+            {program.description}
+          </p>
+
+          <div className="flex flex-wrap gap-[6px] mt-auto pt-1">
+            {program.tags.map((label) => (
+              <Tag
+                key={label}
+                label={label}
+                bg="#efece3"
+                color="#6a685f"
+                border="#e2ded2"
+              />
+            ))}
+          </div>
+        </div>
+      </motion.div>
+
+      {index < programs.length - 1 && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.3, delay: index * 0.1 + 0.05 }}
+        >
+          <ProgramFlowArrow />
+        </motion.div>
+      )}
+    </Fragment>
+  ))}
+</div>
 
       {/* Slogan banner */}
-      <div className="-mx-[20px]">
-        <Marquee text="JOIN THE MOVEMENT · AIS UTD · BUILD THE FUTURE · LEARN. BUILD. LEAD. · YOUR AI COMMUNITY AT UTD · AIS UTD" />
+      <div>
+        <Marquee text="JOIN THE MOVEMENT · BUILD THE FUTURE · AIS UTD" />
       </div>
 
       {/* Dynamic Section Rendering */}

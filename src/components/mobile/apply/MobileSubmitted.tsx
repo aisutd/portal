@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { MobileReadOnlyField } from "@/components/mobile/apply/MobileReadOnlyField";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
+import { SectionHeader } from "@/components/ui/section-header";
 import { personalFields } from "@/lib/data";
 import {
   EMPTY_LAYOUT,
@@ -216,7 +217,7 @@ export function MobileSubmitted() {
       ) : error ? (
         <NotFoundState message={error} />
       ) : submission ? (
-        <div className="flex flex-col gap-[16px] rounded-[16px] border border-border-soft bg-white p-[20px]">
+        <div className="flex flex-col gap-[20px] rounded-[16px] border border-border-soft bg-white p-[20px]">
           <div className="flex flex-col gap-[8px]">
             <div className="flex items-start justify-between gap-[10px]">
               <h2 className="style-mobile-title text-ink">
@@ -236,36 +237,41 @@ export function MobileSubmitted() {
             </p>
           ) : null}
 
-          {/* The review step shows no answers of its own. */}
-          {layout.steps.slice(0, layout.reviewStepIndex).map((step, index) => (
-            <div key={step} className="flex flex-col gap-[14px]">
-              <p className="style-mobile-body font-bold text-ink">{step}</p>
-              {(layout.stepFieldGroups[index] ?? []).map((label) => (
-                <MobileReadOnlyField
-                  key={label}
-                  label={label}
-                  value={fieldValues[label] ?? ""}
-                  config={questionsMap[label]}
-                  multiline={index > 0}
-                />
-              ))}
-            </div>
-          ))}
+          {/* Render step sections aligned with desktop layout */}
+          {layout.steps.slice(0, layout.reviewStepIndex).map((step, index) => {
+            const fields = layout.stepFieldGroups[index] ?? [];
 
-          {/* Answers whose question is no longer on the application — shown so
-              a submitted answer is never silently dropped. */}
+            return (
+              <div key={step} className="flex flex-col gap-[14px]">
+                <SectionHeader title={step} />
+                <div className="grid grid-cols-1 gap-x-[28px] gap-y-[20px] sm:grid-cols-2">
+                  {fields.map((label) => (
+                    <MobileReadOnlyField
+                      key={label}
+                      label={label}
+                      value={fieldValues[label] ?? ""}
+                      config={questionsMap[label]}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Extra answers outside active application schema */}
           {extraAnswers.length > 0 ? (
             <div className="flex flex-col gap-[14px]">
-              <p className="style-mobile-body font-bold text-ink">Other Answers</p>
-              {extraAnswers.map(([label, value]) => (
-                <MobileReadOnlyField
-                  key={label}
-                  label={label}
-                  value={value}
-                  config={questionsMap[label]}
-                  multiline
-                />
-              ))}
+              <SectionHeader title="Other Answers" />
+              <div className="grid grid-cols-1 gap-x-[28px] gap-y-[20px] sm:grid-cols-2">
+                {extraAnswers.map(([label, value]) => (
+                  <MobileReadOnlyField
+                    key={label}
+                    label={label}
+                    value={value}
+                    config={questionsMap[label]}
+                  />
+                ))}
+              </div>
             </div>
           ) : null}
         </div>

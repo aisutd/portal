@@ -128,7 +128,7 @@ export function ProgramCard({
 
       
 
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap w-fit gap-1.5">
         {tags.map((label) => (
           <Tag
             key={label}

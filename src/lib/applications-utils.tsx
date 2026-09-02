@@ -1,5 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import type { OpenApp } from "@/components/apply/open-app-row";
+import { ProgramType } from "@prisma/client";
+import { ProgramTypeDesign } from "@/lib/program-types";
 
 export type Application = {
   id: string;
@@ -8,6 +10,7 @@ export type Application = {
   openAt: string;
   closeAt: string;
   phase: "open" | "upcoming" | "closed";
+  programType?: ProgramType | string | Partial<ProgramTypeDesign>;
   draft: {
     stepIndex: number;
     isSubmitted: boolean;
@@ -168,6 +171,7 @@ export function buildOpenRow(application: Application): OpenApp {
           ];
 
   return {
+    id: application.id,
     title: application.title,
     description: application.description,
     meta,
@@ -175,6 +179,7 @@ export function buildOpenRow(application: Application): OpenApp {
     closeAt: application.closeAt,
     metaMedium: application.phase !== "upcoming",
     dim: application.phase !== "open",
+    programType: application.programType,
     statusBadge: getStatusBadge(application.draft, application.submissionStatus),
     actions,
   };
@@ -188,6 +193,7 @@ export function buildSubmittedRow(application: Application): OpenApp {
   );
 
   return {
+    id: application.id,
     title: application.title,
     description: application.description,
     meta: application.submittedAt
@@ -195,6 +201,7 @@ export function buildSubmittedRow(application: Application): OpenApp {
       : "submitted",
     borderColor: "#d9d3c7",
     metaMedium: true,
+    programType: application.programType,
     statusBadge,
     actions: [
       {

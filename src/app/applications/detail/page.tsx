@@ -30,6 +30,7 @@ type ApplicationDetailResponse = {
     title: string;
     description: string;
     decisionDate: string | null;
+    closeAt?: string | null;
     phase: "open" | "upcoming" | "closed";
     programType: string;
     eligibility: string[];
@@ -40,12 +41,11 @@ type ApplicationDetailResponse = {
     isSubmitted: boolean;
   } | null;
   submissionStatus: string | null;
+  submissionId: string | null;
 };
 
-function formatDecisionDate(value: string | null) {
-  if (!value) {
-    return "Decision date TBD";
-  }
+function formatDate(value: string | null, fallbackText: string) {
+  if (!value) return fallbackText;
 
   return new Intl.DateTimeFormat("en-US", {
     month: "long",
@@ -66,31 +66,23 @@ function getStatusBadge(
       .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
       .join(" ");
 
-    if (submissionStatus === "ACCEPTED") {
-      return <Badge label={label} bg="#d3eccf" color="#356b2e" />;
+    switch (submissionStatus) {
+      case "ACCEPTED":
+        return <Badge label={label} bg="#d3eccf" color="#356b2e" />;
+      case "REJECTED":
+        return <Badge label={label} bg="#f9d5d3" color="#9a3b36" />;
+      case "WAITLISTED":
+        return <Badge label={label} bg="#fbe3cb" color="#7a4416" />;
+      case "IN_REVIEW":
+        return <Badge label={label} bg="#e1e8ff" color="#1f3aa3" />;
+      case "IN_CONSIDERATION":
+        return <Badge label={label} bg="#e9e5f6" color="#4b4178" />;
+      case "COMPLETED":
+      case "ARCHIVED":
+        return <Badge label={label} bg="#efece3" color="#6a685f" />;
+      default:
+        return <Badge label={label} bg="#e1e8ff" color="#1f3aa3" />;
     }
-
-    if (submissionStatus === "REJECTED") {
-      return <Badge label={label} bg="#f9d5d3" color="#9a3b36" />;
-    }
-
-    if (submissionStatus === "WAITLISTED") {
-      return <Badge label={label} bg="#fbe3cb" color="#7a4416" />;
-    }
-
-    if (submissionStatus === "IN_REVIEW") {
-      return <Badge label={label} bg="#e1e8ff" color="#1f3aa3" />;
-    }
-
-    if (submissionStatus === "IN_CONSIDERATION") {
-      return <Badge label={label} bg="#e9e5f6" color="#4b4178" />;
-    }
-
-    if (submissionStatus === "COMPLETED" || submissionStatus === "ARCHIVED") {
-      return <Badge label={label} bg="#efece3" color="#6a685f" />;
-    }
-
-    return <Badge label={label} bg="#e1e8ff" color="#1f3aa3" />;
   }
 
   if (draft) {
@@ -134,8 +126,6 @@ function ApplyDetailContent() {
     useState<ApplicationDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const alreadySubmitted = Boolean(application?.submissionStatus);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -187,6 +177,13 @@ function ApplyDetailContent() {
     };
   }, [applicationId]);
 
+  const alreadySubmitted = Boolean(application?.submissionStatus);
+  const isExpired = Boolean(
+    application?.application.closeAt &&
+      new Date(application.application.closeAt) < new Date()
+  );
+  const submissionId = application?.submissionId;
+
   // Normalize dynamic roles whether returned as string array or role object array
   const rawRoles = application?.application.roles ?? [];
   const normalizedRoles = rawRoles.map((role) =>
@@ -225,8 +222,9 @@ function ApplyDetailContent() {
                       {application.application.title}
                     </h1>
                     <p className="style-body-text leading-[21.75px] text-ink-muted">
-                      {formatDecisionDate(
-                        application.application.decisionDate
+                      {formatDate(
+                        application.application.decisionDate,
+                        "Decision date TBD"
                       )}
                     </p>
                   </div>
@@ -236,8 +234,21 @@ function ApplyDetailContent() {
                       application.submissionStatus
                     )}
                     {alreadySubmitted ? (
+                      <Button
+                        href={
+                          submissionId
+                            ? `/applications/submitted?submissionId=${submissionId}`
+                            : `/applications/submitted?submissionId=${application.application.id}`
+                        }
+                        variant="ghost"
+                        size="lg"
+                        className="shrink-0 self-start sm:self-auto"
+                      >
+                        View Application
+                      </Button>
+                    ) : isExpired ? (
                       <div className="rounded-full border border-border-soft bg-[#efece3] px-[18px] py-[11px] font-semibold leading-none text-ink-muted">
-                        Already submitted
+                        Application closed
                       </div>
                     ) : (
                       <Button
@@ -254,6 +265,11 @@ function ApplyDetailContent() {
                 {alreadySubmitted ? (
                   <div className="rounded-[16px] border border-border-soft bg-[#fbfaf7] px-[20px] py-[16px] style-body-text leading-[20.3px] text-ink-muted">
                     You have already submitted an application for this program.
+                  </div>
+                ) : isExpired ? (
+                  <div className="rounded-[16px] border border-border-soft bg-[#fbfaf7] px-[20px] py-[16px] style-body-text leading-[20.3px] text-ink-muted">
+                    Applications for this program closed on{" "}
+                    {formatDate(application.application.closeAt!, "")}.
                   </div>
                 ) : null}
 

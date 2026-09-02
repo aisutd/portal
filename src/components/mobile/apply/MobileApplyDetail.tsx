@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
-import { RoleCard, type Role, type RoleTagData } from "@/components/apply/role-card";
+import { RoleCard, type Role } from "@/components/apply/role-card";
 
 type RoleItem = string | Role;
 
@@ -17,6 +17,7 @@ type ApplicationDetailResponse = {
     title: string;
     description: string;
     decisionDate: string | null;
+    closeAt: string | null;
     phase: "open" | "upcoming" | "closed";
     eligibility: string[];
     roles: RoleItem[];
@@ -26,12 +27,11 @@ type ApplicationDetailResponse = {
     isSubmitted: boolean;
   } | null;
   submissionStatus: string | null;
+  submissionId: string | null;
 };
 
-function formatDecisionDate(value: string | null) {
-  if (!value) {
-    return "Decision date TBD";
-  }
+function formatDate(value: string | null, fallbackText: string) {
+  if (!value) return fallbackText;
 
   return new Intl.DateTimeFormat("en-US", {
     month: "long",
@@ -52,19 +52,32 @@ function getStatusBadge(
       .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
       .join(" ");
 
-    if (submissionStatus === "ACCEPTED") return <Badge label={label} bg="#d3eccf" color="#356b2e" />;
-    if (submissionStatus === "REJECTED") return <Badge label={label} bg="#f9d5d3" color="#9a3b36" />;
-    if (submissionStatus === "WAITLISTED") return <Badge label={label} bg="#fbe3cb" color="#7a4416" />;
-    if (submissionStatus === "IN_REVIEW") return <Badge label={label} bg="#e1e8ff" color="#1f3aa3" />;
-    if (submissionStatus === "IN_CONSIDERATION") return <Badge label={label} bg="#e9e5f6" color="#4b4178" />;
-    if (submissionStatus === "COMPLETED" || submissionStatus === "ARCHIVED")
-      return <Badge label={label} bg="#efece3" color="#6a685f" />;
-
-    return <Badge label={label} bg="#e1e8ff" color="#1f3aa3" />;
+    switch (submissionStatus) {
+      case "ACCEPTED":
+        return <Badge label={label} bg="#d3eccf" color="#356b2e" />;
+      case "REJECTED":
+        return <Badge label={label} bg="#f9d5d3" color="#9a3b36" />;
+      case "WAITLISTED":
+        return <Badge label={label} bg="#fbe3cb" color="#7a4416" />;
+      case "IN_REVIEW":
+        return <Badge label={label} bg="#e1e8ff" color="#1f3aa3" />;
+      case "IN_CONSIDERATION":
+        return <Badge label={label} bg="#e9e5f6" color="#4b4178" />;
+      case "COMPLETED":
+      case "ARCHIVED":
+        return <Badge label={label} bg="#efece3" color="#6a685f" />;
+      default:
+        return <Badge label={label} bg="#e1e8ff" color="#1f3aa3" />;
+    }
   }
 
   if (draft) {
-    return <Badge label={draft.isSubmitted ? "Submitted" : "Draft"} variant="outline" />;
+    return (
+      <Badge
+        label={draft.isSubmitted ? "Submitted" : "Draft"}
+        variant="outline"
+      />
+    );
   }
 
   return null;
@@ -90,8 +103,6 @@ export function MobileApplyDetail() {
   const [application, setApplication] = useState<ApplicationDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const alreadySubmitted = Boolean(application?.submissionStatus);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -143,6 +154,13 @@ export function MobileApplyDetail() {
     };
   }, [applicationId]);
 
+  const alreadySubmitted = Boolean(application?.submissionStatus);
+  const isExpired = Boolean(
+    application?.application.closeAt &&
+      new Date(application.application.closeAt) < new Date()
+  );
+
+  const submissionId = application?.submissionId ?? null;
   // Normalize dynamic roles (handles strings or standard Role objects)
   const rawRoles = application?.application.roles ?? [];
   const normalizedRoles: Role[] = rawRoles.map((role) =>
@@ -168,13 +186,17 @@ export function MobileApplyDetail() {
               {application.application.title}
             </h1>
             <p className="style-mobile-body text-ink-muted">
-              {formatDecisionDate(application.application.decisionDate)}
+              {formatDate(application.application.decisionDate, "Decision date TBD")}
             </p>
             <div className="flex items-center gap-[10px]">
               {getStatusBadge(application.draft, application.submissionStatus)}
               {alreadySubmitted ? (
                 <span className="rounded-full border border-border-soft bg-[#efece3] px-[12px] py-[7px] style-caption text-ink-muted">
                   Already submitted
+                </span>
+              ) : isExpired ? (
+                <span className="rounded-full border border-border-soft bg-[#efece3] px-[12px] py-[7px] style-caption text-ink-muted">
+                  Application closed
                 </span>
               ) : (
                 <Button href={`/applications/form?id=${application.application.id}`} size="sm">
@@ -185,8 +207,22 @@ export function MobileApplyDetail() {
           </div>
 
           {alreadySubmitted ? (
+            <Button
+              href={
+                submissionId
+                  ? `/applications/submitted?submissionId=${submissionId}`
+                  : `/applications/submitted`
+              }
+              variant="ghost"
+              size="lg"
+              className="shrink-0 self-start sm:self-auto"
+            >
+              View Application
+            </Button>
+            ) : isExpired ? (
             <div className="rounded-[16px] border border-border-soft bg-[#fbfaf7] px-[16px] py-[12px] style-mobile-body text-ink-muted">
-              You have already submitted an application for this program.
+              Applications for this program closed on{" "}
+              {formatDate(application.application.closeAt!, "")}.
             </div>
           ) : null}
 
