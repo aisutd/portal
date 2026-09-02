@@ -1,71 +1,35 @@
 import { cn } from "@/lib/utils";
 import { Navbar } from "@/components/navbar";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { SectionHeader } from "@/components/ui/section-header";
 import { currentUser } from "@clerk/nextjs/server";
-import { SignOutButton } from "@clerk/nextjs";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { getProfileCompletion } from "@/lib/dashboard-utils";
-import { revalidatePath } from "next/cache";
 import { MobileProfile } from "@/components/mobile/profile/MobileProfile";
 import { PasswordResetButton } from "@/components/profile/PasswordResetButton";
 import { ResumeUploadButton } from "@/components/profile/ResumeUploadButton";
+import { ProfileForm } from "@/components/profile/profile-form";
 import { UTD_MAJORS, UTD_DEGREES, ACADEMIC_YEARS } from "@/lib/utd-data";
+import { updateProfile } from "./actions";
 
 export default async function ProfilePage() {
   const clerkUser = await currentUser();
-  if (!clerkUser) {
-    redirect("/onboarding");
-  }
+  if (!clerkUser) redirect("/onboarding");
 
   const user = await prisma.user.findUnique({
     where: { clerkId: clerkUser.id },
     include: {
       profile: {
-        include: {
-          resumeFile: true,
-        },
+        include: { resumeFile: true },
       },
     },
   });
 
-  if (!user || !user.profile) {
-    redirect("/dashboard");
-  }
+  if (!user || !user.profile) redirect("/dashboard");
 
   const profile = user.profile;
   const completion = await getProfileCompletion(user.id);
-
-  async function updateProfile(formData: FormData) {
-    "use server";
-    const clerkUser = await currentUser();
-    if (!clerkUser) return;
-
-    await prisma.profile.update({
-      where: { userId: user!.id },
-      data: {
-        firstName: formData.get("firstName") as string,
-        lastName: formData.get("lastName") as string,
-        prefName: formData.get("prefName") as string,
-        phoneNumber: formData.get("phoneNumber") as string,
-        personalEmail: formData.get("personalEmail") as string,
-        utdEmail: formData.get("utdEmail") as string,
-        utdNetId: formData.get("utdNetId") as string,
-        major: formData.get("major") as string,
-        degree: formData.get("degree") as string,
-        year: formData.get("year") as string,
-        linkedinUrl: formData.get("linkedinUrl") as string,
-        githubUrl: formData.get("githubUrl") as string,
-        portfolioUrl: formData.get("portfolioUrl") as string,
-      },
-    });
-
-    revalidatePath("/profile");
-    // The navbar name comes from the root layout, so refresh that too.
-    revalidatePath("/", "layout");
-  }
 
   return (
     <>
@@ -83,15 +47,14 @@ export default async function ProfilePage() {
             </h1>
 
             {completion.percent < 100 && (
-              <div className="flex w-full items-center justify-between rounded-lg bg-[#f9d5d3] px-[21px] py-[16px] mt-[16px]">
+              <div className="mt-[16px] flex w-full items-center justify-between rounded-lg bg-[#f9d5d3] px-[21px] py-[16px]">
                 <span className="style-body-text font-bold text-[#9a3b36]">
                   Your profile is {completion.percent}% complete. Please complete the highlighted fields to reach 100%!
                 </span>
               </div>
             )}
 
-            <form key={profile.updatedAt.toString()} action={updateProfile} className="flex flex-col gap-[24px] mt-[28px]">
-              {/* USER INFO BAR */}
+            <ProfileForm initialUpdatedAt={profile.updatedAt.toString()}>
               <Card className="flex w-full flex-col items-start justify-between gap-[16px] p-[29px] sm:flex-row sm:items-center">
                 <h2 className="style-card-title tracking-[-0.4px] text-ink uppercase">
                   {profile.firstName} {profile.lastName}
@@ -103,59 +66,64 @@ export default async function ProfilePage() {
                 </div>
               </Card>
 
-              <div className="flex flex-col xl:flex-row gap-[24px]">
+              <div className="flex flex-col gap-[24px] xl:flex-row">
                 {/* LEFT COLUMN */}
-                <div className="flex w-full xl:w-[400px] shrink-0 flex-col gap-[24px]">
-                  {/* LINKS CARD */}
-                  <Card className="flex flex-col p-[29px] gap-[20px]">
+                <div className="flex w-full shrink-0 flex-col gap-[24px] xl:w-[400px]">
+                  <Card className="flex flex-col gap-[20px] p-[29px]">
                     <SectionHeader title="Links" />
-
                     <div className="flex flex-col gap-[16px]">
                       <div className="flex items-center gap-[16px]">
-                        <span className="style-label-text text-ink w-[80px]">LinkedIn</span>
+                        <label htmlFor="linkedinUrl" className="style-label-text text-ink w-[80px]">
+                          LinkedIn
+                        </label>
                         <input
+                          id="linkedinUrl"
                           name="linkedinUrl"
                           defaultValue={profile.linkedinUrl || ""}
                           placeholder="https://linkedin.com/in/..."
                           className={cn(
-                            "h-[40px] flex-1 rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
-                            !profile.linkedinUrl ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                            "style-input-text text-ink focus:border-brand h-[40px] flex-1 rounded-lg border bg-field px-[16px] focus:outline-none",
+                            !profile.linkedinUrl ? "border-red-500 bg-red-50 ring-1 ring-red-500" : "border-transparent"
                           )}
                         />
                       </div>
 
                       <div className="flex items-center gap-[16px]">
-                        <span className="style-label-text text-ink w-[80px]">Github</span>
+                        <label htmlFor="githubUrl" className="style-label-text text-ink w-[80px]">
+                          Github
+                        </label>
                         <input
+                          id="githubUrl"
                           name="githubUrl"
                           defaultValue={profile.githubUrl || ""}
                           placeholder="https://github.com/..."
                           className={cn(
-                            "h-[40px] flex-1 rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
-                            !profile.githubUrl ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                            "style-input-text text-ink focus:border-brand h-[40px] flex-1 rounded-lg border bg-field px-[16px] focus:outline-none",
+                            !profile.githubUrl ? "border-red-500 bg-red-50 ring-1 ring-red-500" : "border-transparent"
                           )}
                         />
                       </div>
 
                       <div className="flex items-center gap-[16px]">
-                        <span className="style-label-text text-ink w-[80px]">Portfolio</span>
+                        <label htmlFor="portfolioUrl" className="style-label-text text-ink w-[80px]">
+                          Portfolio
+                        </label>
                         <input
+                          id="portfolioUrl"
                           name="portfolioUrl"
                           defaultValue={profile.portfolioUrl || ""}
                           placeholder="https://..."
                           className={cn(
-                            "h-[40px] flex-1 rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
-                            !profile.portfolioUrl ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                            "style-input-text text-ink focus:border-brand h-[40px] flex-1 rounded-lg border bg-field px-[16px] focus:outline-none",
+                            !profile.portfolioUrl ? "border-red-500 bg-red-50 ring-1 ring-red-500" : "border-transparent"
                           )}
                         />
                       </div>
                     </div>
                   </Card>
 
-                  {/* RESUME UPLOAD CARD */}
-                  <Card className="flex flex-col p-[29px] gap-[20px]">
+                  <Card className="flex flex-col gap-[20px] p-[29px]">
                     <SectionHeader title="Resume Upload" />
-
                     <ResumeUploadButton
                       initialFileName={profile.resumeFile?.fileName}
                       hasResume={!!profile.resumeFileId}
@@ -165,84 +133,92 @@ export default async function ProfilePage() {
 
                 {/* RIGHT COLUMN */}
                 <div className="flex w-full flex-1 flex-col gap-[24px]">
-                  {/* PERSONAL INFO CARD */}
-                  <Card className="flex flex-col p-[29px] gap-[20px]">
+                  <Card className="flex flex-col gap-[20px] p-[29px]">
                     <SectionHeader title="Personal Info" />
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-[32px] gap-y-[20px]">
+                    <div className="grid grid-cols-1 gap-x-[32px] gap-y-[20px] md:grid-cols-2">
                       <div className="flex flex-col gap-2">
-                        <span className="style-label-text text-ink-muted">First Name</span>
+                        <label htmlFor="firstName" className="style-label-text text-ink-muted">First Name</label>
                         <input
+                          id="firstName"
                           name="firstName"
                           defaultValue={profile.firstName}
-                          className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
+                          className="style-input-text text-ink focus:border-brand h-11 w-full rounded-lg border border-transparent bg-field px-[16px] focus:outline-none"
                         />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <span className="style-label-text text-ink-muted">Last Name</span>
+                        <label htmlFor="lastName" className="style-label-text text-ink-muted">Last Name</label>
                         <input
+                          id="lastName"
                           name="lastName"
                           defaultValue={profile.lastName}
-                          className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
+                          className="style-input-text text-ink focus:border-brand h-11 w-full rounded-lg border border-transparent bg-field px-[16px] focus:outline-none"
                         />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <span className="style-label-text text-ink-muted">Preferred Name</span>
+                        <label htmlFor="prefName" className="style-label-text text-ink-muted">Preferred Name</label>
                         <input
+                          id="prefName"
                           name="prefName"
                           defaultValue={profile.prefName ?? ""}
-                          className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
+                          className="style-input-text text-ink focus:border-brand h-11 w-full rounded-lg border border-transparent bg-field px-[16px] focus:outline-none"
                         />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <span className="style-label-text text-ink-muted">Phone Number</span>
+                        <label htmlFor="phoneNumber" className="style-label-text text-ink-muted">Phone Number</label>
                         <input
+                          id="phoneNumber"
                           name="phoneNumber"
                           defaultValue={profile.phoneNumber ?? ""}
                           placeholder="(123) 456-7890"
                           className={cn(
-                            "h-11 w-full rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
-                            !profile.phoneNumber ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                            "style-input-text text-ink focus:border-brand h-11 w-full rounded-lg border bg-field px-[16px] focus:outline-none",
+                            !profile.phoneNumber ? "border-red-500 bg-red-50 ring-1 ring-red-500" : "border-transparent"
                           )}
                         />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <span className="style-label-text text-ink-muted">Personal Email</span>
+                        <label htmlFor="personalEmail" className="style-label-text text-ink-muted">Personal Email</label>
                         <input
+                          id="personalEmail"
                           name="personalEmail"
                           type="email"
                           defaultValue={profile.personalEmail ?? ""}
                           placeholder="john@gmail.com"
                           className={cn(
-                            "h-11 w-full rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
-                            !profile.personalEmail ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                            "style-input-text text-ink focus:border-brand h-11 w-full rounded-lg border bg-field px-[16px] focus:outline-none",
+                            !profile.personalEmail ? "border-red-500 bg-red-50 ring-1 ring-red-500" : "border-transparent"
                           )}
                         />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <span className="style-label-text text-ink-muted">UTD Email</span>
+                        <label htmlFor="utdEmail" className="style-label-text text-ink-muted">UTD Email</label>
                         <input
+                          id="utdEmail"
                           name="utdEmail"
                           defaultValue={profile.utdEmail || ""}
-                          className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
+                          className="style-input-text text-ink focus:border-brand h-11 w-full rounded-lg border border-transparent bg-field px-[16px] focus:outline-none"
+                          disabled
                         />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <span className="style-label-text text-ink-muted">UTD NetID</span>
+                        <label htmlFor="utdNetId" className="style-label-text text-ink-muted">UTD NetID</label>
                         <input
+                          id="utdNetId"
                           name="utdNetId"
                           defaultValue={profile.utdNetId || ""}
-                          className="h-11 w-full rounded-lg bg-field border border-transparent px-[16px] style-input-text text-ink focus:outline-none focus:border-brand"
+                          className="style-input-text text-ink focus:border-brand h-11 w-full rounded-lg border border-transparent bg-field px-[16px] focus:outline-none"
+                          disabled
                         />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <span className="style-label-text text-ink-muted">Major</span>
+                        <label htmlFor="major" className="style-label-text text-ink-muted">Major</label>
                         <select
+                          id="major"
                           name="major"
                           defaultValue={profile.major ?? ""}
                           className={cn(
-                            "h-11 w-full rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
-                            !profile.major ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                            "style-input-text text-ink focus:border-brand h-11 w-full rounded-lg border bg-field px-[16px] focus:outline-none",
+                            !profile.major ? "border-red-500 bg-red-50 ring-1 ring-red-500" : "border-transparent"
                           )}
                         >
                           <option value="">Select your major</option>
@@ -254,13 +230,14 @@ export default async function ProfilePage() {
                         </select>
                       </div>
                       <div className="flex flex-col gap-2">
-                        <span className="style-label-text text-ink-muted">Degree</span>
+                        <label htmlFor="degree" className="style-label-text text-ink-muted">Degree</label>
                         <select
+                          id="degree"
                           name="degree"
                           defaultValue={profile.degree ?? ""}
                           className={cn(
-                            "h-11 w-full rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
-                            !profile.degree ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                            "style-input-text text-ink focus:border-brand h-11 w-full rounded-lg border bg-field px-[16px] focus:outline-none",
+                            !profile.degree ? "border-red-500 bg-red-50 ring-1 ring-red-500" : "border-transparent"
                           )}
                         >
                           <option value="">Select your degree</option>
@@ -272,13 +249,14 @@ export default async function ProfilePage() {
                         </select>
                       </div>
                       <div className="flex flex-col gap-2">
-                        <span className="style-label-text text-ink-muted">Academic Year</span>
+                        <label htmlFor="year" className="style-label-text text-ink-muted">Academic Year</label>
                         <select
+                          id="year"
                           name="year"
                           defaultValue={profile.year ?? ""}
                           className={cn(
-                            "h-11 w-full rounded-lg bg-field border px-[16px] style-input-text text-ink focus:outline-none focus:border-brand",
-                            !profile.year ? "border-red-500 ring-1 ring-red-500 bg-red-50" : "border-transparent"
+                            "style-input-text text-ink focus:border-brand h-11 w-full rounded-lg border bg-field px-[16px] focus:outline-none",
+                            !profile.year ? "border-red-500 bg-red-50 ring-1 ring-red-500" : "border-transparent"
                           )}
                         >
                           <option value="">Select your year</option>
@@ -292,43 +270,19 @@ export default async function ProfilePage() {
                     </div>
                   </Card>
 
-                  {/* SECURITY CARD */}
-                  <Card className="flex flex-col p-[29px] gap-[20px]">
+                  <Card className="flex flex-col gap-[20px] p-[29px]">
                     <SectionHeader title="Security" />
-
                     <div className="flex items-center justify-between rounded-[12px] bg-[var(--color-pill-amber)] p-[20px]">
                       <div className="flex flex-col gap-[4px] pr-4">
                         <span className="style-card-title text-orange-text">Change Password</span>
                         <span className="style-body-text text-orange-text leading-tight">Update your account password safely.</span>
                       </div>
-
                       <PasswordResetButton />
                     </div>
                   </Card>
-
-                  {/* ACTIONS */}
-                  <div className="mt-auto flex items-center justify-end gap-[16px] pt-[16px]">
-                    <SignOutButton redirectUrl="/">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="lg"
-                        className="mr-auto font-black px-[32px] text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        Sign Out
-                      </Button>
-                    </SignOutButton>
-
-                    <Button type="reset" variant="ghost" size="lg" className="font-black px-[32px]">
-                      Cancel
-                    </Button>
-                    <Button type="submit" variant="primary" size="lg" className="font-black px-[32px]">
-                      Apply Changes
-                    </Button>
-                  </div>
                 </div>
               </div>
-            </form>
+            </ProfileForm>
           </div>
         </div>
       </div>

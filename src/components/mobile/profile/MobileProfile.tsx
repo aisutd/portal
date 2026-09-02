@@ -1,3 +1,7 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import type { Profile } from "@prisma/client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -54,6 +58,32 @@ function MobileSelect({
 }
 
 export function MobileProfile({ profile, completion, updateProfile }: MobileProfileProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErrorMessage(null);
+
+    const formData = new FormData(e.currentTarget);
+
+    startTransition(async () => {
+      try {
+        await updateProfile(formData);
+        setShowSuccessModal(true);
+      } catch (err: unknown) {
+        const error = err as Error;
+        setErrorMessage(error?.message || "Something went wrong. Please try again.");
+      }
+    });
+  };
+
+  const handleCancel = () => {
+    router.push("/dashboard");
+  };
+
   return (
     <MobileScreen>
       {completion.percent < 100 && (
@@ -65,7 +95,13 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
         </div>
       )}
 
-      <form key={profile.updatedAt.toString()} action={updateProfile} className="flex flex-col gap-[16px]">
+      {errorMessage && (
+        <div className="rounded-lg bg-red-100 p-3 text-xs font-semibold text-red-700">
+          {errorMessage}
+        </div>
+      )}
+
+      <form key={profile.updatedAt.toString()} onSubmit={handleSubmit} className="flex flex-col gap-[16px]">
         {/* Name / Major bar */}
         <Card className="flex flex-row flex-wrap items-center justify-between gap-[10px] p-[18px]">
           <p className="style-card-title uppercase tracking-[0.5px] text-ink">
@@ -176,27 +212,80 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
 
         {/* Footer actions */}
         <div className="flex gap-[12px]">
-          <Button type="reset" variant="soft" className="flex-1" block>
+          <Button
+            type="button"
+            variant="soft"
+            className="flex-1"
+            block
+            disabled={isPending}
+            onClick={handleCancel}
+          >
             Cancel
           </Button>
-          <Button type="submit" variant="primary" className="flex-1" block>
-            Apply Changes
+          <Button
+            type="submit"
+            variant="primary"
+            className="flex-1"
+            block
+            disabled={isPending}
+          >
+            {isPending ? "Saving..." : "Apply Changes"}
           </Button>
         </div>
       </form>
 
-      <div className="mt-2 flex w-full items-center">
+      <div className="mt-2 flex w-full items-center pb-16">
         <SignOutButton redirectUrl="/">
           <Button
             type="button"
             variant="ghost"
             size="lg"
+            disabled={isPending}
             className="mr-auto font-black text-red-600 hover:bg-red-50 hover:text-red-700"
           >
             Sign Out
           </Button>
         </SignOutButton>
       </div>
+
+      {/* MOBILE SUCCESS MODAL POPUP */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-xs rounded-2xl bg-white p-6 shadow-xl flex flex-col items-center text-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600">
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+              </svg>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <h3 className="style-card-title text-ink">Changes Saved!</h3>
+              <p className="style-body-text text-ink-muted text-xs">
+                Your profile details have been successfully updated.
+              </p>
+            </div>
+
+            <div className="mt-2 flex w-full flex-col gap-2">
+              <Button
+                type="button"
+                variant="primary"
+                className="w-full font-bold"
+                onClick={() => router.push("/dashboard")}
+              >
+                Go to Dashboard
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full font-bold text-xs"
+                onClick={() => setShowSuccessModal(false)}
+              >
+                Keep Editing
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <BottomNav />
     </MobileScreen>

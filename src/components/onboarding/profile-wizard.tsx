@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { UTD_DEGREES, UTD_MAJORS, ACADEMIC_YEARS } from "@/lib/utd-data";
 
-const STEPS = ["Personal", "Academic", "Links"];
+// 1. Updated STEPS to remove "Links"
+const STEPS = ["Personal", "Academic"];
 
 function SelectArrow() {
   return (
@@ -29,6 +30,13 @@ function SelectArrow() {
   );
 }
 
+// 2. Helper function to format input: lowercases all, then capitalizes first letter of each word
+const capitalizeName = (str: string) => {
+  return str
+    .toLowerCase()
+    .replace(/(^\w|\s\w)/g, (match) => match.toUpperCase());
+};
+
 type ProfileWizardProps = {
   email: string;
 };
@@ -39,10 +47,14 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isUtdEmail = email.endsWith("@utdallas.edu") || email.endsWith("@aisociety.io") || email.endsWith("@aisutd.org");
+  const isUtdEmail =
+    email.endsWith("@utdallas.edu") ||
+    email.endsWith("@aisociety.io") ||
+    email.endsWith("@aisutd.org");
   const derivedNetId = isUtdEmail ? email.split("@")[0] : "";
-  const initialNetId = /^[a-z]{3}\d{5,6}$/i.test(derivedNetId) ? derivedNetId : "";
-
+  const initialNetId = /^[a-z]{3}\d{5,6}$/i.test(derivedNetId)
+    ? derivedNetId
+    : "";
 
   const [form, setForm] = useState({
     firstName: "",
@@ -54,22 +66,32 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
     major: "",
     utdEmail: isUtdEmail ? email : "",
     utdNetId: initialNetId,
-    githubUrl: "",
-    linkedinUrl: "",
-    portfolioUrl: "",
   });
 
   const set =
     (field: keyof typeof form) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-      setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      let value = e.target.value;
+
+      // Apply formatting to name fields
+      if (
+        field === "firstName" ||
+        field === "lastName" ||
+        field === "middleName" ||
+        field === "prefName"
+      ) {
+        value = capitalizeName(value);
+      }
+
+      setForm((prev) => ({ ...prev, [field]: value }));
+    };
 
   const canNext = () => {
     if (step === 0)
       return (
         form.firstName.trim() && form.lastName.trim() // && form.prefName.trim()
       );
-    if (step === 1) return form.utdNetId // && form.year && form.degree && form.major.trim();
+    if (step === 1) return Boolean(form.utdNetId);
     return true;
   };
 
@@ -230,34 +252,6 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
           </div>
         )}
 
-        {/* Step 3 — Links */}
-        {step === 2 && (
-          <div className="flex flex-col gap-4">
-            <p className="style-body-text leading-[20.3px] text-ink-muted">
-              These are all optional. You can always add them later from your
-              profile.
-            </p>
-            <Field
-              label="GitHub URL"
-              value={form.githubUrl}
-              onChange={set("githubUrl")}
-              placeholder="https://github.com/username"
-            />
-            <Field
-              label="LinkedIn URL"
-              value={form.linkedinUrl}
-              onChange={set("linkedinUrl")}
-              placeholder="https://linkedin.com/in/username"
-            />
-            <Field
-              label="Portfolio URL"
-              value={form.portfolioUrl}
-              onChange={set("portfolioUrl")}
-              placeholder="https://yoursite.com"
-            />
-          </div>
-        )}
-
         {error && (
           <p className="mt-3 text-[12px] text-red-600">{error}</p>
         )}
@@ -287,7 +281,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
               variant="auth"
               type="button"
               onClick={handleSubmit}
-              disabled={submitting}
+              disabled={!canNext() || submitting}
             >
               {submitting ? "Saving..." : "Complete Profile"}
             </Button>
