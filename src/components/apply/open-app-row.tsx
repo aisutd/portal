@@ -196,7 +196,6 @@ export function OpenAppRow({
                   borderColor: badgeDesign.badgeBorder || badgeDesign.borderColor,
                 }}
               >
-                <CircleDot className="h-3 w-3 opacity-60" />
                 <span>{badgeDesign.label}</span>
               </RowBadge>
             )}

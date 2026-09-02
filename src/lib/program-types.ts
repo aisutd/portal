@@ -82,7 +82,7 @@ export const PROGRAM_TYPE_CONFIG: Record<ProgramType, ProgramTypeDesign> = {
     badgeBg: "#e0e7ff",
     badgeColor: "#1f3aa3",
     badgeBorder: "#c7d2fe",
-    iconUrl: "/icons/officer.svg",
+    iconUrl: "/images/ais logos/officer.png",
     icon: "★",
   },
   [ProgramType.OTHER]: {
@@ -93,7 +93,7 @@ export const PROGRAM_TYPE_CONFIG: Record<ProgramType, ProgramTypeDesign> = {
     badgeBg: "#f4f1e7",
     badgeColor: "#55555f",
     badgeBorder: "#e7e2d4",
-    iconUrl: "/icons/general.svg",
+    iconUrl: "/images/programs/aws-logo.png",
     icon: "•",
   },
 };
