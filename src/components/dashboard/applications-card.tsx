@@ -46,22 +46,6 @@ export function ApplicationsCard({ items }: { items: ApplicationItem[] }) {
   return (
     <Card className="relative flex w-full shrink-0 flex-col gap-[16px] self-stretch overflow-hidden p-[29px] xl:w-[440px]">
       <div aria-hidden className="absolute inset-x-0 top-0 h-[4px] bg-orange-300" />
-      {/* --- COMING SOON BANNER --- */}
-      <div className="flex w-full items-center justify-between rounded-xl border border-brand/20 bg-brand/5 px-3.5 py-2.5">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-75"></span>
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-brand"></span>
-          </span>
-          <span className="text-xs font-semibold uppercase tracking-wider text-brand">
-            Coming Soon
-          </span>
-        </div>
-        <span className="text-xs font-medium text-ink-muted">
-          Opens Sept 3 @ 7pm
-        </span>
-      </div>
-
       <SectionHeader
         title="Your Applications"
         action={

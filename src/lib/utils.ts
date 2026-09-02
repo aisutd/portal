@@ -57,3 +57,41 @@ export function formatChicagoDateTimeInput(dateInput?: Date | string | null): st
   const hour = partMap.hour === "24" ? "00" : partMap.hour;
   return `${partMap.year}-${partMap.month}-${partMap.day}T${hour}:${partMap.minute}`;
 }
+
+export function getRelativeTimeString(eventStartTime: Date): { 
+  relativeText: string; 
+  headlineText: string;
+} {
+  const now = new Date();
+  const eventDate = new Date(eventStartTime);
+  
+  // Difference in milliseconds
+  const diffMs = eventDate.getTime() - now.getTime();
+  
+  // Fallback if event is already in the past
+  if (diffMs <= 0) {
+    return { 
+      relativeText: "starting right now", 
+      headlineText: "Event Started!" 
+    };
+  }
+
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffHours / 24);
+
+  // Scenario 1: Less than 24 hours away
+  if (diffHours < 24) {
+    const hoursText = diffHours <= 1 ? "1 hour" : `${diffHours} hours`;
+    return {
+      relativeText: `today in ${hoursText}`,
+      headlineText: `Starting today in ${hoursText}!`,
+    };
+  }
+
+  // Scenario 2: 24 hours or more away
+  const daysText = diffDays === 1 ? "1 day" : `${diffDays} days`;
+  return {
+    relativeText: `in ${daysText}`,
+    headlineText: `Happening in ${daysText}!`,
+  };
+}

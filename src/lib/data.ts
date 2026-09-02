@@ -127,11 +127,11 @@ export const programs: Program[] = [
     iconColor: "#1f3aa3",
     image: "/images/programs/ai-academy.png",
     borderColor: "#e7e2d4",
-    badge: "Applications open now!",
+    badge: "",
     title: "AI Academy",
     description:
       "New to coding and/or AI? Join Academy's weekly workshops, no experience needed!",
-    tags: ["Beginner", "Workshops", "10 weeks"],
+    tags: ["Beginner", "Workshops", "10 weeks", "Learn"],
     cta: "primary",
   },
   {
@@ -144,7 +144,7 @@ export const programs: Program[] = [
     title: "AI Mentorship",
     description:
       "Learn AI. Build together. AIM",
-    tags: ["Intermediate", "Project", "Team based", "Mentorship"],
+    tags: ["Intermediate", "Project", "Team based", "Learn"],
     cta: "primary",
   },
   {
@@ -156,7 +156,7 @@ export const programs: Program[] = [
     title: "AI Innovation Labs",
     description:
       "Build products for people and work hands-on with industry-standard AI technologies.",
-    tags: ["Advanced", "Team based", "Research"],
+    tags: ["Advanced", "Team based", "Industry"],
     cta: "primary",
   },
 ];

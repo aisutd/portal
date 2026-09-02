@@ -114,7 +114,8 @@ model User {
   reviews       ApplicationReview[]
   submissions   ApplicationSubmission[]
   auditLogs     AuditLog[]              @relation("AuditActor")
-  createdEvents Event[]
+  createdEvents Event[]                 @relation("EventCreator")
+  sentEventReminders    Event[]         @relation("EventReminderSender")
   uploadedFiles File[]
   itemScans     ItemScan[]              @relation("ItemScanner")
   memberships   Membership[]
@@ -182,10 +183,14 @@ model Event {
   /// general event that counts for everyone.
   programs         MembershipType[]
 
+  lastReminderSentAt   DateTime?
+  lastReminderSentById String?
+  lastReminderSentBy   User?   @relation("EventReminderSender", fields: [lastReminderSentById], references: [id])
+
   createdById      String
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
-  createdBy        User        @relation(fields: [createdById], references: [id])
+  createdBy        User        @relation("EventCreator", fields: [createdById], references: [id])
   items            EventItem[]
   rsvps            RSVP[]
 }

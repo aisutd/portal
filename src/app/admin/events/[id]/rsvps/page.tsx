@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { MobileAdminNav } from "@/components/mobile/admin/MobileAdminNav";
+import { SendReminderButton } from "@/components/admin/send-reminder-button";
 import type { Prisma } from "@prisma/client";
 
 export const metadata: Metadata = {
@@ -13,6 +14,13 @@ export const metadata: Metadata = {
 
 // --- Formatters ---
 const TIME_FORMAT = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" });
+const DATETIME_FORMAT = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+});
+
 type RsvpWithUser = Prisma.RSVPGetPayload<{
   include: { attendance: true; user: { include: { profile: true } } };
 }>;
@@ -31,13 +39,16 @@ async function getEventDashboardData(eventId: string) {
   const event = await prisma.event.findUnique({
     where: { id: eventId },
     include: {
-      // Fetch items and count their associated ItemScans
+      lastReminderSentBy: {
+        include: {
+          profile: true,
+        },
+      },
       items: {
         include: {
           _count: { select: { scans: true } }
         }
       },
-      // Fetch GOING RSVPs, their attendance, and user profiles
       rsvps: {
         where: { status: "GOING" },
         include: {
@@ -53,17 +64,14 @@ async function getEventDashboardData(eventId: string) {
 
   if (!event) return null;
 
-  // 1. Split RSVPs into Attended vs Pending/Missed
   const attended = event.rsvps.filter((r) => r.attendance !== null);
   const unattended = event.rsvps.filter((r) => r.attendance === null);
 
-  // 2. Calculate Core Stats
   const totalRsvps = event.rsvps.length;
   const totalAttended = attended.length;
   const ratio = totalRsvps > 0 ? Math.round((totalAttended / totalRsvps) * 100) : 0;
   const isPast = event.endTime < new Date();
 
-  // 3. Aggregate Item Scans by Category (MEAL, DRINK, MERCH, OTHER)
   const itemStats = event.items.reduce((acc, item) => {
     const type = item.type as string;
     if (!acc[type]) acc[type] = 0;
@@ -82,7 +90,13 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
 
   const { event, attended, unattended, stats, itemStats } = data;
 
-  // Reusable User Row Component linking to user's admin profile
+  // Format sender name helper
+  const reminderSenderName = event.lastReminderSentBy
+    ? event.lastReminderSentBy.profile
+      ? `${event.lastReminderSentBy.profile.prefName || event.lastReminderSentBy.profile.firstName} ${event.lastReminderSentBy.profile.lastName}`.trim()
+      : event.lastReminderSentBy.email.split("@")[0]
+    : "System";
+
   const UserRow = ({ rsvp, isAttended }: { rsvp: RsvpWithUser; isAttended: boolean }) => {
     const name = rsvp.user.profile
       ? `${rsvp.user.profile.prefName || rsvp.user.profile.firstName} ${rsvp.user.profile.lastName}`.trim()
@@ -132,14 +146,21 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
           <MobileAdminNav active="Events" />
 
           {/* Header */}
-          <div className="flex items-center gap-[12px] pb-[16px]">
-            <Link href={`/admin/events`} className="flex h-[32px] w-[32px] items-center justify-center rounded-full border border-border-soft bg-white text-ink-faint hover:bg-gray-50">
-              <span aria-hidden>←</span>
-            </Link>
-            <div className="flex flex-col">
-              <h2 className="style-mobile-title text-ink leading-tight truncate w-[250px]">{event.title}</h2>
-              <span className="style-caption text-ink-faint">Attendance Dashboard</span>
+          <div className="flex items-center justify-between pb-[16px]">
+            <div className="flex items-center gap-[12px]">
+              <Link href={`/admin/events`} className="flex h-[32px] w-[32px] items-center justify-center rounded-full border border-border-soft bg-white text-ink-faint hover:bg-gray-50">
+                <span aria-hidden>←</span>
+              </Link>
+              <div className="flex flex-col">
+                <h2 className="style-mobile-title text-ink leading-tight truncate w-[160px]">{event.title}</h2>
+                <span className="style-caption text-ink-faint">Attendance Dashboard</span>
+              </div>
             </div>
+            <SendReminderButton
+              eventId={event.id}
+              eventTitle={event.title}
+              rsvpCount={stats.totalRsvps}
+            />
           </div>
 
           <div className="flex flex-col gap-[16px] pb-[40px]">
@@ -156,6 +177,35 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
               <div className="flex flex-col rounded-[12px] border border-border-soft bg-brand p-[12px] text-center shadow-sm">
                 <span className="style-body-text text-white">{stats.ratio}%</span>
                 <span className="style-caption text-white/80">Turnout</span>
+              </div>
+            </div>
+
+            {/* Mobile Last Email Sent Info */}
+            <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
+              <div className="bg-row-soft border-b border-table-line p-[16px]">
+                <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Last Reminder Sent</h2>
+              </div>
+              <div className="flex flex-col p-[16px] gap-[8px]">
+                {event.lastReminderSentAt ? (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="style-caption text-ink-muted">Sent At</span>
+                      <span className="style-body-text text-ink">
+                        {DATETIME_FORMAT.format(event.lastReminderSentAt)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="style-caption text-ink-muted">Sent By</span>
+                      <span className="style-body-text font-bold text-ink">
+                        {reminderSenderName}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <span className="style-caption text-ink-muted text-center py-[4px]">
+                    No reminders sent yet.
+                  </span>
+                )}
               </div>
             </div>
 
@@ -228,10 +278,15 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
                 {event.title} <span className="text-ink-faint font-normal">— RSVPs</span>
               </h2>
             </div>
+            <SendReminderButton
+              eventId={event.id}
+              eventTitle={event.title}
+              rsvpCount={stats.totalRsvps}
+            />
           </div>
 
           <div className="grid grid-cols-[1fr_2.5fr] gap-[24px] items-start">
-            {/* LEFT COLUMN: Stats & Scanning */}
+            {/* LEFT COLUMN: Stats, Reminders & Scanning */}
             <div className="flex flex-col gap-[24px] sticky top-[46px]">
               {/* Core Metrics */}
               <div className="flex flex-col rounded-[14px] border border-border-soft bg-white overflow-hidden shadow-sm">
@@ -252,6 +307,35 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
                     <span className="style-caption text-ink-muted">Turnout Ratio</span>
                     <span className="style-body-text text-brand leading-none">{stats.ratio}%</span>
                   </div>
+                </div>
+              </div>
+
+              {/* Last Email Sent Info */}
+              <div className="flex flex-col rounded-[14px] border border-border-soft bg-white overflow-hidden shadow-sm">
+                <div className="border-b border-table-line p-[20px]">
+                  <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Last Reminder Sent</h2>
+                </div>
+                <div className="flex flex-col p-[20px] gap-[12px]">
+                  {event.lastReminderSentAt ? (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <span className="style-caption text-ink-muted">Date & Time</span>
+                        <span className="style-body-text text-ink">
+                          {DATETIME_FORMAT.format(event.lastReminderSentAt)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="style-caption text-ink-muted">Sent By</span>
+                        <span className="style-body-text font-bold text-ink">
+                          {reminderSenderName}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="style-caption text-ink-muted text-center py-[8px]">
+                      No reminder email has been sent yet.
+                    </div>
+                  )}
                 </div>
               </div>
 
