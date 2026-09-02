@@ -160,7 +160,7 @@ export function buildOpenRow(application: Application): OpenApp {
               variant: "ghost" as const,
               href: `/applications/detail?id=${application.id}`,
             },
-            { label: "Remind me", variant: "accent" as const, pill: false },
+            // { label: "Remind me", variant: "accent" as const, pill: false },
           ]
         : [
             {

@@ -46,7 +46,7 @@ export const PROGRAM_TYPE_CONFIG: Record<ProgramType, ProgramTypeDesign> = {
     badgeBg: "#f3e8ff",
     badgeColor: "#4b4178", // Utilized your #4b4178 here for soft contrast
     badgeBorder: "#d8b4fe",
-    image: "/images/ais logos/inno_logo.png",
+    image: "/images/ais logos/inno logo.png",
     iconUrl: "/images/ais%20logos/inno%20logo.png",
     icon: "◆",
   },
@@ -123,3 +123,4 @@ export function getProgramTypeDesign(
 
   return DEFAULT_PROGRAM_TYPE_DESIGN;
 }
+

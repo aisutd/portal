@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { type ChangeEvent, useEffect, useRef, useState, Suspense } from "react";
+import { PROGRAM_TYPE_CONFIG, DEFAULT_PROGRAM_TYPE_DESIGN, type ProgramTypeDesign } from "@/lib/program-types"; // Update path as needed
+import { ProgramType } from "@prisma/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { FormStepper } from "@/components/apply/form-stepper";
@@ -97,6 +99,7 @@ type ApplicationResponse = {
     title: string;
     questions: (string | QuestionConfig)[];
     requiredProfileFields?: RequiredProfileFields;
+    programType?: ProgramType | string;
   };
   submissionStatus: string | null;
 };
@@ -130,6 +133,12 @@ function profileToFieldValues(
     [getLabel("Portfolio")]: profile.portfolioUrl ?? "",
     [getLabel("Resume")]: profile.resumeFile?.fileName ?? "",
   };
+}
+
+export function getProgramDesign(programType?: ProgramType | string | null): ProgramTypeDesign {
+  if (!programType) return DEFAULT_PROGRAM_TYPE_DESIGN;
+  const key = programType as ProgramType;
+  return PROGRAM_TYPE_CONFIG[key] || DEFAULT_PROGRAM_TYPE_DESIGN;
 }
 
 function LoadingState() {
@@ -181,7 +190,7 @@ function ApplyFormContent() {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [uploadingFields, setUploadingFields] = useState<Record<string, boolean>>({});
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
-  const savedTimeoutRef = useRef<number | null>(null);
+  const [programType, setProgramType] = useState<ProgramType | string | null>(null);
 
   const saveTimerRef = useRef<number | null>(null);
   const fieldValuesRef = useRef<FieldValues>({});
@@ -226,6 +235,10 @@ function ApplyFormContent() {
         const applicationPayload = applicationResponse.ok
           ? ((await applicationResponse.json()) as ApplicationResponse)
           : null;
+        
+        // Inside your loadData() fetch logic:
+        setApplicationTitle(applicationPayload?.application?.title ?? null);
+        setProgramType(applicationPayload?.application?.programType ?? null); // Save programType to state
 
         // Extract raw data with null coalescing to protect against missing properties
         const rawQuestions = applicationPayload?.application?.questions ?? [];
@@ -938,35 +951,80 @@ function ApplyFormContent() {
     );
   }
 
+  const design = getProgramDesign(programType);
+
   return (
     <>
-      <div className="md:hidden">
-        <MobileApplyForm />
-      </div>
+    <div className="md:hidden">
+      <MobileApplyForm />
+    </div>
 
-      <div className="hidden md:block">
-        <div className="flex min-h-screen w-full flex-col bg-cream">
-          <Navbar active="Apply" />
-          
-          <div className="flex w-full flex-col items-center px-10 pt-8 pb-32">
-            <div className="flex w-full px-32 mb-6">
-              <Link
-                href="/applications"
-                className="style-caption leading-[16.8px] tracking-[0.2px] text-brand"
-              >
-                ← Back to Applications
-              </Link>
-            </div>
-            <div className="w-full max-w-[1346px] rounded-2xl border border-border-soft bg-white p-9 shadow-sm">
-              <div className="flex flex-col gap-6">
-                <div className="flex justify-between">
-                  <h1 className="style-page-title text-ink">
-                    {applicationTitle ?? "Application"}
-                  </h1>
-                  <SaveIndicator status={saveStatus} />
+    <div className="hidden md:block">
+      {/* Dynamic page background matching badge/icon color or fallback */}
+      <div 
+        className="flex min-h-screen w-full flex-col transition-colors duration-300" 
+        style={{ backgroundColor: design.badgeBg }}
+      >
+        <Navbar active="Apply" />
+        
+        <div className="flex w-full flex-col items-center px-10 pt-8 pb-32">
+          <div className="flex w-full px-32 mb-6">
+            <Link
+              href="/applications"
+              className="style-caption leading-[16.8px] tracking-[0.2px]"
+              style={{ color: design.badgeColor }}
+            >
+              ← Back to Applications
+            </Link>
+          </div>
+
+          {/* Form container border dynamic based on program type */}
+          <div 
+            className="w-full max-w-[1346px] rounded-2xl bg-white p-9 shadow-sm transition-all duration-300"
+            style={{ borderColor: design.borderColor, borderWidth: "1px" }}
+          >
+            <div className="flex flex-col gap-6">
+              
+              {/* Dynamic Header with Program Logo/Icon */}
+              <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: design.borderColor }}>
+                <div className="flex items-center gap-3">
+                  {/* Dynamic Logo Image or Icon Badge */}
+                  {design.image || design.iconUrl ? (
+                    <img 
+                      src={design.image || design.iconUrl} 
+                      alt={design.label} 
+                      className="h-8 w-8 object-contain"
+                    />
+                  ) : (
+                    <div 
+                      className="flex h-8 w-8 items-center justify-center rounded-lg font-bold text-sm"
+                      style={{ backgroundColor: design.iconBg, color: design.iconColor }}
+                    >
+                      {typeof design.icon === "string" ? design.icon : "•"}
+                    </div>
+                  )}
+
+                  <div>
+                    <span 
+                      className="inline-block rounded-md px-2 py-0.5 text-xs font-bold tracking-wide uppercase mb-1"
+                      style={{ 
+                        backgroundColor: design.badgeBg, 
+                        color: design.badgeColor,
+                        border: design.badgeBorder ? `1px solid ${design.badgeBorder}` : undefined
+                      }}
+                    >
+                      {design.label}
+                    </span>
+                    <h1 className="style-page-title text-ink">
+                      {applicationTitle ?? "Application"}
+                    </h1>
+                  </div>
                 </div>
-                
-                <FormStepper steps={layout.steps} active={activeStep} />
+
+                <SaveIndicator status={saveStatus} />
+              </div>
+              
+              <FormStepper steps={layout.steps} active={activeStep} />
 
                 <p className="style-body-text text-ink-muted">
                   {isReviewStep

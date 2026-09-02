@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { type ChangeEvent, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { ProgramType } from "@prisma/client";
 import { FormStepper } from "@/components/apply/form-stepper";
 import { FormField, FormTextarea } from "@/components/ui/form-field";
 import { MobileReadOnlyField } from "@/components/mobile/apply/MobileReadOnlyField";
@@ -11,6 +12,7 @@ import { BottomNav } from "@/components/mobile/ui/BottomNav";
 import { personalFields } from "@/lib/data";
 import { uploadResumeAction } from "@/app/profile/resume";
 import { UTD_MAJORS, UTD_DEGREES, ACADEMIC_YEARS } from "@/lib/utd-data";
+import { getProgramTypeDesign } from "@/lib/program-types"; // Update import path if needed
 import {
   EMPTY_LAYOUT,
   buildFormLayout,
@@ -95,6 +97,7 @@ type ApplicationResponse = {
   application: {
     id: string;
     title: string;
+    programType?: ProgramType | string;
     description?: string;
     phase?: string;
     questions: (string | QuestionConfig)[];
@@ -152,14 +155,14 @@ function SaveIndicator({ status }: { status: "idle" | "saving" | "saved" }) {
       {status === "saved" && (
         <>
           <svg
-              className="h-3.5 w-3.5 text-emerald-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2.5}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
+            className="h-3.5 w-3.5 text-emerald-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2.5}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
           <span className="text-emerald-700">Saved</span>
         </>
       )}
@@ -208,6 +211,7 @@ export function MobileApplyForm() {
   const [uploadingFields, setUploadingFields] = useState<Record<string, boolean>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [applicationTitle, setApplicationTitle] = useState<string | null>(null);
+  const [programType, setProgramType] = useState<ProgramType | string | null>(null);
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
@@ -216,6 +220,8 @@ export function MobileApplyForm() {
   const saveTimerRef = useRef<number | null>(null);
   const fieldValuesRef = useRef<FieldValues>({});
   const isReviewStep = activeStep === layout.reviewStepIndex;
+
+  const design = getProgramTypeDesign(programType);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -342,6 +348,7 @@ export function MobileApplyForm() {
 
           setAlreadySubmitted(Boolean(applicationPayload?.submissionStatus));
           setApplicationTitle(applicationPayload?.application?.title ?? null);
+          setProgramType(applicationPayload?.application?.programType ?? null);
 
           if (!applicationResponse.ok && applicationResponse.status === 404) {
             setError("Application not found.");
@@ -428,7 +435,6 @@ export function MobileApplyForm() {
         throw new Error(`Failed to save draft: ${response.status}`);
       }
 
-      // Stays visible as "Saved"
       setSaveStatus("saved");
     } catch (err) {
       setSaveStatus("idle");
@@ -920,23 +926,57 @@ export function MobileApplyForm() {
   }
 
   return (
-    <MobileScreen>
+    <MobileScreen backgroundColor={design.badgeBg }>
       <div className="mt-2 flex items-center">
-          <Link
-            href="/applications"
-            className="style-caption leading-[16.8px] tracking-[0.2px] text-brand"
-          >
-            ← Back to Applications
-          </Link>
+        <Link
+          href="/applications"
+          className="style-caption leading-[16.8px] tracking-[0.2px]"
+          style={{ color: design.badgeColor }}
+        >
+          ← Back to Applications
+        </Link>
       </div>
-      <div className="flex flex-col gap-[18px] rounded-[16px] border border-border-soft bg-white p-[20px] [filter:drop-shadow(0px_8px_11px_rgba(0,0,0,0.04))]">
-        <div className="flex justify-between">
-          <h1 className="style-mobile-title text-ink">
-            {applicationTitle || "Application Form"}
-          </h1>
+
+      <div
+        className="flex flex-col gap-[18px] rounded-[16px] bg-white p-[20px] transition-all duration-300 [filter:drop-shadow(0px_8px_11px_rgba(0,0,0,0.04))]"
+        style={{ borderColor: design.borderColor, borderWidth: "1px" }}
+      >
+        <div className="flex items-start justify-between border-b pb-3" style={{ borderColor: design.borderColor }}>
+          <div className="flex items-center gap-2.5">
+            {design.image || design.iconUrl ? (
+              <img
+                src={design.image || design.iconUrl}
+                alt={design.label}
+                className="h-7 w-7 object-contain shrink-0"
+              />
+            ) : (
+              <div
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg font-bold text-xs"
+                style={{ backgroundColor: design.iconBg, color: design.iconColor }}
+              >
+                {typeof design.icon === "string" ? design.icon : "•"}
+              </div>
+            )}
+
+            <div className="flex flex-col">
+              <span
+                className="inline-block w-fit rounded-md px-1.5 py-0.5 text-[10px] font-bold tracking-wide uppercase mb-0.5"
+                style={{
+                  backgroundColor: design.badgeBg,
+                  color: design.badgeColor,
+                  border: design.badgeBorder ? `1px solid ${design.badgeBorder}` : undefined,
+                }}
+              >
+                {design.label}
+              </span>
+              <h1 className="style-mobile-title text-ink">
+                {applicationTitle || "Application Form"}
+              </h1>
+            </div>
+          </div>
+
           <SaveIndicator status={saveStatus} />
         </div>
-        
 
         <FormStepper steps={layout.steps} active={activeStep} />
 
