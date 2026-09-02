@@ -53,7 +53,7 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
       {/* Up Next */}
       <Card
         className={cn(
-          "flex flex-col gap-4 p-5 transition-all duration-300 relative overflow-hidden border-t-4 border-t-brand",
+          "flex flex-col gap-4 p-5 transition-all duration-300 relative overflow-visible border-t-4 border-t-brand",
           isGlowing &&
             "border-green bg-checked/60 shadow-[0_0_20px_rgba(53,107,46,0.35)] ring-1 ring-green/50"
         )}
@@ -80,7 +80,7 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
             </div>
 
             {nextRsvp.qrToken && (
-              <div className="flex flex-col items-center gap-2 pt-1">
+              <div className="flex flex-col items-center gap-2 pt-1 overflow-visible">
                 <div className="h-1 w-16 rounded-full bg-brand" />
                 <p className="style-mobile-body text-center text-ink font-medium">
                   Ticket: Claiming Items / Late Check-in
