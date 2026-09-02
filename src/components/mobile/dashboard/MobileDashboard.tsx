@@ -53,7 +53,7 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
       {/* Up Next */}
       <Card
         className={cn(
-          "flex flex-col gap-4 p-5 transition-all duration-300 relative overflow-hidden border-t-4 border-t-brand",
+          "flex flex-col gap-4 p-5 transition-all duration-300 relative overflow-visible border-t-4 border-t-brand",
           isGlowing &&
             "border-green bg-checked/60 shadow-[0_0_20px_rgba(53,107,46,0.35)] ring-1 ring-green/50"
         )}
@@ -80,7 +80,7 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
             </div>
 
             {nextRsvp.qrToken && (
-              <div className="flex flex-col items-center gap-2 pt-1">
+              <div className="flex flex-col items-center gap-2 pt-1 overflow-visible">
                 <div className="h-1 w-16 rounded-full bg-brand" />
                 <p className="style-mobile-body text-center text-ink font-medium">
                   Ticket: Claiming Items / Late Check-in
@@ -104,7 +104,7 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
               </div>
             )}
 
-            {!nextRsvp.isLive && (
+            {/* {!nextRsvp.isLive && (
               <Button
                 href="https://calendar.google.com/calendar/render?action=TEMPLATE&dates=20260904T000000Z%2F20260904T020000Z&details=Whether%20you%27re%20a%20newbie%20or%20looking%20to%20innovate%20in%20AI%2FML%2C%20we%27ve%20got%20a%20place%20for%20you%21%20Learn%20all%20about%20the%20programs%20and%20events%20we%20hold%20all%20throughout%20the%20year%2C%20including%20AI%20Academy%2C%20AIM%2C%20and%20AI%20Innovation%20Labs.%20Get%20an%20opportunity%20to%20network%20with%20the%20brightest%20minds%20and%20industry%20professionals%20at%20Kickoff%20and%20become%20part%20of%20the%20largest%20AI%20organization%20in%20North%20Texas.%20Oh%2C%20and%20there%27s%20free%20food...&location=ECSW%201.315&text=AIS%20Fall%20Kickoff%202026"
                 variant="primary"
@@ -114,7 +114,7 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
               >
                 Add to Calendar
               </Button>
-            )}
+            )} */}
           </>
         ) : (
           <div className="flex flex-col items-center gap-[8px] rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6] p-[16px] text-center">

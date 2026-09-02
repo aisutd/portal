@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendEventReminderEmail } from "@/lib/emails/event-reminder";
-import { auth } from "@clerk/nextjs/server"; // Or your auth provider
+import { getAuthenticatedUser } from "@/lib/auth";// Or your auth provider
+import { auth } from "@clerk/nextjs";
 
 const COOLDOWN_MINUTES = 60; // Cooldown window
 
@@ -13,13 +14,14 @@ export async function POST(
     const { id: eventId } = await params;
 
     // 1. Authenticate sender
-    const { userId: clerkId } = await auth();
-    if (!clerkId) {
+    const user = await getAuthenticatedUser();
+    
+    if (!user || (user.role !== "EXECUTIVE" && user.role !== "DIRECTOR")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const senderUser = await prisma.user.findUnique({
-      where: { clerkId },
+      where: { id: user.id },
       select: { id: true },
     });
 

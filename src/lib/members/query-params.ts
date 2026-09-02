@@ -1,7 +1,7 @@
 export const MEMBERS_PATH = "/admin/members";
 
 /** Rows per page. Matches the "Showing 1–8 of N" footer. */
-export const PAGE_SIZE = 8;
+export const PAGE_SIZE = 25;
 
 export const MEMBER_FILTERS = ["all", "officers", "mentors", "mentees"] as const;
 export const MEMBER_SORTS = ["az", "za", "recent"] as const;
