@@ -8,9 +8,34 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { UTD_DEGREES, UTD_MAJORS, ACADEMIC_YEARS } from "@/lib/utd-data";
 
-const STEPS = ["Personal", "Academic", "Links"];
-const YEARS = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"];
-const DEGREES = ["Bachelors", "Masters", "PhD"];
+// 1. Updated STEPS to remove "Links"
+const STEPS = ["Personal", "Academic"];
+
+function SelectArrow() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      fill="none"
+      className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-ink-muted"
+    >
+      <path
+        d="M6 9l6 6 6-6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+// 2. Helper function to format input: lowercases all, then capitalizes first letter of each word
+const capitalizeName = (str: string) => {
+  return str
+    .toLowerCase()
+    .replace(/(^\w|\s\w)/g, (match) => match.toUpperCase());
+};
 
 type ProfileWizardProps = {
   email: string;
@@ -22,8 +47,14 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isUtdEmail = email.endsWith("@utdallas.edu");
+  const isUtdEmail =
+    email.endsWith("@utdallas.edu") ||
+    email.endsWith("@aisociety.io") ||
+    email.endsWith("@aisutd.org");
   const derivedNetId = isUtdEmail ? email.split("@")[0] : "";
+  const initialNetId = /^[a-z]{3}\d{5,6}$/i.test(derivedNetId)
+    ? derivedNetId
+    : "";
 
   const [form, setForm] = useState({
     firstName: "",
@@ -34,23 +65,33 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
     degree: "",
     major: "",
     utdEmail: isUtdEmail ? email : "",
-    utdNetId: derivedNetId,
-    githubUrl: "",
-    linkedinUrl: "",
-    portfolioUrl: "",
+    utdNetId: initialNetId,
   });
 
   const set =
     (field: keyof typeof form) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-      setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      let value = e.target.value;
+
+      // Apply formatting to name fields
+      if (
+        field === "firstName" ||
+        field === "lastName" ||
+        field === "middleName" ||
+        field === "prefName"
+      ) {
+        value = capitalizeName(value);
+      }
+
+      setForm((prev) => ({ ...prev, [field]: value }));
+    };
 
   const canNext = () => {
     if (step === 0)
       return (
         form.firstName.trim() && form.lastName.trim() // && form.prefName.trim()
       );
-    if (step === 1) return form.utdNetId // && form.year && form.degree && form.major.trim();
+    if (step === 1) return Boolean(form.utdNetId);
     return true;
   };
 
@@ -79,26 +120,26 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
       }
       router.replace("/dashboard");
     } catch (err) {
-    console.error("Profile submission error:", err);
-    setError("Failed to save profile. Please check your network and fields.");
-    setSubmitting(false);
-  }
+      console.error("Profile submission error:", err);
+      setError("Failed to save profile. Please check your network and fields.");
+      setSubmitting(false);
+    }
   };
 
   const selectClasses = cn(
-    "w-full rounded-[7px] border border-transparent bg-field px-[13px] py-[12px]",
-    "font-mono-alt  leading-[normal] text-ink-card",
+    "w-full appearance-none rounded-[7px] border border-transparent bg-field py-[12px] pl-[13px] pr-[36px]",
+    "font-mono-alt text-[13px] leading-[normal] text-ink-card",
     "focus:outline-none focus:ring-2 focus:ring-brand/40"
   );
 
   return (
     <div>
-      <FormStepper steps={STEPS} active={step} />
+      <FormStepper steps={STEPS} active={step} onDark />
 
-      <div className="mt-[20px] rounded-2xl border border-border-soft bg-white p-[30px]">
+      <div className="mt-5 rounded-2xl border border-border-soft bg-white p-7.5">
         {/* Step 1 — Personal */}
         {step === 0 && (
-          <div className="flex flex-col gap-[16px]">
+          <div className="flex flex-col gap-4">
             <Field
               label="First Name"
               value={form.firstName}
@@ -130,62 +171,71 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
 
         {/* Step 2 — Academic */}
         {step === 1 && (
-          <div className="flex flex-col gap-[16px]">
+          <div className="flex flex-col gap-4">
             <div className="flex flex-col">
-              <label className="mb-[10px] font-grotesk  font-semibold leading-[normal] text-label-ink">
+              <label className="mb-2.5 font-grotesk text-[13px] font-semibold leading-[normal] text-label-ink">
                 Year
               </label>
-              <select
-                value={form.year}
-                onChange={set("year")}
-                className={selectClasses}
-              >
-                <option value="">Select your year</option>
-                {ACADEMIC_YEARS.map((y) => (
-                  <option key={y} value={y}>
-                    {y}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={form.year}
+                  onChange={set("year")}
+                  className={selectClasses}
+                >
+                  <option value="">Select year</option>
+                  {ACADEMIC_YEARS.map((y) => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ))}
+                </select>
+                <SelectArrow />
+              </div>
             </div>
 
             <div className="flex flex-col">
-              <label className="mb-[10px] font-grotesk  font-semibold leading-[normal] text-label-ink">
+              <label className="mb-2.5 font-grotesk text-[13px] font-semibold leading-[normal] text-label-ink">
                 Degree
               </label>
-              <select
-                value={form.degree}
-                onChange={set("degree")}
-                className={selectClasses}
-              >
-                <option value="">Select your degree</option>
-                {UTD_DEGREES.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={form.degree}
+                  onChange={set("degree")}
+                  className={selectClasses}
+                >
+                  <option value="">Select degree</option>
+                  {UTD_DEGREES.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+                <SelectArrow />
+              </div>
             </div>
 
             <div className="flex flex-col">
-              <label className="mb-[10px] font-grotesk  font-semibold leading-[normal] text-label-ink">
+              <label className="mb-2.5 font-grotesk text-[13px] font-semibold leading-[normal] text-label-ink">
                 Major
               </label>
-              <select
-                value={form.major}
-                onChange={set("major")}
-                className={selectClasses}
-              >
-                <option value="">Select your major</option>
-                {UTD_MAJORS.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={form.major}
+                  onChange={set("major")}
+                  className={selectClasses}
+                >
+                  <option value="">Select major</option>
+                  {UTD_MAJORS.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+                <SelectArrow />
+              </div>
             </div>
             <Field
-              label="UTD Email"
+              label="AIS or UTD Email"
               value={form.utdEmail}
               onChange={set("utdEmail")}
               placeholder="netid@utdallas.edu"
@@ -202,42 +252,14 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
           </div>
         )}
 
-        {/* Step 3 — Links */}
-        {step === 2 && (
-          <div className="flex flex-col gap-[16px]">
-            <p className="style-body-text leading-[20.3px] text-ink-muted">
-              These are all optional — you can always add them later from your
-              profile.
-            </p>
-            <Field
-              label="GitHub URL"
-              value={form.githubUrl}
-              onChange={set("githubUrl")}
-              placeholder="https://github.com/username"
-            />
-            <Field
-              label="LinkedIn URL"
-              value={form.linkedinUrl}
-              onChange={set("linkedinUrl")}
-              placeholder="https://linkedin.com/in/username"
-            />
-            <Field
-              label="Portfolio URL"
-              value={form.portfolioUrl}
-              onChange={set("portfolioUrl")}
-              placeholder="https://yoursite.com"
-            />
-          </div>
-        )}
-
         {error && (
-          <p className="mt-[12px]  text-red-600">{error}</p>
+          <p className="mt-3 text-[12px] text-red-600">{error}</p>
         )}
 
         {/* Navigation */}
-        <div className="mt-[24px] flex items-center justify-between">
+        <div className="mt-6 flex items-center justify-between">
           {step > 0 ? (
-            <Button variant="ghost" size="sm" type="button" onClick={back}>
+            <Button variant="primary" size="sm" type="button" onClick={back}>
               Back
             </Button>
           ) : (
@@ -259,7 +281,7 @@ export function ProfileWizard({ email }: ProfileWizardProps) {
               variant="auth"
               type="button"
               onClick={handleSubmit}
-              disabled={submitting}
+              disabled={!canNext() || submitting}
             >
               {submitting ? "Saving..." : "Complete Profile"}
             </Button>

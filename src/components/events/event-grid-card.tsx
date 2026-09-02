@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
@@ -44,11 +44,6 @@ export function EventGridCard({
   
   const normalizedTags = normalizeEventTags(tags);
 
-  // Sync state if Next.js fetches new data
-  useEffect(() => {
-    setHasRsvpd(isRsvpd);
-  }, [isRsvpd]);
-
   async function handleAction(e: React.MouseEvent) {
     e.preventDefault(); // Prevent triggering parent Link click
     if (!isSignedIn) {
@@ -88,9 +83,9 @@ export function EventGridCard({
   }
 
   return (
-    <Link 
+    <Link
       href={`/events/${eventId}`}
-      className="group flex h-full flex-col rounded-2xl border border-border-soft bg-white p-5 transition-all duration-300 hover:shadow-lg hover:scale-105"
+      className="group flex h-full flex-col rounded-2xl border border-border-soft bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:shadow-ink/10"
     >
       <EventCoverImage
         imageUrl={imageUrl}
@@ -99,7 +94,7 @@ export function EventGridCard({
       />
 
       <div className="flex flex-1 flex-col">
-        <h3 className="mt-4 line-clamp-2 style-card-title leading-tight text-ink transition-colors group-hover:text-brand [font-variation-settings:'wdth'_100]">
+        <h3 className="mt-4 line-clamp-2 style-card-title leading-tight text-ink [font-variation-settings:'wdth'_100]">
           {title}
         </h3>
         <p className="mt-1.5 style-meta-text tracking-wide text-ink-faint">
@@ -138,7 +133,7 @@ export function EventGridCard({
                 </span>
               ) : (
                 <span className="rounded-full bg-stone-100 px-3 py-1 text-ink-muted">
-                  Not RSVP'd
+                  Not RSVP&apos;d
                 </span>
               )}
             </div>
@@ -158,7 +153,7 @@ export function EventGridCard({
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
                     <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
                   </svg>
-                  RSVP'd
+                  RSVP&apos;d
                 </>
               ) : (
                 "RSVP"

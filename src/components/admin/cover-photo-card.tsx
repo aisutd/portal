@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 type CoverPhotoCardProps = {
@@ -16,10 +16,6 @@ export function CoverPhotoCard({ defaultImageUrl }: CoverPhotoCardProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(defaultImageUrl ?? null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    setPreviewUrl(defaultImageUrl ?? null);
-  }, [defaultImageUrl]);
 
   const handleFiles = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

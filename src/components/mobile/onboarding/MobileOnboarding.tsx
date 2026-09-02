@@ -11,8 +11,7 @@ interface MobileOnboardingProps {
 }
 
 function MobileOnboardingInner({ redirectUrl }: MobileOnboardingProps) {
-  const searchParams = useSearchParams();
-  const initialMode = searchParams.get("mode") === "login" ? "login" : "signup";
+  useSearchParams();
 
   return (
     <div className="flex min-h-[100dvh] w-full flex-col bg-brand style-mobile-body text-ink antialiased">

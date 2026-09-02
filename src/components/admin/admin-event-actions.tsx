@@ -9,7 +9,7 @@ interface EventActionButtonsProps {
 }
 
 export function EventActionButtons({ isPublished, userRole }: EventActionButtonsProps) {
-  const isExecutive = userRole === "EXECUTIVE";
+  const isExecutive = userRole === "EXECUTIVE" || userRole === "DIRECTOR";
 
   const handlePublishClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     const confirmed = window.confirm(

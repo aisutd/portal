@@ -23,19 +23,20 @@ export default async function SetupPage() {
   const email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center bg-cream px-[24px] py-[60px]">
+    <div className="flex min-h-screen w-full flex-col items-center bg-[linear-gradient(to_bottom,#f2a968_0%,#1f3aa3_30%,#1f3aa3_100%)] px-[24px] py-[60px]">
       <div>
-         <img
+        {/* Recolored (icon + "ARTIFICIAL" white) for contrast against the gradient. */}
+        <img
           className="h-10 shrink-0 object-contain sm:h-12"
-          src="/ais_logo_black.png"
+          src="/ais_logo_setup.png"
           alt="AIS Logo"
         />
       </div>
 
-      <h1 className="mt-[24px] style-section-header leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+      <h1 className="mt-[24px] style-section-header leading-[34.56px] tracking-[-0.4px] text-white [font-variation-settings:'wdth'_100]">
         Complete Your Profile
       </h1>
-      <p className="mt-[8px] max-w-[420px] text-center style-body-text leading-[22.5px] text-ink-muted">
+      <p className="mt-[8px] max-w-[420px] text-center style-body-text leading-[22.5px] text-[#dfe6ff]">
         Tell us a bit about yourself so we can personalize your AIS experience.
       </p>
 

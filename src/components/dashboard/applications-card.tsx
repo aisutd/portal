@@ -2,8 +2,6 @@ import { Card } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Badge } from "@/components/ui/badge";
 import { ProgressBar } from "@/components/ui/progress-bar";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
 export type ApplicationItem = {
   id?: string;
@@ -46,23 +44,8 @@ function ApplicationRow({ item }: { item: ApplicationItem }) {
 
 export function ApplicationsCard({ items }: { items: ApplicationItem[] }) {
   return (
-    <Card className="flex w-full shrink-0 flex-col gap-[16px] self-stretch p-[29px] xl:w-[440px]">
-      {/* --- COMING SOON BANNER --- */}
-      <div className="flex w-full items-center justify-between rounded-xl border border-brand/20 bg-brand/5 px-3.5 py-2.5">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-75"></span>
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-brand"></span>
-          </span>
-          <span className="text-xs font-semibold uppercase tracking-wider text-brand">
-            Coming Soon
-          </span>
-        </div>
-        <span className="text-xs font-medium text-ink-muted">
-          Opens Sept 3 @ 7pm
-        </span>
-      </div>
-
+    <Card className="relative flex w-full shrink-0 flex-col gap-[16px] self-stretch overflow-hidden p-[29px] xl:w-[440px]">
+      <div aria-hidden className="absolute inset-x-0 top-0 h-[4px] bg-orange-300" />
       <SectionHeader
         title="Your Applications"
         action={
@@ -91,10 +74,10 @@ export function ApplicationsCard({ items }: { items: ApplicationItem[] }) {
               <path d="m15 5 4 4"></path>
             </svg>
           </div>
-          <h2 className="style-card-title text-ink">Opening Soon</h2>
+          {/* <h2 className="style-card-title text-ink">Opening Soon</h2>
           <p className="style-body-text text-ink-muted max-w-[280px] leading-tight">
             Applications open at Kickoff on September 3, at 7pm.
-          </p>
+          </p> */}
           {/* <Link href="/applications" className="mt-[2px]">
             <Button
               variant="soft"

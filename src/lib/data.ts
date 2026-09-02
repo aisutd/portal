@@ -1,18 +1,13 @@
 import type { Stat } from "@/components/dashboard/status-strip";
-import type { ApplicationItem } from "@/components/dashboard/applications-card";
-import type { RsvpItem } from "@/components/dashboard/rsvps-card";
 import type { Achievement } from "@/components/dashboard/achievements-card";
-import type { RecommendedItem } from "@/components/dashboard/recommended-card";
 import type { Announcement } from "@/components/dashboard/announcements-card";
 import type { TagData } from "@/components/dashboard/up-next-card";
 import type { Step } from "@/components/apply/step-card";
 import type { Program } from "@/components/apply/program-card";
-import type { OpenApp } from "@/components/apply/open-app-row";
 import type { Applicant } from "@/components/admin/applicant-list-item";
 import type { ApplicantDetailData } from "@/components/admin/applicant-detail";
 import type { SettingRow } from "@/components/admin/settings-card";
 import type { StatCardData } from "@/components/admin/stat-card";
-import type { EventRowData } from "@/components/admin/event-row";
 import type { Role } from "@/components/apply/role-card";
 import type { FeaturedEvent } from "@/components/events/featured-event-card";
 import type { SideEvent } from "@/components/events/side-event-card";
@@ -128,36 +123,40 @@ export const applySteps: Step[] = [
 export const programs: Program[] = [
   {
     icon: "◇",
-    iconBg: "#e1e8ff",
+    iconBg: "#f7d000",
     iconColor: "#1f3aa3",
+    image: "/images/programs/ai-academy.png",
     borderColor: "#e7e2d4",
+    badge: "",
     title: "AI Academy",
     description:
-      "Master the fundamentals of machine learning through our guided 10-week curriculum.",
-    tags: ["Beginner", "10 weeks"],
+      "New to coding and/or AI? Join Academy's weekly workshops, no experience needed!",
+    tags: ["Beginner", "Workshops", "10 weeks", "Learn"],
     cta: "primary",
   },
   {
     icon: "◈",
-    iconBg: "#fbe3cb",
+    iconBg: "#7ed857",
     iconColor: "#7a4416",
+    image: "/images/programs/aim.png",
     borderColor: "#f2a968",
-    badge: "High demand",
+    badge: "High Demand",
     title: "AI Mentorship",
     description:
-      "Get paired with industry professionals or senior students to accelerate your career in AI.",
-    tags: ["Career", "Team based"],
-    cta: "accent",
+      "Learn AI. Build together. AIM.",
+    tags: ["Intermediate", "Project", "Team based", "Learn"],
+    cta: "primary",
   },
   {
     icon: "◆",
-    iconBg: "#e9e5f6",
+    iconBg: "#9c14dc",
     iconColor: "#4b4178",
+    image: "/images/programs/innovation-lab.png",
     borderColor: "#e7e2d4",
-    title: "Innovation Labs",
+    title: "AI Innovation Labs",
     description:
-      "Selected teams deepen their AIM project in a lab/research setting, providing niche ML/AI experience.",
-    tags: ["Advanced", "Project based"],
+      "Build products for people and work hands-on with industry-standard AI technologies.",
+    tags: ["Advanced", "Team based", "Industry"],
     cta: "primary",
   },
 ];
@@ -378,26 +377,25 @@ export const recentActivityWidths = ["88%", "74%", "80%", "62%"];
 
 /* -------------------------------------------------------- Apply · Form (step) */
 
-export const applicationSteps = ["Personal", "Long Answers", "Review"];
-
+/**
+ * The fixed first step of the applicant form. Everything after it comes from
+ * the application's own questions — see `lib/application-form.ts`.
+ */
 export const personalFields = [
-  "First Name",
-  "Last Name",
-  "NetID",
+  "First Name *",
+  "Last Name *",
+  "Preferred Name",
+  "NetID *",
+  "Year *",
+  "Major *",
+  "Degree *",
   "Phone Number",
-  "Personal Email *",
+  "Personal Email",
   "UTD Email *",
-  "Resume *",
-  "LinkedIn *",
-];
-
-export const applicationFormStepFields = [
-  personalFields,
-  [
-    "Why do you want to join AIS? *",
-    "What skills or experience do you bring? *",
-  ],
-  ["Anything else you'd like the reviewers to know?"],
+  "Resume",
+  "LinkedIn",
+  "GitHub",
+  "Portfolio",
 ];
 
 /* ------------------------------------------------------- Apply · Detail (roles) */

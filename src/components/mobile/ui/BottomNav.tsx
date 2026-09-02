@@ -16,19 +16,11 @@ export function BottomNav() {
   // 1. Initialize state instantly using metadata if it exists
   const rawMetadataRole = (user?.publicMetadata as { role?: string } | undefined)?.role;
   const metadataRole = isKnownRole(rawMetadataRole) ? rawMetadataRole : undefined;
-  const [role, setRole] = useState<string | null>(metadataRole ?? null);
+  const [fetchedRole, setFetchedRole] = useState<string | null>(null);
 
   // 2. Fetch fallback logic identical to the desktop navbar
   useEffect(() => {
-    if (!isSignedIn) {
-      setRole(null);
-      return;
-    }
-
-    if (metadataRole) {
-      setRole(metadataRole);
-      return;
-    }
+    if (!isSignedIn || metadataRole) return;
 
     let isMounted = true;
     async function loadRole() {
@@ -36,13 +28,13 @@ export function BottomNav() {
         const response = await fetch("/api/me");
         if (!isMounted) return;
         if (!response.ok) {
-          setRole(null);
+          setFetchedRole(null);
           return;
         }
         const data = await response.json();
-        setRole(data?.role ?? null);
+        setFetchedRole(data?.role ?? null);
       } catch {
-        if (isMounted) setRole(null);
+        if (isMounted) setFetchedRole(null);
       }
     }
 
@@ -52,6 +44,7 @@ export function BottomNav() {
     };
   }, [isSignedIn, metadataRole]);
 
+  const role = isSignedIn ? metadataRole ?? fetchedRole : null;
   const isAdmin = isAdminRole(role);
 
   // 3. Base navigation array
@@ -83,8 +76,10 @@ export function BottomNav() {
                     ? "/onboarding?mode=login"
                     : tab.href
                 }
-                className={`rounded-full px-3 py-2 style-nav-link transition-colors whitespace-nowrap ${
-                  active ? "bg-purple-soft text-brand" : "text-ink-muted hover:text-ink"
+                className={`rounded-full px-3.5 py-1.5 style-nav-link transition-all duration-200 whitespace-nowrap ${
+                  active
+                    ? "bg-[linear-gradient(135deg,#f2a968_0%,#7d64c4_100%)] text-white font-semibold shadow-xs"
+                    : "text-ink-muted hover:text-ink"
                 }`}
               >
                 {tab.label}

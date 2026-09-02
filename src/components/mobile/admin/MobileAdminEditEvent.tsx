@@ -72,7 +72,7 @@ export function MobileAdminEditEvent({ eventId, defaultValues, isPublished, user
         <Link href="/admin/events" className="style-caption text-brand">
           ← Back to Events
         </Link>
-        <h2 className="mt-[6px] style-mobile-title text-ink">
+        <h2 className="mt-1.5 style-mobile-title text-ink">
           Edit Event
         </h2>
       </div>

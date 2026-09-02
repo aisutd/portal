@@ -4,9 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { ProfileCompletionStatus, UserRole } from "@prisma/client";
 import { EMAIL_DOMAIN_ERROR, isAllowedEmail } from "@/lib/email-domains";
 
-const VALID_YEARS = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"];
-const VALID_DEGREES = ["Bachelors", "Masters", "PhD"];
-
 export async function POST(req: Request) {
   const clerkUser = await currentUser();
 
