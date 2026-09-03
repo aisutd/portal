@@ -66,6 +66,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   
   const isPast = event.endTime < now;
   const isLive = now >= event.startTime && now <= event.endTime;
+  const isRsvpOpen = event.isRsvpOpen ?? true;
 
   const userRsvp = userId && Array.isArray(event.rsvps) ? event.rsvps[0] : null;
   const isRsvpd = !!userRsvp && userRsvp.status === "GOING";
@@ -149,6 +150,8 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                     ? "bg-checked"
                     : isRsvpd
                     ? "bg-checked"
+                    : !isRsvpOpen
+                    ? "bg-amber-50/50 border border-amber-200 shadow-sm"
                     : "bg-white border border-border-soft shadow-sm"
                 }`}
               >
@@ -198,26 +201,30 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                     <EventQRCode value={userRsvp?.qrToken ?? `checkin-${userId}-${event.id}`} />
 
                     <p className="text-center style-caption text-ink-faint">
-                      This is your ticket to claim food, merch, drinks, etc. If you are late and don&apos;t see the attendance on the big screen, show this QR to an officer to check you in.
+                      This is your ticket to claim food, merch, drinks, etc., if it's being offered. If you are late and don&apos;t see the attendance on the big screen, show this QR to an officer to check you in.
                     </p>
 
-                    <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
+                    <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} isRsvpOpen={isRsvpOpen} />
                   </>
                 ) : (
                   <>
                     <h2 className="style-section-header leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
-                      {isLive ? "Event is Live!" : "Join This Event"}
+                      {isLive ? "Event is Live!" : !isRsvpOpen ? "RSVPs Closed" : "Join This Event"}
                     </h2>
                     
                     <p className="text-center style-body-text text-ink-muted">
                       {isLive
-                        ? "RSVP now to secure your attendance and to show your QR code for claiming food/drinks/merch (no guarantees since resources were booked 24 hours ago)."
-                        : "RSVP to secure your spot and unlock your QR code to claim food/drinks/merch, if we offer it (check tags!) at the event."}
+                        ? !isRsvpOpen
+                          ? "This event is happening right now! RSVPs are closed, but you can still drop by to check in for attendance."
+                          : "RSVP now to secure your attendance and to show your QR code for claiming food/drinks/merch, if we offer them (check tags!)."
+                        : !isRsvpOpen
+                        ? "RSVPs for this event are officially closed. You can still come and check-in, but food, drinks, and swag are not guaranteed, if we offered them."
+                        : "RSVP to secure your spot and unlock your QR code to claim food/drinks/merch, if we offer them (check tags!)."}
                     </p>
 
-                    <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} />
+                    <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} isRsvpOpen={isRsvpOpen} />
 
-                    {!userId && (
+                    {!userId && isRsvpOpen && (
                       <div className="mt-4 flex w-full flex-col gap-1 rounded-2xl border-orange border-2 bg-orange-soft p-4 text-center">
                         <p className="style-badge-text text-md text-brand">
                           Clicking RSVP will redirect you to Sign In or Sign Up.

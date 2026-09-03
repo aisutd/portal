@@ -500,33 +500,33 @@ export const eventFilterTags: TagData[] = (
   Object.keys(TAG_PALETTE) as (keyof typeof TAG_PALETTE)[]
 ).map(tag);
 
-export const browseEvents: EventGridItem[] = [
-  {
-    title: "Fall Kickoff",
-    meta: "ECSW 2.412 · 08/27/26 · 7:00 PM",
-    description: "Learn about & join AIS",
-    tags: [tag("food"), tag("social")],
-    eventId: "mock-event-upcoming",
-  },
-  {
-    title: "Intro to PyTorch",
-    meta: "ECSW 1.355 · 09/03/26 · 6:00 PM",
-    description: "Hands-on ML workshop",
-    tags: [tag("workshop"), tag("learn")],
-    eventId: "mock-event-past",
-  },
-  {
-    title: "Sponsor Mixer",
-    meta: "TBD · 09/10/26 · 7:00 PM",
-    description: "Network with industry",
-    tags: [tag("networking"), tag("industry")],
-    eventId: "mock-event-past",
-  },
-  {
-    title: "AIM Social",
-    meta: "ECSW 1.315 · 09/17/26 · 6:00 PM",
-    description: "Meet your AIM cohort",
-    tags: [tag("food"), tag("social")],
-    eventId: "mock-event-upcoming",
-  },
-];
+// export const browseEvents: EventGridItem[] = [
+//   {
+//     title: "Fall Kickoff",
+//     meta: "ECSW 2.412 · 08/27/26 · 7:00 PM",
+//     description: "Learn about & join AIS",
+//     tags: [tag("food"), tag("social")],
+//     eventId: "mock-event-upcoming",
+//   },
+//   {
+//     title: "Intro to PyTorch",
+//     meta: "ECSW 1.355 · 09/03/26 · 6:00 PM",
+//     description: "Hands-on ML workshop",
+//     tags: [tag("workshop"), tag("learn")],
+//     eventId: "mock-event-past",
+//   },
+//   {
+//     title: "Sponsor Mixer",
+//     meta: "TBD · 09/10/26 · 7:00 PM",
+//     description: "Network with industry",
+//     tags: [tag("networking"), tag("industry")],
+//     eventId: "mock-event-past",
+//   },
+//   {
+//     title: "AIM Social",
+//     meta: "ECSW 1.315 · 09/17/26 · 6:00 PM",
+//     description: "Meet your AIM cohort",
+//     tags: [tag("food"), tag("social")],
+//     eventId: "mock-event-upcoming",
+//   },
+// ];

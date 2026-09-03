@@ -193,6 +193,8 @@ model Event {
   createdBy        User        @relation("EventCreator", fields: [createdById], references: [id])
   items            EventItem[]
   rsvps            RSVP[]
+
+  isRsvpOpen       Boolean     @default(true)
 }
 
 model RSVP {
