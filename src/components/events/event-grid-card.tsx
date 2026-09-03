@@ -140,14 +140,16 @@ export function EventGridCard({
                 </span>
               )}
             </div>
-          ) : isRsvpOpen ? (
+          ) : (
             // Standard interactive RSVP button for active/upcoming events where the user hasn't checked in yet
             <Button 
               variant={hasRsvpd ? "outline" : "primary"}
               size="sm" 
               onClick={handleAction} 
-              disabled={isSubmitting} 
-              className="flex w-[90px] items-center justify-center gap-1.5" 
+              disabled={isSubmitting || (!hasRsvpd && !isRsvpOpen)} 
+              className={`flex items-center justify-center gap-1.5 ${
+                !hasRsvpd && !isRsvpOpen ? "min-w-[100px] opacity-60" : "w-[90px]"
+              }`} 
             >
               {isSubmitting ? (
                 "..."
@@ -158,14 +160,12 @@ export function EventGridCard({
                   </svg>
                   RSVP&apos;d
                 </>
+              ) : !isRsvpOpen ? (
+                "RSVPs Closed"
               ) : (
                 "RSVP"
               )}
             </Button>
-          ) : (
-            <span className="font-button max-w-[200px] text-right text-xs leading-tight">
-              RSVPs closed. Check-in during event for attendance.
-            </span>
           )}
 
           {message && !isPast && !hasAttended && (

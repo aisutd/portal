@@ -118,6 +118,7 @@ export async function getUpcomingEvents(take: number = 2, userId?: string) {
   const events = await prisma.event.findMany({
     where: { 
       status: "UPCOMING",
+      isRsvpOpen: true,
       ...(userId ? {
         rsvps: {
           none: { 
