@@ -26,9 +26,11 @@ export function EventQRCode({ value }: EventQRCodeProps) {
 export function EventDetailActions({
   eventId,
   initialRsvpd,
+  isRsvpOpen = true,
 }: {
   eventId: string;
   initialRsvpd: boolean;
+  isRsvpOpen?: boolean;
 }) {
   const router = useRouter();
   const { isSignedIn, isLoaded } = useAuth();
@@ -53,9 +55,9 @@ export function EventDetailActions({
     [eventId, router]
   );
 
-  // Check for pending RSVP cookie post-login
+  // Check for pending RSVP cookie post-login (only if RSVPs are currently open)
   useEffect(() => {
-    if (!isLoaded || !isSignedIn || isRsvpd) return;
+    if (!isLoaded || !isSignedIn || isRsvpd || !isRsvpOpen) return;
 
     const match = document.cookie
       .split("; ")
@@ -85,7 +87,7 @@ export function EventDetailActions({
 
       void completePendingRsvp();
     }
-  }, [isLoaded, isSignedIn, isRsvpd, eventId, router]);
+  }, [isLoaded, isSignedIn, isRsvpd, isRsvpOpen, eventId, router]);
 
   async function handleRsvpToggle() {
     if (!isSignedIn) {
@@ -100,6 +102,17 @@ export function EventDetailActions({
 
     const method = isRsvpd ? "DELETE" : "POST";
     await executeRsvp(method);
+  }
+
+  // If RSVPs are closed and the user hasn't RSVP'd yet, disable action
+  if (!isRsvpOpen && !isRsvpd) {
+    return (
+      <div className="flex w-full flex-col gap-[10px] mt-[4px]">
+        <Button variant="outline" size="md" disabled block className="opacity-60">
+          RSVPs Closed
+        </Button>
+      </div>
+    );
   }
 
   return (

@@ -21,6 +21,7 @@ export type EventGridItem = {
   isPast?: boolean;
   hasAttended?: boolean;
   missedEvent?: boolean;
+  isRsvpOpen: boolean;
 };
 
 export function EventGridCard({ 
@@ -34,6 +35,7 @@ export function EventGridCard({
   isPast = false,
   hasAttended = false,
   missedEvent = false,
+  isRsvpOpen = true,
 }: EventGridItem) {
   const router = useRouter();
   const { isSignedIn } = useAuth();
@@ -97,6 +99,7 @@ export function EventGridCard({
         <h3 className="mt-4 line-clamp-2 style-card-title leading-tight text-ink [font-variation-settings:'wdth'_100]">
           {title}
         </h3>
+        
         <p className="mt-1.5 style-meta-text tracking-wide text-ink-faint">
           {meta}
         </p>
@@ -137,7 +140,7 @@ export function EventGridCard({
                 </span>
               )}
             </div>
-          ) : (
+          ) : isRsvpOpen ? (
             // Standard interactive RSVP button for active/upcoming events where the user hasn't checked in yet
             <Button 
               variant={hasRsvpd ? "outline" : "primary"}
@@ -159,6 +162,10 @@ export function EventGridCard({
                 "RSVP"
               )}
             </Button>
+          ) : (
+            <span className="font-button max-w-[200px] text-right text-xs leading-tight">
+              RSVPs closed. Check-in during event for attendance.
+            </span>
           )}
 
           {message && !isPast && !hasAttended && (
