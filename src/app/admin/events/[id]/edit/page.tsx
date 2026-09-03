@@ -46,7 +46,7 @@ export default async function EditEventPage({
   params: Promise<{ id: string }> 
 }) {
   const user = await getAuthenticatedUser();
-  if (!user || (user.role !== "EXECUTIVE" && user.role !== "OFFICER")) {
+  if (!user || (user.role !== "EXECUTIVE" && user.role !== "DIRECTOR" && user.role !== "OFFICER")) {
     redirect("/onboarding");
   }
 
@@ -58,6 +58,10 @@ export default async function EditEventPage({
   });
 
   if (!event) return notFound();
+
+  if (event.isPublished && user.role == "OFFICER") {
+    redirect("/admin/events");
+  }
 
   const defaultValues = {
     title: event.title,
