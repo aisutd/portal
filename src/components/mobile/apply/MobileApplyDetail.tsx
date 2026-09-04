@@ -321,7 +321,7 @@ export function MobileApplyDetail() {
               <h2 className="style-section-header text-base text-ink font-semibold">
                 Description
               </h2>
-              <p className="style-mobile-body leading-relaxed text-ink-muted text-sm">
+              <p className="whitespace-pre-wrap style-mobile-body leading-relaxed text-ink-muted text-sm">
                 {renderTextWithLinks(appData.description)}
               </p>
             </div>
