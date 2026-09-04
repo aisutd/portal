@@ -26,6 +26,7 @@ import {
   type ApplicationFormLayout,
   type FieldValues,
 } from "@/lib/application-form";
+import { FormattedLinks } from "@/components/ui/formatted-link";
 
 export type QuestionType =
   | "TEXT"
@@ -940,15 +941,14 @@ function ApplyFormContent() {
 
     return (
       <div key={label} className={`flex flex-col gap-1.5 ${resolvedType === "LONG_TEXT" ? "col-span-1 sm:col-span-2" : ""}`}>
-        {config?.description ? (
-          <p className="style-caption text-ink-faint -mt-1">{config.description}</p>
-        ) : null}
         {resolvedType === "LONG_TEXT" ? (
           <FormTextarea {...commonProps} />
         ) : (
           <FormField {...commonProps} />
         )}
-        
+        {config?.description ? (
+          <p className="style-caption text-ink-faint -mt-1">{config.description}</p>
+        ) : null}
         {errorMessage ? (
           <p className="style-caption text-[#9a3b36]">{errorMessage}</p>
         ) : null}
@@ -1026,23 +1026,10 @@ function ApplyFormContent() {
                     {Array.isArray(applicationLink) &&
                     applicationLink.length > 0 ? (
                       <div className="flex flex-col gap-1 pt-2 border-t border-border-soft">
-                        <h2 className="style-body-text text-ink">
+                        <h2 className="style-page-subtitle text-ink">
                           Reference Links for Application
                         </h2>
-                          {applicationLink.map((url, idx) => (
-                            <li key={url} className="flex items-start gap-2">
-                              <span className="h-1.5 w-1.5 rounded-full bg-brand mt-1.5 shrink-0" />
-                              <a
-                                key={idx}
-                                href={url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="style-body-text text-brand hover:underline"
-                              >
-                                {url}
-                              </a>
-                            </li>
-                          ))}
+                        <FormattedLinks links={applicationLink} />
                         </div>
                     ) : null}
                   </div>
