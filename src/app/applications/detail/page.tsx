@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MobileApplyDetail } from "@/components/mobile/apply/MobileApplyDetail";
 import { ArrowLeft, Calendar, Info, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { FormattedLinks } from "@/components/ui/formatted-link";
 
 type RoleItem =
   | string
@@ -363,7 +364,7 @@ function ApplyDetailContent() {
                           {appData.eligibility.map((item) => (
                             <li key={item} className="flex items-start gap-2.5">
                               <span className="h-1.5 w-1.5 rounded-full bg-brand mt-2 shrink-0" />
-                              <span className="leading-relaxed">{item}</span>
+                              <span className="whitespace-pre-wrap leading-relaxed">{renderTextWithLinks(item)}</span>
                             </li>
                           ))}
                         </ul>
@@ -372,26 +373,11 @@ function ApplyDetailContent() {
 
                     {Array.isArray(appData.link) &&
                     appData.link.length > 0 ? (
-                      <div className="flex flex-col gap-3 pt-4 border-t border-border-soft">
-                        <h2 className="style-section-header text-xl text-ink">
+                      <div className="flex flex-col gap-1 pt-2 border-t border-border-soft">
+                        <h2 className="style-section-header text-ink pb-2">
                           Reference Links for Application
                         </h2>
-                          {appData.link.map((url, idx) => (
-                            <li key={url} className="flex items-start gap-2">
-                              <span className="h-1.5 w-1.5 rounded-full bg-brand mt-1.5 shrink-0" />
-                              <a
-                                key={idx}
-                                href={url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="style-body-text text-brand hover:underline"
-                              >
-                                {url}
-                              </a>
-                            </li>
-
-                            
-                          ))}
+                        <FormattedLinks links={appData.link} />
                         </div>
                     ) : null}
                   </div>
