@@ -122,6 +122,7 @@ model User {
   profile       Profile?
   createdApps   ProgramApplication[]
   rsvps         RSVP[]
+  attendances   Attendance[]
 }
 
 model Profile {
@@ -176,6 +177,7 @@ model Event {
   eligibilityRules Json?
   isPublished      Boolean    @default(false)
   checkInToken     String     @unique @default(uuid())
+  attendances      Attendance[]
 
   tags             EventTag[]
 
@@ -193,6 +195,8 @@ model Event {
   createdBy        User        @relation("EventCreator", fields: [createdById], references: [id])
   items            EventItem[]
   rsvps            RSVP[]
+
+  isRsvpOpen       Boolean     @default(true)
 }
 
 model RSVP {
@@ -200,6 +204,7 @@ model RSVP {
   userId      String
   eventId     String
   status      RSVPStatus
+  isWalkIn    Boolean     @default(false)
   qrToken     String
   qrExpiresAt DateTime?
   createdAt   DateTime    @default(now())
@@ -213,13 +218,24 @@ model RSVP {
 }
 
 model Attendance {
-  id          String            @id @default(cuid())
-  checkedInAt DateTime          @default(now())
+  id          String           @id @default(cuid())
+  checkedInAt DateTime         @default(now())
   method      AttendanceMethod?
   qrTokenUsed String?
-  rsvpId      String            @unique
-  rsvp        RSVP              @relation(fields: [rsvpId], references: [id], onDelete: Cascade)
+  
+  rsvpId      String?          @unique
+  rsvp        RSVP?            @relation(fields: [rsvpId], references: [id], onDelete: SetNull)
+  
+  eventId     String
+  event       Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
   scans       ItemScan[]
+
+  // Ensures a user can only check into a specific event once
+  @@unique([userId, eventId])
 }
 
 model EventItem {
@@ -255,6 +271,7 @@ model ProgramApplication {
   questionsJson  Json?
   requiredProfileFields Json?
   programType    ProgramType
+  link           String[]                @default([])
   openAt         DateTime
   closeAt        DateTime
   decisionDate   DateTime?

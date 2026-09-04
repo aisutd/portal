@@ -21,6 +21,7 @@ export type EventGridItem = {
   isPast?: boolean;
   hasAttended?: boolean;
   missedEvent?: boolean;
+  isRsvpOpen: boolean;
 };
 
 export function EventGridCard({ 
@@ -34,6 +35,7 @@ export function EventGridCard({
   isPast = false,
   hasAttended = false,
   missedEvent = false,
+  isRsvpOpen = true,
 }: EventGridItem) {
   const router = useRouter();
   const { isSignedIn } = useAuth();
@@ -97,6 +99,7 @@ export function EventGridCard({
         <h3 className="mt-4 line-clamp-2 style-card-title leading-tight text-ink [font-variation-settings:'wdth'_100]">
           {title}
         </h3>
+        
         <p className="mt-1.5 style-meta-text tracking-wide text-ink-faint">
           {meta}
         </p>
@@ -143,8 +146,10 @@ export function EventGridCard({
               variant={hasRsvpd ? "outline" : "primary"}
               size="sm" 
               onClick={handleAction} 
-              disabled={isSubmitting} 
-              className="flex w-[90px] items-center justify-center gap-1.5" 
+              disabled={isSubmitting || (!hasRsvpd && !isRsvpOpen)} 
+              className={`flex items-center justify-center gap-1.5 ${
+                !hasRsvpd && !isRsvpOpen ? "min-w-[100px] opacity-60" : "w-[90px]"
+              }`} 
             >
               {isSubmitting ? (
                 "..."
@@ -155,6 +160,8 @@ export function EventGridCard({
                   </svg>
                   RSVP&apos;d
                 </>
+              ) : !isRsvpOpen ? (
+                "RSVPs Closed"
               ) : (
                 "RSVP"
               )}

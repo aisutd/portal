@@ -68,6 +68,7 @@ async function getEventsData(userId: string | null) {
         isRsvpd,
         hasAttended,
         isLive,
+        isRsvpOpen: event.isRsvpOpen ?? true,
       };
     });
   
@@ -91,6 +92,7 @@ async function getEventsData(userId: string | null) {
         hasAttended,
         missedEvent,
         isLive: false,
+        isRsvpOpen: event.isRsvpOpen ?? true,
       };
     });
 

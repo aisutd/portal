@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { sendEventReminderEmail } from "@/lib/emails/event-reminder";
-import { getAuthenticatedUser } from "@/lib/auth";// Or your auth provider
-import { auth } from "@clerk/nextjs";
+import { sendEventReminderEmailsBatch } from "@/lib/emails/event-reminder";
+import { getAuthenticatedUser } from "@/lib/auth";
 
-const COOLDOWN_MINUTES = 60; // Cooldown window
+const COOLDOWN_MINUTES = 60;
 
 export async function POST(
   request: Request,
@@ -29,7 +28,7 @@ export async function POST(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // 2. Fetch Event with previous reminder details
+    // 2. Fetch Event
     const event = await prisma.event.findUnique({
       where: { id: eventId },
       select: { id: true, lastReminderSentAt: true },
@@ -63,15 +62,8 @@ export async function POST(
       return NextResponse.json({ count: 0, message: "No RSVPs found" });
     }
 
-    // 5. Dispatch Reminder Emails
-    await Promise.all(
-      rsvps.map((rsvp) =>
-        sendEventReminderEmail({
-          userId: rsvp.userId,
-          eventId,
-        })
-      )
-    );
+    // 5. Send Batch via Resend API
+    const totalSent = await sendEventReminderEmailsBatch({ rsvps, eventId });
 
     // 6. Record Audit Info
     const sentAt = new Date();
@@ -85,13 +77,13 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      count: rsvps.length,
+      count: totalSent,
       sentAt,
     });
   } catch (error) {
     console.error("Error sending reminders:", error);
     return NextResponse.json(
-      { error: "Failed to send reminders" },
+      { error: error instanceof Error ? error.message : "Failed to send reminders" },
       { status: 500 }
     );
   }

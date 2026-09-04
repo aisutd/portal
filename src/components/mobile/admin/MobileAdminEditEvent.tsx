@@ -30,40 +30,8 @@ type MobileAdminEditEventProps = {
   userRole: string;
 };
 
-/** Formats input values cleanly into Central time */
-function toCentralDateTimeInput(dateStr?: string | null): string {
-  if (!dateStr) return "";
-
-  const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return "";
-
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Chicago",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-
-  const parts = formatter.formatToParts(date);
-  const partMap: Record<string, string> = {};
-  for (const part of parts) {
-    partMap[part.type] = part.value;
-  }
-
-  const hour = partMap.hour === "24" ? "00" : partMap.hour;
-  return `${partMap.year}-${partMap.month}-${partMap.day}T${hour}:${partMap.minute}`;
-}
-
-export function MobileAdminEditEvent({ eventId, defaultValues, isPublished, userRole}: MobileAdminEditEventProps) {
-  const formattedDefaultValues = {
-    ...defaultValues,
-    startTime: toCentralDateTimeInput(defaultValues.startTime),
-    endTime: toCentralDateTimeInput(defaultValues.endTime),
-  };
-
+export function MobileAdminEditEvent({ eventId, defaultValues, isPublished, userRole }: MobileAdminEditEventProps) {
+  // defaultValues is already converted to CT string format by EditEventPage
   return (
     <MobileScreen withBottomNavPadding={false}>
       <MobileAdminNav active="Events" />
@@ -80,18 +48,18 @@ export function MobileAdminEditEvent({ eventId, defaultValues, isPublished, user
       <form action={updateEvent} className="flex flex-col gap-6">
         <input type="hidden" name="id" value={eventId} />
 
-        <EventForm tags={eventTags} defaultValues={formattedDefaultValues} />
+        <EventForm tags={eventTags} defaultValues={defaultValues} />
         <CoverPhotoCard defaultImageUrl={defaultValues.imageUrl} />
         <SettingsCard items={eventSettings} />
 
         <div className="flex flex-col gap-2.5">
           <EventActionButtons isPublished={isPublished} userRole={userRole}/>
           
-            {userRole === "EXECUTIVE" && (
-              <div className="mt-2 border-t border-border-soft pt-4">
-                <DeleteEventButton eventId={eventId} deleteAction={deleteEvent} />
-              </div>
-            )}
+          {userRole === "EXECUTIVE" && (
+            <div className="mt-2 border-t border-border-soft pt-4">
+              <DeleteEventButton eventId={eventId} deleteAction={deleteEvent} />
+            </div>
+          )}
         </div>
       </form>
     </MobileScreen>

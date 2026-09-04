@@ -21,6 +21,7 @@ type EventRecord = {
   isRsvpd?: boolean;
   hasAttended?: boolean;
   missedEvent?: boolean;
+  isRsvpOpen: boolean,
 };
 
 interface MobileEventsBrowseProps {
@@ -164,8 +165,9 @@ export function MobileEventsBrowse({ upcomingEvents, pastEvents }: MobileEventsB
                       eventId={event.id}
                       isRsvpd={event.isRsvpd}
                       isPast={false}
-                      hasAttended={event.hasAttended} // 👈 FIXED: Added hasAttended
-                      missedEvent={event.missedEvent} // 👈 FIXED: Added missedEvent
+                      hasAttended={event.hasAttended}
+                      missedEvent={event.missedEvent}
+                      isRsvpOpen={event.isRsvpOpen}
                     />
                   ))}
                 </div>
@@ -191,6 +193,7 @@ export function MobileEventsBrowse({ upcomingEvents, pastEvents }: MobileEventsB
                       isPast={true}
                       hasAttended={event.hasAttended}
                       missedEvent={event.missedEvent}
+                      isRsvpOpen={false}
                     />
                   ))}
                 </div>

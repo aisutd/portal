@@ -19,6 +19,7 @@ type EventRecord = {
   isRsvpd?: boolean;
   hasAttended?: boolean;
   missedEvent?: boolean;
+  isRsvpOpen: boolean;
 };
 
 interface EventsBrowseClientProps {
@@ -166,6 +167,7 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
                             isPast={false}
                             hasAttended={event.hasAttended}
                             missedEvent={event.missedEvent}
+                            isRsvpOpen={event.isRsvpOpen}
                           />
                         ))}
                       </div>
@@ -192,6 +194,7 @@ export function EventsBrowseClient({ upcomingEvents, pastEvents }: EventsBrowseC
                             isPast={true}
                             hasAttended={event.hasAttended}
                             missedEvent={event.missedEvent}
+                            isRsvpOpen={false}
                           />
                         ))}
                       </div>

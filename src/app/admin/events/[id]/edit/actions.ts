@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { isAssignableProgram } from "@/lib/roles";
 import { putObjectToR2, deleteObjectFromR2 } from "@/lib/r2";
+import { chicagoInputToUtc } from "@/lib/timezone";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 
@@ -31,30 +32,6 @@ function extractStorageKeyFromUrl(url: string): string | null {
   }
 }
 
-function parseChicagoTimeToUtc(localDateTimeString: string): Date {
-  if (!localDateTimeString) return new Date(NaN);
-
-  const cleanDate = localDateTimeString.replace("Z", "");
-  const targetDate = new Date(`${cleanDate}:00Z`);
-  if (isNaN(targetDate.getTime())) return new Date(NaN);
-
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Chicago",
-    timeZoneName: "shortOffset",
-  });
-
-  const parts = formatter.formatToParts(targetDate);
-  const timeZoneName = parts.find((p) => p.type === "timeZoneName")?.value ?? "GMT-5";
-  const match = timeZoneName.match(/GMT([+-]\d+)/);
-
-  if (!match) return new Date(`${cleanDate}:00-05:00`);
-
-  const hours = parseInt(match[1], 10);
-  const sign = hours >= 0 ? "+" : "-";
-  const padHours = Math.abs(hours).toString().padStart(2, "0");
-
-  return new Date(`${cleanDate}:00${sign}${padHours}:00`);
-}
 
 function parsePrograms(rawValue: FormDataEntryValue | FormDataEntryValue[] | null): MembershipType[] {
   if (!rawValue) return [];
@@ -146,8 +123,17 @@ export async function updateEvent(formData: FormData): Promise<void> {
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const location = String(formData.get("location") ?? "").trim();
+  
   const startTimeInput = String(formData.get("startTime") ?? "");
   const endTimeInput = String(formData.get("endTime") ?? "");
+
+  // Bulletproof CT string -> UTC Date conversion
+  const parsedStart = chicagoInputToUtc(startTimeInput);
+  const parsedEnd = chicagoInputToUtc(endTimeInput);
+
+  if (isNaN(parsedStart.getTime()) || isNaN(parsedEnd.getTime()) || parsedEnd <= parsedStart) {
+    throw new Error("Please select a valid event window.");
+  }
 
   if (!title || !description || !location || !startTimeInput || !endTimeInput) {
     throw new Error("Please fill out all required fields.");
@@ -171,12 +157,6 @@ export async function updateEvent(formData: FormData): Promise<void> {
     throw new Error(imageResult.error);
   }
 
-  const parsedStart = parseChicagoTimeToUtc(startTimeInput);
-  const parsedEnd = parseChicagoTimeToUtc(endTimeInput);
-
-  if (isNaN(parsedStart.getTime()) || isNaN(parsedEnd.getTime()) || parsedEnd <= parsedStart) {
-    throw new Error("Please select a valid event window.");
-  }
 
   const capacityStr = formData.get("capacity") as string;
   const parsedCapacity = capacityStr ? parseInt(capacityStr, 10) : null;

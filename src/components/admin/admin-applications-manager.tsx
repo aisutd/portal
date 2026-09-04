@@ -3,11 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { formatChicagoDateTimeInput } from "@/lib/utils";
 import Link from "next/link";
 import { z } from "zod";
 import { ApplicationStatus, MembershipType, ProgramType, UserRole } from "@prisma/client";
-
+import { chicagoInputToUtc, formatChicagoDisplayDate, formatChicagoDateTimeInput } from "@/lib/timezone";
 
 export function ExportCustomizerModal({
   application,
@@ -135,6 +134,7 @@ type Summary = {
   programType: ProgramType;
   roles?: string[];
   eligibility?: string[];
+  link?: string[];
   openAt: string;
   closeAt: string;
   decisionDate: string | null;
@@ -181,10 +181,11 @@ const appDatesSchema = z
   .object({
     openAt: z.string().optional(),
     closeAt: z.string().optional(),
+    decisionDate: z.string().optional(),
   })
   .refine(
     (data) => {
-      if (data.openAt && data.closeAt) {
+      if (data.openAt && data.closeAt && data.decisionDate) {
         return new Date(data.closeAt) > new Date(data.openAt);
       }
       return true;
@@ -232,37 +233,6 @@ const statusBadgeColor = (status: Status) => {
   }
 };
 
-const localValue = (value: string | null) =>
-  value
-    ? new Date(value).toLocaleString("en-US", {
-        timeZone: "America/Chicago",
-        dateStyle: "medium",
-        timeStyle: "short",
-      })
-    : "TBD";
-
-function parseChicagoInputToUTC(dateTimeString: string): string | null {
-  if (!dateTimeString) return null;
-  const [datePart, timePart] = dateTimeString.split("T");
-  if (!datePart || !timePart) return new Date(dateTimeString).toISOString();
-
-  const [year, month, day] = datePart.split("-").map(Number);
-  const [hour, minute] = timePart.split(":").map(Number);
-
-  const targetDate = new Date(Date.UTC(year, month - 1, day, hour, minute));
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Chicago",
-    timeZoneName: "shortOffset",
-  });
-
-  const parts = formatter.formatToParts(targetDate);
-  const timeZonePart = parts.find((p) => p.type === "timeZoneName")?.value || "";
-  const match = timeZonePart.match(/GMT([+-]\d+)/);
-  const offsetHours = match ? parseInt(match[1], 10) : -5;
-
-  targetDate.setUTCHours(targetDate.getUTCHours() - offsetHours);
-  return targetDate.toISOString();
-}
 
 export function AdminApplicationsManager({
   initialApplicationId,
@@ -299,8 +269,10 @@ export function AdminApplicationsManager({
   const [editForm, setEditForm] = useState<Partial<Summary>>({});
   const [editOpenAt, setEditOpenAt] = useState("");
   const [editCloseAt, setEditCloseAt] = useState("");
+  const [editDecisionDate, setEditDecisionDate] = useState("");
   const [editRolesInput, setEditRolesInput] = useState("");
   const [editEligibilityInput, setEditEligibilityInput] = useState("");
+  const [editLinkInput, setEditLinkInput] = useState("");
 
   const [notes, setNotes] = useState("");
 
@@ -363,10 +335,12 @@ export function AdminApplicationsManager({
     setEditForm(payload.application);
     setEditOpenAt(formatChicagoDateTimeInput(payload.application.openAt));
     setEditCloseAt(formatChicagoDateTimeInput(payload.application.closeAt));
+    setEditDecisionDate(formatChicagoDateTimeInput(payload.application.decisionDate));
     setEditRolesInput(payload.application.roles ? payload.application.roles.join("\n") : "");
     setEditEligibilityInput(
       payload.application.eligibility ? payload.application.eligibility.join("\n") : ""
     );
+    setEditLinkInput(payload.application.link ? payload.application.link.join("\n") : "");
     setSelectedSubmissionId((current) =>
       payload.application.submissions.some((item) => item.id === current)
         ? current
@@ -482,13 +456,20 @@ export function AdminApplicationsManager({
         .split("\n")
         .map((e) => e.trim())
         .filter(Boolean);
+      
+      const link = editLinkInput
+        .split("\n")
+        .map((e) => e.trim())
+        .filter(Boolean);
 
       const payload = {
         ...editForm,
         roles,
         eligibility,
-        openAt: editOpenAt ? parseChicagoInputToUTC(editOpenAt) : null,
-        closeAt: editCloseAt ? parseChicagoInputToUTC(editCloseAt) : null,
+        link,
+        openAt: editOpenAt ? chicagoInputToUtc(editOpenAt)?.toISOString() : null,
+        closeAt: editCloseAt ? chicagoInputToUtc(editCloseAt)?.toISOString() : null,
+        decisionDate: editDecisionDate ? chicagoInputToUtc(editDecisionDate)?.toISOString() : null,
       };
 
       const response = await fetch(`/api/admin/applications/${detail.id}`, {
@@ -781,12 +762,15 @@ export function AdminApplicationsManager({
                           title={app.visibleToUsers ? "Visible to users" : "Draft / Hidden"}
                         />
                       </div>
-                      <div className="mt-2 flex items-center justify-between text-xs text-ink-faint">
-                        <span className="font-medium bg-stone-100 px-2 py-0.5 rounded text-[11px]">
-                          {app.submissionCount} submissions
+                      <div className="mt-2 flex items-center justify-between text-xs gap-2 text-ink-faint">
+                        <span className="font-medium px-1 py-0.5 bg-stone-100 rounded text-[11px]">
+                          Sub Count: {app.submissionCount}
                         </span>
-                        <span>Closes {localValue(app.closeAt)}</span>
+                        <span>Closes {formatChicagoDisplayDate(app.closeAt)}</span>
                       </div>
+                      <p className="text-xs font-semibold text-ink leading-snug">
+                          {formatChicagoDisplayDate(app.decisionDate)}
+                      </p>
                     </button>
                   ))}
                 </div>
@@ -1128,6 +1112,19 @@ export function AdminApplicationsManager({
 
                         <div>
                           <label className="style-caption text-xs font-medium text-ink-muted">
+                            Reference Links on Application (One per line)
+                          </label>
+                          <textarea
+                            className="mt-1 w-full rounded-lg border border-border-soft bg-white p-2.5 text-xs"
+                            rows={3}
+                            value={editLinkInput}
+                            onChange={(e) => setEditLinkInput(e.target.value)}
+                            placeholder="e.g. https://aim-project-description.com"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="style-caption text-xs font-medium text-ink-muted">
                             Opening Date & Time (CT)
                           </label>
                           <input
@@ -1147,6 +1144,18 @@ export function AdminApplicationsManager({
                             className="mt-1 w-full rounded-lg border border-border-soft bg-white p-2.5 text-xs"
                             value={editCloseAt}
                             onChange={(e) => setEditCloseAt(e.target.value)}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="style-caption text-xs font-medium text-ink-muted">
+                            Decision Date & Time (CT)
+                          </label>
+                          <input
+                            type="datetime-local"
+                            className="mt-1 w-full rounded-lg border border-border-soft bg-white p-2.5 text-xs"
+                            value={editDecisionDate}
+                            onChange={(e) => setEditDecisionDate(e.target.value)}
                           />
                         </div>
                       </div>
@@ -1199,7 +1208,7 @@ export function AdminApplicationsManager({
                               {isBlindReviewMode
                                 ? `Submission ID: ${selectedSubmission.id}`
                                 : `${selectedSubmission.user.profile?.utdNetId ?? "No NetID"} · ${selectedSubmission.user.email}`}{" "}
-                              · Submitted {localValue(selectedSubmission.submittedAt)}
+                              · Submitted {formatChicagoDisplayDate(selectedSubmission.submittedAt)}
                             </p>
                           </div>
                           <span
