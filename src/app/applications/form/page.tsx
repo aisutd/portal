@@ -940,14 +940,15 @@ function ApplyFormContent() {
 
     return (
       <div key={label} className={`flex flex-col gap-1.5 ${resolvedType === "LONG_TEXT" ? "col-span-1 sm:col-span-2" : ""}`}>
+        {config?.description ? (
+          <p className="style-caption text-ink-faint -mt-1">{config.description}</p>
+        ) : null}
         {resolvedType === "LONG_TEXT" ? (
           <FormTextarea {...commonProps} />
         ) : (
           <FormField {...commonProps} />
         )}
-        {config?.description ? (
-          <p className="style-caption text-ink-faint -mt-1">{config.description}</p>
-        ) : null}
+        
         {errorMessage ? (
           <p className="style-caption text-[#9a3b36]">{errorMessage}</p>
         ) : null}
