@@ -14,14 +14,29 @@ function canDeleteApplication(role?: string) {
 }
 
 const updateApplicationSchema = z.object({
-  title: z.string().optional(),
+  title: z.string().min(1).optional(),
   description: z.string().nullable().optional(),
-  roles: z.array(z.string()).default([]),
-  eligibility: z.array(z.string()).default([]),
-  link: z.array(z.string()).default([]),
+  roles: z.array(z.string()).optional(), // Removed .default([])
+  eligibility: z.array(z.string()).optional(), // Removed .default([])
+  link: z.array(z.string()).optional(), // Removed .default([])
   programType: z.string().optional(),
-  openAt: z.string().datetime().nullable().optional(),
-  closeAt: z.string().datetime().nullable().optional(),
+  
+  // Accepts standard input dates as well as ISO strings
+  openAt: z
+    .string()
+    .nullable()
+    .optional()
+    .refine((val) => !val || !isNaN(Date.parse(val)), {
+      message: "Invalid date format for openAt",
+    }),
+  closeAt: z
+    .string()
+    .nullable()
+    .optional()
+    .refine((val) => !val || !isNaN(Date.parse(val)), {
+      message: "Invalid date format for closeAt",
+    }),
+    
   visibleToUsers: z.boolean().optional(),
   questions: z.any().optional(),
   requiredProfileFields: z

@@ -17,6 +17,9 @@ export function utcToChicagoInput(date: Date | string | null | undefined): strin
   return formatInTimeZone(d, CHICAGO_TZ, "yyyy-MM-dd'T'HH:mm");
 }
 
+/** Alias for backward compatibility if used elsewhere in your app */
+export const formatChicagoDateTimeInput = utcToChicagoInput;
+
 /**
  * 2. CT String (from Form Input) -> UTC Date for Prisma
  * Input format: "YYYY-MM-DDTHH:mm"
@@ -26,41 +29,12 @@ export function chicagoInputToUtc(localDateTimeString: string): Date {
     return new Date(NaN);
   }
 
-  // Ensures "2026-03-30T14:30" is interpreted specifically in Chicago Time,
-  // then converts seamlessly to a standard UTC Date.
-  const chicagoDate = new TZDate(localDateTimeString, CHICAGO_TZ);
-  
-  return new Date(chicagoDate.getTime());
-}
-
-/** Formats UTC Date or ISO string into Chicago timezone (YYYY-MM-DDTHH:mm) for HTML5 datetime-local inputs */
-export function formatChicagoDateTimeInput(dateInput?: Date | string | null): string {
-  if (!dateInput) return "";
-  const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
-  if (isNaN(date.getTime())) return "";
-
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Chicago",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-
-  const parts = formatter.formatToParts(date);
-  const partMap: Record<string, string> = {};
-  for (const part of parts) {
-    partMap[part.type] = part.value;
-  }
-
-  const hour = partMap.hour === "24" ? "00" : partMap.hour;
-  return `${partMap.year}-${partMap.month}-${partMap.day}T${hour}:${partMap.minute}`;
+  // Interprets local time string in Chicago context and returns standard UTC Date
+  return new TZDate(localDateTimeString, CHICAGO_TZ);
 }
 
 /**
- * Formats a UTC ISO string or Date into a human-readable Chicago display format.
+ * 3. Formats a UTC ISO string or Date into a human-readable Chicago display format.
  * Example output: "Sep 4, 2026, 2:57 PM" or "TBD" if null/invalid.
  */
 export function formatChicagoDisplayDate(value?: Date | string | null): string {
@@ -70,7 +44,7 @@ export function formatChicagoDisplayDate(value?: Date | string | null): string {
   if (isNaN(date.getTime())) return "TBD";
 
   return date.toLocaleString("en-US", {
-    timeZone: "America/Chicago",
+    timeZone: CHICAGO_TZ,
     dateStyle: "medium",
     timeStyle: "short",
   });

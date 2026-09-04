@@ -40,6 +40,27 @@ type ApplicationDetailResponse = {
   submissionId: string | null;
 };
 
+function renderTextWithLinks(text: string) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  
+  return text.split(urlRegex).map((part, index) => {
+    if (part.match(urlRegex)) {
+      return (
+        <a
+          key={index}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-brand underline hover:text-brand-dark"
+        >
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+}
+
 function formatDate(value: string | null, fallbackText: string) {
   if (!value) return fallbackText;
 
@@ -300,8 +321,8 @@ export function MobileApplyDetail() {
               <h2 className="style-section-header text-base text-ink font-semibold">
                 Description
               </h2>
-              <p className="style-mobile-body leading-relaxed text-ink-muted text-sm">
-                {appData.description}
+              <p className="whitespace-pre-wrap style-mobile-body leading-relaxed text-ink-muted text-sm">
+                {renderTextWithLinks(appData.description)}
               </p>
             </div>
 

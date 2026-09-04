@@ -768,8 +768,8 @@ export function AdminApplicationsManager({
                         </span>
                         <span>Closes {formatChicagoDisplayDate(app.closeAt)}</span>
                       </div>
-                      <p className="text-xs font-semibold text-ink leading-snug">
-                          {formatChicagoDisplayDate(app.decisionDate)}
+                      <p className="pt-2 text-xs font-medium text-ink-faint leading-snug">
+                          Decision Date: {formatChicagoDisplayDate(app.decisionDate)}
                       </p>
                     </button>
                   ))}
