@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { generateQRToken } from "@/lib/qrToken";
+import { AttendanceMethod } from "@prisma/client";
 
 interface CheckInProps {
   searchParams: Promise<{ token?: string; redirect?: string }>;
@@ -41,12 +42,17 @@ export default async function CheckInPage({ searchParams }: CheckInProps) {
     );
   }
 
-  // 2. Force sign-in/onboarding and preserve token context using Clerk's standard redirect_url pattern
-  if (!session?.profile?.userId) {
-    redirect(`/sign-in?redirect_url=${encodeURIComponent(`/events/check-in?token=${token}&redirect=${redirectTo}`)}`);
+  // 2. Resolve User ID and handle unauthenticated state
+  const userId = session?.id || session?.profile?.userId;
+  if (!userId) {
+    redirect(
+      `/sign-in?redirect_url=${encodeURIComponent(
+        `/events/check-in?token=${token}&redirect=${redirectTo}`
+      )}`
+    );
   }
 
-  // 3. Find the event using the unique token
+  // 3. Find the event using the unique check-in token
   const event = await prisma.event.findUnique({
     where: { checkInToken: token },
   });
@@ -77,7 +83,7 @@ export default async function CheckInPage({ searchParams }: CheckInProps) {
     );
   }
 
-  // 4. Check if the event has already ended
+  // 4. Check if event has ended
   const now = new Date();
   if (now > event.endTime) {
     return (
@@ -105,38 +111,40 @@ export default async function CheckInPage({ searchParams }: CheckInProps) {
     );
   }
 
-  // 5. Check if user already has an RSVP, if NOT — auto-create it on the fly!
+  // 5. Check existing RSVP state
   const existingRsvp = await prisma.rSVP.findUnique({
     where: {
       userId_eventId: {
-        userId: session.profile.userId,
+        userId,
         eventId: event.id,
       },
     },
   });
 
-  // Track if user was previously RSVP'd
-  const hadPriorRsvp = Boolean(existingRsvp);
+  const hadPriorActiveRsvp = Boolean(existingRsvp && existingRsvp.status === "GOING" && !existingRsvp.isWalkIn);
   let rsvp = existingRsvp;
 
+  // 6. Handle Walk-in RSVP creation or reactivation
   if (!rsvp) {
+    // Auto-create RSVP marked as a Walk-in
     const createdAt = new Date();
     const expiresAt = new Date(createdAt.getTime() + 1000 * 60 * 60 * 24 * 7);
     const qrToken = await generateQRToken({
-      userId: session.profile.userId,
+      userId,
       eventId: event.id,
       ttl: Math.floor((expiresAt.getTime() - createdAt.getTime()) / 1000),
-      nonce: `${session.profile.userId}:${event.id}:${createdAt.getTime()}`,
+      nonce: `${userId}:${event.id}:${createdAt.getTime()}`,
     });
 
     rsvp = await prisma.rSVP.create({
       data: {
-        userId: session.profile.userId,
+        userId,
         eventId: event.id,
         status: "GOING",
+        isWalkIn: true,
         qrToken,
         qrPayload: JSON.stringify({
-          userId: session.profile.userId,
+          userId,
           eventId: event.id,
           token: qrToken,
           expiresAt: expiresAt.toISOString(),
@@ -144,39 +152,56 @@ export default async function CheckInPage({ searchParams }: CheckInProps) {
         qrExpiresAt: expiresAt,
       },
     });
-  } else if (rsvp.status !== "GOING") {
-    // If they had a canceled RSVP, reactivate it to GOING
+  } else if (rsvp.status === "CANCELED") {
+    // Reactivate canceled RSVP and mark as Walk-in
     rsvp = await prisma.rSVP.update({
       where: { id: rsvp.id },
-      data: { status: "GOING" },
+      data: {
+        status: "GOING",
+        isWalkIn: true,
+      },
     });
   }
 
-  // 6. Mark Attendance
+  // 7. Upsert Attendance record linked to RSVP
   await prisma.attendance.upsert({
-    where: { rsvpId: rsvp.id },
-    update: {},
+    where: {
+      userId_eventId: {
+        userId,
+        eventId: event.id,
+      },
+    },
+    update: {
+      checkedInAt: new Date(),
+      rsvpId: rsvp.id,
+      method: AttendanceMethod.QR_SCAN,
+      qrTokenUsed: token,
+    },
     create: {
+      userId,
+      eventId: event.id,
       rsvpId: rsvp.id,
       checkedInAt: new Date(),
+      method: AttendanceMethod.QR_SCAN,
+      qrTokenUsed: token,
     },
   });
 
-  // 7. Success Screen UI
+  // 8. Success UI
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-cream p-6 text-center">
       <div className="w-full max-w-[420px] rounded-[16px] bg-[#d2ecd9] p-[36px] border border-[#b8dfc3]">
-        <span className="style-caption font-semibold uppercase tracking-wider ">
+        <span className="style-caption font-semibold uppercase tracking-wider">
           Verified
         </span>
-        <h1 className="mt-[12px] style-section-header ">
+        <h1 className="mt-[12px] style-section-header">
           Checked In!
         </h1>
         <p className="mt-[8px] style-body-text /80 leading-[20px]">
-          {hadPriorRsvp ? (
+          {hadPriorActiveRsvp ? (
             <>You are checked in for <span className="font-semibold">{event.title}</span>.</>
           ) : (
-            <>You&apos;re all set for <span className="font-semibold">{event.title}</span>. You didn&apos;t have an RSVP, but we checked you in!</>
+            <>You&apos;re all set for <span className="font-semibold">{event.title}</span>. You were checked in as a walk-in!</>
           )}
         </p>
 

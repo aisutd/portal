@@ -30,6 +30,7 @@ type ApplicationDetailResponse = {
     id: string;
     title: string;
     description: string;
+    link: string[];
     decisionDate: string | null;
     openAt?: string | null;
     closeAt?: string | null;
@@ -194,6 +195,7 @@ function ApplyDetailContent() {
   const normalizedRoles = rawRoles.map((role) =>
     typeof role === "string" ? { title: role } : role
   );
+  
 
   return (
     <>
@@ -345,6 +347,31 @@ function ApplyDetailContent() {
                           ))}
                         </ul>
                       </div>
+                    ) : null}
+
+                    {Array.isArray(appData.link) &&
+                    appData.link.length > 0 ? (
+                      <div className="flex flex-col gap-3 pt-4 border-t border-border-soft">
+                        <h2 className="style-section-header text-xl text-ink">
+                          Reference Links for Application
+                        </h2>
+                          {appData.link.map((url, idx) => (
+                            <li key={url} className="flex items-start gap-2">
+                              <span className="h-1.5 w-1.5 rounded-full bg-brand mt-1.5 shrink-0" />
+                              <a
+                                key={idx}
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="style-body-text text-brand hover:underline"
+                              >
+                                {url}
+                              </a>
+                            </li>
+
+                            
+                          ))}
+                        </div>
                     ) : null}
                   </div>
                 </div>

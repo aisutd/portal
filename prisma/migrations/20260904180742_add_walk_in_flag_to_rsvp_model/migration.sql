@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "RSVP" ADD COLUMN     "isWalkIn" BOOLEAN NOT NULL DEFAULT false;

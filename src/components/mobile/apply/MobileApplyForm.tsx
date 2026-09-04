@@ -97,6 +97,7 @@ type ApplicationResponse = {
   application: {
     id: string;
     title: string;
+    link: string[];
     programType?: ProgramType | string;
     description?: string;
     phase?: string;
@@ -211,6 +212,7 @@ export function MobileApplyForm() {
   const [uploadingFields, setUploadingFields] = useState<Record<string, boolean>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [applicationTitle, setApplicationTitle] = useState<string | null>(null);
+  const [applicationLink, setApplicationLink] = useState<string[]>([]);
   const [programType, setProgramType] = useState<ProgramType | string | null>(null);
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -349,6 +351,7 @@ export function MobileApplyForm() {
           setAlreadySubmitted(Boolean(applicationPayload?.submissionStatus));
           setApplicationTitle(applicationPayload?.application?.title ?? null);
           setProgramType(applicationPayload?.application?.programType ?? null);
+          setApplicationLink(applicationPayload?.application.link ?? []);
 
           if (!applicationResponse.ok && applicationResponse.status === 404) {
             setError("Application not found.");
@@ -969,9 +972,31 @@ export function MobileApplyForm() {
               >
                 {design.label}
               </span>
-              <h1 className="style-mobile-title text-ink">
+              <h1 className="style-mobile-title text-ink pb-2">
                 {applicationTitle || "Application Form"}
               </h1>
+              {Array.isArray(applicationLink) &&
+              applicationLink.length > 0 ? (
+                <div className="flex flex-col gap-1 pt-2 border-t border-border-soft">
+                  <h2 className="style-body-text text-ink">
+                    Reference Links for Application
+                  </h2>
+                    {applicationLink.map((url, idx) => (
+                      <li key={url} className="flex items-start gap-2">
+                        <span className="h-1.5 w-1.5 rounded-full bg-brand mt-1.5 shrink-0" />
+                        <a
+                          key={idx}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="style-body-text text-brand hover:underline"
+                        >
+                          {url}
+                        </a>
+                      </li>
+                    ))}
+                  </div>
+              ) : null}
             </div>
           </div>
 
