@@ -38,24 +38,40 @@ export async function processScan(
     // 3. Handle Event Check-In
     if (scanType === "attendance") {
       if (rsvp.attendance) {
-        return { success: false, error: `${name} is already checked in!` };
+        return { 
+          success: false, 
+          error: `${name} is already checked in!`,
+          isWalkIn: rsvp.isWalkIn 
+        };
       }
 
       await prisma.attendance.create({
         data: {
+          eventId,
+          userId: rsvp.userId,
           rsvpId: rsvp.id,
           method: AttendanceMethod.QR_SCAN,
           qrTokenUsed: qrToken,
         },
       });
 
-      return { success: true, message: `Checked in: ${name}` };
+      return { 
+        success: true, 
+        message: rsvp.isWalkIn 
+          ? `Checked in: ${name} (Walk-In)` 
+          : `Checked in: ${name}`,
+        isWalkIn: rsvp.isWalkIn 
+      };
     }
 
     // 4. Handle Item Scans (Meals, Drinks, Merch) using ItemScan model
     if (scanType === "item" && eventItemId) {
       if (!rsvp.attendance) {
-        return { success: false, error: `${name} must check into the event first!` };
+        return { 
+          success: false, 
+          error: `${name} must check into the event first!`,
+          isWalkIn: rsvp.isWalkIn 
+        };
       }
 
       const existingScan = await prisma.itemScan.findUnique({
@@ -68,7 +84,11 @@ export async function processScan(
       });
 
       if (existingScan) {
-        return { success: false, error: `${name} already claimed this item!` };
+        return { 
+          success: false, 
+          error: `${name} already claimed this item!`,
+          isWalkIn: rsvp.isWalkIn 
+        };
       }
 
       // Create the item scan record and link it to the admin's database ID
@@ -76,11 +96,17 @@ export async function processScan(
         data: {
           attendanceId: rsvp.attendance.id,
           eventItemId: eventItemId,
-          scannedById: currentUser.id, // <-- Securely saves the admin's internal user ID
+          scannedById: currentUser.id,
         },
       });
 
-      return { success: true, message: `Item claimed for ${name}!` };
+      return { 
+        success: true, 
+        message: rsvp.isWalkIn 
+          ? `Item claimed for ${name} [Walk-In]` 
+          : `Item claimed for ${name}`,
+        isWalkIn: rsvp.isWalkIn 
+      };
     }
 
     return { success: false, error: "Invalid scan configuration." };

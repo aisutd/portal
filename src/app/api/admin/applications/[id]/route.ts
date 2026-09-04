@@ -18,6 +18,7 @@ const updateApplicationSchema = z.object({
   description: z.string().nullable().optional(),
   roles: z.array(z.string()).default([]),
   eligibility: z.array(z.string()).default([]),
+  link: z.array(z.string()).default([]),
   programType: z.string().optional(),
   openAt: z.string().datetime().nullable().optional(),
   closeAt: z.string().datetime().nullable().optional(),
@@ -112,6 +113,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       description,
       roles,
       eligibility,
+      link,
       programType,
       openAt,
       closeAt,
@@ -126,6 +128,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (description !== undefined) updateData.description = description;
     if (programType !== undefined) updateData.programType = programType;
     if (roles !== undefined) updateData.roles = roles;
+    if (link !== undefined) updateData.link = link;
     if (eligibility !== undefined) updateData.eligibility = eligibility;
     if (visibleToUsers !== undefined) updateData.visibleToUsers = visibleToUsers;
     if (questions !== undefined) updateData.questionsJson = questions;

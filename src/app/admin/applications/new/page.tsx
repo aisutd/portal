@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { chicagoInputToUtc } from "@/lib/timezone";
 
 export type QuestionType = "TEXT" | "LONG_TEXT" | "DROPDOWN" | "CHECKBOX" | "FILE";
 
@@ -24,16 +25,6 @@ export type ProfileFieldRequirements = {
   requireGithub: boolean;
   requirePortfolio: boolean;
 };
-
-/**
- * Converts a standard local datetime string (YYYY-MM-DDTHH:mm) 
- * assuming standard Central Time ISO representation.
- */
-function parseChicagoInputToUTC(dateTimeString: string): string | null {
-  if (!dateTimeString) return null;
-  const date = new Date(dateTimeString);
-  return isNaN(date.getTime()) ? null : date.toISOString();
-}
 
 export default function CreateApplicationPage({ embedded = true }: { embedded?: boolean }) {
   const router = useRouter();
@@ -66,6 +57,7 @@ export default function CreateApplicationPage({ embedded = true }: { embedded?: 
 
   const [rolesInput, setRolesInput] = useState("");
   const [eligibilityInput, setEligibilityInput] = useState("");
+  const [linkInput, setLinkInput] = useState(""); 
 
   const createQuestionId = () =>
     typeof crypto !== "undefined" && crypto.randomUUID
@@ -195,15 +187,27 @@ export default function CreateApplicationPage({ embedded = true }: { embedded?: 
       .map((e) => e.trim())
       .filter(Boolean);
 
+    const link = linkInput
+      .split("\n")
+      .map((e) => e.trim())
+      .filter(Boolean);
+
+    const parseDate = (val: string) => {
+      if (!val) return null;
+      const utcDate = chicagoInputToUtc(val);
+      return isNaN(utcDate.getTime()) ? null : utcDate.toISOString();
+    };
+    
     const payload = {
       title: pendingFormData.get("title") as string,
       programType: pendingFormData.get("programType") as string,
       description: pendingFormData.get("description") as string,
       roles,
       eligibility,
-      openAt: parseChicagoInputToUTC(openAtRaw),
-      closeAt: parseChicagoInputToUTC(closeAtRaw),
-      decisionDate: parseChicagoInputToUTC(decisionDateRaw),
+      link,
+      openAt: parseDate(openAtRaw),
+      closeAt: parseDate(closeAtRaw),
+      decisionDate: parseDate(decisionDateRaw),
       visibleToUsers,
       requiredProfileFields: {
         requirePhoneNumber: profileRequirements.requirePhoneNumber,
@@ -336,6 +340,20 @@ export default function CreateApplicationPage({ embedded = true }: { embedded?: 
                   value={eligibilityInput}
                   onChange={(e) => setEligibilityInput(e.target.value)}
                   placeholder="e.g. Open to enrolled UTD students&#10;Must be able to commit 5 hrs/week"
+                  rows={3}
+                  className="border rounded-md p-2"
+                />
+              </div>
+
+              {/* Links Input */}
+              <div className="flex flex-col gap-2">
+                <label htmlFor="link" className="text-sm font-medium">Reference Links on Application (One per line)</label>
+                <textarea
+                  id="link"
+                  name="link"
+                  value={linkInput}
+                  onChange={(e) => setLinkInput(e.target.value)}
+                  placeholder="e.g. https://aim-project-descriptions.com"
                   rows={3}
                   className="border rounded-md p-2"
                 />

@@ -12,33 +12,13 @@ import { eventTags, eventSettings } from "@/lib/data";
 import { updateEvent, deleteEvent } from "./actions";
 import { DeleteEventButton } from "@/components/admin/delete-event-button";
 import { EventActionButtons } from "@/components/admin/admin-event-actions";
+import { utcToChicagoInput } from "@/lib/timezone";
 
 export const metadata: Metadata = {
   title: "AIS Admin — Edit Event",
   description: "Edit an existing AIS event.",
 };
 
-/** Formats date explicitly into Chicago timezone YYYY-MM-DDTHH:mm */
-function formatChicagoDateTimeInput(date: Date): string {
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Chicago",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-
-  const parts = formatter.formatToParts(date);
-  const partMap: Record<string, string> = {};
-  for (const part of parts) {
-    partMap[part.type] = part.value;
-  }
-
-  const hour = partMap.hour === "24" ? "00" : partMap.hour;
-  return `${partMap.year}-${partMap.month}-${partMap.day}T${hour}:${partMap.minute}`;
-}
 
 export default async function EditEventPage({ 
   params 
@@ -46,7 +26,7 @@ export default async function EditEventPage({
   params: Promise<{ id: string }> 
 }) {
   const user = await getAuthenticatedUser();
-  if (!user || (user.role !== "EXECUTIVE" && user.role !== "OFFICER")) {
+  if (!user || (user.role !== "EXECUTIVE" && user.role !== "DIRECTOR" && user.role !== "OFFICER")) {
     redirect("/onboarding");
   }
 
@@ -59,12 +39,16 @@ export default async function EditEventPage({
 
   if (!event) return notFound();
 
+  if (event.isPublished && user.role == "OFFICER") {
+    redirect("/admin/events");
+  }
+
   const defaultValues = {
     title: event.title,
     description: event.description ?? "",
     location: event.location,
-    startTime: formatChicagoDateTimeInput(event.startTime),
-    endTime: formatChicagoDateTimeInput(event.endTime),
+    startTime: utcToChicagoInput(event.startTime),
+    endTime: utcToChicagoInput(event.endTime),
     capacity: event.capacity?.toString() ?? "",
     status: event.status as string,
     visibility: event.visibility as string,

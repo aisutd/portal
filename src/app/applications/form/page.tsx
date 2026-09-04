@@ -97,6 +97,7 @@ type RequiredProfileFields = {
 type ApplicationResponse = {
   application: {
     title: string;
+    link: string[];
     questions: (string | QuestionConfig)[];
     requiredProfileFields?: RequiredProfileFields;
     programType?: ProgramType | string;
@@ -185,6 +186,7 @@ function ApplyFormContent() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const [applicationTitle, setApplicationTitle] = useState<string | null>(null);
+  const [applicationLink, setApplicationLink] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [uploadingResume, setUploadingResume] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
@@ -239,7 +241,8 @@ function ApplyFormContent() {
         // Inside your loadData() fetch logic:
         setApplicationTitle(applicationPayload?.application?.title ?? null);
         setProgramType(applicationPayload?.application?.programType ?? null); // Save programType to state
-
+        setApplicationLink(applicationPayload?.application?.link ?? []);
+        console.log(applicationLink);
         // Extract raw data with null coalescing to protect against missing properties
         const rawQuestions = applicationPayload?.application?.questions ?? [];
         const rawRequirements = applicationPayload?.application?.requiredProfileFields as
@@ -336,6 +339,7 @@ function ApplyFormContent() {
           );
           setAlreadySubmitted(Boolean(applicationPayload?.submissionStatus));
           setApplicationTitle(applicationPayload?.application?.title ?? null);
+          setApplicationLink(applicationPayload?.application?.link ?? []);
 
           if (!applicationResponse.ok && applicationResponse.status === 404) {
             setError("Application not found.");
@@ -1015,12 +1019,33 @@ function ApplyFormContent() {
                     >
                       {design.label}
                     </span>
-                    <h1 className="style-page-title text-ink">
+                    <h1 className="style-page-title text-ink pb-2">
                       {applicationTitle ?? "Application"}
                     </h1>
+                    {Array.isArray(applicationLink) &&
+                    applicationLink.length > 0 ? (
+                      <div className="flex flex-col gap-1 pt-2 border-t border-border-soft">
+                        <h2 className="style-body-text text-ink">
+                          Reference Links for Application
+                        </h2>
+                          {applicationLink.map((url, idx) => (
+                            <li key={url} className="flex items-start gap-2">
+                              <span className="h-1.5 w-1.5 rounded-full bg-brand mt-1.5 shrink-0" />
+                              <a
+                                key={idx}
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="style-body-text text-brand hover:underline"
+                              >
+                                {url}
+                              </a>
+                            </li>
+                          ))}
+                        </div>
+                    ) : null}
                   </div>
                 </div>
-
                 <SaveIndicator status={saveStatus} />
               </div>
               

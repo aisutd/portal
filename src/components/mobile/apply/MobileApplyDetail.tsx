@@ -29,6 +29,7 @@ type ApplicationDetailResponse = {
     closeAt: string | null;
     phase: "open" | "upcoming" | "closed";
     eligibility: string[];
+    link: string[];
     roles: RoleItem[];
   };
   draft: {
@@ -296,7 +297,7 @@ export function MobileApplyDetail() {
           {/* Description & Eligibility Section */}
           <div className="flex flex-col gap-5 rounded-2xl border border-border-soft bg-white p-5 shadow-sm">
             <div className="flex flex-col gap-1.5">
-              <h2 className="style-mobile-title text-base text-ink font-semibold">
+              <h2 className="style-section-header text-base text-ink font-semibold">
                 Description
               </h2>
               <p className="style-mobile-body leading-relaxed text-ink-muted text-sm">
@@ -307,7 +308,7 @@ export function MobileApplyDetail() {
             {Array.isArray(appData.eligibility) &&
             appData.eligibility.length > 0 ? (
               <div className="flex flex-col gap-2 pt-3 border-t border-border-soft">
-                <h2 className="style-mobile-title text-base text-ink font-semibold">
+                <h2 className="style-section-header text-base text-ink font-semibold">
                   Eligibility Requirements
                 </h2>
                 <ul className="flex flex-col gap-1.5 style-mobile-body text-ink-muted text-sm pl-0.5">
@@ -320,13 +321,36 @@ export function MobileApplyDetail() {
                 </ul>
               </div>
             ) : null}
+
+            {Array.isArray(appData.link) &&
+            appData.link.length > 0 ? (
+              <div className="flex flex-col gap-3 pt-4 border-t border-border-soft">
+                <h2 className="style-section-header text-xl text-ink">
+                  Reference Links for Application
+                </h2>
+                  {appData.link.map((url, idx) => (
+                    <li key={url} className="flex items-start gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-brand mt-1.5 shrink-0" />
+                      <a
+                        key={idx}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="style-page-body text-brand hover:underline"
+                      >
+                        {url}
+                      </a>
+                    </li>
+                  ))}
+                </div>
+            ) : null}
           </div>
 
           {/* Roles Section */}
           {normalizedRoles.length > 0 ? (
             <div className="flex flex-col gap-3 mt-1">
               <div className="flex items-center gap-3">
-                <h2 className="style-mobile-title text-base text-ink shrink-0 font-semibold">
+                <h2 className="style-section-header text-base text-ink shrink-0 font-semibold">
                   Available Roles
                 </h2>
                 <span className="h-px flex-1 bg-border-soft" />
