@@ -100,6 +100,27 @@ function getStatusBadge(
   return null;
 }
 
+function renderTextWithLinks(text: string) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  
+  return text.split(urlRegex).map((part, index) => {
+    if (part.match(urlRegex)) {
+      return (
+        <a
+          key={index}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-brand underline hover:text-brand-dark"
+        >
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+}
+
 function DetailSkeleton() {
   return (
     <div className="flex flex-col gap-6 animate-pulse">
@@ -327,8 +348,8 @@ function ApplyDetailContent() {
                       <h2 className="style-section-header text-xl text-ink">
                         Description
                       </h2>
-                      <p className="style-body-text leading-relaxed text-ink-muted">
-                        {appData.description}
+                      <p className="whitespace-pre-wrap style-body-text leading-relaxed text-ink-muted">
+                        {renderTextWithLinks(appData.description)}
                       </p>
                     </div>
 
