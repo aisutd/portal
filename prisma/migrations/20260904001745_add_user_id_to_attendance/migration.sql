@@ -7,11 +7,11 @@
 
 */
 -- DropForeignKey
-ALTER TABLE "Attendance" DROP CONSTRAINT "Attendance_rsvpId_fkey";
+ALTER TABLE "Attendance" DROP CONSTRAINT IF EXISTS "Attendance_rsvpId_fkey";
 
 -- AlterTable
-ALTER TABLE "Attendance" ADD COLUMN     "eventId" TEXT NOT NULL,
-ADD COLUMN     "userId" TEXT NOT NULL,
+ALTER TABLE "Attendance" ADD COLUMN IF NOT EXISTS "eventId" TEXT NOT NULL,
+ADD COLUMN IF NOT EXISTS "userId" TEXT NOT NULL,
 ALTER COLUMN "rsvpId" DROP NOT NULL;
 
 -- CreateIndex
