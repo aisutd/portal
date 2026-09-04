@@ -1119,7 +1119,7 @@ export function AdminApplicationsManager({
                             rows={3}
                             value={editLinkInput}
                             onChange={(e) => setEditLinkInput(e.target.value)}
-                            placeholder="e.g. https://aim-project-description.com"
+                            placeholder="Format: AIM Project Descriptions|https://docs.google.com/"
                           />
                         </div>
 

@@ -11,6 +11,7 @@ import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
 import { personalFields } from "@/lib/data";
 import { uploadResumeAction } from "@/app/profile/resume";
+import { FormattedLinks } from "@/components/ui/formatted-link";
 import { UTD_MAJORS, UTD_DEGREES, ACADEMIC_YEARS } from "@/lib/utd-data";
 import { getProgramTypeDesign } from "@/lib/program-types"; // Update import path if needed
 import {
@@ -978,23 +979,10 @@ export function MobileApplyForm() {
               {Array.isArray(applicationLink) &&
               applicationLink.length > 0 ? (
                 <div className="flex flex-col gap-1 pt-2 border-t border-border-soft">
-                  <h2 className="style-body-text text-ink">
+                  <h2 className="style-section-header text-ink">
                     Reference Links for Application
                   </h2>
-                    {applicationLink.map((url, idx) => (
-                      <li key={url} className="flex items-start gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-brand mt-1.5 shrink-0" />
-                        <a
-                          key={idx}
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="style-body-text text-brand hover:underline"
-                        >
-                          {url}
-                        </a>
-                      </li>
-                    ))}
+                  <FormattedLinks links={applicationLink} />
                   </div>
               ) : null}
             </div>
