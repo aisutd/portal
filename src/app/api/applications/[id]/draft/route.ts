@@ -54,7 +54,14 @@ export async function GET(
     return createErrorResponse("Application not found", "NOT_FOUND", 404);
   }
 
-  return NextResponse.json({ draft: draft ?? null });
+  return NextResponse.json(
+    { draft: draft ?? null },
+    {
+      headers: {
+        "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+      },
+    },
+  );
 }
 
 export async function PUT(

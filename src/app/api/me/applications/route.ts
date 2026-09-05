@@ -58,5 +58,9 @@ export async function GET() {
 
   return NextResponse.json({
     submissions,
+  }, {
+    headers: {
+      "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+    },
   });
 }

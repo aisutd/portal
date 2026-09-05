@@ -1,10 +1,9 @@
-export const dynamic = "force-dynamic";
-
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getCachedPublicEvent } from "@/lib/events";
 import { Navbar } from "@/components/navbar";
 import { Tag } from "@/components/ui/tag";
 import { normalizeEventTags } from "@/lib/event-tags";
@@ -18,10 +17,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const event = await prisma.event.findUnique({
-    where: { id },
-    select: { title: true, description: true },
-  });
+  const event = await getCachedPublicEvent(id);
 
   if (!event) {
     return {
@@ -46,31 +42,26 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   // FIXED: Fetch target userId from profile.userId instead of base user.id
   const userId = session?.profile?.userId ?? null;
 
-  const event = await prisma.event.findUnique({
-    where: { id },
-    include: {
-      rsvps: userId 
-        ? { 
-            where: { userId },
-            include: { attendance: true }
-          } 
-        : false,
-    },
-  });
+  const event = await getCachedPublicEvent(id);
 
   if (!event || !event.isPublished) {
     notFound();
   }
 
+  const userRsvp = userId
+    ? await prisma.rSVP.findFirst({
+        where: { eventId: id, userId },
+        include: { attendance: true },
+      })
+    : null;
   const now = new Date();
   
   const isPast = event.endTime < now;
   const isLive = now >= event.startTime && now <= event.endTime;
   const isRsvpOpen = event.isRsvpOpen ?? true;
 
-  const userRsvp = userId && Array.isArray(event.rsvps) ? event.rsvps[0] : null;
   const isRsvpd = !!userRsvp && userRsvp.status === "GOING";
-  const attended = userRsvp && 'attendance' in userRsvp ? !!userRsvp.attendance : false;
+  const attended = !!userRsvp?.attendance;
   
   const normalizedTags = normalizeEventTags(event.tags);
   const formattedDate = new Intl.DateTimeFormat("en-US", {
@@ -201,7 +192,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                     <EventQRCode value={userRsvp?.qrToken ?? `checkin-${userId}-${event.id}`} />
 
                     <p className="text-center style-caption text-ink-faint">
-                      This is your ticket to claim food, merch, drinks, etc., if it's being offered. If you are late and don&apos;t see the attendance on the big screen, show this QR to an officer to check you in.
+                      This is your ticket to claim food, merch, drinks, etc., if it&apos;s being offered. If you are late and don&apos;t see the attendance on the big screen, show this QR to an officer to check you in.
                     </p>
 
                     <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} isRsvpOpen={isRsvpOpen} />

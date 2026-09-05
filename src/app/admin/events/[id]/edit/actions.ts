@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { EventStatus, EventTag, ItemType, MembershipType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -8,6 +8,7 @@ import { getAuthenticatedUser } from "@/lib/auth";
 import { isAssignableProgram } from "@/lib/roles";
 import { putObjectToR2, deleteObjectFromR2 } from "@/lib/r2";
 import { chicagoInputToUtc } from "@/lib/timezone";
+import { PUBLIC_EVENTS_CACHE_TAG } from "@/lib/events";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 
@@ -219,6 +220,7 @@ export async function updateEvent(formData: FormData): Promise<void> {
   });
 
   revalidatePath("/admin/events");
+  revalidateTag(PUBLIC_EVENTS_CACHE_TAG, "max");
   revalidatePath(`/admin/events/${id}/edit`);
   revalidatePath(`/admin/events/${id}/scan`);
 
@@ -260,6 +262,7 @@ export async function deleteEvent(formData: FormData): Promise<void> {
   }
 
   revalidatePath("/admin/events");
+  revalidateTag(PUBLIC_EVENTS_CACHE_TAG, "max");
   revalidatePath(`/admin/events/${id}/edit`);
 
   redirect("/admin/events");

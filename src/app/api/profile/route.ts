@@ -49,6 +49,10 @@ export async function GET() {
 
   return NextResponse.json({
     profile: user.profile,
+  }, {
+    headers: {
+      "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+    },
   });
 }
 

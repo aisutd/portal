@@ -14,5 +14,9 @@ export async function GET() {
     role: user.role,
     // Same "given name" convention the members table uses: preferred name wins.
     firstName: profile ? profile.prefName || profile.firstName : null,
+  }, {
+    headers: {
+      "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+    },
   });
 }

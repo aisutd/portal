@@ -1,7 +1,8 @@
 import { auth } from "@clerk/nextjs/server";
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 
-export async function getAuthenticatedUser() {
+export const getAuthenticatedUser = cache(async function getAuthenticatedUser() {
   const { userId } = await auth();
 
   if (!userId) {
@@ -12,4 +13,4 @@ export async function getAuthenticatedUser() {
     where: { clerkId: userId },
     include: { profile: true },
   });
-}
+});

@@ -166,5 +166,9 @@ export async function GET(
     draft: draft ?? null,
     submissionStatus: submission?.status ?? null,
     submissionId: submission?.id ?? null
+  }, {
+    headers: {
+      "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+    },
   });
 }
