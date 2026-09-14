@@ -49,6 +49,9 @@ export async function GET() {
 
   return NextResponse.json({
     profile: user.profile,
+    headers: {
+      'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=30',
+    }
   });
 }
 

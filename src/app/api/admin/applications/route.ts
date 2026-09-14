@@ -44,6 +44,9 @@ export async function GET() {
       acceptedCount: submissions.filter((submission) => submission.status === "ACCEPTED").length,
       inReviewCount: submissions.filter((submission) => ["SUBMITTED", "IN_REVIEW"].includes(submission.status)).length,
     })),
+    headers: {
+      'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=30',
+    }
   });
 }
 

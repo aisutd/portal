@@ -34,5 +34,8 @@ export async function GET() {
     // Same "given name" convention the members table uses: preferred name wins.
     firstName: user.profile ? user.profile.prefName || user.profile.firstName : null,
     isReviewerOnly: isApplicationReviewerOnly(user.role, programs),
+    headers: {
+      'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=30',
+    }
   });
 }

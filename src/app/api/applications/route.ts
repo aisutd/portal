@@ -163,5 +163,8 @@ export async function GET() {
       submissionId: submissionByApplicationId.get(application.id)?.id ?? null,
       submittedAt: submissionByApplicationId.get(application.id)?.submittedAt ?? null,
     })),
+    headers: {
+      'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=30',
+    },
   });
 }
