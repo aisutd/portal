@@ -14,7 +14,7 @@ export async function processScan(
     // 1. Get the authenticated admin performing the scan
     const currentUser = await getAuthenticatedUser();
 
-    if (!currentUser) {
+    if (!currentUser || currentUser.role === "MEMBER" && currentUser.memberships?.[-1].membershipType !== "AIM_MENTOR") {
       return { success: false, error: "Unauthorized. Please sign in." };
     }
 
@@ -37,30 +37,39 @@ export async function processScan(
 
     // 3. Handle Event Check-In Only
     if (scanType === "attendance") {
-      if (rsvp.attendance) {
-        return { 
-          success: false, 
+      // Use upsert to handle concurrent scans cleanly
+      const [, created] = await prisma.$transaction(async (tx) => {
+        const existing = await tx.attendance.findUnique({
+          where: { rsvpId: rsvp.id },
+        });
+
+        if (existing) return [existing, false] as const;
+
+        const newRecord = await tx.attendance.create({
+          data: {
+            eventId,
+            userId: rsvp.userId,
+            rsvpId: rsvp.id,
+            method: AttendanceMethod.MANUAL,
+            qrTokenUsed: qrToken,
+          },
+        });
+
+        return [newRecord, true] as const;
+      });
+
+      if (!created) {
+        return {
+          success: false,
           error: `${name} is already checked in!`,
-          isWalkIn: rsvp.isWalkIn 
+          isWalkIn: rsvp.isWalkIn,
         };
       }
 
-      await prisma.attendance.create({
-        data: {
-          eventId,
-          userId: rsvp.userId,
-          rsvpId: rsvp.id,
-          method: AttendanceMethod.QR_SCAN,
-          qrTokenUsed: qrToken,
-        },
-      });
-
-      return { 
-        success: true, 
-        message: rsvp.isWalkIn 
-          ? `Checked in: ${name} (Walk-In)` 
-          : `Checked in: ${name}`,
-        isWalkIn: rsvp.isWalkIn 
+      return {
+        success: true,
+        message: rsvp.isWalkIn ? `Checked in: ${name} (Walk-In)` : `Checked in: ${name}`,
+        isWalkIn: rsvp.isWalkIn,
       };
     }
 
@@ -90,7 +99,7 @@ export async function processScan(
                 eventId,
                 userId: rsvp.userId,
                 rsvpId: rsvp.id,
-                method: AttendanceMethod.QR_SCAN,
+                method: AttendanceMethod.MANUAL,
                 qrTokenUsed: qrToken,
               },
               select: { id: true },

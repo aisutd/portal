@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import type { Profile } from "@prisma/client";
+import type { MembershipType, Profile, UserRole } from "@prisma/client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -15,14 +15,12 @@ import { SignOutButton } from "@clerk/nextjs";
 import { PasswordResetButton } from "@/components/profile/PasswordResetButton";
 import { ResumeUploadButton } from "@/components/profile/ResumeUploadButton";
 import { UTD_MAJORS, UTD_DEGREES, ACADEMIC_YEARS } from "@/lib/utd-data";
-import { USER_ROLE_LABELS } from "@/lib/roles";
-import type { UserRole } from "@prisma/client";
 
 type MobileProfileProps = {
   profile: Profile & { resumeFile?: { fileName: string } | null };
   completion: { percent: number; missingFields: string[] };
   updateProfile: (formData: FormData) => Promise<void>;
-  role: UserRole;
+  badges: string[];
 };
 
 function MobileSelect({
@@ -60,7 +58,12 @@ function MobileSelect({
   );
 }
 
-export function MobileProfile({ profile, completion, updateProfile, role }: MobileProfileProps) {
+export function MobileProfile({
+  profile,
+  completion,
+  updateProfile,
+  badges
+}: MobileProfileProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -89,6 +92,10 @@ export function MobileProfile({ profile, completion, updateProfile, role }: Mobi
 
   return (
     <MobileScreen>
+      <h1 className="style-mobile-title bg-[linear-gradient(90deg,#2f5fe8_0%,#f2a968_100%)] bg-clip-text text-transparent">
+        Profile
+      </h1>
+
       {completion.percent < 100 && (
         <div className="rounded-[8px] bg-[#f9d5d3] px-[16px] py-[12px]">
           <span className="style-mobile-body font-bold text-[#9a3b36]">
@@ -110,8 +117,13 @@ export function MobileProfile({ profile, completion, updateProfile, role }: Mobi
           <p className="style-card-title uppercase tracking-[0.5px] text-ink">
             {profile.firstName} {profile.lastName}
           </p>
-          <div className="flex items-center gap-[8px]">
-            <Badge label={USER_ROLE_LABELS[role]} bg="#e1e8ff" color="#2f5fe8" />
+          <div className="flex flex-wrap items-center gap-[8px]">
+            {/* Render Role & Membership Badges */}
+            {badges.map((b, idx) => (
+              <Badge key={idx} label={b} bg="#e1e8ff" color="#2f5fe8" />
+            ))}
+
+            {/* Academic Info Badge */}
             <Badge
               label={`${profile.major || "No Major"} · ${profile.year || "N/A"}`}
               bg="#fbe3cb"

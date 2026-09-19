@@ -103,10 +103,26 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
         eventId,
       },
     },
+    include: {
+      attendance: true,
+    }
   });
 
   if (!existing) {
     return NextResponse.json({ error: "RSVP not found" }, { status: 404 });
+  }
+
+  if (existing.attendance) {
+    return NextResponse.json({ error: "Cannot cancel RSVP after checking in to the event." }, 
+      { status: 400 }
+    );
+  }
+
+  if (existing.status === "CANCELED") {
+    return NextResponse.json(
+      { error: "Cannot cancel an already cancelled RSVP."},
+      { status: 400}
+    );
   }
 
   await prisma.rSVP.update({

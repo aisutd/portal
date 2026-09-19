@@ -37,9 +37,10 @@ function AuthCardInner({ redirectUrl }: AuthCardProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Prioritize passed prop, then searchParams, then default to /dashboard
-  const targetRedirect =
-    redirectUrl || searchParams.get("redirect_url") || "/dashboard";
+  const rawRedirect = redirectUrl || searchParams.get("redirect_url");
+
+  // Ensure the redirect target is valid
+  const targetRedirect = rawRedirect ? decodeURIComponent(rawRedirect) : "/dashboard";
 
   const mode = searchParams.get("mode");
   const initialTab = mode === "login" || mode === "reset" ? "Log in" : "Sign up";
@@ -92,7 +93,7 @@ function AuthCardInner({ redirectUrl }: AuthCardProps) {
   const backToSignUp = async () => {
     clearResetState();
     setView("form");
-    setTab("Log in");
+    setTab("Sign up");
     await signUp?.reset();
   }
 

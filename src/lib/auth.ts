@@ -10,6 +10,9 @@ export async function getAuthenticatedUser() {
 
   return prisma.user.findUnique({
     where: { clerkId: userId },
-    include: { profile: true },
+    include: { 
+      profile: true, 
+      memberships: true, 
+    },
   });
 }

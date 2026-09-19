@@ -49,7 +49,7 @@ export function UpNextCard({
   isLive = false,
   isGlowing = false,
   calendarLinks = null,
-}: UpNextProps) {
+}: UpNextProps) {  
   const eventLink = eventId ? `/events/${eventId}` : "/events";
 
   const [dropdownOpen, setDropdownOpen] = useState(false);

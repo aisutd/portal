@@ -98,7 +98,11 @@ export async function getApplications(userId: string) {
 
 export async function getRSVPs(userId: string, take: number = 5) {
   return prisma.rSVP.findMany({
-    where: { userId, status: "GOING" },
+    where: { 
+      userId, 
+      status: "GOING",
+      event: { isPublished: true, },
+    },
     include: {
       event: true,
       attendance: true,
@@ -117,6 +121,7 @@ export async function getUpcomingEvents(take: number = 2, userId?: string) {
     where: { 
       status: "UPCOMING",
       isRsvpOpen: true,
+      isPublished: true,
       ...(userId ? {
         rsvps: {
           none: { 
@@ -170,7 +175,8 @@ export async function getNextUpcomingRsvp(userId: string) {
       status: "GOING",
       event: {
         startTime: { lte: now },
-        endTime: { gte: now }
+        endTime: { gte: now },
+        isPublished : true,
       }
     },
     include: { event: true }
@@ -182,7 +188,10 @@ export async function getNextUpcomingRsvp(userId: string) {
     where: { 
       userId, 
       status: "GOING", 
-      event: { startTime: { gte: twelveHoursAgo } } 
+      event: { 
+        startTime: { gte: twelveHoursAgo },
+        isPublished: true,
+      } 
     },
     include: { event: true },
     orderBy: { event: { startTime: "asc" } },
@@ -194,7 +203,7 @@ export async function getNextUpcomingRsvp(userId: string) {
     where: { 
       userId, 
       status: "GOING", 
-      event: { status: "UPCOMING" } 
+      event: { status: "UPCOMING", isPublished: true, } 
     },
     include: { event: true },
     orderBy: { event: { startTime: "asc" } },
@@ -203,7 +212,11 @@ export async function getNextUpcomingRsvp(userId: string) {
   if (upcomingStatusRsvp) return { ...upcomingStatusRsvp, isLive: false };
 
   const historicalRsvp = await prisma.rSVP.findFirst({
-    where: { userId, status: "GOING" },
+    where: { 
+      userId, 
+      status: "GOING",
+      event: { isPublished: true},
+     },
     include: { event: true },
     orderBy: { createdAt: "desc" },
   });

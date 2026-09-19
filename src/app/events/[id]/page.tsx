@@ -125,13 +125,15 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                     {event.description}
                   </p>
 
+                  <div className="mt-[20px] flex flex-wrap gap-[10px]">
+                    {normalizedTags.map((t) => (
+                      <Tag key={t.label} label={t.label} bg={t.bg} color={t.color} />
+                    ))}
+                  </div>
+
                 </div>
                 
-                <div className="mt-[20px] flex flex-wrap gap-[10px]">
-                  {normalizedTags.map((t) => (
-                    <Tag key={t.label} label={t.label} bg={t.bg} color={t.color} />
-                  ))}
-                </div>
+                
               </div>
 
               {/* Status & Action Card Sidebar */}

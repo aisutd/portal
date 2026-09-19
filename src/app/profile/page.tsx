@@ -12,7 +12,9 @@ import { ResumeUploadButton } from "@/components/profile/ResumeUploadButton";
 import { ProfileForm } from "@/components/profile/profile-form";
 import { UTD_MAJORS, UTD_DEGREES, ACADEMIC_YEARS } from "@/lib/utd-data";
 import { USER_ROLE_LABELS } from "@/lib/roles";
+import { MEMBERSHIP_TYPE_LABELS } from "@/lib/membership-types";
 import { updateProfile } from "./actions";
+// import { Footer } from "@/components/footer";
 
 export default async function ProfilePage() {
   const clerkUser = await currentUser();
@@ -21,6 +23,7 @@ export default async function ProfilePage() {
   const user = await prisma.user.findUnique({
     where: { clerkId: clerkUser.id },
     include: {
+      memberships: true,
       profile: {
         include: { resumeFile: true },
       },
@@ -32,17 +35,45 @@ export default async function ProfilePage() {
   const profile = user.profile;
   const completion = await getProfileCompletion(user.id);
 
+  const isMember = user.role === "MEMBER";
+
+  // Map all membership types to human-readable labels
+  const membershipLabels = (user.memberships || []).map(
+    (m) => MEMBERSHIP_TYPE_LABELS[m.membershipType] ?? m.membershipType
+  );
+
+  // Construct badge list based on role and memberships
+  const badges: string[] = [];
+
+  if (!isMember) {
+    const roleLabel = USER_ROLE_LABELS[user.role] ?? user.role;
+    badges.push(roleLabel);
+  }
+
+  // Append all membership badges (if any exist)
+  if (membershipLabels.length > 0) {
+    badges.push(...membershipLabels);
+  } else if (isMember) {
+    // Fallback if user is a MEMBER but has no entries in memberships array
+    badges.push(USER_ROLE_LABELS[user.role] ?? user.role);
+  }
+
   return (
     <>
       <div className="md:hidden">
-        <MobileProfile profile={profile} completion={completion} updateProfile={updateProfile} role={user.role} />
+        <MobileProfile
+          profile={profile}
+          completion={completion}
+          updateProfile={updateProfile}
+          badges={badges}
+        />
       </div>
 
       <div className="hidden md:block">
         <div className="flex min-h-screen w-full flex-col">
           <Navbar active="Profile" />
 
-          <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[28px] px-[46px] pb-[46px] pt-[45px]">
+          <div className="mx-auto flex w-full flex-col gap-[28px] px-[46px] pb-[46px] pt-28">
             <h1 className="style-page-title bg-[linear-gradient(90deg,#2f5fe8_0%,#f2a968_100%)] bg-clip-text text-transparent">
               Profile
             </h1>
@@ -60,12 +91,17 @@ export default async function ProfilePage() {
                 <h2 className="style-card-title tracking-[-0.4px] text-ink uppercase">
                   {profile.firstName} {profile.lastName}
                 </h2>
-                <div className="flex items-center gap-[10px]">
-                  <div className="rounded-full bg-brand-soft px-[20px] py-[6px]">
-                    <span className="style-badge-text text-brand tracking-widest uppercase">
-                      {USER_ROLE_LABELS[user.role]}
-                    </span>
-                  </div>
+                <div className="flex flex-wrap items-center gap-[10px]">
+                  {/* Render Role & Membership Badges */}
+                  {badges.map((badge, idx) => (
+                    <div key={idx} className="rounded-full bg-brand-soft px-[20px] py-[6px]">
+                      <span className="style-badge-text text-brand tracking-widest uppercase">
+                        {badge}
+                      </span>
+                    </div>
+                  ))}
+
+                  {/* Academic Info Badge */}
                   <div className="rounded-full bg-pill-amber px-[20px] py-[6px]">
                     <span className="style-badge-text text-orange-text tracking-widest uppercase">
                       {profile.major || "No Major Set"} · {profile.year || "No Year Set"}
@@ -226,7 +262,7 @@ export default async function ProfilePage() {
                           defaultValue={profile.major ?? ""}
                           className={cn(
                             "style-input-text text-ink focus:border-brand h-11 w-full rounded-lg border bg-field px-[16px] focus:outline-none",
-                            !profile.major ? "border-red-500 bg-red-50 ring-1 ring-red-500" : "border-transparent"
+                            !profile.major ? "border-red-500 bg-red-[#f9d5d3] ring-1 ring-red-500" : "border-transparent"
                           )}
                         >
                           <option value="">Select your major</option>
@@ -245,7 +281,7 @@ export default async function ProfilePage() {
                           defaultValue={profile.degree ?? ""}
                           className={cn(
                             "style-input-text text-ink focus:border-brand h-11 w-full rounded-lg border bg-field px-[16px] focus:outline-none",
-                            !profile.degree ? "border-red-500 bg-red-50 ring-1 ring-red-500" : "border-transparent"
+                            !profile.degree ? "border-red-500 bg-red-[#f9d5d3] ring-1 ring-red-500" : "border-transparent"
                           )}
                         >
                           <option value="">Select your degree</option>
@@ -264,7 +300,7 @@ export default async function ProfilePage() {
                           defaultValue={profile.year ?? ""}
                           className={cn(
                             "style-input-text text-ink focus:border-brand h-11 w-full rounded-lg border bg-field px-[16px] focus:outline-none",
-                            !profile.year ? "border-red-500 bg-red-50 ring-1 ring-red-500" : "border-transparent"
+                            !profile.year ? "border-red-500 bg-red-[#f9d5d3] ring-1 ring-red-500" : "border-transparent"
                           )}
                         >
                           <option value="">Select your year</option>

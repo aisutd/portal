@@ -87,8 +87,8 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
         alt={`${event.title} cover`}
       />
 
-      <div className="flex flex-col gap-4 bg-white/50 backdrop-blur-md border-2 border-white/35 shadow-ink/15 shadow-sm px-4 py-5 rounded-xl">
-        <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2 bg-white/50 backdrop-blur-md border-2 border-white/35 shadow-ink/15 shadow-sm px-4 py-5 rounded-xl">
+        <div className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="style-section-header leading-tight text-ink">
               {event.title}
@@ -161,7 +161,7 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
             <EventQRCode value={userRsvp?.qrToken ?? `checkin-${userId}-${event.id}`} />
 
             <p className="text-center style-caption text-ink-faint">
-              This is your ticket to claim food, merch, drinks, etc. If you are late and don&apos;t see the attendance on the big screen, show this QR to an officer to check you in.
+              This is your ticket to claim food, merch, drinks, etc. Check-in will be towards the end. If you have any issues with check-in, show this QR ticket to an officer.
             </p>
 
             <EventDetailActions eventId={event.id} initialRsvpd={isRsvpd} isRsvpOpen={isRsvpOpen} />
