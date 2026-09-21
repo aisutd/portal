@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { EventStatus, EventTag, ItemType, MembershipType } from "@prisma/client";
+import { EventStatus, EventTag, ItemType, MembershipType, TEAM, UserRole } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { isAssignableProgram } from "@/lib/roles";
@@ -18,7 +18,9 @@ type EventItemInput = {
 };
 
 const VALID_TAG_VALUES = Object.values(EventTag);
-const ALLOWED_ROLES = ["EXECUTIVE", "DIRECTOR", "OFFICER"];
+const VALID_ROLE_VALUES = Object.values(UserRole);
+const VALID_TEAM_VALUES = Object.values(TEAM);
+const ALLOWED_ADMIN_ROLES: UserRole[] = ["EXECUTIVE", "DIRECTOR", "OFFICER"];
 
 function isImageFile(value: FormDataEntryValue | null): value is File {
   return typeof File !== "undefined" && value instanceof File && value.size > 0;
@@ -44,11 +46,30 @@ function parseTags(rawValue: FormDataEntryValue | FormDataEntryValue[] | null): 
     .filter((tag): tag is EventTag => (VALID_TAG_VALUES as readonly string[]).includes(tag));
 }
 
+function parseUserRoles(rawValue: FormDataEntryValue | FormDataEntryValue[] | null): UserRole[] {
+  if (!rawValue) return [];
+  const entries = Array.isArray(rawValue) ? rawValue : [rawValue];
 
-function authorizeAdminUser(user: { role: string } | null) {
+  return entries
+    .flatMap((entry) => String(entry).split(","))
+    .map((role) => role.trim().toUpperCase())
+    .filter((role): role is UserRole => (VALID_ROLE_VALUES as readonly string[]).includes(role));
+}
+
+function parseTeams(rawValue: FormDataEntryValue | FormDataEntryValue[] | null): TEAM[] {
+  if (!rawValue) return [];
+  const entries = Array.isArray(rawValue) ? rawValue : [rawValue];
+
+  return entries
+    .flatMap((entry) => String(entry).split(","))
+    .map((team) => team.trim().toUpperCase())
+    .filter((team): team is TEAM => (VALID_TEAM_VALUES as readonly string[]).includes(team));
+}
+
+function authorizeAdminUser(user: { role: UserRole } | null) {
   if (!user) {
     redirect("/onboarding");
-  } else if (!ALLOWED_ROLES.includes(user.role)) {
+  } else if (!ALLOWED_ADMIN_ROLES.includes(user.role)) {
     throw new Error("Unauthorized action.");
   }
 }
@@ -148,7 +169,6 @@ export async function updateEvent(formData: FormData): Promise<void> {
     throw new Error(imageResult.error);
   }
 
-
   const capacityStr = formData.get("capacity") as string;
   const parsedCapacity = capacityStr ? parseInt(capacityStr, 10) : null;
   const capacity = parsedCapacity && parsedCapacity > 0 ? parsedCapacity : null;
@@ -158,11 +178,21 @@ export async function updateEvent(formData: FormData): Promise<void> {
     ? (rawStatus as EventStatus)
     : EventStatus.UPCOMING;
 
-  // visibility is a plain String? in the Prisma schema
   const visibility = String(formData.get("visibility") ?? "PUBLIC").toUpperCase();
 
   const rawRsvpOpen = formData.get("isRsvpOpen");
   const isRsvpOpen = rawRsvpOpen === "true" || rawRsvpOpen === "on" || rawRsvpOpen === "1";
+
+  // Parse Visibility Arrays
+  const visibilityRoles = parseUserRoles(
+    formData.getAll("visibilityRoles").length > 0 ? formData.getAll("visibilityRoles") : formData.get("visibilityRoles")
+  );
+  const visibilityMembership = parsePrograms(
+    formData.getAll("visibilityMembership").length > 0 ? formData.getAll("visibilityMembership") : formData.get("visibilityMembership")
+  );
+  const visibilityTeams = parseTeams(
+    formData.getAll("visibilityTeams").length > 0 ? formData.getAll("visibilityTeams") : formData.get("visibilityTeams")
+  );
 
   const tags = parseTags(formData.getAll("tags").length > 0 ? formData.getAll("tags") : formData.get("tags"));
   const programs = parsePrograms(formData.getAll("programs").length > 0 ? formData.getAll("programs") : formData.get("programs"));
@@ -178,11 +208,15 @@ export async function updateEvent(formData: FormData): Promise<void> {
   }
 
   const action = String(formData.get("action") ?? "");
+  const rawIsPublished = formData.get("isPublished");
+  
   let isPublished: boolean;
   if (action === "publish") {
     isPublished = true;
   } else if (action === "unpublish") {
     isPublished = false;
+  } else if (rawIsPublished !== null) {
+    isPublished = rawIsPublished === "true" || rawIsPublished === "on" || rawIsPublished === "1";
   } else {
     isPublished = existingEvent.isPublished ?? false;
   }
@@ -198,6 +232,9 @@ export async function updateEvent(formData: FormData): Promise<void> {
       capacity,
       status,
       visibility,
+      visibilityRoles,
+      visibilityMembership,
+      visibilityTeams,
       isRsvpOpen,
       imageUrl: imageResult.imageUrl,
       tags,
@@ -233,13 +270,11 @@ export async function deleteEvent(formData: FormData): Promise<void> {
   });
 
   // 1. Delete RSVPs (RSVP does not cascade on Event deletion)
-  // Attendance and ItemScan will automatically cascade delete via RSVP -> Attendance -> ItemScan
   await prisma.rSVP.deleteMany({
     where: { eventId: id },
   });
 
   // 2. Delete the Event
-  // EventItems will automatically cascade delete via Event -> EventItem
   await prisma.event.delete({
     where: { id },
   });
