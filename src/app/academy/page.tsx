@@ -112,7 +112,7 @@ export default async function AcademyPage() {
           <TopographyBackground />
           <div className="flex items-end justify-between">
             <div className="flex flex-col gap-[4px]">
-              <h2 className="style-section-header uppercase text-white">Recently</h2>
+              <h2 className="style-section-header uppercase text-white">Featured Workshop</h2>
             </div>
             <span className="hidden shrink-0 rounded-full bg-pill-amber px-[16px] py-[8px] style-badge-text text-orange-text sm:inline-block">
               View all

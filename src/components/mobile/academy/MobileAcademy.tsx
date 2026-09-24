@@ -54,7 +54,7 @@ export function MobileAcademy({ workshops, resources, featuredLesson }: MobileAc
       <section className="relative flex flex-col gap-4 overflow-hidden rounded-2xl border-t-[6px] border-b-[6px] border-[#2f5fe8] bg-[#181c25] p-5">
         <div className="flex flex-col gap-1">
           <h2 className="style-section-header uppercase text-white text-lg">
-            Recently
+            Featured Workshop
           </h2>
         </div>
         <VideoNotesPanel
