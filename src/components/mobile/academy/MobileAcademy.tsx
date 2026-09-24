@@ -54,12 +54,8 @@ export function MobileAcademy({ workshops, resources, featuredLesson }: MobileAc
       <section className="relative flex flex-col gap-4 overflow-hidden rounded-2xl border-t-[6px] border-b-[6px] border-[#2f5fe8] bg-[#181c25] p-5">
         <div className="flex flex-col gap-1">
           <h2 className="style-section-header uppercase text-white text-lg">
-            Featured Video Courses
+            Recently
           </h2>
-          <p className="style-mobile-body text-white/80">
-            Start with the fundamentals, then move into practical tools and techniques
-            used in real AI projects.
-          </p>
         </div>
         <VideoNotesPanel
           key={safeFeaturedLesson.workshopId ?? "featured-lesson-3"}

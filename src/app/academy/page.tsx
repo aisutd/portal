@@ -112,11 +112,7 @@ export default async function AcademyPage() {
           <TopographyBackground />
           <div className="flex items-end justify-between">
             <div className="flex flex-col gap-[4px]">
-              <h2 className="style-section-header uppercase text-white">Featured Video Courses</h2>
-              <p className="style-body-text text-white">
-                Start with the fundamentals, then move into practical tools and techniques
-                used in real AI projects.
-              </p>
+              <h2 className="style-section-header uppercase text-white">Recently</h2>
             </div>
             <span className="hidden shrink-0 rounded-full bg-pill-amber px-[16px] py-[8px] style-badge-text text-orange-text sm:inline-block">
               View all
