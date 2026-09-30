@@ -112,6 +112,8 @@ type FieldErrors = Record<string, string>;
 
 const RESUME_ACCEPT =
   ".doc,.docx,.pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf";
+const MAX_RESUME_SIZE = 1024 * 1024; // 1 MB
+const MAX_GENERIC_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 const GENERIC_FILE_ACCEPT =
   ".jpg,.jpeg,.png,.pdf,.docx,.txt,image/jpeg,image/png,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain";
 const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "pdf", "docx", "txt"];
@@ -218,6 +220,15 @@ export function MobileApplyForm() {
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [fileSizeErrorModal, setFileSizeErrorModal] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+  }>({
+    open: false,
+    title: "",
+    message: "",
+  });
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
 
   const saveTimerRef = useRef<number | null>(null);
@@ -481,6 +492,15 @@ export function MobileApplyForm() {
   }
 
   async function handleServerActionResumeUpload(file: File) {
+    if (file.size > MAX_RESUME_SIZE) {
+      setFileSizeErrorModal({
+        open: true,
+        title: "Resume Too Large",
+        message: "Your resume exceeds the 1MB file size limit. Please upload a file smaller than 1MB.",
+      });
+      return;
+    }
+
     setUploadingResume(true);
     setSubmitError(null);
 
@@ -491,15 +511,29 @@ export function MobileApplyForm() {
       const res = await uploadResumeAction(formData);
 
       if (!res.success) {
+        if (
+          res.error?.toLowerCase().includes("exceeds") ||
+          res.error?.toLowerCase().includes("limit") ||
+          res.error?.toLowerCase().includes("large") ||
+          res.error?.toLowerCase().includes("1mb")
+        ) {
+          setFileSizeErrorModal({
+            open: true,
+            title: "Resume Too Large",
+            message: res.error || "Your resume exceeds the 1MB file size limit. Please upload a file smaller than 1MB.",
+          });
+        }
         throw new Error(res.error || "Upload failed");
       }
 
       handleValueChange("Resume", file.name);
       scheduleDraftSave(fieldValuesRef.current, activeStep);
     } catch (err) {
+      const msg = (err as Error).message || "Upload failed. Please try again.";
       setFieldErrors((prev) => ({
         ...prev,
-        "Resume *": (err as Error).message || "Upload failed. Please try again.",
+        "Resume": msg,
+        "Resume *": msg,
       }));
     } finally {
       setUploadingResume(false);
@@ -508,6 +542,15 @@ export function MobileApplyForm() {
 
   async function handleApplicationFileUpload(label: string, file: File) {
     if (!applicationId) return;
+
+    if (file.size > MAX_GENERIC_FILE_SIZE) {
+      setFileSizeErrorModal({
+        open: true,
+        title: "File Too Large",
+        message: "Your file exceeds the 10MB limit. Please upload a file smaller than 10MB.",
+      });
+      return;
+    }
 
     setUploadingFields((prev) => ({ ...prev, [label]: true }));
     setSubmitError(null);
@@ -757,6 +800,26 @@ export function MobileApplyForm() {
                 return;
               }
 
+              if (isProfileResume && file.size > MAX_RESUME_SIZE) {
+                setFileSizeErrorModal({
+                  open: true,
+                  title: "Resume Too Large",
+                  message: "Your resume exceeds the 1MB file size limit. Please upload a file smaller than 1MB.",
+                });
+                event.currentTarget.value = "";
+                return;
+              }
+
+              if (!isProfileResume && file.size > MAX_GENERIC_FILE_SIZE) {
+                setFileSizeErrorModal({
+                  open: true,
+                  title: "File Too Large",
+                  message: "Your file exceeds the 10MB limit. Please upload a file smaller than 10MB.",
+                });
+                event.currentTarget.value = "";
+                return;
+              }
+
               if (isProfileResume) {
                 void handleServerActionResumeUpload(file);
               } else {
@@ -802,8 +865,8 @@ export function MobileApplyForm() {
           </div>
           <p className="font-sans text-ink-faint">
             {isProfileResume
-              ? "Accepted formats: .pdf, .doc, .docx"
-              : "Accepted formats: .jpg, .png, .pdf, .docx, .txt"}
+              ? "Accepted formats: .pdf, .doc, .docx (Max 1MB)"
+              : "Accepted formats: .jpg, .png, .pdf, .docx, .txt (Max 10MB)"}
           </p>
           {errorMessage ? (
             <p className="font-sans text-[#9a3b36]">{errorMessage}</p>
@@ -1122,6 +1185,46 @@ export function MobileApplyForm() {
                 disabled={submitting}
               >
                 {submitting ? "Submitting..." : "Confirm & Submit"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {fileSizeErrorModal.open ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="w-full max-w-md rounded-2xl border border-border-soft bg-white p-6 shadow-xl flex flex-col items-center text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-600 mb-4">
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+                />
+              </svg>
+            </div>
+
+            <h3 className="style-section-header text-xl font-bold text-ink">
+              {fileSizeErrorModal.title}
+            </h3>
+
+            <p className="mt-2 text-sm text-ink-muted">
+              {fileSizeErrorModal.message}
+            </p>
+
+            <div className="mt-6 flex w-full justify-center">
+              <button
+                type="button"
+                className="flex h-10 w-full sm:w-auto min-w-[120px] items-center justify-center rounded-xl bg-brand px-5 text-sm font-bold text-white transition-opacity hover:opacity-95"
+                onClick={() => setFileSizeErrorModal({ open: false, title: "", message: "" })}
+              >
+                Okay
               </button>
             </div>
           </div>

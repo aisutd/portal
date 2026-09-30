@@ -95,3 +95,51 @@ export async function uploadResumeAction(formData: FormData) {
     return { success: false, error: "An unexpected error occurred" };
   }
 }
+
+export async function deleteResumeAction() {
+  try {
+    const clerkUser = await currentUser();
+    if (!clerkUser) return { success: false, error: "Unauthorized" };
+
+    const user = await prisma.user.findUnique({
+      where: { clerkId: clerkUser.id },
+      include: {
+        profile: {
+          include: {
+            resumeFile: true,
+          },
+        },
+      },
+    });
+
+    if (!user || !user.profile) {
+      return { success: false, error: "Profile not found" };
+    }
+
+    const oldResumeFile = user.profile.resumeFile;
+
+    // Disconnect resumeFileId on profile
+    await prisma.profile.update({
+      where: { id: user.profile.id },
+      data: { resumeFileId: null },
+    });
+
+    // Cleanup file in R2 and database
+    if (oldResumeFile) {
+      if (oldResumeFile.storageKey) {
+        await deleteObjectFromR2(oldResumeFile.storageKey);
+      }
+      await prisma.file
+        .delete({
+          where: { id: oldResumeFile.id },
+        })
+        .catch((err) => console.error("Failed to delete old file record from DB:", err));
+    }
+
+    revalidatePath("/profile");
+    return { success: true };
+  } catch (error) {
+    console.error("Resume deletion error:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
