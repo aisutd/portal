@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/navbar";
 import { Tag } from "@/components/ui/tag";
 import { normalizeEventTags } from "@/lib/event-tags";
+import { isAimEvent } from "@/lib/event-visibility";
 import { MobileEventDetail } from "@/components/mobile/events/MobileEventDetail";
 import { EventDetailActions, EventQRCode } from "@/components/events/event-detail-actions";
 import { EventCoverImage } from "@/components/events/event-cover-image";
@@ -72,7 +73,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   const isRsvpd = !!userRsvp && userRsvp.status === "GOING";
   const attended = userRsvp && 'attendance' in userRsvp ? !!userRsvp.attendance : false;
   
-  const normalizedTags = normalizeEventTags(event.tags);
+  const normalizedTags = normalizeEventTags(isAimEvent(event) ? ["AIM", ...event.tags] : event.tags);
   const formattedDate = formatEventDate(event.startTime.toString(), true);
 
   return (

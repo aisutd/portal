@@ -1,7 +1,7 @@
 import { StatusStrip, Stat } from "./status-strip";
 import { ApplicationsCard, ApplicationItem } from "./applications-card";
 import { RsvpsCard, RsvpItem } from "./rsvps-card";
-import { getDashboardStats, getProfileCompletion, getMemberships, getApplications, getRSVPs, getUpcomingEvents } from "@/lib/dashboard-utils";
+import { getDashboardStats, getProfileCompletion, getMemberships, getApplications, getRSVPs, getUpcomingEvents, type EventViewer } from "@/lib/dashboard-utils";
 import { RecommendedCard, RecommendedItem } from "./recommended-card";
 import { Card } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -222,8 +222,8 @@ export async function DashboardRsvpsCard({ userId }: { userId: string }) {
   return <RsvpsCard items={items} />;
 }
 
-export async function DashboardRecommendedCard({ userId }: { userId: string }) {
-  const events = await getUpcomingEvents(2, userId);
+export async function DashboardRecommendedCard({ userId, viewer }: { userId: string; viewer?: EventViewer | null }) {
+  const events = await getUpcomingEvents(2, userId, viewer);
 
   const items: RecommendedItem[] = events
     .filter((event) => (event.isPublished))
