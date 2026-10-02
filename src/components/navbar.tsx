@@ -14,11 +14,13 @@ const BASE_NAV_ITEMS = ["Dashboard", "Events", "Apply"] as const;
 const ADMIN_LABEL = "Admin" as const;
 const REVIEW_LABEL = "Review" as const;
 const ACADEMY_LABEL = "Academy" as const;
+const AIM_LABEL = "AIM" as const;
 
 const NAV_ROUTES = {
   Dashboard: "/dashboard",
   Events: "/events",
   Academy: "/academy",
+  AIM: "/aim",
   Apply: "/applications",
   Admin: "/admin/events",
   Review: "/admin/applications",
@@ -26,9 +28,10 @@ const NAV_ROUTES = {
 
 const ACTIVE_PILL_GRADIENT = "linear-gradient(135deg, #f2a968 0%, #7d64c4 100%)";
 
-type NavLabel = 
+type NavLabel =
   | (typeof BASE_NAV_ITEMS)[number]
   | typeof ACADEMY_LABEL
+  | typeof AIM_LABEL
   | typeof ADMIN_LABEL
   | typeof REVIEW_LABEL
   | "Profile";
@@ -62,6 +65,7 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
   const showAdminLink = role ? isAdminRole(role) : false;
   const showReviewLink = account?.isReviewerOnly ?? false;
   const showAcademy = account?.isAcademyParticipant ?? false;
+  const showAim = account?.isAimParticipant ?? false;
   const accountLabel = account?.firstName?.trim() || user?.firstName?.trim() || "Profile";
 
   const [isScrolled, setIsScrolled] = useState(false);
@@ -131,6 +135,22 @@ export function Navbar({ active = "Dashboard" }: NavbarProps) {
               >
                 {active === ACADEMY_LABEL && <ActivePill />}
                 Academy
+              </Link>
+            </li>
+          ) : null}
+
+          {/* Conditional AIM Link */}
+          {showAim ? (
+            <li>
+              <Link
+                href={NAV_ROUTES.AIM}
+                className={cn(
+                  "relative style-nav-link tracking-[0.5px] px-[24px] py-[10px] rounded-full transition-all duration-200 flex items-center justify-center",
+                  active === AIM_LABEL ? "text-white" : "text-ink hover:bg-gray-100 hover:scale-105"
+                )}
+              >
+                {active === AIM_LABEL && <ActivePill />}
+                AIM
               </Link>
             </li>
           ) : null}

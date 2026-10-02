@@ -53,6 +53,14 @@ function MobileEventCard({ event }: { event: EventRowData }) {
                 {event.status.label}
               </span>
             )}
+            {event.badge && (
+              <span
+                className="inline-flex items-center rounded-[6px] px-[7px] py-[2px] style-caption font-bold uppercase tracking-[0.5px]"
+                style={{ backgroundColor: event.badge.bg, color: event.badge.color }}
+              >
+                {event.badge.label}
+              </span>
+            )}
           </div>
           <span className="style-caption text-ink-faint">{event.meta}</span>
         </div>

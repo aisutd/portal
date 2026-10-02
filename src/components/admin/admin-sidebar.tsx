@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { type AdminViewer, adminRoleLabel, getAdminViewer } from "@/lib/admin-access";
 import { Button } from "../ui/button";
 
-export type AdminNavLabel = "Applications" | "Events" | "Academy" | "Members" | "Exit";
+export type AdminNavLabel = "Applications" | "Events" | "Academy" | "AIM" | "Members" | "Exit";
 
 /**
  * Each section declares who may see it, so adding a capability-gated section
@@ -17,6 +17,7 @@ const NAV_ITEMS: readonly {
   { label: "Applications", href: "/admin/applications", visible: (v) => !!v?.canReview },
   { label: "Events", href: "/admin/events", visible: (v) => !!v?.isAdmin },
   { label: "Academy", href: "/admin/academy", visible: (v) => !!v?.canManageAcademy },
+  { label: "AIM", href: "/admin/aim", visible: (v) => !!v?.canManageAim },
   { label: "Members", href: "/admin/members", visible: (v) => !!v?.isAdmin },
   { label: "Exit", href: "/dashboard", visible: () => true },
 ];

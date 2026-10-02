@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { ItemType } from "@prisma/client";
+import { ItemType, type MembershipType, type UserRole } from "@prisma/client";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
@@ -19,6 +19,21 @@ type EventItemInput = {
 };
 
 const ALLOWED_ROLES = ["EXECUTIVE", "DIRECTOR", "OFFICER"];
+
+/**
+ * "AIM Mentorship only" is the one restricted-visibility option the event
+ * form exposes — Executives/Directors/AIM mentors see it everywhere, every
+ * other member doesn't see it at all. Unchecked keeps the existing default
+ * (visible to every signed-in member, same as before these fields existed).
+ */
+function resolveEventVisibility(restrictedToAim: boolean): {
+  visibilityRoles: UserRole[];
+  visibilityMembership: MembershipType[];
+} {
+  return restrictedToAim
+    ? { visibilityRoles: ["EXECUTIVE"], visibilityMembership: ["AIM_MENTOR", "AIM_MENTEE"] }
+    : { visibilityRoles: ["MEMBER"], visibilityMembership: [] };
+}
 
 function authorizeAdminUser(user: { role: string } | null) {
   if (!user) {
@@ -46,7 +61,10 @@ export async function createEvent(formData: FormData) {
   const programs = parsePrograms(formData.getAll("programs").length > 0 ? formData.getAll("programs") : formData.get("programs"));
   const status = parseStatus(formData.get("status"));
   const imageUrl = await resolveEventImageUrl(formData.get("image"));
-  
+  const { visibilityRoles, visibilityMembership } = resolveEventVisibility(
+    formData.get("restrictedToAim") === "true"
+  );
+
   const action = String(formData.get("action") ?? "draft");
   const isPublished = action === "publish";
 
@@ -81,6 +99,8 @@ export async function createEvent(formData: FormData) {
       status,
       capacity: Number.isFinite(capacity) && capacity > 0 ? capacity : null,
       visibility,
+      visibilityRoles,
+      visibilityMembership,
       isRsvpOpen,
       imageUrl,
       tags,
@@ -119,6 +139,9 @@ export async function updateEvent(formData: FormData) {
   const tags = parseTags(formData.getAll("tags").length > 0 ? formData.getAll("tags") : formData.get("tags"));
   const programs = parsePrograms(formData.getAll("programs").length > 0 ? formData.getAll("programs") : formData.get("programs"));
   const status = parseStatus(formData.get("status"));
+  const { visibilityRoles, visibilityMembership } = resolveEventVisibility(
+    formData.get("restrictedToAim") === "true"
+  );
 
   // Consolidated database fetch into a single query
   const existingEvent = await prisma.event.findUnique({
@@ -175,11 +198,13 @@ export async function updateEvent(formData: FormData) {
       status,
       capacity: Number.isFinite(capacity) && capacity > 0 ? capacity : null,
       visibility,
+      visibilityRoles,
+      visibilityMembership,
       imageUrl,
       tags,
       programs,
       isPublished,
-      
+
       items: {
         deleteMany: {},
         create: eventItems.map((item) => ({
