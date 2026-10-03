@@ -109,7 +109,7 @@ model User {
   email                   String                  @unique
   role                    UserRole                @default(MEMBER)
   team                    TEAM?
-  /// Long-standing unique ticket per user used to check in to Academy events
+  /// Long-standing unique ticket per user used to check in to Program (AIM, ACADEMY) events
   ticketToken             String                  @unique @default(uuid())
   verifiedAt              DateTime?
   lastLoginAt             DateTime?
