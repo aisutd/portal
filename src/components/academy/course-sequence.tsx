@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { EventCoverImage } from "../events/event-cover-image";
-import { Play } from "lucide-react";
+import { Calendar, Play } from "lucide-react";
 import {
   isWorkshopInProgress,
   isWorkshopPast,
   type AcademyWorkshopSummary,
 } from "@/lib/academy-content";
+import { formatEventDate } from "@/lib/utils";
 
 type LessonStatus =
   | "completed"
@@ -113,6 +114,13 @@ export function CourseSequence({
                   {workshop.description}
                 </p>
               </div>
+
+              {workshop.quizDueAt && (
+                <span className="flex items-center gap-1.5 style-caption text-[#f2c95c]">
+                  <Calendar className="h-3.5 w-3.5 shrink-0" />
+                  Quiz due: {formatEventDate(workshop.quizDueAt, true)}
+                </span>
+              )}
 
               {/* Status Badge */}
               <span className={`w-fit rounded-full px-[12px] py-[6px] style-badge-text ${className}`}>

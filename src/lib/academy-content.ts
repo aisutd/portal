@@ -28,6 +28,8 @@ export type AcademyWorkshopSummary = {
   /** ISO string. */
   endTime: string;
   hasRecording: boolean;
+  /** ISO string. Null while no published quiz or deadline is set. */
+  quizDueAt: string | null;
   /** Whether the viewer has attendance credit. False when signed out. */
   hasAttended: boolean;
   imageUrl: string | null;
@@ -51,8 +53,6 @@ export type AcademyWorkshopDetail = AcademyWorkshopSummary & {
   recordingUrl: string | null;
   progressCompleted: boolean;
   summary: string | null;
-  /** ISO string. */
-  quizDueAt: string | null;
   questions: MemberQuizQuestion[];
   /** The viewer's most recent submission, if they've taken the quiz. */
   latestAttempt: AcademyQuizAttempt | null;
@@ -82,6 +82,8 @@ export async function listAcademyWorkshops(
       startTime: true,
       endTime: true,
       recordingUrl: true,
+      quizDueAt: true,
+      quiz: { select: { isPublished: true } },
       imageUrl: true,
     },
   });
@@ -111,6 +113,7 @@ export async function listAcademyWorkshops(
     startTime: w.startTime.toISOString(),
     endTime: w.endTime.toISOString(),
     hasRecording: Boolean(w.recordingUrl),
+    quizDueAt: w.quiz?.isPublished ? w.quizDueAt?.toISOString() ?? null : null,
     hasAttended: attendedIds.has(w.id),
     imageUrl: w.imageUrl,
   }));
