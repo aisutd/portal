@@ -3,63 +3,33 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth, useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
-import { isAdminRole, isKnownRole } from "@/lib/roles";
+import { isAdminRole } from "@/lib/roles";
 import { Show, UserButton } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
+import { useAccount } from "@/components/account-provider";
 
 export function BottomNav() {
   const pathname = usePathname();
   const { isSignedIn } = useAuth();
   const { user } = useUser();
+  const account = useAccount();
 
   // 1. Initialize state instantly using metadata if it exists
-  const rawMetadataRole = (user?.publicMetadata as { role?: string } | undefined)?.role;
-  const metadataRole = isKnownRole(rawMetadataRole) ? rawMetadataRole : undefined;
-  const [fetchedRole, setFetchedRole] = useState<string | null>(null);
-
-  const [isReviewerOnly, setIsReviewerOnly] = useState(false);
-
-  useEffect(() => {
-    if (!isSignedIn) return;
-
-    let isMounted = true;
-    async function loadAccount() {
-      try {
-        const response = await fetch("/api/me");
-        if (!isMounted) return;
-        if (!response.ok) {
-          setFetchedRole(null);
-          setIsReviewerOnly(false);
-          return;
-        }
-        const data = await response.json();
-        setFetchedRole(data?.role ?? null);
-        setIsReviewerOnly(Boolean(data?.isReviewerOnly));
-      } catch {
-        if (isMounted) {
-          setFetchedRole(null);
-          setIsReviewerOnly(false);
-        }
-      }
-    }
-
-    loadAccount();
-    return () => {
-      isMounted = false;
-    };
-  }, [isSignedIn]);
-
-  const role = isSignedIn ? metadataRole ?? fetchedRole : null;
-  const isAdmin = isAdminRole(role);
+  const role = account?.role ?? (user?.publicMetadata as { role?: string } | undefined)?.role ?? null;
+  const isAdmin = role ? isAdminRole(role) : false;
+  const isReviewerOnly = account?.isReviewerOnly ?? false;
+  const showAcademy = account?.isAcademyParticipant ?? false;
 
   // 3. Base navigation array
   const tabs = [
     { label: "Dashboard", href: "/dashboard" },
     { label: "Events", href: "/events" },
-    { label: "Academy", href: "/academy" },
     { label: "Apply", href: "/applications" },
   ];
+
+  if (isSignedIn && showAcademy) {
+    tabs.push({ label: "Academy", href: "/academy" });
+  }
 
   // 4. Inject Admin route if permissions pass
   if (isSignedIn && isAdmin) {

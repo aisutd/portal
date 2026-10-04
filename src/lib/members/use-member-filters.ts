@@ -14,6 +14,8 @@ export function useMemberFilters(initialQuery: MembersQuery) {
 
   // Sync local input if the URL changes externally (e.g., browser back/forward)
   useEffect(() => {
+    // Synchronize when navigation changes the URL externally.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTerm(initialQuery.q || "");
   }, [initialQuery.q]);
 

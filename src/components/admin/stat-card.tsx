@@ -15,7 +15,7 @@ export function StatCard({ value, label, highlight }: StatCardData) {
   return (
     <div
       className={cn(
-        "group relative flex flex-1 flex-col gap-[5px] self-stretch overflow-hidden rounded-[14px] border px-[23px] py-[21px]",
+        "group relative flex flex-1 flex-col gap-[5px] self-stretch overflow-hidden rounded-[14px] border px-4 py-4 md:px-[23px] md:py-[21px]",
         "transition-[border-color,box-shadow,transform] duration-150",
         "hover:-translate-y-[2px] hover:shadow-[0_10px_24px_-14px_rgba(22,22,28,0.35)]",
         highlight

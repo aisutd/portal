@@ -68,7 +68,7 @@ export function WorkshopAttendanceClient({
   };
 
   return (
-    <div className="flex flex-col gap-6 p-6 lg:p-10 max-w-7xl mx-auto">
+    <div className="mx-auto flex max-w-7xl flex-col gap-6 p-4 sm:p-6 lg:p-10">
       {/* Header */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -147,7 +147,7 @@ export function WorkshopAttendanceClient({
       {/* Attendance Table */}
       <div className="overflow-hidden rounded-xl border border-border-soft bg-white shadow-2xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-ink">
+          <table className="w-full min-w-[760px] text-left text-sm text-ink">
             <thead className="border-b border-border-soft bg-slate-50/50 text-xs uppercase text-ink-faint">
               <tr>
                 <th className="px-5 py-3 font-semibold">Member</th>

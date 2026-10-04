@@ -12,6 +12,7 @@ import { MobileEventDetail } from "@/components/mobile/events/MobileEventDetail"
 import { EventDetailActions, EventQRCode } from "@/components/events/event-detail-actions";
 import { EventCoverImage } from "@/components/events/event-cover-image";
 import { formatEventDate } from "@/lib/utils";
+import { Footer } from "@/components/footer"
 
 export async function generateMetadata({
   params,
@@ -32,7 +33,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: `Events — ${event.title}`,
+    title: `Event: ${event.title}`,
     description: event.description,
   };
 }
@@ -44,7 +45,6 @@ interface EventDetailPageProps {
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
   const { id } = await params;
   const session = await getAuthenticatedUser();
-  // FIXED: Fetch target userId from profile.userId instead of base user.id
   const userId = session?.profile?.userId ?? null;
 
   const event = await prisma.event.findUnique({
@@ -100,11 +100,11 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               <div className="flex min-w-px flex-1 flex-col gap-6">
                 <EventCoverImage
                   imageUrl={event.imageUrl}
-                  className="h-[300px] w-full"
+                  className="min-h-75 w-full"
                   alt={`${event.title} cover`}
                 />
                 
-                <div className="flex flex-col rounded-2xl bg-white/50 backdrop-blur-md border-white/35 border-2 shadow-sm shadow-ink/15 px-6 py-6">
+                <div className="flex flex-col rounded-2xl bg-white/65 backdrop-blur-md ring-white/65 ring-1 shadow-sm shadow-ink/15 px-6 py-6">
                   <div className="flex items-center gap-3">
                     <h1 className="style-section-header leading-[41px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
                       {event.title}
@@ -141,17 +141,17 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                 className={`flex w-full flex-col items-center justify-center gap-[16px] self-stretch rounded-[16px] p-[33px] lg:w-[360px] lg:shrink-0 ${
                   isPast
                     ? attended
-                      ? "bg-checked/55 border-2 border-green backdrop-blur-md"
+                      ? "bg-checked/55 border-2 border-green/35 backdrop-blur-md shadow-sm shadow-ink/15"
                       : isRsvpd
-                      ? "bg-danger-ink/20 border-2 border-danger-ink backdrop-blur-md"
-                      : "bg-[#f4f1ea] border border-border-soft"
+                      ? "bg-danger-ink/20 border-2 border-danger-ink/35 backdrop-blur-md shadow-sm shadow-ink/15"
+                      : "bg-white/50 backdrop-blur-md ring-white/65 ring-2 shadow-sm shadow-ink/15"
                     : attended
-                    ? "bg-checked"
+                    ? "bg-checked/55 border-2 border-green/35 backdrop-blur-md shadow-sm shadow-ink/15"
                     : isRsvpd
-                    ? "bg-checked"
+                    ? "bg-checked/55 border-2 border-green/35 backdrop-blur-md shadow-sm shadow-ink/15"
                     : !isRsvpOpen
-                    ? "bg-amber-50/50 border border-amber-200 shadow-sm"
-                    : "bg-white border border-border-soft shadow-sm"
+                    ? "bg-amber-50/50 border-2 border-amber-200/35 backdrop-blur-md shadow-sm shadow-ink/15"
+                    : "bg-white/50 backdrop-blur-md ring-white/65 ring-2 shadow-sm shadow-ink/15"
                 }`}
               >
                 {isPast ? (
@@ -240,6 +240,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 }

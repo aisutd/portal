@@ -428,3 +428,16 @@ body {
     opacity: 0;
   }
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
+#course-sequence {
+  scroll-margin-top: 90px;
+}
+
+#course-sequence-mobile,
+#course-sequence-desktop {
+  scroll-margin-top: 90px;
+}

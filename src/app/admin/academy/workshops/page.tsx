@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { Prisma } from "@prisma/client";
-import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { AdminAcademyShell } from "@/components/admin/academy-shell";
 import { AcademyTabs } from "@/components/admin/academy-tabs";
 import { StatCard } from "@/components/admin/stat-card";
 import { WorkshopRow, type WorkshopRowData } from "@/components/admin/workshow-row";
@@ -122,83 +122,79 @@ export default async function AdminAcademyWorkshopsPage() {
   const data = await getWorkshopViewModel();
 
   return (
-    <div className="flex min-h-screen w-full bg-cream">
-      <AdminSidebar active="Academy" />
+    <AdminAcademyShell>
+      <AcademyTabs active="Workshops" />
 
-      <div className="flex h-full flex-1 flex-col gap-[28px] p-[46px]">
-        <AcademyTabs active="Workshops" />
-
-        <div className="flex items-center justify-between">
-          <h2 className="style-section-header leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
-            Workshops
-          </h2>
-          <div className="flex items-center gap-[10px]">
-            <Link href="/admin/academy/workshops/new">
-              <Button variant="primary" size="md">
-                + New Workshop
-              </Button>
-            </Link>
-          </div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="style-section-header leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+          Workshops
+        </h2>
+        <div className="flex items-center gap-[10px]">
+          <Link href="/admin/academy/workshops/new">
+            <Button variant="primary" size="md">
+              + New Workshop
+            </Button>
+          </Link>
         </div>
-
-        <div className="flex w-full gap-[16px]">
-          {data.stats.map((s) => (
-            <StatCard key={s.label} {...s} />
-          ))}
-        </div>
-
-        <div className="flex flex-col gap-[12px]">
-          <h3 className="style-section-header text-ink">
-            Published Workshops ({data.publishedRows.length})
-          </h3>
-          {data.publishedRows.length > 0 ? (
-            data.publishedRows.map((w) => <WorkshopRow key={w.id} {...w} />)
-          ) : (
-            <p className="rounded-xl border border-dashed border-border-soft p-4 text-center style-caption text-ink-faint">
-              No active or upcoming published workshops.
-            </p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-[12px] pt-4">
-          <h3 className="style-section-header text-ink">
-            Drafts ({data.draftRows.length})
-          </h3>
-          {data.draftRows.length > 0 ? (
-            data.draftRows.map((w) => <WorkshopRow key={w.id} {...w} />)
-          ) : (
-            <p className="rounded-xl border border-dashed border-border-soft p-4 text-center style-caption text-ink-faint">
-              No draft workshops saved.
-            </p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-[12px] pt-4">
-          <h3 className="style-section-header text-ink-muted">
-            Past Workshops ({data.pastRows.length})
-          </h3>
-          {data.pastRows.length > 0 ? (
-            <div className="flex flex-col gap-[12px]">
-              {data.pastRows.map((w) => <WorkshopRow key={w.id} {...w} />)}
-            </div>
-          ) : (
-            <p className="rounded-xl border border-dashed border-border-soft p-4 text-center style-caption text-ink-faint">
-              No past workshops recorded.
-            </p>
-          )}
-        </div>
-
-        <Link href="/admin/academy/workshops/new" className="mt-2 block w-full">
-          <div className="flex w-full items-center justify-between rounded-[16px] bg-brand px-[23px] py-[21px] transition-opacity hover:opacity-95">
-            <span className="style-section-header leading-[21.25px] text-white [font-variation-settings:'wdth'_100]">
-              + Create a new workshop
-            </span>
-            <span className="style-caption leading-[16.8px] tracking-[0.2px] text-white/80">
-              title · date · location · recording · quiz
-            </span>
-          </div>
-        </Link>
       </div>
-    </div>
+
+      <div className="grid w-full grid-cols-2 gap-[12px] lg:flex lg:gap-[16px]">
+        {data.stats.map((s) => (
+          <StatCard key={s.label} {...s} />
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-[12px]">
+        <h3 className="style-section-header text-ink">
+          Published Workshops ({data.publishedRows.length})
+        </h3>
+        {data.publishedRows.length > 0 ? (
+          data.publishedRows.map((w) => <WorkshopRow key={w.id} {...w} />)
+        ) : (
+          <p className="rounded-xl border border-dashed border-border-soft p-4 text-center style-caption text-ink-faint">
+            No active or upcoming published workshops.
+          </p>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-[12px] pt-4">
+        <h3 className="style-section-header text-ink">
+          Drafts ({data.draftRows.length})
+        </h3>
+        {data.draftRows.length > 0 ? (
+          data.draftRows.map((w) => <WorkshopRow key={w.id} {...w} />)
+        ) : (
+          <p className="rounded-xl border border-dashed border-border-soft p-4 text-center style-caption text-ink-faint">
+            No draft workshops saved.
+          </p>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-[12px] pt-4">
+        <h3 className="style-section-header text-ink-muted">
+          Past Workshops ({data.pastRows.length})
+        </h3>
+        {data.pastRows.length > 0 ? (
+          <div className="flex flex-col gap-[12px]">
+            {data.pastRows.map((w) => <WorkshopRow key={w.id} {...w} />)}
+          </div>
+        ) : (
+          <p className="rounded-xl border border-dashed border-border-soft p-4 text-center style-caption text-ink-faint">
+            No past workshops recorded.
+          </p>
+        )}
+      </div>
+
+      <Link href="/admin/academy/workshops/new" className="mt-2 block w-full">
+        <div className="flex w-full flex-col gap-1 rounded-[16px] bg-brand px-5 py-4 transition-opacity hover:opacity-95 md:flex-row md:items-center md:justify-between md:px-[23px] md:py-[21px]">
+          <span className="style-section-header leading-[21.25px] text-white [font-variation-settings:'wdth'_100]">
+            + Create a new workshop
+          </span>
+          <span className="style-caption leading-[16.8px] tracking-[0.2px] text-white/80">
+            title · date · location · recording · quiz
+          </span>
+        </div>
+      </Link>
+    </AdminAcademyShell>
   );
 }

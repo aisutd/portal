@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Navbar } from "@/components/navbar";
+import { BottomNav } from "@/components/mobile/ui/BottomNav";
 import { RoleCard } from "@/components/apply/role-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -428,10 +429,13 @@ function ApplyDetailContent() {
 function DetailPageFallback() {
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <Navbar active="Apply" />
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 pt-28 px-8 py-10">
+      <div className="hidden md:block">
+        <Navbar active="Apply" />
+      </div>
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-5 pb-24 pt-6 md:px-8 md:pb-10 md:pt-28">
         <DetailSkeleton />
       </div>
+      <BottomNav />
     </div>
   );
 }

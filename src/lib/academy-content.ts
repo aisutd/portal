@@ -28,6 +28,8 @@ export type AcademyWorkshopSummary = {
   /** ISO string. */
   endTime: string;
   hasRecording: boolean;
+  /** ISO string. Null while no published quiz or deadline is set. */
+  quizDueAt: string | null;
   /** Whether the viewer has attendance credit. False when signed out. */
   hasAttended: boolean;
   imageUrl: string | null;
@@ -47,10 +49,10 @@ export type AcademyQuizAttempt = {
 };
 
 export type AcademyWorkshopDetail = AcademyWorkshopSummary & {
+  viewerId: string | null;
   recordingUrl: string | null;
+  progressCompleted: boolean;
   summary: string | null;
-  /** ISO string. */
-  quizDueAt: string | null;
   questions: MemberQuizQuestion[];
   /** The viewer's most recent submission, if they've taken the quiz. */
   latestAttempt: AcademyQuizAttempt | null;
@@ -80,6 +82,8 @@ export async function listAcademyWorkshops(
       startTime: true,
       endTime: true,
       recordingUrl: true,
+      quizDueAt: true,
+      quiz: { select: { isPublished: true } },
       imageUrl: true,
     },
   });
@@ -109,6 +113,7 @@ export async function listAcademyWorkshops(
     startTime: w.startTime.toISOString(),
     endTime: w.endTime.toISOString(),
     hasRecording: Boolean(w.recordingUrl),
+    quizDueAt: w.quiz?.isPublished ? w.quizDueAt?.toISOString() ?? null : null,
     hasAttended: attendedIds.has(w.id),
     imageUrl: w.imageUrl,
   }));
@@ -141,7 +146,7 @@ export async function getAcademyWorkshop(
   const questions = quiz ? parseQuizQuestions(quiz.questionsJson) : [];
 
   // Fetch attendance record & latest quiz attempt for signed-in viewer
-  const [attendance, attempt] = viewerId
+  const [attendance, attempt, videoProgress] = viewerId
     ? await Promise.all([
         prisma.attendance.findFirst({
           where: { userId: viewerId, workshopId: workshop.id },
@@ -154,8 +159,12 @@ export async function getAcademyWorkshop(
               select: { answersJson: true, submittedAt: true, passed: true },
             })
           : null,
+        prisma.videoProgress.findUnique({
+          where: { userId_workshopId: { userId: viewerId, workshopId: workshop.id } },
+          select: { completed: true },
+        }),
       ])
-    : [null, null];
+    : [null, null, null];
 
   const latestAttempt: AcademyQuizAttempt | null = attempt
     ? (() => {
@@ -179,6 +188,7 @@ export async function getAcademyWorkshop(
     : null;
 
   return {
+    viewerId,
     id: workshop.id,
     title: workshop.title,
     description: workshop.description,
@@ -188,6 +198,7 @@ export async function getAcademyWorkshop(
     hasRecording: Boolean(workshop.recordingUrl),
     hasAttended: Boolean(attendance),
     recordingUrl: workshop.recordingUrl ?? null,
+    progressCompleted: videoProgress?.completed ?? false,
     imageUrl: workshop.imageUrl ?? null,
     summary: workshop.summary ?? null,
     quizDueAt: workshop.quizDueAt?.toISOString() ?? null,

@@ -70,13 +70,18 @@ export function AcademyGradientBackground() {
       const y0 = height * w.centerFrac - thickness / 2 - parallax;
       const step = Math.max(16, Math.round(width / 90));
 
+      
+      const padding = 100;
+      const startX = -padding;
+      const endX = width + padding;
+
       ctx!.beginPath();
-      for (let x = 0; x <= width; x += step) {
+      for (let x = startX; x <= endX; x += step) {
         const y = y0 + Math.sin(x * w.freq + t * w.speed + w.phase) * w.amp;
         if (x === 0) ctx!.moveTo(x, y);
         else ctx!.lineTo(x, y);
       }
-      for (let x = width; x >= 0; x -= step) {
+      for (let x = endX; x >= startX; x -= step) {
         const y =
           y0 +
           thickness +

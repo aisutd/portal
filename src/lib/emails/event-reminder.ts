@@ -2,7 +2,15 @@ import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
 import { generateCalendarLinks } from "@/lib/calendar";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY is not configured");
+  }
+
+  return new Resend(apiKey);
+}
 
 interface BatchSendArgs {
   rsvps: { userId: string }[];
@@ -147,6 +155,7 @@ export async function sendEventReminderEmailsBatch({ rsvps, eventId }: BatchSend
   // 4. Send via Resend Batch API (max 100 emails per API request)
   const BATCH_LIMIT = 100;
   let totalSent = 0;
+  const resend = getResendClient();
 
   for (let i = 0; i < emailBatch.length; i += BATCH_LIMIT) {
     const chunk = emailBatch.slice(i, i + BATCH_LIMIT);

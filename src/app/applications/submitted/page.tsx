@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/navbar";
+import { BottomNav } from "@/components/mobile/ui/BottomNav";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ReadOnlyField } from "@/components/apply/read-only-field";
@@ -306,10 +307,13 @@ function SubmittedContent() {
 function SubmittedFallback() {
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <Navbar active="Apply" />
-      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[24px] px-[46px] pb-[46px] pt-28">
+      <div className="hidden md:block">
+        <Navbar active="Apply" />
+      </div>
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-[24px] px-5 pb-24 pt-6 md:px-[46px] md:pb-[46px] md:pt-28">
         <LoadingState />
       </div>
+      <BottomNav />
     </div>
   );
 }

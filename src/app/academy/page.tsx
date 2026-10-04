@@ -6,6 +6,8 @@ import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { TopographyBackground } from "@/components/academy/topography-background";
 import { AcademyGradientBackground } from "@/components/academy/gradient-background";
 import { CourseSequence } from "@/components/academy/course-sequence";
+import { VideoNotesPanel } from "@/components/academy/video-notes-panel";
+import { MobileAcademy } from "@/components/mobile/academy/MobileAcademy";
 import { FeaturedWorkshop } from "@/components/academy/featured-workshop";
 import {
   getFeaturedWorkshop,
@@ -45,7 +47,29 @@ export default async function AcademyPage() {
   ]);
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+    <>
+      {/* --- MOBILE VIEW --- */}
+      <div className="md:hidden">
+        <MobileAcademy
+          workshops={workshops}
+          resources={resources}
+          featuredLesson={
+            featured
+              ? {
+                  title: featured.title,
+                  videoUrl: featured.recordingUrl ?? null,
+                  workshopId: featured.id,
+                  userId: viewer.id,
+                  completed: featured.progressCompleted,
+                }
+              : undefined
+          }
+        />
+      </div>
+
+      {/* --- DESKTOP VIEW --- */}
+      <div className="hidden md:block">
+      <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
       <AcademyGradientBackground />
       <Navbar active="Academy" />
 
@@ -67,10 +91,13 @@ export default async function AcademyPage() {
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-[12px]">
-            <button className="rounded-full bg-[#2563eb] px-[22px] py-[14px] style-button-text text-white shadow-[0_5px_14px_rgba(0,0,0,0.5)] transition-colors hover:bg-[#1e4fc7]">
+            <a
+              href="#course-sequence-desktop"
+              className="flex-1 rounded-full bg-[#2563eb] px-4 py-3 style-button-text text-white shadow-[0_5px_14px_rgba(0,0,0,0.5)] transition-colors hover:bg-[#1e4fc7] inline-flex items-center justify-center text-center"
+            >
               Browse Courses
-            </button>
-            <Button 
+            </a>
+            <Button
               className="rounded-full border border-[#d4af37] bg-[#d4af37] px-[22px] py-[14px] style-button-text text-ink transition-colors hover:bg-[#c19d2e]"
               variant="accent"
               href="/id"
@@ -81,19 +108,12 @@ export default async function AcademyPage() {
         </section>
 
         {/* Featured video course + notes */}
-        <section className="relative flex flex-col gap-[20px] overflow-hidden rounded-[16px] border-t-[10px] border-b-[10px] border-[#2f5fe8] bg-[#181c25] p-[36px] lg:p-[46px]">
+        <section className="relative flex flex-col gap-5 overflow-hidden rounded-2xl border-t-10 border-b-10 border-brand bg-[#181c25] p-[36px] lg:p-[46px]">
           <TopographyBackground />
           <div className="flex items-end justify-between">
             <div className="flex flex-col gap-[4px]">
-              <h2 className="style-section-header uppercase text-white">Featured Video Courses</h2>
-              <p className="style-body-text text-white">
-                Start with the fundamentals, then move into practical tools and techniques
-                used in real AI projects.
-              </p>
+              <h2 className="style-section-header uppercase text-[#d4af37]">Featured Workshop</h2>
             </div>
-            <span className="hidden shrink-0 rounded-full bg-pill-amber px-[16px] py-[8px] style-badge-text text-orange-text sm:inline-block">
-              View all
-            </span>
           </div>
           {featured ? (
             <FeaturedWorkshop workshop={featured} />
@@ -106,7 +126,7 @@ export default async function AcademyPage() {
 
         {/* Course Sequence */}
         <ScrollReveal>
-          <section className="flex flex-col gap-[20px]">
+          <section id="course-sequence-desktop" className="flex flex-col gap-[20px]">
             <h2 className="style-section-header uppercase text-white">Course Sequence</h2>
             <CourseSequence workshops={workshops} />
           </section>
@@ -156,6 +176,8 @@ export default async function AcademyPage() {
       </main>
 
       <Footer />
-    </div>
+      </div>
+      </div>
+    </>
   );
 }

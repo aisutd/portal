@@ -131,6 +131,7 @@ model User {
   attendances             Attendance[]
   quizAttempts            QuizAttempt[]
   createdAcademyResources AcademyResource[]       @relation("AcademyResourceCreator")
+  videoProgress           VideoProgress[]
 }
 
 model Profile {
@@ -145,8 +146,6 @@ model Profile {
   major                   String?
   utdEmail                String?
   utdNetId                String?
-  phoneNumber             String?
-  personalEmail           String?
   githubUrl               String?
   linkedinUrl             String?
   portfolioUrl            String?
@@ -154,6 +153,8 @@ model Profile {
   resumeFileId            String?
   createdAt               DateTime                @default(now())
   updatedAt               DateTime                @updatedAt
+  personalEmail           String?
+  phoneNumber             String?
   resumeFile              File?                   @relation(fields: [resumeFileId], references: [id])
   user                    User                    @relation(fields: [userId], references: [id])
 }
@@ -209,12 +210,12 @@ model RSVP {
   userId      String
   eventId     String
   status      RSVPStatus
-  isWalkIn    Boolean     @default(false)
   qrToken     String
   qrExpiresAt DateTime?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   qrPayload   String?
+  isWalkIn    Boolean     @default(false)
   attendance  Attendance?
   event       Event       @relation(fields: [eventId], references: [id])
   user        User        @relation(fields: [userId], references: [id])
@@ -250,11 +251,26 @@ model Workshop {
   quiz        Quiz?
   attendances Attendance[]
   resources   AcademyResource[]
+  videoProgress VideoProgress[]
 
   createdById String
   createdBy   User     @relation("WorkshopCreator", fields: [createdById], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model VideoProgress {
+  id             String   @id @default(cuid())
+  userId         String
+  workshopId     String
+  watchedSeconds Int      @default(0)
+  duration       Int      @default(0)
+  completed      Boolean  @default(false)
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workshop       Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workshopId])
 }
 
 model Attendance {

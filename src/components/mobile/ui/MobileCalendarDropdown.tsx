@@ -29,6 +29,8 @@ export function MobileCalendarDropdown({
 
   // Avoid SSR hydration mismatch for portal
   useEffect(() => {
+    // Required to avoid rendering a document.body portal during SSR.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 

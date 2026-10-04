@@ -127,7 +127,7 @@ export const programs: Program[] = [
     iconBg: "#f7d000",
     iconColor: "#1f3aa3",
     image: "/images/programs/ai-academy.png",
-    borderColor: "#e7e2d4",
+    borderColor: "#ffffff59",
     badge: "",
     title: "AI Academy",
     description:
@@ -140,8 +140,8 @@ export const programs: Program[] = [
     iconBg: "#7ed857",
     iconColor: "#7a4416",
     image: "/images/programs/aim.png",
-    borderColor: "#f2a968",
-    badge: "High Demand",
+    borderColor: "#ffffff59",
+    badge: "",
     title: "AI Mentorship",
     description:
       "Learn AI. Build together. AIM.",
@@ -153,11 +153,11 @@ export const programs: Program[] = [
     iconBg: "#9c14dc",
     iconColor: "#4b4178",
     image: "/images/programs/innovation-lab.png",
-    borderColor: "#e7e2d4",
+    borderColor: "#ffffff59",
     title: "AI Innovation Labs",
     description:
       "Build products for people and work hands-on with industry-standard AI technologies.",
-    tags: ["Advanced", "Team based", "Industry"],
+    tags: ["Advanced", "Team based", "Industry", "Deploy"],
     cta: "primary",
   },
 ];

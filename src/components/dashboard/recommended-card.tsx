@@ -99,7 +99,7 @@ function RecommendedRow({
   return (
     <Link
       href={`/events/${item.id}`}
-      className="group flex w-full flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-xl bg-row-soft px-[18px] py-[14px] transition-colors hover:bg-[#eae6dc]"
+      className="group flex w-full flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-xl ring-1 ring-ink/15 shadow-sm shadow-ink/10 px-[18px] py-[14px] transition-all hover:bg-white/35 hover:ring-ink/5 hover:shadow-lg hover:scale-[1.01]"
     >
       <div className="flex flex-1 items-start sm:items-center gap-[14px] min-w-0 w-full">
         <EventCoverImage
@@ -150,14 +150,15 @@ export function RecommendedCard({ items }: { items: RecommendedItem[] }) {
   }
 
   return (
-    <Card className="flex h-auto min-w-0 flex-1 flex-col gap-[14px] border-t-4 border-t-green/60 self-stretch p-[27px]">
+    <Card className="flex h-auto min-w-0 flex-1 flex-col gap-[14px] self-stretch p-[27px] overflow-hidden">
+      <div aria-hidden className="absolute inset-x-0 top-0 h-[4px] rounded-t-2xl bg-green/60" />
       <SectionHeader
         title="Recommended for you"
       />
 
       <div className="flex flex-col gap-[14px] h-auto w-full">
         {displayItems.length === 0 ? (
-          <div className="flex h-[120px] w-full flex-col items-center justify-center gap-[12px] rounded-[8px] border border-dashed border-[#e2ded2] bg-[#f9f8f6]">
+          <div className="flex h-[120px] w-full flex-col items-center justify-center gap-[12px] rounded-[8px] border border-dashed border-ink/15">
             <span className="style-body-text text-ink-faint">
               No upcoming events.
             </span>
@@ -174,15 +175,13 @@ export function RecommendedCard({ items }: { items: RecommendedItem[] }) {
       </div>
 
       {/* Callout banner */}
-      <div className="mt-auto flex w-full flex-col items-start justify-between gap-[12px] rounded-xl bg-[#e1e8ff] px-[20px] py-[16px] sm:flex-row sm:items-center">
+      <div className="mt-auto flex w-full flex-col items-start justify-between gap-[12px] rounded-xl border-brand/15 border shadow-sm shadow-ink/15 bg-[#e1e8ff] px-[20px] py-[16px] sm:flex-row sm:items-center">
         <span className="style-card-title text-[15px] font-medium leading-[20px] text-[#1f3aa3]">
           Nothing on your calendar this week?
         </span>
-        <Link href="/events" className="shrink-0 w-full sm:w-auto">
-          <Button variant="accent" size="sm" pill className="w-full sm:w-auto font-bold">
-            Browse Events →
-          </Button>
-        </Link>
+        <Button variant="accent" href="/events" size="sm" pill className="w-full sm:w-auto font-bold">
+          Browse Events →
+        </Button>
       </div>
     </Card>
   );

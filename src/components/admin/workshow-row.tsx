@@ -74,13 +74,13 @@ export function WorkshopRow({
       />
 
       {/* Left Section: Cover Image + Metadata */}
-      <div className="pointer-events-none z-10 flex items-center gap-4 min-w-[280px] shrink-0">
+      <div className="pointer-events-none z-10 flex min-w-0 items-center gap-4 lg:min-w-[280px] lg:shrink-0">
         <EventCoverImage
           className="h-[60px] w-[76px] shrink-0 rounded-[12px] object-cover shadow-xs transition-transform group-hover:scale-[1.02]"
           imageUrl={imageUrl}
         />
 
-        <div className="flex flex-col gap-1.5">
+        <div className="flex min-w-0 flex-col gap-1.5">
           <div className="flex flex-wrap items-center gap-2">
             <span className="style-body-text font-semibold text-ink group-hover:text-brand transition-colors">
               {title}
@@ -130,8 +130,8 @@ export function WorkshopRow({
       </div>
 
       {/* Middle Section: Progress Bar / Attendance Metrics */}
-      <div className="pointer-events-none z-10 flex min-w-[200px] flex-1 flex-col gap-2">
-        <div className="flex items-center justify-between style-caption text-ink-faint font-medium">
+      <div className="pointer-events-none z-10 flex min-w-0 flex-1 flex-col gap-2 lg:min-w-[200px]">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 style-caption text-ink-faint font-medium">
           <span>{leftInfo}</span>
           <span>{rightInfo}</span>
         </div>
@@ -144,14 +144,14 @@ export function WorkshopRow({
       </div>
 
       {/* Right Section: Action Buttons + Nav Indicator */}
-      <div className="z-20 flex items-center justify-end gap-2 shrink-0">
+      <div className="z-20 flex flex-wrap items-center gap-2 lg:shrink-0 lg:flex-nowrap lg:justify-end">
         {actions.map((a) => {
           const buttonNode = (
             <Button
               variant={a.variant}
               size="sm"
               pill={a.pill}
-              className="rounded-[8px] shadow-2xs"
+              className="w-full rounded-[8px] shadow-2xs lg:w-auto"
               onClick={(e) => {
                 e.stopPropagation();
                 a.onClick?.(e);
@@ -166,16 +166,19 @@ export function WorkshopRow({
               key={a.label}
               href={a.href}
               onClick={(e) => e.stopPropagation()}
+              className="min-w-[72px] flex-1 lg:flex-none"
             >
               {buttonNode}
             </Link>
           ) : (
-            <div key={a.label}>{buttonNode}</div>
+            <div key={a.label} className="min-w-[72px] flex-1 lg:flex-none">
+              {buttonNode}
+            </div>
           );
         })}
 
         {/* Visual Cue that Row is Clickable */}
-        <div className="pointer-events-none flex h-8 w-8 items-center justify-center rounded-full text-ink-faint transition-transform group-hover:translate-x-0.5 group-hover:text-brand">
+        <div className="pointer-events-none hidden h-8 w-8 items-center justify-center rounded-full text-ink-faint transition-transform group-hover:translate-x-0.5 group-hover:text-brand lg:flex">
           →
         </div>
       </div>

@@ -326,6 +326,8 @@ export function AdminApplicationsManager({
 
   useEffect(() => {
     if (currentUserId) {
+      // This mirrors an authenticated ID resolved by the parent after mount.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrUserId(currentUserId);
     }
   }, [currentUserId]);
@@ -544,6 +546,8 @@ export function AdminApplicationsManager({
 
   useEffect(() => {
     if (!selectedSubmission) {
+      // Reset the editable notes when the selected submission changes.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNotes("");
       return;
     }
@@ -554,6 +558,7 @@ export function AdminApplicationsManager({
         review.reviewer?.id === currUserId
     );
 
+    // Load the selected reviewer's saved notes into the editable field.
     setNotes(myReview?.notesInternal ?? "");
   }, [selectedSubmissionId, selectedSubmission, currUserId]);
 

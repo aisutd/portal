@@ -116,7 +116,7 @@ export function OpenAppRow({
       whileHover={{ y: -2 }}
       transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
       onClick={handleRowClick}
-      className={`group relative flex w-full flex-col sm:flex-row items-stretch justify-between overflow-visible rounded-2xl border border-[var(--color-border-soft,#e7e2d4)] bg-white shadow-xs transition-all duration-300 hover:border-[var(--color-brand,#2f5fe8)]/40 hover:shadow-md cursor-pointer ${
+      className={`group relative flex w-full flex-col sm:flex-row items-stretch justify-between overflow-visible rounded-2xl bg-white/75 backdrop-blur-md border-white/35 border-2 shadow-sm shadow-ink/15 transition-all duration-300 hover:border-brand/40 hover:shadow-md cursor-pointer ${
         dim ? "opacity-60 grayscale-[20%]" : "opacity-100"
       }`}
     >
@@ -183,8 +183,8 @@ export function OpenAppRow({
             )}
 
             {isUpcoming && (
-              <RowBadge className="border-indigo-200 bg-[var(--color-brand-soft,#e1e8ff)] text-[var(--color-brand-dark,#1f3aa3)]">
-                <Sparkles className="h-3 w-3 text-[var(--color-brand,#2f5fe8)] shrink-0" />
+              <RowBadge className="border-indigo-200 bg-brand-soft text-brand-dark">
+                <Sparkles className="h-3 w-3 text-brand shrink-0" />
                 <span>Upcoming</span>
               </RowBadge>
             )}
@@ -206,26 +206,26 @@ export function OpenAppRow({
 
           {/* Program Title */}
           <div className="flex items-center gap-1.5 pt-0.5">
-            <h3 className="style-card-title text-slate-900 transition-colors duration-200 group-hover:text-[var(--color-brand,#2f5fe8)]">
+            <h3 className="style-card-title text-slate-900 transition-colors duration-200 group-hover:text-brand">
               {title}
             </h3>
             <ArrowUpRight className="h-4 w-4 text-slate-400 opacity-0 transition-all duration-200 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-[var(--color-brand,#2f5fe8)]" />
           </div>
 
           {/* Description */}
-          <p className="line-clamp-2 sm:line-clamp-1 style-body-text text-[var(--color-ink-muted,#55555f)]">
+          <p className="line-clamp-2 sm:line-clamp-1 style-body-text text-ink-muted">
             {description}
           </p>
 
           {/* Meta Information */}
-          <div className="flex items-center gap-1.5 style-meta-text text-[var(--color-ink-faint,#8a8a93)] pt-0.5">
+          <div className="flex items-center gap-1.5 style-meta-text text-ink-faint pt-0.5">
             <Calendar className="h-3.5 w-3.5 opacity-70 shrink-0" />
             <span className="truncate">{meta}</span>
           </div>
         </div>
 
         {/* Action Buttons Section */}
-        <div className="flex shrink-0 items-center gap-2 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-[var(--color-border-soft,#e7e2d4)] z-30">
+        <div className="flex shrink-0 items-center gap-2 w-full sm:w-auto pt-2 sm:pt-0 z-30">
           {actions.map((action) => (
             <Button
               key={action.label}
@@ -238,7 +238,7 @@ export function OpenAppRow({
               onClick={(e) => handleActionClick(e, action)}
               className={`btn-fun-animation flex-1 sm:flex-initial justify-center gap-1 style-button-text h-9.5 px-4 rounded-xl transition-all shadow-2xs hover:shadow-xs ${
                 action.variant === "primary"
-                  ? "bg-[var(--color-brand,#2f5fe8)] hover:bg-[var(--color-brand-dark,#1f3aa3)] text-white"
+                  ? "bg-brand hover:bg-brand-dark text-white"
                   : ""
               }`}
             >

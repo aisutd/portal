@@ -22,6 +22,8 @@ export function ScrollReveal({ children, className, delay = 0 }: ScrollRevealPro
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (mediaQuery.matches) {
+      // Browser-only accessibility preference; unavailable during SSR.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVisible(true);
       return;
     }

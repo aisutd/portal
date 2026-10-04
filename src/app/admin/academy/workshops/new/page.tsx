@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { AdminAcademyShell } from "@/components/admin/academy-shell";
 import { WorkshopForm } from "@/components/admin/workshop-form";
 import { RecordingCard } from "@/components/admin/recording-card";
 import { CoverPhotoCard } from "@/components/admin/cover-photo-card";
@@ -27,44 +27,40 @@ export default async function CreateWorkshopPage() {
   ];
 
   return (
-    <div className="flex min-h-screen w-full bg-cream">
-      <AdminSidebar active="Academy" />
-
-      <div className="flex h-full flex-1 flex-col gap-[20px] p-[46px]">
-        <div>
-          <Link
-            href="/admin/academy/workshops"
-            className="style-caption leading-[16.8px] tracking-[0.2px] text-brand"
-          >
-            ← Back to Workshops
-          </Link>
-          <h2 className="mt-[6px] style-section-header leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
-            Create Workshop
-          </h2>
-        </div>
-
-        <form
-          action={createWorkshop}
-          className="flex w-full flex-col gap-6 lg:flex-row lg:items-start"
+    <AdminAcademyShell>
+      <div>
+        <Link
+          href="/admin/academy/workshops"
+          className="style-caption leading-[16.8px] tracking-[0.2px] text-brand"
         >
-          <WorkshopForm tags={eventTags} />
-
-          <div className="flex w-full flex-col gap-5 lg:w-[382px] lg:shrink-0">
-            <CoverPhotoCard defaultImageUrl={null} />
-            <RecordingCard />
-            <SettingsCard items={settings} />
-
-            <div className="flex flex-col gap-2.5">
-              <EventActionButtons
-                isPublished={false}
-                userRole={viewer?.role}
-                cancelHref="/admin/academy/workshops"
-                noun="workshop"
-              />
-            </div>
-          </div>
-        </form>
+          ← Back to Workshops
+        </Link>
+        <h2 className="mt-[6px] style-section-header leading-[34.56px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
+          Create Workshop
+        </h2>
       </div>
-    </div>
+
+      <form
+        action={createWorkshop}
+        className="flex w-full flex-col gap-6 lg:flex-row lg:items-start"
+      >
+        <WorkshopForm tags={eventTags} />
+
+        <div className="flex w-full flex-col gap-5 lg:w-[382px] lg:shrink-0">
+          <CoverPhotoCard defaultImageUrl={null} />
+          <RecordingCard />
+          <SettingsCard items={settings} />
+
+          <div className="flex flex-col gap-2.5">
+            <EventActionButtons
+              isPublished={false}
+              userRole={viewer?.role}
+              cancelHref="/admin/academy/workshops"
+              noun="workshop"
+            />
+          </div>
+        </div>
+      </form>
+    </AdminAcademyShell>
   );
 }

@@ -79,10 +79,6 @@ async function getEventViewModel() {
   const now = new Date();
 
   const events = await prisma.event.findMany({
-    // Academy workshops are events under the hood, but they're managed from
-    // the Academy admin area — listing them here too would mean two places to
-    // edit the same thing.
-    where: { NOT: { programs: { has: "AI_ACADEMY" } } },
     orderBy: { startTime: "asc" },
     include: {
       rsvps: {

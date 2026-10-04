@@ -87,7 +87,7 @@ export function QuizEditor({
         </div>
       )}
 
-      <div className="flex flex-col gap-6 rounded-2xl border border-border-soft bg-white p-6 shadow-sm">
+      <div className="flex flex-col gap-6 rounded-2xl border border-border-soft bg-white p-5 shadow-sm md:p-6">
         <div>
           <h2 className="style-body-text text-lg font-semibold text-ink">Quiz Questions</h2>
           <p className="style-caption mt-0.5 text-ink-faint">
@@ -108,7 +108,7 @@ export function QuizEditor({
         />
       </div>
 
-      <div className="flex flex-col gap-4 rounded-2xl border border-border-soft bg-white p-6 shadow-sm">
+      <div className="flex flex-col gap-4 rounded-2xl border border-border-soft bg-white p-5 shadow-sm md:p-6">
         <h2 className="style-body-text text-lg font-semibold text-ink">Settings</h2>
 
         <div className="flex flex-col gap-[6px]">

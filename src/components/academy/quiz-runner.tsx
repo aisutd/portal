@@ -99,7 +99,7 @@ export function QuizRunner({
     return (
       <div className="flex flex-col gap-[24px]">
         {outcome.passed ? (
-          <div className="flex flex-col items-center gap-[10px] rounded-[20px] border border-emerald-200 bg-[#d2ecd9] p-[36px] text-center">
+          <div className="flex flex-col items-center gap-[10px] rounded-[20px] border border-emerald-200 bg-[#d2ecd9] p-6 text-center md:p-[36px]">
             <CheckCircle2 className="h-9 w-9 text-emerald-800" />
             <p className="style-card-title text-emerald-900">Nice work!</p>
             <p className="style-body-text text-emerald-900/80">
@@ -114,7 +114,7 @@ export function QuizRunner({
             </Link>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-[10px] rounded-[20px] border border-red-200 bg-[#fdf2f2] p-[36px] text-center">
+          <div className="flex flex-col items-center gap-[10px] rounded-[20px] border border-red-200 bg-[#fdf2f2] p-6 text-center md:p-[36px]">
             <XCircle className="h-9 w-9 text-red-600" />
             <p className="style-card-title text-red-700">Not quite</p>
             <p className="style-body-text text-red-700/80">
@@ -149,7 +149,7 @@ export function QuizRunner({
   }
 
   return (
-    <div className="flex flex-col gap-[20px] rounded-[20px] border border-[#2a2f3a] bg-[#181c25] p-[28px]">
+    <div className="flex flex-col gap-[20px] rounded-[20px] border border-[#2a2f3a] bg-[#181c25] p-5 md:p-[28px]">
       <div className="flex flex-wrap items-center justify-between gap-[8px]">
         <div className="flex flex-col gap-[2px]">
           <span className="style-caption text-white/60">{workshopTitle}</span>
@@ -216,7 +216,7 @@ export function QuizRunner({
           type="button"
           onClick={() => setIndex((i) => i - 1)}
           disabled={index === 0}
-          className="rounded-full border border-[#2a2f3a] px-[22px] py-[12px] style-button-text text-white/80 transition-colors hover:border-white/40 disabled:cursor-not-allowed disabled:opacity-35"
+          className="min-h-[44px] rounded-full border border-[#2a2f3a] px-[22px] py-[12px] style-button-text text-white/80 transition-colors hover:border-white/40 disabled:cursor-not-allowed disabled:opacity-35"
         >
           Back
         </button>
@@ -226,7 +226,7 @@ export function QuizRunner({
             type="button"
             onClick={submit}
             disabled={!allAnswered || submitting}
-            className="rounded-full bg-[#d4af37] px-[22px] py-[12px] style-button-text text-ink transition-colors hover:bg-[#c19d2e] disabled:cursor-not-allowed disabled:opacity-45"
+            className="min-h-[44px] rounded-full bg-[#d4af37] px-[22px] py-[12px] style-button-text text-ink transition-colors hover:bg-[#c19d2e] disabled:cursor-not-allowed disabled:opacity-45"
           >
             {submitting ? "Submitting…" : "Submit Quiz"}
           </button>
@@ -235,7 +235,7 @@ export function QuizRunner({
             type="button"
             onClick={() => setIndex((i) => i + 1)}
             disabled={!answered}
-            className="rounded-full bg-[#d4af37] px-[22px] py-[12px] style-button-text text-ink transition-colors hover:bg-[#c19d2e] disabled:cursor-not-allowed disabled:opacity-45"
+            className="min-h-[44px] rounded-full bg-[#d4af37] px-[22px] py-[12px] style-button-text text-ink transition-colors hover:bg-[#c19d2e] disabled:cursor-not-allowed disabled:opacity-45"
           >
             Next
           </button>

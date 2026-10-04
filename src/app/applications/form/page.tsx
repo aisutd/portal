@@ -6,6 +6,7 @@ import { PROGRAM_TYPE_CONFIG, DEFAULT_PROGRAM_TYPE_DESIGN, type ProgramTypeDesig
 import { ProgramType } from "@prisma/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/navbar";
+import { BottomNav } from "@/components/mobile/ui/BottomNav";
 import { FormStepper } from "@/components/apply/form-stepper";
 import { FormField, FormTextarea } from "@/components/ui/form-field";
 import { ReadOnlyField } from "@/components/apply/read-only-field";
@@ -506,9 +507,11 @@ function ApplyFormContent() {
   if (!loading && !error && alreadySubmitted) {
     return (
       <div className="flex min-h-screen w-full flex-col">
-        <Navbar active="Apply" />
-        <div className="flex w-full flex-1 items-center justify-center pt-28 px-6 py-10">
-          <div className="w-full max-w-[720px] rounded-2xl border border-border-soft bg-white p-8 shadow-sm">
+        <div className="hidden md:block">
+          <Navbar active="Apply" />
+        </div>
+        <div className="flex w-full flex-1 items-center justify-center px-5 pb-24 pt-6 md:px-6 md:pb-10 md:pt-28">
+          <div className="w-full max-w-[720px] rounded-2xl border border-border-soft bg-white p-6 shadow-sm md:p-8">
             <div className="flex flex-col gap-4">
               <div className="inline-flex w-fit rounded-full bg-[#efece3] px-3.5 py-1 text-xs font-semibold text-ink-muted">
                 Already submitted
@@ -529,6 +532,7 @@ function ApplyFormContent() {
             </div>
           </div>
         </div>
+        <BottomNav />
       </div>
     );
   }
@@ -1173,12 +1177,15 @@ function ApplyFormContent() {
 function ApplyFormFallback() {
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <Navbar active="Apply" />
-      <div className="flex w-full flex-col items-center px-10 pt-28 pb-32">
-        <div className="w-full max-w-[1346px] rounded-2xl border border-border-soft bg-white p-9 shadow-sm">
+      <div className="hidden md:block">
+        <Navbar active="Apply" />
+      </div>
+      <div className="flex w-full flex-col items-center px-5 pb-32 pt-6 md:px-10 md:pt-28">
+        <div className="w-full max-w-[1346px] rounded-2xl border border-border-soft bg-white p-6 shadow-sm md:p-9">
           <LoadingState />
         </div>
       </div>
+      <BottomNav />
     </div>
   );
 }

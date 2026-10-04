@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { BottomNav } from "@/components/mobile/ui/BottomNav";
 import { AcademyGradientBackground } from "@/components/academy/gradient-background";
 import { QuizRunner } from "@/components/academy/quiz-runner";
 import { QuizReview } from "@/components/academy/quiz-review";
@@ -16,15 +17,25 @@ interface WorkshopQuizPageProps {
   searchParams: Promise<{ retake?: string }>;
 }
 
+/**
+ * Responsive rather than a separate mobile component: every branch below
+ * renders the same content, so only the page chrome needs to change. The
+ * navbar/footer are desktop-only and BottomNav hides itself above `md`.
+ */
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
       <AcademyGradientBackground />
-      <Navbar active="Academy" />
-      <main className="mx-auto flex w-full max-w-[760px] flex-1 flex-col gap-[24px] px-[24px] pb-[64px] pt-28 lg:px-[46px]">
+      <div className="hidden md:block">
+        <Navbar active="Academy" />
+      </div>
+      <main className="mx-auto flex w-full max-w-[760px] flex-1 flex-col gap-[20px] px-5 pb-24 pt-6 md:gap-[24px] md:px-[24px] md:pb-[64px] md:pt-28 lg:px-[46px]">
         {children}
       </main>
-      <Footer />
+      <div className="hidden md:block">
+        <Footer />
+      </div>
+      <BottomNav />
     </div>
   );
 }
@@ -55,7 +66,7 @@ export default async function WorkshopQuizPage({
     return (
       <Shell>
         {backLink}
-        <div className="rounded-[20px] border border-dashed border-[#2a2f3a] bg-[#181c25] p-[28px] text-center style-body-text text-white/70">
+        <div className="rounded-[20px] border border-dashed border-[#2a2f3a] bg-[#181c25] p-6 text-center md:p-[28px] style-body-text text-white/70">
           No quiz has been posted for this workshop.
         </div>
       </Shell>
@@ -85,7 +96,7 @@ export default async function WorkshopQuizPage({
         {backLink}
 
         <div
-          className={`flex flex-col items-center gap-[10px] rounded-[20px] border p-[32px] text-center ${
+          className={`flex flex-col items-center gap-[10px] rounded-[20px] border p-6 text-center md:p-[32px] ${
             attempt.passed
               ? "border-emerald-200 bg-[#d2ecd9]"
               : "border-red-200 bg-[#fdf2f2]"
@@ -139,7 +150,7 @@ export default async function WorkshopQuizPage({
     return (
       <Shell>
         {backLink}
-        <div className="flex flex-col items-center gap-[10px] rounded-[20px] border border-emerald-200 bg-[#d2ecd9] p-[36px] text-center">
+        <div className="flex flex-col items-center gap-[10px] rounded-[20px] border border-emerald-200 bg-[#d2ecd9] p-6 text-center md:p-[36px]">
           <CheckCircle2 className="h-9 w-9 text-emerald-800" />
           <p className="style-card-title text-emerald-900">You&apos;re all set</p>
           <p className="style-body-text text-emerald-900/80">
@@ -155,7 +166,7 @@ export default async function WorkshopQuizPage({
     return (
       <Shell>
         {backLink}
-        <div className="flex flex-col items-center gap-[10px] rounded-[20px] border border-red-200 bg-[#fdf2f2] p-[36px] text-center">
+        <div className="flex flex-col items-center gap-[10px] rounded-[20px] border border-red-200 bg-[#fdf2f2] p-6 text-center md:p-[36px]">
           <XCircle className="h-9 w-9 text-red-600" />
           <p className="style-card-title text-red-700">Quiz Closed</p>
           <p className="style-body-text text-red-700/80">

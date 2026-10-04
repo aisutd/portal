@@ -11,7 +11,7 @@ export type AcademyTab = (typeof TABS)[number]["label"];
 /** Secondary nav within the Academy admin area. */
 export function AcademyTabs({ active }: { active: AcademyTab }) {
   return (
-    <nav className="flex items-center gap-2 border-b border-border-soft pb-3">
+    <nav className="flex items-center gap-2 overflow-x-auto border-b border-border-soft pb-3 scrollbar-none">
       {TABS.map((tab) => (
         <Link
           key={tab.href}

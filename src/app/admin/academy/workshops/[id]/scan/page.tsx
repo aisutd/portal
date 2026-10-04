@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { QRScannerClient } from "@/components/admin/qr-scanner";
-import { MobileAdminScan } from "@/components/mobile/admin/MobileAdminScan";
+import { MobileWorkshopScan } from "@/components/mobile/admin/MobileWorkshopScan";
 
 export const metadata: Metadata = {
   title: "AIS Admin — Workshop Scan & Perks",
@@ -26,7 +26,7 @@ export default async function WorkshopScanPage({
   return (
     <>
       <div className="md:hidden">
-        <MobileAdminScan eventTitle={workshop.title} eventId={workshop.id} items={[]} />
+        <MobileWorkshopScan workshopTitle={workshop.title} workshopId={workshop.id} items={[]} />
       </div>
 
       <div className="hidden md:block">

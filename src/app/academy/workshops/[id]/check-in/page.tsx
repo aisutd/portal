@@ -81,7 +81,7 @@ export default async function WorkshopCheckInPage({
   if (status === "SUCCESS") {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center p-6 text-center">
-        <div className="w-full max-w-[420px] rounded-[16px] bg-[#d2ecd9] p-[36px] border border-[#b8dfc3]">
+        <div className="w-full max-w-[420px] rounded-[16px] bg-[#d2ecd9] p-6 md:p-[36px] border border-[#b8dfc3]">
           <span className="style-caption font-semibold uppercase tracking-wider">
             Verified
           </span>
@@ -109,7 +109,7 @@ export default async function WorkshopCheckInPage({
   if (status === "ALREADY_CHECKED_IN") {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center p-6 text-center">
-        <div className="w-full max-w-[420px] rounded-[16px] bg-white p-[36px] border border-border-soft shadow-sm">
+        <div className="w-full max-w-[420px] rounded-[16px] bg-white p-6 md:p-[36px] border border-border-soft shadow-sm">
           <span className="style-caption font-semibold uppercase tracking-wider text-ink-muted">
             Already Verified
           </span>
@@ -137,7 +137,7 @@ export default async function WorkshopCheckInPage({
   if (status === "INVALID_TOKEN") {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center p-6 text-center">
-        <div className="w-full max-w-[420px] rounded-[16px] bg-white p-[36px] border border-border-soft shadow-sm">
+        <div className="w-full max-w-[420px] rounded-[16px] bg-white p-6 md:p-[36px] border border-border-soft shadow-sm">
           <span className="style-caption font-semibold uppercase tracking-wider text-red-600">
             Error
           </span>
@@ -164,7 +164,7 @@ export default async function WorkshopCheckInPage({
   // UI State: Closed / Outside Time Window
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-6 text-center">
-      <div className="w-full max-w-[420px] rounded-[16px] bg-[#f4f1ea] p-[36px] border border-border-soft">
+      <div className="w-full max-w-[420px] rounded-[16px] bg-[#f4f1ea] p-6 md:p-[36px] border border-border-soft">
         <span className="style-caption font-semibold uppercase tracking-wider text-ink-faint">
           Ended
         </span>

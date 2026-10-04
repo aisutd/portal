@@ -34,7 +34,7 @@ export function QuizReview({ questions, results, answerKey }: QuizReviewProps) {
         return (
           <div
             key={question.id}
-            className="flex flex-col gap-[10px] rounded-[16px] border border-[#2a2f3a] bg-[#181c25] p-[20px]"
+            className="flex flex-col gap-[10px] rounded-[16px] border border-[#2a2f3a] bg-[#181c25] p-4 md:p-[20px]"
           >
             <div className="flex items-start gap-[10px]">
               <span

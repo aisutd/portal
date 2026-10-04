@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { EventCoverImage } from "../events/event-cover-image";
-import { Play } from "lucide-react";
+import { Calendar, Play } from "lucide-react";
 import {
   isWorkshopInProgress,
   isWorkshopPast,
   type AcademyWorkshopSummary,
 } from "@/lib/academy-content";
+import { formatEventDate } from "@/lib/utils";
 
 type LessonStatus =
   | "completed"
@@ -107,12 +108,19 @@ export function CourseSequence({
               {/* Text Info */}
               <div className="flex flex-col gap-[6px]">
                 <h3 className="style-card-title text-white line-clamp-1">
-                  Lesson {idx + 1}: {workshop.title}
+                  {idx + 1} - {workshop.title}
                 </h3>
                 <p className="style-caption text-white/70 line-clamp-2">
                   {workshop.description}
                 </p>
               </div>
+
+              {workshop.quizDueAt && (
+                <span className="flex items-center gap-1.5 style-caption text-[#f2c95c]">
+                  <Calendar className="h-3.5 w-3.5 shrink-0" />
+                  Quiz due: {formatEventDate(workshop.quizDueAt, true)}
+                </span>
+              )}
 
               {/* Status Badge */}
               <span className={`w-fit rounded-full px-[12px] py-[6px] style-badge-text ${className}`}>

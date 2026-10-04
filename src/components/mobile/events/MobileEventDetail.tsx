@@ -60,20 +60,20 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
 
   const cardStyle = isPast
     ? attended
-      ? "bg-checked border-2 border-green"
+      ? "bg-checked/55 border-2 border-green/35 backdrop-blur-md shadow-sm shadow-ink/15"
       : isRsvpd
-      ? "bg-danger-ink/20 border-2 border-danger-ink"
-      : "bg-[#f4f1ea] border border-border-soft"
+      ? "bg-danger-ink/20 border-2 border-danger-ink/35 backdrop-blur-md shadow-sm shadow-ink/15"
+      : "bg-white/50 backdrop-blur-md border-white/35 border-2 shadow-sm shadow-ink/15"
     : attended
-    ? "bg-checked"
+    ? "bg-checked/55 border-2 border-green/35 backdrop-blur-md shadow-sm shadow-ink/15"
     : isRsvpd
-    ? "bg-checked"
+    ? "bg-checked/55 border-2 border-green/35 backdrop-blur-md shadow-sm shadow-ink/15"
     : !isRsvpOpen
-    ? "bg-amber-50/50 border border-amber-200 shadow-sm"
-    : "bg-white border border-border-soft shadow-sm";
+    ? "bg-amber-50/50 border-2 border-amber-200/35 backdrop-blur-md shadow-sm shadow-ink/15"
+    : "bg-white/50 backdrop-blur-md border-white/35 border-2 shadow-sm shadow-ink/15"
 
   return (
-    <MobileScreen>
+    <MobileScreen withBottomNavPadding>
       <Link 
         href="/events" 
         className="inline-flex items-center py-1 style-caption font-bold text-brand transition-opacity hover:opacity-80"
@@ -83,7 +83,7 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
 
       <EventCoverImage
         imageUrl={event.imageUrl}
-        className="h-55 w-full shrink-0 shadow-sm"
+        className="min-h-20 w-full shrink-0 shadow-sm"
         alt={`${event.title} cover`}
       />
 
@@ -116,10 +116,10 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
         </p>
       </div>
 
-      <div className={`mt-2 flex flex-col items-center justify-center gap-[16px] rounded-[20px] p-[24px] ${cardStyle}`}>
+      <div className={`mt-2 flex flex-col items-center justify-center gap-4 rounded-[20px] p-6 ${cardStyle}`}>
         {isPast ? (
           <>
-            <h2 className={`style-mobile-title ${
+            <h2 className={`style-section-header ${
               attended ? "text-green" : isRsvpd ? "text-danger-ink" : "text-ink"
             }`}>
               {attended ? "Attended" : isRsvpd ? "Missed Event" : "Event Concluded"}
@@ -142,7 +142,7 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
           </>
         ) : attended ? (
           <>
-            <h2 className="style-mobile-title text-green">
+            <h2 className="style-section-header text-green">
               Checked In!
             </h2>
 
@@ -154,7 +154,7 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
           </>
         ) : isRsvpd ? (
           <>
-            <h2 className="text-center style-mobile-title text-green">
+            <h2 className="text-center style-section-header text-green">
               {isLive ? "Check-in started!" : "RSVP'd. You're Going!"}
             </h2>
 
@@ -168,7 +168,7 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
           </>
         ) : (
           <>
-            <h2 className="style-mobile-title leading-[25.96px] text-ink">
+            <h2 className="text-center style-section-header text-ink">
               {isLive ? "Event is Live!" : !isRsvpOpen ? "RSVPs Closed" : "Join This Event"}
             </h2>
             
@@ -199,10 +199,9 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
         )}
       </div>
 
-      {/* Footer Wrapper with Margin Cancellation & Bottom Spacing for Fixed Nav
-      <div className="-mx-5 mt-8 pt-6">
+      <div className="-mx-5 pt-6">
         <Footer />
-      </div> */}
+      </div>
       <BottomNav />
     </MobileScreen>
   );
