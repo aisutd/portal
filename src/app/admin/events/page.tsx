@@ -10,6 +10,7 @@ import { MobileAdminEvents } from "@/components/mobile/admin/MobileAdminEvents";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import type { EventRowData } from "@/components/admin/event-row";
+import { isAimEvent } from "@/lib/event-visibility";
 
 export const metadata: Metadata = {
   title: "AIS Admin — Events",
@@ -60,6 +61,7 @@ function mapEventToRow(event: EventWithRsvps): EventRowData {
     imageUrl: event.imageUrl,
     title: event.title,
     status: baseStatus,
+    badge: isAimEvent(event) ? { label: "AIM", bg: "#dbeafe", color: "#1e40af" } : undefined,
     meta: `${formattedDate} · ${event.location}`,
     leftInfo: capacity > 0 ? `${checkedInCountForEvent} / ${capacity} checked in` : "No capacity set",
     rightInfo: `${activeRsvps.length} RSVPs`, // <-- Uses active count only

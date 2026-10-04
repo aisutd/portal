@@ -6,6 +6,7 @@ type MobileAdminNavLabel =
   | "Applications"
   | "Events"
   | "Academy"
+  | "AIM"
   | "Members"
   | "Exit Admin";
 
@@ -18,6 +19,7 @@ const NAV_ITEMS: readonly {
   { label: "Applications", href: "/admin/applications", visible: (v) => !!v?.canReview },
   { label: "Events", href: "/admin/events", visible: (v) => !!v?.isAdmin },
   { label: "Academy", href: "/admin/academy", visible: (v) => !!v?.canManageAcademy },
+  { label: "AIM", href: "/admin/aim", visible: (v) => !!v?.canManageAim },
   { label: "Members", href: "/admin/members", visible: (v) => !!v?.isAdmin },
   { label: "Exit Admin", href: "/dashboard", visible: () => true },
 ];

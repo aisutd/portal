@@ -6,6 +6,7 @@ import { getAuthenticatedUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Tag } from "@/components/ui/tag";
 import { normalizeEventTags } from "@/lib/event-tags";
+import { isAimEvent } from "@/lib/event-visibility";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
 import { Footer } from "@/components/footer";
@@ -55,7 +56,7 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
   const isRsvpd = !!userRsvp && userRsvp.status === "GOING";
   const attended = userRsvp && 'attendance' in userRsvp ? !!userRsvp.attendance : false;
 
-  const normalizedTags = normalizeEventTags(event.tags);
+  const normalizedTags = normalizeEventTags(isAimEvent(event) ? ["AIM", ...event.tags] : event.tags);
   const formattedDate = formatEventDate(event.startTime.toString(), true);
 
   const cardStyle = isPast

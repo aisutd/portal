@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { AttendanceMethod } from "@prisma/client";
 import { getAuthenticatedUser } from "@/lib/auth";
+import { canManageAim } from "@/lib/roles";
 
 export async function processScan(
   eventId: string, 
@@ -13,8 +14,11 @@ export async function processScan(
   try {
     // 1. Get the authenticated admin performing the scan
     const currentUser = await getAuthenticatedUser();
+    const activePrograms = currentUser?.memberships
+      .filter((m) => m.activeFlag)
+      .map((m) => m.membershipType) ?? [];
 
-    if (!currentUser || currentUser.role === "MEMBER" && currentUser.memberships?.[-1].membershipType !== "AIM_MENTOR") {
+    if (!currentUser || (currentUser.role === "MEMBER" && !canManageAim(currentUser.role, activePrograms))) {
       return { success: false, error: "Unauthorized. Please sign in." };
     }
 
