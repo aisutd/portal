@@ -38,17 +38,43 @@ export async function GET(
       return postingOutOfScopeResponse();
     }
 
-    const file = submission.user?.profile?.resumeFile;
-
-    if (!file?.storageKey) {
-      return NextResponse.json({ error: "Resume file not found" }, { status: 404 });
-    }
-
     const publicBase = (
       process.env.R2_PUBLIC_URL ?? 
       process.env.NEXT_PUBLIC_R2_PUBLIC_URL ?? 
       ""
     ).replace(/\/$/, "");
+
+    // Check if submission formPayloadJson contains an application-specific resume
+    const payload =
+      submission.formPayloadJson && typeof submission.formPayloadJson === "object"
+        ? (submission.formPayloadJson as Record<string, unknown>)
+        : {};
+
+    const resumeVal = payload["Resume"] ?? payload["Resume *"];
+    if (typeof resumeVal === "string" && resumeVal.trim()) {
+      try {
+        const parsed = JSON.parse(resumeVal);
+        const customUrl = parsed.url || parsed.key;
+        if (customUrl) {
+          if (customUrl.startsWith("http://") || customUrl.startsWith("https://")) {
+            return NextResponse.redirect(customUrl);
+          }
+          if (publicBase) {
+            return NextResponse.redirect(`${publicBase}/${customUrl}`);
+          }
+        }
+      } catch {
+        if (resumeVal.startsWith("http://") || resumeVal.startsWith("https://")) {
+          return NextResponse.redirect(resumeVal);
+        }
+      }
+    }
+
+    const file = submission.user?.profile?.resumeFile;
+
+    if (!file?.storageKey) {
+      return NextResponse.json({ error: "Resume file not found" }, { status: 404 });
+    }
 
     const fileUrl = `${publicBase}/${file.storageKey}`;
     return NextResponse.redirect(fileUrl);

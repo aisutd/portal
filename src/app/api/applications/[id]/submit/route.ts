@@ -115,7 +115,7 @@ export async function POST(
   }
 
   const result = await prisma.$transaction(async (tx) => {
-    const [draft, latestSubmission] = await Promise.all([
+    const [draft, latestSubmission, userWithProfile] = await Promise.all([
       tx.applicationDraft.findUnique({
         where: {
           applicationId_userId: {
@@ -135,6 +135,20 @@ export async function POST(
         },
         orderBy: { versionNumber: "desc" },
         select: { versionNumber: true },
+      }),
+      tx.user.findUnique({
+        where: { id: currentUser.userId },
+        select: {
+          profile: {
+            select: {
+              resumeFile: {
+                select: {
+                  fileName: true,
+                },
+              },
+            },
+          },
+        },
       }),
     ]);
 
@@ -170,6 +184,17 @@ export async function POST(
       answers[cleanKey] = stringVal;
     }
 
+    // Autofill resume from profile only if draft never specified a resume key
+    const hasResumeDraftKey = "Resume" in rawPayload || "Resume *" in rawPayload;
+    const profileResumeName = userWithProfile?.profile?.resumeFile?.fileName;
+    if (!hasResumeDraftKey && profileResumeName) {
+      if (!answers["Resume"]) answers["Resume"] = profileResumeName;
+      if (!answers["Resume *"]) answers["Resume *"] = profileResumeName;
+      if (rawPayload && typeof rawPayload === "object") {
+        (rawPayload as Record<string, unknown>)["Resume"] = profileResumeName;
+      }
+    }
+
     // Run field validations with complete questions map
     const fieldErrors = validateFields(answers, layout.allFieldLabels, questionsMap);
 
@@ -185,9 +210,9 @@ export async function POST(
     }
 
     const normalizedFormPayloadJson =
-      draft.formPayloadJson === null
+      rawPayload === null
         ? Prisma.JsonNull
-        : (draft.formPayloadJson as Prisma.InputJsonValue);
+        : (rawPayload as Prisma.InputJsonValue);
 
     const submission = await tx.applicationSubmission.create({
       data: {

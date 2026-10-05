@@ -209,7 +209,13 @@ export function MobileAdminApplicantReview({ applicationId }: { applicationId: s
 
           {/* Social / Resume External Links */}
           <div className="flex flex-wrap gap-[8px]">
-            {selectedSubmission.user.profile?.resumeFile && (
+            {(selectedSubmission.user.profile?.resumeFile ||
+              (selectedSubmission.formPayloadJson &&
+                typeof selectedSubmission.formPayloadJson === "object" &&
+                Boolean(
+                  (selectedSubmission.formPayloadJson as Record<string, unknown>)["Resume"] ||
+                  (selectedSubmission.formPayloadJson as Record<string, unknown>)["Resume *"]
+                ))) && (
               <a href={`/api/admin/applications/${detail?.id}/submissions/${selectedSubmission.id}/resume`}>
                 <Button variant="soft" size="sm">Resume ↗</Button>
               </a>

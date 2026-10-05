@@ -10,7 +10,6 @@ import { MobileReadOnlyField } from "@/components/mobile/apply/MobileReadOnlyFie
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
 import { personalFields } from "@/lib/data";
-import { uploadResumeAction } from "@/app/profile/resume";
 import { FormattedLinks } from "@/components/ui/formatted-link";
 import { UTD_MAJORS, UTD_DEGREES, ACADEMIC_YEARS } from "@/lib/utd-data";
 import { getProgramTypeDesign } from "@/lib/program-types"; // Update import path if needed
@@ -112,6 +111,8 @@ type FieldErrors = Record<string, string>;
 
 const RESUME_ACCEPT =
   ".doc,.docx,.pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf";
+const MAX_RESUME_SIZE = 1024 * 1024; // 1 MB
+const MAX_GENERIC_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 const GENERIC_FILE_ACCEPT =
   ".jpg,.jpeg,.png,.pdf,.docx,.txt,image/jpeg,image/png,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain";
 const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "pdf", "docx", "txt"];
@@ -210,6 +211,7 @@ export function MobileApplyForm() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [uploadingResume, setUploadingResume] = useState(false);
+  const [deletingResume, setDeletingResume] = useState(false);
   const [uploadingFields, setUploadingFields] = useState<Record<string, boolean>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [applicationTitle, setApplicationTitle] = useState<string | null>(null);
@@ -218,6 +220,16 @@ export function MobileApplyForm() {
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [fileSizeErrorModal, setFileSizeErrorModal] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+  }>({
+    open: false,
+    title: "",
+    message: "",
+  });
+  const [hasProfileResume, setHasProfileResume] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
 
   const saveTimerRef = useRef<number | null>(null);
@@ -325,16 +337,58 @@ export function MobileApplyForm() {
         if (!controller.signal.aborted) {
           setQuestionsMap(qMap);
 
+          const profileHasResume = Boolean(profilePayload.profile?.resumeFile?.fileName);
+          setHasProfileResume(profileHasResume);
+
           const nextLayout = buildFormLayout(normalizedLabels);
           setLayout(nextLayout);
 
+          const profileValues = profileToFieldValues(profilePayload.profile);
+          const draftValues = extractStringValues(
+            nextLayout.allFieldLabels,
+            draftPayload.draft?.formPayloadJson
+          );
+
+          const draftPayloadObj =
+            draftPayload.draft?.formPayloadJson &&
+            typeof draftPayload.draft.formPayloadJson === "object"
+              ? (draftPayload.draft.formPayloadJson as Record<string, unknown>)
+              : {};
+
+          const rawDraftResume = String(
+            draftPayloadObj["Resume"] ??
+            draftPayloadObj["Resume *"] ??
+            draftValues["Resume"] ??
+            draftValues["Resume *"] ??
+            ""
+          ).trim();
+
+          let isCustomDraftUpload = false;
+          if (rawDraftResume) {
+            try {
+              const parsed = JSON.parse(rawDraftResume);
+              if (parsed.url || parsed.key) {
+                isCustomDraftUpload = true;
+              }
+            } catch {
+              if (rawDraftResume.startsWith("http://") || rawDraftResume.startsWith("https://")) {
+                isCustomDraftUpload = true;
+              }
+            }
+          }
+
           const mergedValues = {
-            ...profileToFieldValues(profilePayload.profile),
-            ...extractStringValues(
-              nextLayout.allFieldLabels,
-              draftPayload.draft?.formPayloadJson
-            ),
+            ...profileValues,
+            ...draftValues,
           };
+
+          // If the user has a resume in their profile, and the draft hasn't overridden it with a custom application uploaded file,
+          // ALWAYS autofill from profile resume!
+          if (!isCustomDraftUpload && profilePayload.profile?.resumeFile?.fileName) {
+            const profileResumeName = profilePayload.profile.resumeFile.fileName;
+            mergedValues["Resume"] = profileResumeName;
+            mergedValues["Resume *"] = profileResumeName;
+          }
 
           const nextValues = toFieldValues(nextLayout.allFieldLabels, mergedValues);
           setFieldValues(nextValues);
@@ -460,17 +514,22 @@ export function MobileApplyForm() {
 
   function handleValueChange(label: string, value: string) {
     setSaveStatus("saving");
+    const clean = normalizeFieldLabel(label);
     const nextValues = {
       ...fieldValuesRef.current,
       [label]: value,
+      [clean]: value,
+      [`${clean} *`]: value,
     };
     fieldValuesRef.current = nextValues;
     setFieldValues(nextValues);
 
-    if (fieldErrors[label]) {
+    if (fieldErrors[label] || fieldErrors[clean] || fieldErrors[`${clean} *`]) {
       setFieldErrors((current) => {
         const nextErrors = { ...current };
         delete nextErrors[label];
+        delete nextErrors[clean];
+        delete nextErrors[`${clean} *`];
         return nextErrors;
       });
     }
@@ -480,34 +539,80 @@ export function MobileApplyForm() {
     }
   }
 
-  async function handleServerActionResumeUpload(file: File) {
+  async function handleResumeUpload(file: File) {
+    if (!applicationId) return;
+
+    if (file.size > MAX_RESUME_SIZE) {
+      setFileSizeErrorModal({
+        open: true,
+        title: "Resume Too Large",
+        message: "Your resume exceeds the 1MB file size limit. Please upload a file smaller than 1MB.",
+      });
+      return;
+    }
+
     setUploadingResume(true);
     setSubmitError(null);
 
     try {
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("questionId", "resume");
 
-      const res = await uploadResumeAction(formData);
+      const response = await fetch(`/api/applications/${applicationId}/upload`, {
+        method: "POST",
+        body: formData,
+      });
 
-      if (!res.success) {
-        throw new Error(res.error || "Upload failed");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || "Upload failed");
       }
 
-      handleValueChange("Resume", file.name);
+      const filePayload = JSON.stringify({
+        fileName: file.name,
+        url: data.url || data.key,
+      });
+
+      handleValueChange("Resume", filePayload);
+      handleValueChange("Resume *", filePayload);
       scheduleDraftSave(fieldValuesRef.current, activeStep);
     } catch (err) {
+      const msg = (err as Error).message || "Upload failed. Please try again.";
       setFieldErrors((prev) => ({
         ...prev,
-        "Resume *": (err as Error).message || "Upload failed. Please try again.",
+        "Resume": msg,
+        "Resume *": msg,
       }));
     } finally {
       setUploadingResume(false);
     }
   }
 
+  function handleDeleteResume(label: string = "Resume") {
+    handleValueChange(label, "");
+    handleValueChange("Resume", "");
+    handleValueChange("Resume *", "");
+    scheduleDraftSave(fieldValuesRef.current, activeStep);
+  }
+
+  function handleGenericFileDelete(label: string) {
+    handleValueChange(label, "");
+    scheduleDraftSave(fieldValuesRef.current, activeStep);
+  }
+
   async function handleApplicationFileUpload(label: string, file: File) {
     if (!applicationId) return;
+
+    if (file.size > MAX_GENERIC_FILE_SIZE) {
+      setFileSizeErrorModal({
+        open: true,
+        title: "File Too Large",
+        message: "Your file exceeds the 10MB limit. Please upload a file smaller than 10MB.",
+      });
+      return;
+    }
 
     setUploadingFields((prev) => ({ ...prev, [label]: true }));
     setSubmitError(null);
@@ -659,9 +764,9 @@ export function MobileApplyForm() {
   }
 
   function renderField(label: string) {
-    const value = fieldValues[label] ?? "";
     const cleanLabel = normalizeFieldLabel(label);
-    const errorMessage = fieldErrors[cleanLabel] || fieldErrors[label];
+    const value = fieldValues[label] ?? fieldValues[cleanLabel] ?? fieldValues[`${cleanLabel} *`] ?? "";
+    const errorMessage = fieldErrors[cleanLabel] || fieldErrors[label] || fieldErrors[`${cleanLabel} *`];
     const inputId = `mobile-f-${label.toLowerCase().replace(/\s+/g, "-")}`;
     const config = questionsMap[cleanLabel] || questionsMap[label];
     const required = isRequiredField(label, questionsMap);
@@ -706,25 +811,35 @@ export function MobileApplyForm() {
       const isUploading = isProfileResume
         ? uploadingResume
         : Boolean(uploadingFields[label]);
+      const isDeleting = isProfileResume ? deletingResume : false;
 
       let displayFileName = "";
       let fileUrl = "";
+      let isCustomUpload = false;
 
       if (value) {
         try {
           const parsed = JSON.parse(value);
           displayFileName = parsed.fileName || parsed.name || "";
           fileUrl = parsed.url || "";
+          isCustomUpload = true;
         } catch {
           if (value.startsWith("http://") || value.startsWith("https://")) {
             fileUrl = value;
             const rawName = value.split("/").pop() || "Uploaded File";
             displayFileName = rawName.replace(/^\d+_\s*/, "");
+            isCustomUpload = true;
           } else {
             displayFileName = value.replace(/^\d+_\s*/, "");
           }
         }
       }
+
+      if (isProfileResume && !fileUrl && displayFileName) {
+        fileUrl = "/api/profile/resume/download";
+      }
+
+      const isAutofilledFromProfile = isProfileResume && !isCustomUpload && Boolean(displayFileName);
 
       return (
         <div key={label} className="flex flex-col gap-[6px]">
@@ -757,17 +872,38 @@ export function MobileApplyForm() {
                 return;
               }
 
+              if (isProfileResume && file.size > MAX_RESUME_SIZE) {
+                setFileSizeErrorModal({
+                  open: true,
+                  title: "Resume Too Large",
+                  message: "Your resume exceeds the 1MB file size limit. Please upload a file smaller than 1MB.",
+                });
+                event.currentTarget.value = "";
+                return;
+              }
+
+              if (!isProfileResume && file.size > MAX_GENERIC_FILE_SIZE) {
+                setFileSizeErrorModal({
+                  open: true,
+                  title: "File Too Large",
+                  message: "Your file exceeds the 10MB limit. Please upload a file smaller than 10MB.",
+                });
+                event.currentTarget.value = "";
+                return;
+              }
+
               if (isProfileResume) {
-                void handleServerActionResumeUpload(file);
+                void handleResumeUpload(file);
               } else {
                 void handleApplicationFileUpload(label, file);
               }
+              event.currentTarget.value = "";
             }}
           />
-          <div className="flex items-center gap-[10px]">
+          <div className="flex items-center gap-[10px] flex-wrap">
             <button
               type="button"
-              disabled={isUploading}
+              disabled={isUploading || isDeleting}
               className="flex h-[38px] items-center justify-center rounded-[8px] border border-border-soft bg-white px-[14px] font-sans font-bold text-ink shadow-xs transition-colors hover:bg-[#fbfaf7] disabled:opacity-50"
               onClick={(e) => {
                 const container = e.currentTarget.parentElement?.parentElement;
@@ -777,33 +913,60 @@ export function MobileApplyForm() {
                 fileInput?.click();
               }}
             >
-              {isUploading ? "Uploading..." : "Upload file"}
+              {isUploading ? "Uploading..." : displayFileName ? "Replace file" : "Upload file"}
             </button>
             {displayFileName ? (
-              fileUrl ? (
-                <a
-                  href={fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="style-caption text-brand underline truncate max-w-[200px]"
+              <div className="flex items-center gap-2 rounded-lg border border-border-soft bg-[#fbfaf7] px-2.5 py-1.5 text-xs text-ink max-w-[260px]">
+                {fileUrl ? (
+                  <a
+                    href={fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="style-caption text-brand underline truncate max-w-[150px]"
+                  >
+                    {displayFileName}
+                  </a>
+                ) : (
+                  <span className="style-caption text-ink truncate max-w-[150px]">
+                    {displayFileName}
+                  </span>
+                )}
+                {isAutofilledFromProfile ? (
+                  <span className="ml-auto mr-0.5 shrink-0 rounded bg-[#efece3] px-1.5 py-0.5 text-[10px] font-semibold text-ink-muted">
+                    Profile
+                  </span>
+                ) : null}
+                <button
+                  type="button"
+                  disabled={isDeleting || isUploading}
+                  onClick={() => {
+                    if (isProfileResume) {
+                      handleDeleteResume(label);
+                    } else {
+                      handleGenericFileDelete(label);
+                    }
+                  }}
+                  className={`${isAutofilledFromProfile ? "" : "ml-auto"} inline-flex items-center justify-center p-0.5 text-ink-muted hover:text-red-600 transition-colors rounded hover:bg-red-50 disabled:opacity-50 cursor-pointer`}
+                  title="Remove file from application"
+                  aria-label="Remove file from application"
                 >
-                  {displayFileName}
-                </a>
-              ) : (
-                <span className="style-caption text-ink truncate max-w-[200px]">
-                  {displayFileName}
-                </span>
-              )
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
             ) : (
-              <span className="style-caption text-ink-muted truncate max-w-[200px]">
+              <span className="font-sans text-xs text-ink-muted truncate max-w-[200px]">
                 No file selected
               </span>
             )}
           </div>
           <p className="font-sans text-ink-faint">
             {isProfileResume
-              ? "Accepted formats: .pdf, .doc, .docx"
-              : "Accepted formats: .jpg, .png, .pdf, .docx, .txt"}
+              ? isAutofilledFromProfile
+                ? "Autofilled from your profile. Replacing it here applies only to this application."
+                : "Accepted formats: .pdf, .doc, .docx (Max 1MB). Applies to this application only."
+              : "Accepted formats: .jpg, .png, .pdf, .docx, .txt (Max 10MB)"}
           </p>
           {errorMessage ? (
             <p className="font-sans text-[#9a3b36]">{errorMessage}</p>
@@ -1034,7 +1197,7 @@ export function MobileApplyForm() {
                         <MobileReadOnlyField
                           key={label}
                           label={label}
-                          value={fieldValues[label] ?? ""}
+                          value={fieldValues[label] ?? fieldValues[normalizeFieldLabel(label)] ?? ""}
                           multiline={stepIndex > 0}
                         />
                       ))}
@@ -1122,6 +1285,46 @@ export function MobileApplyForm() {
                 disabled={submitting}
               >
                 {submitting ? "Submitting..." : "Confirm & Submit"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {fileSizeErrorModal.open ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="w-full max-w-md rounded-2xl border border-border-soft bg-white p-6 shadow-xl flex flex-col items-center text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-600 mb-4">
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+                />
+              </svg>
+            </div>
+
+            <h3 className="style-section-header text-xl font-bold text-ink">
+              {fileSizeErrorModal.title}
+            </h3>
+
+            <p className="mt-2 text-sm text-ink-muted">
+              {fileSizeErrorModal.message}
+            </p>
+
+            <div className="mt-6 flex w-full justify-center">
+              <button
+                type="button"
+                className="flex h-10 w-full sm:w-auto min-w-[120px] items-center justify-center rounded-xl bg-brand px-5 text-sm font-bold text-white transition-opacity hover:opacity-95"
+                onClick={() => setFileSizeErrorModal({ open: false, title: "", message: "" })}
+              >
+                Okay
               </button>
             </div>
           </div>

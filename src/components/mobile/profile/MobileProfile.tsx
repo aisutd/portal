@@ -182,15 +182,11 @@ export function MobileProfile({ profile, completion, updateProfile }: MobileProf
         </Card>
 
         {/* Resume Upload */}
-        <Card
-          className={cn(
-            "flex flex-col gap-[12px] p-[18px]",
-            !profile.resumeFileId && "border-2 border-red-500 bg-red-50/50"
-          )}
-        >
+        <Card className="flex flex-col gap-[12px] p-[18px]">
           <Eyebrow>Resume Upload</Eyebrow>
           <ResumeUploadButton
             initialFileName={profile.resumeFile?.fileName}
+            initialFileSize={profile.resumeFile?.fileSize}
             hasResume={!!profile.resumeFileId}
           />
         </Card>

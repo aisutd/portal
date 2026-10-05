@@ -1542,7 +1542,13 @@ export function AdminApplicationsManager({
 
                       {!isBlindReviewMode && (
                         <div className="mt-4 flex w-full flex-wrap items-center gap-3 border-t border-border-soft/60 pt-3">
-                          {selectedSubmission.user.profile?.resumeFile && (
+                          {(selectedSubmission.user.profile?.resumeFile ||
+                            (selectedSubmission.formPayloadJson &&
+                              typeof selectedSubmission.formPayloadJson === "object" &&
+                              Boolean(
+                                (selectedSubmission.formPayloadJson as Record<string, unknown>)["Resume"] ||
+                                (selectedSubmission.formPayloadJson as Record<string, unknown>)["Resume *"]
+                              ))) && (
                             <a
                               className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
                               href={`/api/admin/applications/${detail.id}/submissions/${selectedSubmission.id}/resume`}

@@ -126,6 +126,7 @@ export default async function ProfilePage() {
                     <SectionHeader title="Resume Upload" />
                     <ResumeUploadButton
                       initialFileName={profile.resumeFile?.fileName}
+                      initialFileSize={profile.resumeFile?.fileSize}
                       hasResume={!!profile.resumeFileId}
                     />
                   </Card>
