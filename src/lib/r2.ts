@@ -8,16 +8,20 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { prisma } from "./prisma";
 
-const r2 = new S3Client({
-  region: "auto",
-  endpoint: process.env.R2_ENDPOINT,
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID ?? "",
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY ?? "",
-  },
-});
+function getR2Client(): S3Client {
+  return new S3Client({
+    region: "auto",
+    endpoint: process.env.R2_ENDPOINT,
+    credentials: {
+      accessKeyId: process.env.R2_ACCESS_KEY_ID ?? "",
+      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY ?? "",
+    },
+  });
+}
 
-const BUCKET_NAME = process.env.R2_BUCKET_NAME ?? "";
+function getBucketName(): string {
+  return process.env.R2_BUCKET_NAME ?? "";
+}
 
 /**
  * Ensures object keys do not start with a leading slash.
@@ -32,15 +36,20 @@ export async function getDownloadUrl(
   expiresInSeconds = 3600,
   filename?: string
 ) {
+  const bucket = getBucketName();
+  if (!bucket) {
+    console.error("R2 configuration missing: R2_BUCKET_NAME is not set.");
+    return null;
+  }
   const cleanKey = normalizeKey(key);
   const command = new GetObjectCommand({
-    Bucket: BUCKET_NAME,
+    Bucket: bucket,
     Key: cleanKey,
     ResponseContentDisposition: filename
       ? `inline; filename="${filename.replace(/["\\]/g, "_")}"`
       : "inline",
   });
-  return await getSignedUrl(r2, command, { expiresIn: expiresInSeconds });
+  return await getSignedUrl(getR2Client(), command, { expiresIn: expiresInSeconds });
 }
 
 // Generate an upload URL for client-side direct uploading
@@ -49,13 +58,18 @@ export async function getUploadUrl(
   mimeType: string,
   expiresInSeconds = 600
 ) {
+  const bucket = getBucketName();
+  if (!bucket) {
+    console.error("R2 configuration missing: R2_BUCKET_NAME is not set.");
+    return null;
+  }
   const cleanKey = normalizeKey(key);
   const command = new PutObjectCommand({
-    Bucket: BUCKET_NAME,
+    Bucket: bucket,
     Key: cleanKey,
     ContentType: mimeType,
   });
-  return await getSignedUrl(r2, command, { expiresIn: expiresInSeconds });
+  return await getSignedUrl(getR2Client(), command, { expiresIn: expiresInSeconds });
 }
 
 export async function putObjectToR2(
@@ -63,12 +77,23 @@ export async function putObjectToR2(
   body: Buffer | Uint8Array,
   mimeType: string
 ): Promise<string | null> {
+  const endpoint = process.env.R2_ENDPOINT;
+  const accessKeyId = process.env.R2_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
+  const bucketName = getBucketName();
   const publicBase =
     process.env.NEXT_PUBLIC_R2_PUBLIC_URL ?? process.env.R2_PUBLIC_URL;
 
-  if (!process.env.R2_ENDPOINT || !BUCKET_NAME || !publicBase) {
+  const missing: string[] = [];
+  if (!endpoint) missing.push("R2_ENDPOINT");
+  if (!accessKeyId) missing.push("R2_ACCESS_KEY_ID");
+  if (!secretAccessKey) missing.push("R2_SECRET_ACCESS_KEY");
+  if (!bucketName) missing.push("R2_BUCKET_NAME");
+  if (!publicBase) missing.push("R2_PUBLIC_URL (or NEXT_PUBLIC_R2_PUBLIC_URL)");
+
+  if (missing.length > 0) {
     console.error(
-      "R2 configuration missing: Ensure R2_ENDPOINT, R2_BUCKET_NAME, and NEXT_PUBLIC_R2_PUBLIC_URL or R2_PUBLIC_URL are set."
+      `[R2 Error] Missing required environment variable(s): ${missing.join(", ")}`
     );
     return null;
   }
@@ -76,16 +101,17 @@ export async function putObjectToR2(
   const cleanKey = normalizeKey(key);
 
   try {
+    const r2 = getR2Client();
     await r2.send(
       new PutObjectCommand({
-        Bucket: BUCKET_NAME,
+        Bucket: bucketName,
         Key: cleanKey,
         Body: Buffer.from(body),
         ContentType: mimeType,
       })
     );
 
-    const normalizedBase = publicBase.replace(/\/$/, "");
+    const normalizedBase = (publicBase ?? "").replace(/\/$/, "");
     return `${normalizedBase}/${cleanKey}`;
   } catch (error) {
     console.error("Failed to upload object to Cloudflare R2:", error);
@@ -94,7 +120,8 @@ export async function putObjectToR2(
 }
 
 export async function deleteObjectFromR2(storageKey: string): Promise<boolean> {
-  if (!BUCKET_NAME) {
+  const bucketName = getBucketName();
+  if (!bucketName) {
     console.error("R2 configuration missing: R2_BUCKET_NAME is not set.");
     return false;
   }
@@ -102,14 +129,14 @@ export async function deleteObjectFromR2(storageKey: string): Promise<boolean> {
   const cleanKey = normalizeKey(storageKey);
 
   try {
+    const r2 = getR2Client();
     const command = new DeleteObjectCommand({
-      Bucket: BUCKET_NAME,
+      Bucket: bucketName,
       Key: cleanKey,
     });
-    // FIXED: Changed r2Client to r2
     await r2.send(command);
     
-   await prisma.file.deleteMany({
+    await prisma.file.deleteMany({
       where: {
         OR: [{ storageKey }, { storageKey: cleanKey }],
       },
@@ -122,8 +149,13 @@ export async function deleteObjectFromR2(storageKey: string): Promise<boolean> {
 }
 
 export async function setR2Cors() {
+  const bucket = getBucketName();
+  if (!bucket) {
+    console.error("R2 configuration missing: R2_BUCKET_NAME is not set.");
+    return;
+  }
   const command = new PutBucketCorsCommand({
-    Bucket: BUCKET_NAME,
+    Bucket: bucket,
     CORSConfiguration: {
       CORSRules: [
         {
@@ -141,6 +173,7 @@ export async function setR2Cors() {
   });
 
   try {
+    const r2 = getR2Client();
     await r2.send(command);
     console.log("CORS policy successfully updated on R2 bucket");
   } catch (err) {

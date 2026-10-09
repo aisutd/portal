@@ -59,5 +59,9 @@ export async function GET() {
     resumeFile.fileName,
   );
 
+  if (!downloadUrl) {
+    return createErrorResponse("Failed to generate download URL", "STORAGE_ERROR", 500);
+  }
+
   return NextResponse.redirect(downloadUrl);
 }
