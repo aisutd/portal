@@ -181,6 +181,9 @@ export async function updateEvent(formData: FormData) {
   const tags = parseTags(formData.getAll("tags").length > 0 ? formData.getAll("tags") : formData.get("tags"));
   const programs = parsePrograms(formData.getAll("programs").length > 0 ? formData.getAll("programs") : formData.get("programs"));
   const status = parseStatus(formData.get("status"));
+  const { visibilityRoles, visibilityMembership } = resolveEventVisibility(
+    formData.get("restrictedToAim") === "true"
+  );
 
   const existingEvent = await prisma.event.findUnique({
     where: { id },

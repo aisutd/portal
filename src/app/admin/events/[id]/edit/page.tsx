@@ -56,6 +56,7 @@ export default async function EditEventPage({
     imageUrl: event.imageUrl,
     tags: event.tags as string[],
     programs: event.programs,
+    restrictedToAim: !event.visibilityRoles.includes("MEMBER"),
     items: event.items.map((i) => ({
       name: i.name,
       type: i.type as "MEAL" | "DRINK" | "MERCH" | "OTHER",

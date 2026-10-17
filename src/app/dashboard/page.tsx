@@ -110,7 +110,16 @@ export default async function DashboardPage() {
             {/* Row 2 — recommended & browse events card + RSVPs */}
             <div className="flex flex-col gap-[24px] xl:flex-row xl:items-stretch">
               <Suspense fallback={<div className="flex min-h-[200px] flex-1 items-center justify-center rounded-2xl bg-white">Loading recommendations...</div>}>
-                <DashboardRecommendedCard userId={user.id} />
+                <DashboardRecommendedCard
+                  userId={user.id}
+                  viewer={{
+                    role: user.role,
+                    team: user.team,
+                    memberships: user.memberships
+                      .filter((m) => m.activeFlag)
+                      .map((m) => m.membershipType),
+                  }}
+                />
               </Suspense>
               <Suspense fallback={<ApplicationsCardSkeleton />}>
                 <DashboardApplicationsCard userId={user.id} />

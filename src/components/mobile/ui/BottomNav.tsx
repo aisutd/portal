@@ -19,6 +19,7 @@ export function BottomNav() {
   const isAdmin = role ? isAdminRole(role) : false;
   const isReviewerOnly = account?.isReviewerOnly ?? false;
   const showAcademy = account?.isAcademyParticipant ?? false;
+  const showAim = account?.isAimParticipant ?? false;
 
   // 3. Base navigation array
   const tabs = [
@@ -29,6 +30,10 @@ export function BottomNav() {
 
   if (isSignedIn && showAcademy) {
     tabs.push({ label: "Academy", href: "/academy" });
+  }
+
+  if (isSignedIn && showAim) {
+    tabs.push({ label: "AIM", href: "/aim" });
   }
 
   // 4. Inject Admin route if permissions pass

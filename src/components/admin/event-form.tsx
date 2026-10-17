@@ -34,6 +34,8 @@ type EventFormProps = {
     tags?: EventTag[];
     programs?: MembershipType[];
     items?: EventItemInput[];
+    /** True when the event's visibility is already scoped to AIM mentors/mentees + Executives. */
+    restrictedToAim?: boolean;
   };
 };
 
@@ -128,6 +130,7 @@ export function EventForm({ tags, defaultValues }: EventFormProps) {
       <input type="hidden" name="visibilityTeams" value={selectedVisibilityTeams.join(",")} />
       <input type="hidden" name="status" value={defaultValues?.status ?? "UPCOMING"} />
       <input type="hidden" name="visibility" value={defaultValues?.visibility ?? "public"} />
+      <input type="hidden" name="restrictedToAim" value={restrictedToAim ? "true" : "false"} />
       <input type="hidden" name="eventItems" value={JSON.stringify(eventItems)} />
       <input type="hidden" name="isPublished" value={String(isPublished)} />
       <input type="hidden" name="isRsvpOpen" value={String(isRsvpOpen)} />
@@ -366,6 +369,27 @@ export function EventForm({ tags, defaultValues }: EventFormProps) {
             );
           })}
         </div>
+      </div>
+
+      {/* Visibility Section */}
+      <div className="flex w-full flex-col gap-[7px] border-t border-border-soft pt-5">
+        <label className="flex cursor-pointer items-start gap-[10px]">
+          <input
+            type="checkbox"
+            checked={restrictedToAim}
+            onChange={(e) => setRestrictedToAim(e.target.checked)}
+            className="mt-[3px] h-4 w-4 rounded accent-brand cursor-pointer"
+          />
+          <span className="flex flex-col gap-[2px]">
+            <span className="style-body-text leading-[20.3px] text-ink">
+              AIM Mentorship only
+            </span>
+            <span className="style-body-text leading-[18px] text-ink-faint">
+              Hides this event from everyone except AIM mentors, AIM mentees, and Executives.
+              Leave unchecked for a normal event visible to every member.
+            </span>
+          </span>
+        </label>
       </div>
 
       {/* Tags Section */}

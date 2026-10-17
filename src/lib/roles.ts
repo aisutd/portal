@@ -187,6 +187,19 @@ export function hasAimMentorProgram(
 }
 
 /**
+ * Whether someone may reach AIM admin (the mentorship roster + weekly
+ * attendance scanner). Mirrors canReviewApplications: admin roles qualify by
+ * role, mentors qualify by program membership alone — their User.role stays
+ * MEMBER, so this is the only thing that lets a mentor scan attendance.
+ */
+export function canManageAim(
+  role: string | null | undefined,
+  programs: readonly MembershipType[] | null | undefined
+): boolean {
+  return isAdminRole(role) || hasAimMentorProgram(programs);
+}
+
+/**
  * Whether someone may reach the applications review UI at all.
  *
  * Admin roles qualify by role. AIM mentors qualify by program membership alone —

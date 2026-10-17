@@ -1,5 +1,13 @@
 import { prisma } from "./prisma";
 import { TZDate } from "@date-fns/tz";
+import type { MembershipType, TEAM, UserRole } from "@prisma/client";
+import { canViewEvent } from "./event-visibility";
+
+export type EventViewer = {
+  role: UserRole;
+  team: TEAM | null;
+  memberships: readonly MembershipType[];
+};
 
 const TIMEZONE = "America/Chicago";
 
@@ -116,24 +124,25 @@ export async function getRSVPs(userId: string, take: number = 5) {
   });
 }
 
-export async function getUpcomingEvents(take: number = 2, userId?: string) {
+export async function getUpcomingEvents(take: number = 2, userId?: string, viewer?: EventViewer | null) {
   const events = await prisma.event.findMany({
-    where: { 
+    where: {
       status: "UPCOMING",
       isRsvpOpen: true,
       isPublished: true,
       ...(userId ? {
         rsvps: {
-          none: { 
+          none: {
             userId,
-            status: "GOING" 
+            status: "GOING"
           }
         }
       } : {})
     },
   });
-  
-  return events.sort(() => 0.5 - Math.random()).slice(0, take);
+
+  const visible = events.filter((event) => canViewEvent(event, viewer ?? null));
+  return visible.sort(() => 0.5 - Math.random()).slice(0, take);
 }
 
 export function formatDaysAway(date: Date) {
