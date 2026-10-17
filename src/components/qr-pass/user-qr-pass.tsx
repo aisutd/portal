@@ -193,7 +193,7 @@ export function UserQrPass({
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-between bg-purple-soft/95 p-6 text-ink backdrop-blur-md">
           <div className="flex w-full items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="relative h-11 w-11 rounded-xl bg-white p-1.5 shadow-sm border border-border-soft">
+              <div className="relative h-11 w-11 rounded-xl bg-ink p-1.5 shadow-sm border border-border-soft">
                 <Image
                   src={logoSrc}
                   alt="AIS Logo"

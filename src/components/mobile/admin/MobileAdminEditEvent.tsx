@@ -1,3 +1,4 @@
+import type { EventTag, MembershipType, TEAM, UserRole } from "@prisma/client";
 import Link from "next/link";
 import { EventForm } from "@/components/admin/event-form";
 import { CoverPhotoCard } from "@/components/admin/cover-photo-card";
@@ -20,7 +21,10 @@ type EventDefaultValues = {
   visibility: string;
   isRsvpOpen: boolean;
   imageUrl?: string | null;
-  tags: string[];
+  tags: EventTag[];
+  visibilityRoles?: UserRole[];
+  visibilityMembership?: MembershipType[];
+  visibilityTeams?: TEAM[];
   items: Array<{ name: string; type: "MEAL" | "DRINK" | "MERCH" | "OTHER" }>;
 };
 

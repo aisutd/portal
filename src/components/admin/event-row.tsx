@@ -16,6 +16,8 @@ export type EventRowData = {
   imageUrl: string | null;
   title: string;
   status: EventStatus;
+  /** Small stamp next to the status pill — currently used for "AIM" scoped events. */
+  badge?: { label: string; bg: string; color: string };
   /** "Aug 27 · 7:00 PM · ECSW 1.315" */
   meta: string;
   leftInfo: string;
@@ -30,6 +32,7 @@ export function EventRow({
   title,
   imageUrl,
   status,
+  badge,
   meta,
   leftInfo,
   rightInfo,
@@ -72,6 +75,14 @@ export function EventRow({
             )}
             {status.label}
           </span>
+          {badge && (
+            <span
+              className="inline-flex items-center rounded-[6px] px-[9px] py-[3px] style-caption font-bold uppercase leading-[normal] tracking-[0.5px]"
+              style={{ backgroundColor: badge.bg, color: badge.color }}
+            >
+              {badge.label}
+            </span>
+          )}
         </div>
         <span className="style-caption leading-[16.8px] tracking-[0.2px] text-ink-faint">
           {meta}

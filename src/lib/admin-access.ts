@@ -4,6 +4,7 @@ import type { MembershipType, ProgramType, TEAM, UserRole } from "@prisma/client
 import { prisma } from "@/lib/prisma";
 import {
   canManageAcademy,
+  canManageAim,
   canPublishAcademy,
   canReviewApplications,
   isAdminRole,
@@ -31,6 +32,8 @@ export type AdminViewer = {
   canManageAcademy: boolean;
   /** May publish workshops rather than only saving drafts. */
   canPublishAcademy: boolean;
+  /** May reach AIM admin — an admin role, or an AIM mentor by program membership alone. */
+  canManageAim: boolean;
 };
 
 export const getAdminViewer = cache(async function getAdminViewer(): Promise<AdminViewer | null> {
@@ -70,6 +73,7 @@ export const getAdminViewer = cache(async function getAdminViewer(): Promise<Adm
     allowedProgramTypes: reviewableProgramTypes(user.role, programs),
     canManageAcademy: canManageAcademy(user.role, user.team),
     canPublishAcademy: canPublishAcademy(user.role),
+    canManageAim: canManageAim(user.role, programs),
   };
 });
 

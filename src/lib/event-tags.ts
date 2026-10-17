@@ -8,6 +8,7 @@ const eventTagPalette: Record<string, TagData> = {
   WORKSHOP: { label: "workshop", bg: "#cde9e5", color: "#1d6a61" },
   NETWORKING: { label: "networking", bg: "#d6e2ff", color: "#284b9c" },
   INDUSTRY: { label: "industry", bg: "#ded9f4", color: "#463e86" },
+  AIM: { label: "AIM", bg: "#dbeafe", color: "#1e40af" },
 };
 
 export function normalizeEventTags(tags: Array<string | TagData> | null | undefined): TagData[] {
