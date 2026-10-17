@@ -313,6 +313,9 @@ export function isAcademyParticipant(params: {
   return hasActiveAcademyMembership(memberships);
 }
 
+/** The membership types an AIM event may be scoped to. */
+export const AIM_AUDIENCE_TYPES = ["AIM_MENTOR", "AIM_MENTEE"] as const satisfies readonly MembershipType[];
+
 /**
  * Checks whether a user holds an active AIM_MENTOR or AIM_MENTEE membership.
  */
@@ -367,4 +370,29 @@ export function isAimParticipant(params: {
 
   // 3. Active AIM_MENTOR or AIM_MENTEE membership holders
   return hasActiveAimMembership(memberships);
+}
+
+/**
+ * The AIM audiences a viewer is entitled to see events for.
+ *
+ * A mentee gets AIM_MENTEE only and a mentor AIM_MENTOR only, so mentor-only
+ * sessions stay off a mentee's schedule. Holding both memberships returns both.
+ * AIM staff get every audience so they can run and scan any session.
+ *
+ * An empty result means the viewer has no AIM access at all.
+ */
+export function resolveAimAudience(params: {
+  role: string | null | undefined;
+  team?: TEAM | null | undefined;
+  memberships?: readonly MembershipItem[] | null;
+}): MembershipType[] {
+  const { role, team, memberships } = params;
+
+  if (role === "DIRECTOR" || role === "EXECUTIVE" || (role === "OFFICER" && team === "AIM")) {
+    return [...AIM_AUDIENCE_TYPES];
+  }
+
+  return AIM_AUDIENCE_TYPES.filter((type) =>
+    memberships?.some((m) => isMembershipActive(m, [type]))
+  );
 }

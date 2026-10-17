@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { redirect } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
@@ -7,7 +6,7 @@ import { TopographyBackground } from "@/components/academy/topography-background
 import { AcademyGradientBackground } from "@/components/academy/gradient-background";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { canManageRoles } from "@/lib/roles";
+import { canManageRoles, resolveAimAudience } from "@/lib/roles";
 import { listAimEvents, getNextAimNight } from "@/lib/aim-content";
 import { AimEventCard } from "@/components/aim/aim-event-card";
 
@@ -24,34 +23,25 @@ export default async function AimPage() {
     redirect("/onboarding?mode=login");
   }
 
-  // 2. Auth check: Must be AIM_MENTOR, AIM_MENTEE, AIM Team Officer, or Admin/Director
-  const isMentor = viewer.memberships.some(
-    (m) => m.membershipType === "AIM_MENTOR" && m.activeFlag
-  );
+  // 2. Auth check: Must be AIM_MENTOR, AIM_MENTEE, AIM Team Officer, or Admin/Director.
+  // The audience doubles as the event filter below, so mentees never see mentor-only sessions.
+  const aimAudience = resolveAimAudience(viewer);
 
-  const hasActiveAimMembership =
-    isMentor ||
-    viewer.memberships.some(
-      (m) => m.membershipType === "AIM_MENTEE" && m.activeFlag
-    );
+  if (aimAudience.length === 0) {
+    redirect("/dashboard?error=aim_access_required");
+  }
 
   const isAimOfficerOrAdmin =
     (viewer.team === "AIM" && viewer.role === "OFFICER") ||
     canManageRoles(viewer.role);
 
-  const isAimMember = hasActiveAimMembership || isAimOfficerOrAdmin;
-
-  if (!isAimMember) {
-    redirect("/dashboard?error=aim_access_required");
-  }
-
   // Determine if user can scan (Mentors, AIM Officers, or Admins)
-  const canScanMentees = isMentor || isAimOfficerOrAdmin;
+  const canScanMentees = isAimOfficerOrAdmin || aimAudience.includes("AIM_MENTOR");
 
   // 3. Fetch AIM Events and Featured Next AIM Night
   const [aimEvents, nextAimNight] = await Promise.all([
-    listAimEvents(viewer.id),
-    getNextAimNight(viewer.id),
+    listAimEvents(viewer.id, aimAudience),
+    getNextAimNight(viewer.id, aimAudience),
   ]);
 
   // Check if the event occurs today (local date matching)

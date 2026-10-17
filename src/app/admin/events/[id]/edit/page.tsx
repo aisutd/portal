@@ -54,9 +54,11 @@ export default async function EditEventPage({
     visibility: event.visibility as string,
     isRsvpOpen: event.isRsvpOpen ?? true,
     imageUrl: event.imageUrl,
-    tags: event.tags as string[],
+    tags: event.tags,
     programs: event.programs,
-    restrictedToAim: !event.visibilityRoles.includes("MEMBER"),
+    visibilityRoles: event.visibilityRoles,
+    visibilityMembership: event.visibilityMembership,
+    visibilityTeams: event.visibilityTeams,
     items: event.items.map((i) => ({
       name: i.name,
       type: i.type as "MEAL" | "DRINK" | "MERCH" | "OTHER",
