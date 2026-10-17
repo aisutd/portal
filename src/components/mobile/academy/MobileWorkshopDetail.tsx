@@ -12,6 +12,7 @@ type MobileWorkshopDetailProps = {
   stage: { label: string; className: string };
   showContent: boolean;
   isSignedIn: boolean;
+  initiallyWatched: boolean;
 };
 
 /**
@@ -24,9 +25,10 @@ export function MobileWorkshopDetail({
   stage,
   showContent,
   isSignedIn,
+  initiallyWatched,
 }: MobileWorkshopDetailProps) {
   return (
-    <MobileScreen>
+    <MobileScreen withBottomNavPadding={true}>
       <AcademyGradientBackground />
 
       <Link
@@ -57,6 +59,12 @@ export function MobileWorkshopDetail({
             <MapPin className="h-3.5 w-3.5 shrink-0" />
             {workshop.location}
           </span>
+          {workshop.questions.length > 0 && workshop.quizDueAt && (
+            <span className="flex items-center gap-1.5 text-[#f2c95c]">
+              <Calendar className="h-3.5 w-3.5 shrink-0" />
+              Quiz due: {formatEventDate(workshop.quizDueAt, true)}
+            </span>
+          )}
         </div>
       </section>
 

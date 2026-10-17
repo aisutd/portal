@@ -111,8 +111,11 @@ export function canManageApplications(role: string | null | undefined): boolean 
  * Checks whether a single membership record is active right now.
  * Validates activeFlag = true and checks if today falls within startDate and endDate (if set).
  */
-export function isMembershipActive(m: MembershipItem): boolean {
-  if (m.membershipType !== "AI_ACADEMY") return false;
+export function isMembershipActive(
+  m: MembershipItem,
+  allowedTypes: readonly MembershipType[] = ["AI_ACADEMY"]
+): boolean {
+  if (!allowedTypes.includes(m.membershipType)) return false;
   if (m.activeFlag === false) return false;
 
   const now = new Date();
@@ -311,19 +314,57 @@ export function isAcademyParticipant(params: {
 }
 
 /**
- * Determines whether a user should see and access the AIM Mentorship Hub nav
- * link. Narrower than Academy on purpose — just AIM mentors, AIM mentees, and
- * Executives, no blanket Director or team-based Officer allowance.
+ * Checks whether a user holds an active AIM_MENTOR or AIM_MENTEE membership.
+ */
+export function hasActiveAimMembership(
+  input:
+    | readonly MembershipItem[]
+    | readonly MembershipType[]
+    | MembershipItem
+    | null
+    | undefined
+): boolean {
+  if (!input) return false;
+
+  if (!Array.isArray(input)) {
+    return isMembershipActive(input as MembershipItem, ["AIM_MENTOR", "AIM_MENTEE"]);
+  }
+
+  return input.some((item) => {
+    if (typeof item === "string") {
+      return item === "AIM_MENTOR" || item === "AIM_MENTEE";
+    }
+    if (typeof item === "object" && item !== null) {
+      return isMembershipActive(item, ["AIM_MENTOR", "AIM_MENTEE"]);
+    }
+    return false;
+  });
+}
+
+/**
+ * Determines whether a user should see and access AIM participant resources.
+ * Granted to:
+ * - Directors & Executives (by role)
+ * - Officers affiliated with the AIM team
+ * - Members with an active AIM_MENTOR or AIM_MENTEE membership
  */
 export function isAimParticipant(params: {
   role: string | null | undefined;
-  memberships?: readonly { membershipType: MembershipType }[] | null;
+  team?: TEAM | null | undefined;
+  memberships?: Parameters<typeof hasActiveAimMembership>[0];
 }): boolean {
-  const { role, memberships } = params;
+  const { role, team, memberships } = params;
 
-  if (role === "EXECUTIVE") return true;
+  // 1. All Directors and Executives
+  if (role === "DIRECTOR" || role === "EXECUTIVE") {
+    return true;
+  }
 
-  return !!memberships?.some(
-    (m) => m.membershipType === "AIM_MENTOR" || m.membershipType === "AIM_MENTEE"
-  );
+  // 2. Officers on the AIM team
+  if (role === "OFFICER" && team === "AIM") {
+    return true;
+  }
+
+  // 3. Active AIM_MENTOR or AIM_MENTEE membership holders
+  return hasActiveAimMembership(memberships);
 }

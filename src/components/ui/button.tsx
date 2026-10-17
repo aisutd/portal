@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -19,13 +21,14 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   block?: boolean;
   /** Render as a navigation link instead of a button. */
   href?: string;
+  /** Prevents actions, animations, and updates styling to a disabled look. */
+  disabled?: boolean;
 };
 
 const base =
   "btn-specular relative overflow-hidden inline-flex cursor-pointer items-center justify-center gap-[8px] border border-transparent " +
   "style-button-text text-center transition-[background-color,border-color,color,box-shadow,transform] duration-150 btn-fun-animation select-none " +
-  "focus-visible:outline-none focus-visible:ring-4 " +
-  "disabled:pointer-events-none disabled:opacity-45";
+  "focus-visible:outline-none focus-visible:ring-4";
 
 // Each variant carries its own hover / active / focus-ring treatment so every
 // button in the app responds to the pointer the same way.
@@ -66,6 +69,7 @@ export function Button({
   pill,
   block = false,
   href,
+  disabled,
   className,
   children,
   ...props
@@ -88,6 +92,7 @@ export function Button({
     !isAuth && sizeClasses[size],
     radius,
     block && "w-full",
+    disabled && "pointer-events-none opacity-45",
     className
   );
 
@@ -98,14 +103,25 @@ export function Button({
     >;
 
     return (
-      <Link className={classes} href={href} {...linkProps}>
+      <Link 
+        href={disabled ? "#" : href}
+        aria-disabled={disabled}
+        onClick={(e) => {
+          if (disabled) {
+            e.preventDefault();
+          }
+          props.onClick?.(e as any);
+        }}
+        className={classes}
+        {...linkProps}
+      >
         {children}
       </Link>
     );
   }
 
   return (
-    <button className={classes} {...props}>
+    <button className={classes} disabled={disabled} {...props}>
       {children}
     </button>
   );

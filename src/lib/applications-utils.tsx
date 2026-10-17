@@ -211,7 +211,7 @@ export function buildSubmittedRow(application: Application): OpenApp {
       },
       {
         label: "View application",
-        variant: "primary" as const,
+        variant: "outline" as const,
         href: application.submissionId
           ? `/applications/submitted?submissionId=${application.submissionId}`
           : "/applications/history",

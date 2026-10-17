@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, HelpCircle } from "lucide-react";
+import { Button } from "../ui/button";
 import { resolveVideoEmbed } from "@/lib/video-embed";
 
 type VideoNotesPanelProps = {
@@ -12,6 +13,8 @@ type VideoNotesPanelProps = {
   workshopId?: string;
   userId?: string;
   initiallyCompleted?: boolean;
+  quizUrl?: string; // Optional: Pass a link/path to the quiz if needed
+  onOpenQuiz?: () => void; // Optional: Or handle via callback/modal trigger
 };
 
 type YouTubePlayer = {
@@ -66,6 +69,8 @@ export function VideoNotesPanel({
   workshopId,
   userId,
   initiallyCompleted = false,
+  quizUrl,
+  onOpenQuiz,
 }: VideoNotesPanelProps) {
   const storageKey = `academy-notes:${notesKey}`;
   const [notes, setNotes] = useState("");
@@ -74,6 +79,12 @@ export function VideoNotesPanel({
 
   const embed = resolveVideoEmbed(videoUrl);
   const isYouTube = embed?.kind === "iframe" && embed.src.includes("youtube-nocookie.com/embed/");
+
+  useEffect(() => {
+    if (initiallyCompleted) {
+      setCompleted(true);
+    }
+  }, [initiallyCompleted]);
 
   useEffect(() => {
     if (!isYouTube || !workshopId || !userId || !iframeRef.current) return;
@@ -112,8 +123,6 @@ export function VideoNotesPanel({
             player = target;
           },
           onStateChange: ({ data, target }) => {
-            // YT.PlayerState.PLAYING is 1. Save every 10 seconds while playing,
-            // and flush the latest position on pause/end.
             if (data === 1) {
               if (heartbeat) clearInterval(heartbeat);
               heartbeat = setInterval(() => void saveProgress(target), 10_000);
@@ -140,14 +149,11 @@ export function VideoNotesPanel({
     };
   }, [isYouTube, userId, workshopId]);
 
-  // Personal scratch notes only — not admin content, so localStorage is fine
-  // here rather than a database round-trip.
   useEffect(() => {
     try {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNotes(localStorage.getItem(storageKey) ?? "");
     } catch {
-      // Private browsing / blocked storage — notes just won't persist.
+      // Private browsing / blocked storage
     }
   }, [storageKey]);
 
@@ -156,7 +162,7 @@ export function VideoNotesPanel({
     try {
       localStorage.setItem(storageKey, value);
     } catch {
-      // Ignore — nothing to persist to if storage is unavailable.
+      // Ignore
     }
   }
 
@@ -205,12 +211,44 @@ export function VideoNotesPanel({
             </div>
           )}
         </div>
-        <h3 className="style-card-title uppercase text-white">{title}</h3>
-        {workshopId && (
-          <p aria-live="polite" className="style-caption text-white/60">
-            {completed ? "Video complete" : "Watch at least half of the video to mark it complete."}
-          </p>
-        )}
+        <div className="mt-1 flex flex-wrap justify-between items-center gap-4 rounded-2xl bg-[#181c25] p-4 sm:flex-row">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[10px] font-semibold tracking-wider text-[#d4af37] uppercase">
+              Workshop
+            </span>
+            <h3 className="style-card-title tracking-widest pt-1 uppercase text-white">{title}</h3>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {workshopId && (
+              <div
+                aria-live="polite"
+                className={`inline-flex w-fit h-fit shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-medium border transition-colors ${
+                  completed
+                    ? "bg-green-500/10 text-green-400 border-green-500/30"
+                    : "bg-zinc-800/80 text-zinc-400 border-zinc-700/50"
+                }`}
+              >
+                {completed ? (
+                  <span>Watched</span>
+                ) : (
+                  <span>Watch 50% to unlock quiz</span>
+                )}
+              </div>
+            )}
+
+            {/* --- QUIZ BUTTON ADDED HERE --- */}
+            <Button
+              variant="accent" // Use your accent variant which handles the gold style cleanly
+              disabled={!completed}
+              href={quizUrl}
+              title={completed ? "Take the quiz" : "Watch at least 50% of the video to unlock the quiz"}
+            >
+              <HelpCircle className="h-4 w-4" />
+              <span>Take Quiz</span>
+            </Button>
+          </div>
+        </div>
       </div>
 
       <div className="flex w-full flex-col gap-[8px] rounded-[20px] border-[5px] border-[#d4af37] bg-[#181c25] p-[16px] lg:w-[320px] lg:shrink-0">

@@ -41,7 +41,7 @@ function ApplicationSkeleton() {
 function ProgramFlowArrow() {
   return (
     <div className="flex justify-center text-brand py-1" aria-hidden="true">
-      <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border-soft bg-[#fbfaf7] text-sm font-medium shadow-xs">
+      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/50 backdrop-blur-md border-white/35 border-2 shadow-sm shadow-ink/15 text-sm font-medium">
         ↓
       </span>
     </div>
@@ -258,12 +258,12 @@ export function MobileApply() {
                 delay: index * 0.1,
                 ease: "easeOut",
               }}
-              className="flex flex-row rounded-[16px] border bg-white overflow-hidden"
+              className="flex flex-row rounded-2xl bg-white/50 backdrop-blur-md ring ring-white/55 shadow-sm shadow-ink/15 overflow-hidden"
               style={{ borderColor: program.borderColor }}
             >
               {/* Left Side: Full-height Icon / Image Container */}
               <div
-                className="relative flex w-[80px] sm:w-[100px] shrink-0 items-center justify-center p-3 border-r border-border-soft/60"
+                className="relative flex w-20 sm:w-25 shrink-0 items-center justify-center p-3 border-r border-border-soft/60"
                 style={{
                   backgroundColor: program.image
                     ? `color-mix(in srgb, ${program.iconBg} 20%, transparent)`
@@ -308,9 +308,9 @@ export function MobileApply() {
                     <Tag
                       key={label}
                       label={label}
-                      bg="#efece3"
+                      bg="#ffffff59"
                       color="#6a685f"
-                      border="#e2ded2"
+                      border="#ffffff8c"
                     />
                   ))}
                 </div>

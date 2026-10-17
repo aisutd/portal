@@ -2,9 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { ItemType, type MembershipType, type UserRole } from "@prisma/client";
+import { ItemType, MembershipType, TEAM, UserRole } from "@prisma/client";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isAssignableProgram } from "@/lib/roles";
 import {
   parseChicagoTimeToUtc,
   parsePrograms,
@@ -18,24 +19,41 @@ type EventItemInput = {
   type: ItemType;
 };
 
-const ALLOWED_ROLES = ["EXECUTIVE", "DIRECTOR", "OFFICER"];
+const VALID_ROLE_VALUES = Object.values(UserRole);
+const VALID_TEAM_VALUES = Object.values(TEAM);
+const ALLOWED_ROLES: UserRole[] = ["EXECUTIVE", "DIRECTOR", "OFFICER"];
 
-/**
- * "AIM Mentorship only" is the one restricted-visibility option the event
- * form exposes — Executives/Directors/AIM mentors see it everywhere, every
- * other member doesn't see it at all. Unchecked keeps the existing default
- * (visible to every signed-in member, same as before these fields existed).
- */
-function resolveEventVisibility(restrictedToAim: boolean): {
-  visibilityRoles: UserRole[];
-  visibilityMembership: MembershipType[];
-} {
-  return restrictedToAim
-    ? { visibilityRoles: ["EXECUTIVE"], visibilityMembership: ["AIM_MENTOR", "AIM_MENTEE"] }
-    : { visibilityRoles: ["MEMBER"], visibilityMembership: [] };
+function parseUserRoles(rawValue: FormDataEntryValue | FormDataEntryValue[] | null): UserRole[] {
+  if (!rawValue) return [];
+  const entries = Array.isArray(rawValue) ? rawValue : [rawValue];
+
+  return entries
+    .flatMap((entry) => String(entry).split(","))
+    .map((role) => role.trim().toUpperCase())
+    .filter((role): role is UserRole => (VALID_ROLE_VALUES as readonly string[]).includes(role));
 }
 
-function authorizeAdminUser(user: { role: string } | null) {
+function parseTeams(rawValue: FormDataEntryValue | FormDataEntryValue[] | null): TEAM[] {
+  if (!rawValue) return [];
+  const entries = Array.isArray(rawValue) ? rawValue : [rawValue];
+
+  return entries
+    .flatMap((entry) => String(entry).split(","))
+    .map((team) => team.trim().toUpperCase())
+    .filter((team): team is TEAM => (VALID_TEAM_VALUES as readonly string[]).includes(team));
+}
+
+function parseMemberships(rawValue: FormDataEntryValue | FormDataEntryValue[] | null): MembershipType[] {
+  if (!rawValue) return [];
+  const entries = Array.isArray(rawValue) ? rawValue : [rawValue];
+
+  return entries
+    .flatMap((entry) => String(entry).split(","))
+    .map((value) => value.trim().toUpperCase())
+    .filter(isAssignableProgram);
+}
+
+function authorizeAdminUser(user: { role: UserRole } | null) {
   if (!user) {
     redirect("/onboarding");
   } else if (!ALLOWED_ROLES.includes(user.role)) {
@@ -56,17 +74,27 @@ export async function createEvent(formData: FormData) {
   const visibility = String(formData.get("visibility") ?? "public").trim() || "public";
   const rawRsvpOpen = formData.get("isRsvpOpen");
   const isRsvpOpen = rawRsvpOpen === "true" || rawRsvpOpen === "on" || rawRsvpOpen === "1";
-  
+
+  // Parsing Visibility Arrays
+  const visibilityRoles = parseUserRoles(
+    formData.getAll("visibilityRoles").length > 0 ? formData.getAll("visibilityRoles") : formData.get("visibilityRoles")
+  );
+  const visibilityMembership = parseMemberships(
+    formData.getAll("visibilityMembership").length > 0 ? formData.getAll("visibilityMembership") : formData.get("visibilityMembership")
+  );
+  const visibilityTeams = parseTeams(
+    formData.getAll("visibilityTeams").length > 0 ? formData.getAll("visibilityTeams") : formData.get("visibilityTeams")
+  );
+
   const tags = parseTags(formData.getAll("tags").length > 0 ? formData.getAll("tags") : formData.get("tags"));
   const programs = parsePrograms(formData.getAll("programs").length > 0 ? formData.getAll("programs") : formData.get("programs"));
   const status = parseStatus(formData.get("status"));
   const imageUrl = await resolveEventImageUrl(formData.get("image"));
-  const { visibilityRoles, visibilityMembership } = resolveEventVisibility(
-    formData.get("restrictedToAim") === "true"
-  );
 
-  const action = String(formData.get("action") ?? "draft");
-  const isPublished = action === "publish";
+  const action = String(formData.get("action") ?? "");
+  const rawIsPublished = formData.get("isPublished");
+  const isPublished =
+    action === "publish" || rawIsPublished === "true" || rawIsPublished === "on" || rawIsPublished === "1";
 
   let eventItems: EventItemInput[] = [];
   try {
@@ -101,6 +129,7 @@ export async function createEvent(formData: FormData) {
       visibility,
       visibilityRoles,
       visibilityMembership,
+      visibilityTeams,
       isRsvpOpen,
       imageUrl,
       tags,
@@ -135,7 +164,20 @@ export async function updateEvent(formData: FormData) {
   const endTime = formData.get("endTime");
   const capacityValue = formData.get("capacity");
   const visibility = String(formData.get("visibility") ?? "public").trim() || "public";
-  
+  const rawRsvpOpen = formData.get("isRsvpOpen");
+  const isRsvpOpen = rawRsvpOpen === "true" || rawRsvpOpen === "on" || rawRsvpOpen === "1";
+
+  // Parsing Visibility Arrays
+  const visibilityRoles = parseUserRoles(
+    formData.getAll("visibilityRoles").length > 0 ? formData.getAll("visibilityRoles") : formData.get("visibilityRoles")
+  );
+  const visibilityMembership = parseMemberships(
+    formData.getAll("visibilityMembership").length > 0 ? formData.getAll("visibilityMembership") : formData.get("visibilityMembership")
+  );
+  const visibilityTeams = parseTeams(
+    formData.getAll("visibilityTeams").length > 0 ? formData.getAll("visibilityTeams") : formData.get("visibilityTeams")
+  );
+
   const tags = parseTags(formData.getAll("tags").length > 0 ? formData.getAll("tags") : formData.get("tags"));
   const programs = parsePrograms(formData.getAll("programs").length > 0 ? formData.getAll("programs") : formData.get("programs"));
   const status = parseStatus(formData.get("status"));
@@ -143,7 +185,6 @@ export async function updateEvent(formData: FormData) {
     formData.get("restrictedToAim") === "true"
   );
 
-  // Consolidated database fetch into a single query
   const existingEvent = await prisma.event.findUnique({
     where: { id },
     select: { imageUrl: true, isPublished: true },
@@ -156,6 +197,7 @@ export async function updateEvent(formData: FormData) {
   const imageUrl = await resolveEventImageUrl(formData.get("image"), existingEvent.imageUrl);
 
   const action = String(formData.get("action") ?? "");
+  const rawIsPublished = formData.get("isPublished");
 
   let eventItems: EventItemInput[] = [];
   try {
@@ -183,6 +225,8 @@ export async function updateEvent(formData: FormData) {
     isPublished = true;
   } else if (action === "unpublish") {
     isPublished = false;
+  } else if (rawIsPublished !== null) {
+    isPublished = rawIsPublished === "true" || rawIsPublished === "on" || rawIsPublished === "1";
   } else {
     isPublished = existingEvent.isPublished;
   }
@@ -200,6 +244,8 @@ export async function updateEvent(formData: FormData) {
       visibility,
       visibilityRoles,
       visibilityMembership,
+      visibilityTeams,
+      isRsvpOpen,
       imageUrl,
       tags,
       programs,
@@ -218,6 +264,6 @@ export async function updateEvent(formData: FormData) {
   revalidatePath("/admin/events");
   revalidatePath(`/admin/events/${id}/edit`);
   revalidatePath(`/admin/events/${id}/scan`);
-  
+
   redirect("/admin/events");
 }

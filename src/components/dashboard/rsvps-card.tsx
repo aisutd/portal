@@ -107,7 +107,7 @@ export function RsvpsCard({ items }: { items: RsvpItem[] }) {
         ) : (
           Object.entries(groupedItems).map(([monthYear, groupItems]) => (
             <div key={monthYear} className="flex flex-col gap-[12px] mb-4 last:mb-0">
-              <div className="sticky top-0 z-10 bg-white py-1">
+              <div className="top-0 z-10 py-1">
                 <span className="style-meta-text text-[11px] font-bold uppercase tracking-wider text-ink-muted">
                   {monthYear}
                 </span>

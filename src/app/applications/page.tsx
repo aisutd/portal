@@ -17,7 +17,7 @@ import {
   buildSubmittedRow,
   sortApplications,
   sortSubmittedApplications,
-} from "@/lib/applications-utils"; // Adjust import path to your applications utility file
+} from "@/lib/applications-utils";
 
 type ApplicationResponse = {
   applications: Application[];
@@ -25,14 +25,14 @@ type ApplicationResponse = {
 
 function ApplicationSkeleton() {
   return (
-    <div className="flex w-full flex-col items-start gap-4 rounded-2xl border border-border-soft bg-white/80 p-6 shadow-xs sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+    <div className="flex w-full flex-col items-start gap-4 rounded-2xl border-2 border-white/35 bg-white/80 p-6 shadow-xs sm:flex-row sm:items-center sm:justify-between sm:gap-6">
       <div className="min-w-0 flex-1 animate-pulse space-y-2.5">
         <div className="h-5 w-64 rounded-full bg-stone-soft" />
-        <div className="h-3.5 w-full max-w-lg rounded-full bg-[#f4f1ea]" />
-        <div className="h-3 w-48 rounded-full bg-[#f4f1ea]" />
+        <div className="h-3.5 w-full max-w-lg rounded-full bg-white/55" />
+        <div className="h-3 w-48 rounded-full bg-white/55" />
       </div>
       <div className="flex shrink-0 gap-2.5">
-        <div className="h-9 w-24 animate-pulse rounded-lg bg-[#f4f1ea]" />
+        <div className="h-9 w-24 animate-pulse rounded-lg bg-white/55" />
         <div className="h-9 w-20 animate-pulse rounded-lg bg-[#f4f1ea]" />
       </div>
     </div>
@@ -135,10 +135,10 @@ function ProgramFlowArrow() {
       className="flex shrink-0 items-center justify-center text-brand"
       aria-hidden="true"
     >
-      <span className="flex h-11 w-11 items-center justify-center rounded-full border border-white/35 bg-white text-lg font-medium shadow-xs transition-transform hover:scale-105 lg:hidden">
+      <span className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-white/35 bg-white/55 text-lg font-medium shadow-sm transition-transform hover:scale-105 lg:hidden">
         ↓
       </span>
-      <span className="hidden h-11 w-11 items-center justify-center rounded-full border border-white/35 bg-white text-xl font-medium shadow-xs transition-transform hover:scale-105 lg:flex">
+      <span className="hidden h-11 w-11 items-center justify-center rounded-full border-2 border-white/35 bg-white/55 text-xl font-medium shadow-sm transition-transform hover:scale-105 lg:flex">
         →
       </span>
     </div>

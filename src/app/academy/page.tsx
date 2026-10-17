@@ -108,11 +108,11 @@ export default async function AcademyPage() {
         </section>
 
         {/* Featured video course + notes */}
-        <section className="relative flex flex-col gap-[20px] overflow-hidden rounded-[16px] border-t-[10px] border-b-[10px] border-[#2f5fe8] bg-[#181c25] p-[36px] lg:p-[46px]">
+        <section className="relative flex flex-col gap-5 overflow-hidden rounded-2xl border-t-10 border-b-10 border-brand bg-[#181c25] p-[36px] lg:p-[46px]">
           <TopographyBackground />
           <div className="flex items-end justify-between">
             <div className="flex flex-col gap-[4px]">
-              <h2 className="style-section-header uppercase text-white">Latest Workshop</h2>
+              <h2 className="style-section-header uppercase text-[#d4af37]">Featured Workshop</h2>
             </div>
           </div>
           {featured ? (

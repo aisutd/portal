@@ -51,8 +51,9 @@ export const getNavAccount = cache(async function getNavAccount(): Promise<NavAc
       }),
       isAimParticipant: isAimParticipant({
         role: user.role,
+        team: user.team,
         memberships: user.memberships,
-      }),
+      })
     };
   } catch {
     return null;

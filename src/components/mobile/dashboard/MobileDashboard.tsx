@@ -47,7 +47,7 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
   const isGlowing = isRsvpGlowing(nextRsvp);
 
   return (
-    <MobileScreen>
+    <MobileScreen withBottomNavPadding>
       <GradientWavesBackground />
       <h1 className="style-mobile-title text-2xl font-bold bg-[linear-gradient(90deg,#2f5fe8_0%,#f2a968_100%)] bg-clip-text text-transparent">
         Welcome back, {userName}!
@@ -165,7 +165,7 @@ export function MobileDashboard({ userId, userName, nextRsvp, calendarLinks }: M
       </Suspense>
       
       {/* Footer Wrapper with Margin Cancellation & Bottom Spacing for Fixed Nav */}
-        <div className="-mx-5 mt-8 pt-6">
+        <div className="-mx-5 pt-6 sticky top-[100vh]">
           <Footer />
         </div>
       <BottomNav />

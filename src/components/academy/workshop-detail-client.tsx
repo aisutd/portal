@@ -4,8 +4,9 @@ import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { VideoNotesPanel } from "@/components/academy/video-notes-panel";
 import type { AcademyWorkshopDetail } from "@/lib/academy-content";
+import { useState } from "react";
 
-export function WorkshopDetailClient({ workshop }: { workshop: AcademyWorkshopDetail }) {
+export function WorkshopDetailClient({ workshop, initiallyCompleted }: { workshop: AcademyWorkshopDetail, initiallyCompleted?: boolean}) {
   const hasQuiz = workshop.questions.length > 0;
   const attempt = workshop.latestAttempt;
 
@@ -25,7 +26,8 @@ export function WorkshopDetailClient({ workshop }: { workshop: AcademyWorkshopDe
         notesKey={workshop.id}
         workshopId={workshop.id}
         userId={workshop.viewerId ?? undefined}
-        initiallyCompleted={workshop.progressCompleted}
+        initiallyCompleted={initiallyCompleted}
+        quizUrl={`/academy/workshops/${workshop.id}/quiz`}
       />
 
       {workshop.summary && (

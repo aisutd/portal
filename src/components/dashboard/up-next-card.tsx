@@ -212,7 +212,7 @@ export function UpNextCard({
           {/* Non-linked Action Items (Calendar & QR Code) */}
           <div className="flex flex-col gap-[10px] items-center">
             {/* RSVP QR code */}
-            <div className="flex size-55 shrink-0 items-center justify-center rounded-[10px] border border-ink bg-white p-[8px]">
+            <div className="flex size-55 shrink-0 items-center justify-center rounded-[10px] border border-ink/55 bg-white p-[8px]">
               {qrToken ? (
                 <QRCode value={qrToken} size={220} level="H" />
               ) : (

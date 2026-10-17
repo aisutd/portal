@@ -1,166 +1,175 @@
-export const dynamic = "force-dynamic";
-
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import QRCode from "react-qr-code";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import { AimGradientBackground } from "@/components/aim/gradient-background";
+import { ScrollReveal } from "@/components/ui/scroll-reveal";
+import { TopographyBackground } from "@/components/academy/topography-background";
+import { AcademyGradientBackground } from "@/components/academy/gradient-background";
 import { getAuthenticatedUser } from "@/lib/auth";
-import {
-  AIM_SEMESTER_LABEL,
-  AIM_TIMELINE,
-  AIM_TOTAL_WEEKS,
-  ensureAimRsvp,
-  getCurrentAimWeek,
-  getMilestoneStatus,
-  getNextAimEvent,
-} from "@/lib/aim";
-import { formatEventDate } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { canManageRoles } from "@/lib/roles";
+import { listAimEvents, getNextAimNight } from "@/lib/aim-content";
+import { AimEventCard } from "@/components/aim/aim-event-card";
 
-const CARD = "rounded-[20px] border border-white/10 bg-[#161d3a]";
+export const dynamic = "force-dynamic";
 
-const STATUS_PILL: Record<string, string> = {
-  done: "bg-[#22c55e] text-[#052e14]",
-  "in-progress": "bg-[#3b82f6] text-white",
-  upcoming: "bg-white/10 text-white/70",
-};
-const STATUS_LABEL: Record<string, string> = {
-  done: "Done",
-  "in-progress": "In progress",
-  upcoming: "Upcoming",
-};
+// Infer event item type directly from the return type of listAimEvents
+type AimEventItem = Awaited<ReturnType<typeof listAimEvents>>[number];
 
-export default async function AimHubPage() {
+export default async function AimPage() {
   const viewer = await getAuthenticatedUser();
-  if (!viewer) redirect("/onboarding?mode=login");
 
-  const activePrograms = viewer.memberships.filter((m) => m.activeFlag).map((m) => m.membershipType);
-  const isAimMember = activePrograms.includes("AIM_MENTOR") || activePrograms.includes("AIM_MENTEE");
-  const isAdminPreview = ["OFFICER", "DIRECTOR", "EXECUTIVE"].includes(viewer.role);
-  if (!isAimMember && !isAdminPreview) {
+  // 1. Unauthenticated users -> Redirect to login
+  if (!viewer) {
+    redirect("/onboarding?mode=login");
+  }
+
+  // 2. Auth check: Must be AIM_MENTOR, AIM_MENTEE, AIM Team Officer, or Admin/Director
+  const isMentor = viewer.memberships.some(
+    (m) => m.membershipType === "AIM_MENTOR" && m.activeFlag
+  );
+
+  const hasActiveAimMembership =
+    isMentor ||
+    viewer.memberships.some(
+      (m) => m.membershipType === "AIM_MENTEE" && m.activeFlag
+    );
+
+  const isAimOfficerOrAdmin =
+    (viewer.team === "AIM" && viewer.role === "OFFICER") ||
+    canManageRoles(viewer.role);
+
+  const isAimMember = hasActiveAimMembership || isAimOfficerOrAdmin;
+
+  if (!isAimMember) {
     redirect("/dashboard?error=aim_access_required");
   }
 
-  const currentWeek = getCurrentAimWeek();
-  const nextEvent = await getNextAimEvent();
-  const rsvp = nextEvent ? await ensureAimRsvp(viewer.id, nextEvent.id) : null;
+  // Determine if user can scan (Mentors, AIM Officers, or Admins)
+  const canScanMentees = isMentor || isAimOfficerOrAdmin;
 
-  const lastWeek = AIM_TIMELINE.find((m) => getMilestoneStatus(m, currentWeek) === "done");
-  const current = AIM_TIMELINE.find((m) => getMilestoneStatus(m, currentWeek) === "in-progress");
+  // 3. Fetch AIM Events and Featured Next AIM Night
+  const [aimEvents, nextAimNight] = await Promise.all([
+    listAimEvents(viewer.id),
+    getNextAimNight(viewer.id),
+  ]);
+
+  // Check if the event occurs today (local date matching)
+  let isEventToday = false;
+  if (nextAimNight?.startTime) {
+    const eventDate = new Date(nextAimNight.startTime);
+    const today = new Date();
+    isEventToday =
+      eventDate.getFullYear() === today.getFullYear() &&
+      eventDate.getMonth() === today.getMonth() &&
+      eventDate.getDate() === today.getDate();
+  }
 
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
-      <AimGradientBackground />
+      <AcademyGradientBackground />
       <Navbar active="AIM" />
 
-      <main className="relative mx-auto flex w-full max-w-[1300px] flex-1 flex-col gap-[28px] px-[24px] pb-[64px] pt-28 lg:px-[46px]">
-        {/* Header */}
-        <div className="flex flex-col items-start gap-[16px] lg:flex-row lg:items-center lg:justify-between">
-          <Image
-            src="/images/aim/wordmark.png"
-            alt="AI Mentorship"
-            width={597}
-            height={418}
-            className="h-[160px] w-auto object-contain lg:h-[240px]"
-            priority
-          />
-
-          <div className="flex flex-col items-start gap-[10px] lg:items-end">
-            <span className="rounded-full border border-[#22c55e]/50 bg-[#22c55e]/10 px-[14px] py-[6px] style-badge-text text-[#4ade80]">
-              Week {currentWeek} of {AIM_TOTAL_WEEKS} · {AIM_SEMESTER_LABEL}
-            </span>
-            <h1 className="style-page-title uppercase tracking-wide text-white">Mentorship Hub</h1>
-            {nextEvent && (
-              <span className="rounded-full bg-[#22c55e] px-[14px] py-[6px] style-badge-text text-[#052e14]">
-                Next meeting: {formatEventDate(nextEvent.startTime.toISOString(), true)} · {nextEvent.location}
-              </span>
-            )}
+      <main className="mx-auto flex w-full max-w-[1300px] flex-col gap-[40px] px-[24px] pb-[64px] pt-28 lg:px-[46px]">
+        {/* Intro */}
+        <section className="flex flex-col items-start gap-[28px] text-left lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col items-start gap-[16px] text-left">
+            <h1 className="text-4xl font-extrabold tracking-tight text-white lg:text-5xl">
+              AI Mentorship <span className="text-[#2563eb]">(AIM)</span>
+            </h1>
+            <p className="style-body-text max-w-xl text-white/80">
+              Exclusive mentor-mentee workshops, networking nights, and pod check-ins designed
+              to accelerate your career and AI journey.
+            </p>
           </div>
-        </div>
+          <div className="flex shrink-0 items-center gap-[12px]">
+            <Button
+              className="rounded-full border border-[#d4af37] bg-[#d4af37] px-[22px] py-[14px] style-button-text text-ink transition-colors hover:bg-[#c19d2e]"
+              variant="accent"
+              href="/id"
+            >
+              AIM ID
+            </Button>
+          </div>
+        </section>
 
-        <div className="grid grid-cols-1 gap-[20px] lg:grid-cols-[320px_1fr]">
-          {/* Check-in card */}
-          <div className={`flex flex-col items-center gap-[16px] ${CARD} border-t-[4px] border-t-[#22c55e] p-[28px] text-center`}>
-            <div className="flex flex-col items-center gap-[2px]">
-              <span className="style-caption uppercase tracking-widest text-white/60">
-                Attendance · Week {currentWeek}
-              </span>
-              <span className="style-card-title text-white">Check in</span>
+        {/* Next/Featured AIM Night */}
+        <section className="relative flex flex-col gap-[20px] overflow-hidden rounded-[16px] border-t-[10px] border-b-[10px] border-[#2f5fe8] bg-[#181c25] p-[36px] lg:p-[46px]">
+          <TopographyBackground />
+          <div className="flex items-end justify-between">
+            <div className="flex flex-col gap-[4px]">
+              <h2 className="style-section-header uppercase text-white">Next AIM Event</h2>
+              <p className="style-body-text text-white/80">
+                Join our upcoming session for mentorship check-ins and structured networking.
+              </p>
             </div>
+            <span className="hidden shrink-0 rounded-full bg-pill-amber px-[16px] py-[8px] style-badge-text text-orange-text sm:inline-block">
+              Mandatory Attendance
+            </span>
+          </div>
 
-            <div className="flex items-center justify-center rounded-[16px] bg-white p-[16px]">
-              {rsvp ? (
-                <QRCode value={rsvp.qrToken} size={180} level="H" />
-              ) : (
-                <div className="flex h-[180px] w-[180px] items-center justify-center text-center style-caption text-ink-faint">
-                  No meeting scheduled yet
+          {nextAimNight ? (
+            <div className="relative z-10 flex flex-col gap-4 rounded-xl border border-white/10 bg-black/30 p-6 backdrop-blur-md">
+              <div className="flex flex-col justify-between gap-2 md:flex-row md:items-center">
+                <div>
+                  <h3 className="text-2xl font-bold text-white">{nextAimNight.title}</h3>
+                  <p className="text-sm text-white/70">{nextAimNight.location}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-[#9db8ff]">
+                    {new Date(nextAimNight.startTime).toLocaleDateString("en-US", {
+                      weekday: "long",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </p>
+                  <p className="text-xs text-white/60">
+                    {new Date(nextAimNight.startTime).toLocaleTimeString("en-US", {
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-white/90">{nextAimNight.description}</p>
+
+              {/* Mentors Scan Button (Displays if user can scan & event is today) */}
+              {canScanMentees && isEventToday && (
+                <div className="mt-2 flex border-t border-white/10 pt-4">
+                  <Button
+                    href={`/admin/events/${nextAimNight.id}/scan`}
+                    className="rounded-full bg-[#2563eb] px-6 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:bg-[#1d4ed8]"
+                  >
+                    📷 Scan Mentees In
+                  </Button>
                 </div>
               )}
             </div>
+          ) : (
+            <p className="rounded-[20px] border border-dashed border-white/20 p-[24px] text-center style-body-text text-white/60">
+              No upcoming AIM events scheduled at the moment.
+            </p>
+          )}
+        </section>
 
-            <div className="flex flex-col gap-[2px]">
-              <span className="style-body-text font-semibold text-white">
-                Show this code to your mentor
-              </span>
-              <span className="style-caption text-white/60">
-                Refreshes each meeting you&apos;re checked into
-              </span>
-            </div>
-          </div>
-
-          {/* Timeline card */}
-          <div className={`flex flex-col gap-[16px] ${CARD} border-t-[4px] border-t-[#f2a968] p-[28px]`}>
-            <div className="flex flex-col gap-[2px]">
-              <span className="style-caption uppercase tracking-widest text-white/60">
-                Recap &amp; 10-week timeline
-              </span>
-              <span className="style-card-title text-white">Where we are</span>
-            </div>
-
-            {lastWeek && (
-              <div className="flex items-center gap-[10px] rounded-[12px] bg-black/25 px-[16px] py-[10px]">
-                <span className="w-fit shrink-0 rounded-full bg-[#f2a968] px-[12px] py-[4px] style-badge-text text-[#4a2a0a]">
-                  Last week
-                </span>
-                <span className="style-body-text text-white/85">
-                  {lastWeek.description}
-                </span>
+        {/* Upcoming AIM Nights & Events List */}
+        <ScrollReveal>
+          <section className="flex flex-col gap-[20px]">
+            <h2 className="style-section-header uppercase text-white">AIM Schedule & Events</h2>
+            {aimEvents.length === 0 ? (
+              <p className="rounded-[20px] border border-dashed border-white/20 p-[24px] text-center style-body-text text-white/60">
+                No past or future AIM events found.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {aimEvents.map((e: AimEventItem) => (
+                  <AimEventCard key={e.id} event={e} />
+                ))}
               </div>
             )}
-
-            <div className="flex flex-col divide-y divide-white/10">
-              {AIM_TIMELINE.map((milestone) => {
-                const status = getMilestoneStatus(milestone, currentWeek);
-                return (
-                  <div
-                    key={milestone.weekLabel}
-                    className={`flex flex-wrap items-center justify-between gap-[12px] py-[12px] ${
-                      milestone === current ? "rounded-[10px] bg-black/20 px-[10px]" : ""
-                    }`}
-                  >
-                    <div className="flex items-center gap-[14px]">
-                      <span className="w-[48px] shrink-0 style-caption text-white/50">
-                        {milestone.weekLabel}
-                      </span>
-                      <div className="flex flex-col">
-                        <span className="style-body-text font-semibold text-white">
-                          {milestone.title}
-                        </span>
-                        <span className="style-caption text-white/60">
-                          {milestone.description} · {milestone.dueLabel}
-                        </span>
-                      </div>
-                    </div>
-                    <span className={`shrink-0 rounded-full px-[12px] py-[5px] style-badge-text ${STATUS_PILL[status]}`}>
-                      {STATUS_LABEL[status]}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+          </section>
+        </ScrollReveal>
       </main>
 
       <Footer />

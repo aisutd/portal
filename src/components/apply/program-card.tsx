@@ -81,7 +81,7 @@ export function ProgramCard({
 
   const iconChip = image ? (
     <div
-      className="relative flex size-15 shrink-0 items-center justify-center rounded-[14px] p-0.5 overflow-hidden shadow-sm shadow-ink/15 border border-white/35 transition-transform duration-300 group-hover:scale-105"
+      className="relative flex size-15 shrink-0 items-center justify-center rounded-[14px] p-0.5 overflow-hidden shadow-sm shadow-ink/15 border-2 border-white/35 transition-transform duration-300 group-hover:scale-105"
       style={{ backgroundColor: `color-mix(in srgb, ${iconBg} 20%, transparent)` }}
     >
       <Image
@@ -105,7 +105,7 @@ export function ProgramCard({
     <motion.div
       whileHover={{ y: -4 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className="group flex h-full flex-1 flex-col justify-between gap-3.5 self-stretch rounded-[18px] border bg-white/95 backdrop-blur-xs px-[23px] pb-[25px] pt-[24px] shadow-xs transition-all duration-300 hover:shadow-md"
+      className="group flex h-full flex-1 flex-col justify-between gap-3.5 self-stretch rounded-[18px] bg-white/50 backdrop-blur-md border-white/35 border-2 shadow-sm shadow-ink/15 px-6 py-6 transition-all duration-300 hover:shadow-md"
       style={{
         borderColor,
         "--hover-color": iconBg
@@ -120,7 +120,7 @@ export function ProgramCard({
             </h3>
           </div>
           {badge ? (
-            <span className="inline-flex items-center rounded-full bg-orange-soft/90 border border-orange-soft/60 px-[14px] py-[5px] style-badge-text leading-[normal] text-orange-ink font-medium shadow-2xs">
+            <span className="inline-flex items-center rounded-full px-3 py-1 style-badge-text leading-[normal] bg-orange-soft/35 border border-orange/35 text-orange-ink font-medium shadow-2xs shadow-ink/15">
               {badge}
             </span>
           ) : <div className="h-[28px]" />}
@@ -133,9 +133,9 @@ export function ProgramCard({
           <Tag
             key={label}
             label={label}
-            bg="#efece3"
+            bg="#ffffff8c"
             color="#6a685f"
-            border="#e2ded2"
+            border="#ffffff59"
           />
         ))}
       </div>
