@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { TZDate } from "@date-fns/tz";
+import { getEventVisibilityFilter } from "./event-visibility";
 
 const TIMEZONE = "America/Chicago";
 
@@ -117,22 +118,25 @@ export async function getRSVPs(userId: string, take: number = 5) {
 }
 
 export async function getUpcomingEvents(take: number = 2, userId?: string) {
+  const visibility = await getEventVisibilityFilter(userId ?? null);
+
   const events = await prisma.event.findMany({
-    where: { 
+    where: {
       status: "UPCOMING",
       isRsvpOpen: true,
       isPublished: true,
+      AND: [visibility], // added this line to filter events based on user visibility
       ...(userId ? {
         rsvps: {
-          none: { 
+          none: {
             userId,
-            status: "GOING" 
+            status: "GOING"
           }
         }
       } : {})
     },
   });
-  
+
   return events.sort(() => 0.5 - Math.random()).slice(0, take);
 }
 

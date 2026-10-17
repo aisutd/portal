@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { EventsBrowseClient } from "@/components/events/events-browse-client";
+import { getEventVisibilityFilter } from "@/lib/event-visibility";
 
 export const metadata: Metadata = {
   title: "Events — Browse",
@@ -12,39 +13,44 @@ export const metadata: Metadata = {
 
 async function getEventsData(userId: string | null) {
   const now = new Date();
+  const visibility = await getEventVisibilityFilter(userId);
 
   // Fetch active/upcoming events (where event has NOT ended yet)
   const upcomingRaw = await prisma.event.findMany({
-    where: { 
+    // upcoming
+    where: {
       isPublished: true,
-      endTime: { gte: now } 
+      endTime: { gte: now },
+      AND: [visibility],
     },
     orderBy: { startTime: "asc" },
     take: 20,
     include: {
       rsvps: userId
-        ? { 
-            where: { userId: userId, status: "GOING" },
-            include: { attendance: true }
-          }
+        ? {
+          where: { userId: userId, status: "GOING" },
+          include: { attendance: true }
+        }
         : false,
     },
   });
 
   // Fetch past events (where event has completely ended)
   const pastRaw = await prisma.event.findMany({
-    where: { 
-      isPublished: true, 
-      endTime: { lt: now } 
+    // past
+    where: {
+      isPublished: true,
+      endTime: { lt: now },
+      AND: [visibility],
     },
     orderBy: { startTime: "desc" },
     take: 10,
     include: {
       rsvps: userId
-        ? { 
-            where: { userId: userId, status: "GOING" },
-            include: { attendance: true },
-          }
+        ? {
+          where: { userId: userId, status: "GOING" },
+          include: { attendance: true },
+        }
         : false,
     },
   });
@@ -71,7 +77,7 @@ async function getEventsData(userId: string | null) {
         isRsvpOpen: event.isRsvpOpen ?? true,
       };
     });
-  
+
   const mapPastEvents = (events: typeof pastRaw) =>
     events.map((event) => {
       const userRsvp = event.rsvps && event.rsvps.length > 0 ? event.rsvps[0] : null;
