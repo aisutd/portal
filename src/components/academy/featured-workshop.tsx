@@ -46,12 +46,12 @@ export function FeaturedWorkshop({ workshop }: { workshop: AcademyWorkshopDetail
         <h3 className="style-card-title uppercase text-white">{workshop.title}</h3>
         <p className="style-body-text max-w-xl text-white/70">{workshop.description}</p>
 
-        <div className="mt-[4px] flex flex-wrap items-center gap-x-[20px] gap-y-[8px] style-caption text-white/60">
-          <span className="flex items-center gap-1.5">
+        <div className="mt-[4px] flex flex-col gap-y-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-[20px] style-caption text-white/60">
+          <span className="flex items-start gap-1.5 min-w-0 w-full sm:w-auto">
             <Calendar className="h-3.5 w-3.5" />
             {formatEventDate(workshop.startTime, true)}
           </span>
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-start gap-1.5 min-w-0 w-full sm:w-auto">
             <MapPin className="h-3.5 w-3.5" />
             {workshop.location}
           </span>
@@ -59,8 +59,8 @@ export function FeaturedWorkshop({ workshop }: { workshop: AcademyWorkshopDetail
 
         <p className="style-caption mt-[4px] text-white/50">
           {isLive
-            ? "The recording will appear here once the session wraps up."
-            : "Save your seat now. The recording and make-up quiz land here afterward."}
+            ? "PULL UP NOW! :) Or if you can't, the recording and quiz will be here shortly."
+            : "PU!! We look forward to seeing you there!"}
         </p>
       </div>
 
@@ -71,14 +71,14 @@ export function FeaturedWorkshop({ workshop }: { workshop: AcademyWorkshopDetail
         >
           View Workshop
         </Link>
-        {!started && (
+        {/* {!started && (
           <Link
             href="/events"
             className="rounded-full border border-white/25 px-[22px] py-[12px] style-button-text text-white transition-colors hover:border-white/50"
           >
             RSVP
           </Link>
-        )}
+        )} */}
       </div>
     </div>
   );

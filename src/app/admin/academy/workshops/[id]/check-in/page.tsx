@@ -63,7 +63,7 @@ export default async function WorkshopQrPage({ params }: WorkshopQrPageProps) {
           {workshop.title}
         </h1>
         
-        {isTooEarly ? (
+        {/* {isTooEarly ? (
           <div className="my-8 flex flex-col items-center gap-3 rounded-2xl bg-amber-50 p-6 border border-amber-200 text-amber-900">
             <span className="font-bold text-sm">Check-in not open yet</span>
             <p className="text-xs text-amber-700 leading-relaxed">
@@ -71,7 +71,7 @@ export default async function WorkshopQrPage({ params }: WorkshopQrPageProps) {
               <strong className="font-semibold">{TIME_FORMAT.format(workshop.startTime)}</strong>.
             </p>
           </div>
-        ) : (
+        ) : (  */}
           <>
             <p className="mt-1 text-sm text-ink-muted">
               Scan with your phone camera to check in
@@ -86,7 +86,6 @@ export default async function WorkshopQrPage({ params }: WorkshopQrPageProps) {
               {checkInUrl}
             </div>
           </>
-        )}
       </div>
     </div>
   );

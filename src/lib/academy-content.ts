@@ -233,6 +233,14 @@ export async function getFeaturedWorkshop(
 ): Promise<AcademyWorkshopDetail | null> {
   const now = new Date();
 
+  const nextUp = await prisma.workshop.findFirst({
+    where: { ...WORKSHOP_WHERE, startTime: { gt: now } },
+    orderBy: { startTime: "asc" },
+    select: { id: true },
+  });
+
+  if (nextUp) return getAcademyWorkshop(nextUp.id, viewerId);
+
   const happeningNow = await prisma.workshop.findFirst({
     where: { ...WORKSHOP_WHERE, startTime: { lte: now }, endTime: { gte: now } },
     orderBy: { startTime: "asc" },
@@ -251,15 +259,7 @@ export async function getFeaturedWorkshop(
     select: { id: true },
   });
 
-  if (latestReplay) return getAcademyWorkshop(latestReplay.id, viewerId);
-
-  const nextUp = await prisma.workshop.findFirst({
-    where: { ...WORKSHOP_WHERE, startTime: { gt: now } },
-    orderBy: { startTime: "asc" },
-    select: { id: true },
-  });
-
-  return nextUp ? getAcademyWorkshop(nextUp.id, viewerId) : null;
+  return latestReplay ? getAcademyWorkshop(latestReplay.id, viewerId) : null;
 }
 
 export function isWorkshopPast(workshop: { endTime: string }): boolean {

@@ -211,7 +211,9 @@ export function VideoNotesPanel({
             </div>
           )}
         </div>
-        <div className="mt-1 flex flex-wrap justify-between items-center gap-4 rounded-2xl bg-[#181c25] p-4 sm:flex-row">
+        
+        {/* Workshop Title and take quiz button*/}
+        <div className="mt-1 flex flex-wrap justify-between items-center gap-4 rounded-2xl bg-[#181c25] p-4 border-[5px] rounded-2xl border-[#d4af37] sm:flex-row">
           <div className="flex flex-col gap-0.5">
             <span className="text-[10px] font-semibold tracking-wider text-[#d4af37] uppercase">
               Workshop
@@ -232,30 +234,30 @@ export function VideoNotesPanel({
                 {completed ? (
                   <span>Watched</span>
                 ) : (
-                  <span>Watch 50% to unlock quiz</span>
+                  <span>Watch to unlock quiz</span>
                 )}
               </div>
             )}
 
             {/* --- QUIZ BUTTON ADDED HERE --- */}
             <Button
-              variant="accent" // Use your accent variant which handles the gold style cleanly
+              variant="accent"
               disabled={!completed}
               href={quizUrl}
-              title={completed ? "Take the quiz" : "Watch at least 50% of the video to unlock the quiz"}
+              title={completed ? "Take the quiz" : "Watch the video fully to unlock the quiz"}
             >
-              <HelpCircle className="h-4 w-4" />
-              <span>Take Quiz</span>
+              <span>Quiz</span>
             </Button>
           </div>
         </div>
       </div>
 
+      {/* Take Notes Module */}
       <div className="flex w-full flex-col gap-[8px] rounded-[20px] border-[5px] border-[#d4af37] bg-[#181c25] p-[16px] lg:w-[320px] lg:shrink-0">
         <div className="flex flex-col gap-[2px]">
           <span className="style-card-title text-white">My Notes</span>
           <span className="style-caption text-white/60">
-            Write down key concepts while you watch.
+            This is a space for temporary note-taking. Save them in your local infrastructure to retain access.
           </span>
         </div>
         <textarea

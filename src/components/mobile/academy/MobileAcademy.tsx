@@ -4,20 +4,15 @@ import { BottomNav } from "@/components/mobile/ui/BottomNav";
 import { Footer } from "@/components/footer";
 import { VideoNotesPanel } from "@/components/academy/video-notes-panel";
 import { CourseSequence } from "@/components/academy/course-sequence";
-import type { AcademyWorkshopSummary, AcademyResource } from "@/lib/academy-content";
+import type { AcademyWorkshopSummary, AcademyResource, AcademyWorkshopDetail } from "@/lib/academy-content";
 import { AcademyGradientBackground } from "@/components/academy/gradient-background";
 import { Button } from "@/components/ui/button";
+import { FeaturedWorkshop } from "@/components/academy/featured-workshop";
 
 type MobileAcademyProps = {
   workshops: AcademyWorkshopSummary[];
   resources: AcademyResource[];
-  featuredLesson?: {
-    title: string;
-    videoUrl: string | null;
-    workshopId?: string;
-    userId?: string;
-    completed?: boolean;
-  };
+  featuredLesson: AcademyWorkshopDetail | null;
 };
 
 export function MobileAcademy({ workshops, resources, featuredLesson }: MobileAcademyProps) {
@@ -42,8 +37,8 @@ export function MobileAcademy({ workshops, resources, featuredLesson }: MobileAc
         </p>
         <div className="flex w-full justify-between gap-3">
          <Button href="#course-sequence-mobile" variant="primary">
-              Browse Courses
-            </Button>
+              Browse Workshops
+          </Button>
           <Button variant="accent" href="/id">
             Academy ID
           </Button>
@@ -53,11 +48,18 @@ export function MobileAcademy({ workshops, resources, featuredLesson }: MobileAc
       {/* Featured video course + notes */}
       <section className="relative flex flex-col gap-4 overflow-hidden rounded-2xl border-t-[6px] border-b-[6px] border-[#2f5fe8] bg-[#181c25] p-5">
         <div className="flex flex-col gap-1">
-          <h2 className="style-section-header uppercase text-white text-lg">
-            Latest Workshop
+          <h2 className="style-section-header uppercase text-[#d4af37] text-lg">
+            Featured Workshop
           </h2>
         </div>
-        <VideoNotesPanel
+        {featuredLesson ? (
+            <FeaturedWorkshop workshop={featuredLesson} />
+          ) : (
+            <p className="rounded-[20px] border border-dashed border-white/20 p-[24px] text-center style-body-text text-white/60">
+              No workshops have been published yet.
+            </p>
+          )}
+        {/* <VideoNotesPanel
           key={safeFeaturedLesson.workshopId ?? "featured-lesson-3"}
           title={safeFeaturedLesson.title}
           videoUrl={safeFeaturedLesson.videoUrl}
@@ -65,13 +67,13 @@ export function MobileAcademy({ workshops, resources, featuredLesson }: MobileAc
           workshopId={safeFeaturedLesson.workshopId}
           userId={safeFeaturedLesson.userId}
           initiallyCompleted={safeFeaturedLesson.completed}
-        />
+        /> */}
       </section>
 
       {/* Course Sequence */}
      <section id="course-sequence-mobile" className="flex flex-col gap-4">
             <h2 className="style-section-header uppercase text-white text-lg">
-          Course Sequence
+          All Workshops
         </h2>
         <CourseSequence workshops={workshops} />
       </section>
