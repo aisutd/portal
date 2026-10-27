@@ -65,8 +65,8 @@ export function EventForm({ tags, defaultValues }: EventFormProps) {
   );
 
   const [eventItems, setEventItems] = useState<EventItemInput[]>(defaultValues?.items ?? []);
-  const [isPublished, setIsPublished] = useState<boolean>(defaultValues?.isPublished ?? false);
-  const [isRsvpOpen, setIsRsvpOpen] = useState<boolean>(defaultValues?.isRsvpOpen ?? true);
+  // const [isPublished, setIsPublished] = useState<boolean>(defaultValues?.isPublished ?? false);
+  // const [isRsvpOpen, setIsRsvpOpen] = useState<boolean>(defaultValues?.isRsvpOpen ?? true);
 
   const toggleTag = (tag: string) => {
     setSelectedTags((current: string[]) =>
@@ -129,8 +129,8 @@ export function EventForm({ tags, defaultValues }: EventFormProps) {
       <input type="hidden" name="status" value={defaultValues?.status ?? "UPCOMING"} />
       <input type="hidden" name="visibility" value={defaultValues?.visibility ?? "public"} />
       <input type="hidden" name="eventItems" value={JSON.stringify(eventItems)} />
-      <input type="hidden" name="isPublished" value={String(isPublished)} />
-      <input type="hidden" name="isRsvpOpen" value={String(isRsvpOpen)} />
+      {/* <input type="hidden" name="isPublished" value={String(isPublished)} />
+      <input type="hidden" name="isRsvpOpen" value={String(isRsvpOpen)} /> */}
 
       {/* Basic Event Information */}
       <FormField
@@ -397,7 +397,7 @@ export function EventForm({ tags, defaultValues }: EventFormProps) {
       </div>
 
       {/* Settings / Toggles Section */}
-      <div className="flex flex-col gap-4 border-t border-border-soft pt-5">
+      {/* <div className="flex flex-col gap-4 border-t border-border-soft pt-5">
         <div className="flex items-center justify-between">
           <div>
             <span className="style-body-text text-ink font-medium">Publish Immediately</span>
@@ -427,7 +427,7 @@ export function EventForm({ tags, defaultValues }: EventFormProps) {
             className="h-5 w-5 rounded border-border-soft text-brand focus:ring-brand cursor-pointer"
           />
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
