@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+type ButtonProps = Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  "onClick"
+> & {
+  onClick?: React.MouseEventHandler<HTMLButtonElement | HTMLAnchorElement>;
   /**
    * Colour treatment:
    * - "primary"  solid blue
@@ -96,8 +100,10 @@ export function Button({
     className
   );
 
+  const { onClick, ...restProps } = props;
+
   if (href) {
-    const linkProps = props as Omit<
+    const linkProps = restProps as Omit<
       React.ComponentProps<typeof Link>,
       "href" | "className" | "children"
     >;
@@ -110,7 +116,7 @@ export function Button({
           if (disabled) {
             e.preventDefault();
           }
-          props.onClick?.(e as any);
+          onClick?.(e);
         }}
         className={classes}
         {...linkProps}
@@ -121,7 +127,7 @@ export function Button({
   }
 
   return (
-    <button className={classes} disabled={disabled} {...props}>
+    <button className={classes} disabled={disabled} onClick={onClick} {...restProps}>
       {children}
     </button>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ExternalLink, HelpCircle } from "lucide-react";
 import { Button } from "../ui/button";
 import { resolveVideoEmbed } from "@/lib/video-embed";
@@ -13,6 +13,8 @@ type VideoNotesPanelProps = {
   workshopId?: string;
   userId?: string;
   initiallyCompleted?: boolean;
+  quizPanel?: ReactNode;
+  onCompleted?: () => void;
   quizUrl?: string; // Optional: Pass a link/path to the quiz if needed
   onOpenQuiz?: () => void; // Optional: Or handle via callback/modal trigger
 };
@@ -71,20 +73,17 @@ export function VideoNotesPanel({
   initiallyCompleted = false,
   quizUrl,
   onOpenQuiz,
+  quizPanel,
+  onCompleted,
 }: VideoNotesPanelProps) {
   const storageKey = `academy-notes:${notesKey}`;
   const [notes, setNotes] = useState("");
-  const [completed, setCompleted] = useState(initiallyCompleted);
+  const [watched, setWatched] = useState(false);
+  const completed = initiallyCompleted || watched;
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const embed = resolveVideoEmbed(videoUrl);
   const isYouTube = embed?.kind === "iframe" && embed.src.includes("youtube-nocookie.com/embed/");
-
-  useEffect(() => {
-    if (initiallyCompleted) {
-      setCompleted(true);
-    }
-  }, [initiallyCompleted]);
 
   useEffect(() => {
     if (!isYouTube || !workshopId || !userId || !iframeRef.current) return;
@@ -101,7 +100,10 @@ export function VideoNotesPanel({
 
       const watchedSeconds = Math.floor(currentTime);
       const durationSeconds = Math.floor(duration);
-      if (watchedSeconds >= durationSeconds * 0.5) setCompleted(true);
+      if (watchedSeconds >= durationSeconds * 0.5) {
+        setWatched(true);
+        onCompleted?.();
+      }
       lastSentAt = Date.now();
       try {
         await fetch("/api/academy/progress", {
@@ -147,14 +149,22 @@ export function VideoNotesPanel({
       window.removeEventListener("pagehide", flushOnExit);
       player?.destroy();
     };
-  }, [isYouTube, userId, workshopId]);
+  }, [isYouTube, userId, workshopId, onCompleted]);
 
   useEffect(() => {
-    try {
-      setNotes(localStorage.getItem(storageKey) ?? "");
-    } catch {
-      // Private browsing / blocked storage
-    }
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      try {
+        setNotes(localStorage.getItem(storageKey) ?? "");
+      } catch {
+        // Private browsing / blocked storage
+      }
+    });
+
+    return () => {
+      active = false;
+    };
   }, [storageKey]);
 
   function handleChange(value: string) {
@@ -167,6 +177,7 @@ export function VideoNotesPanel({
   }
 
   return (
+    <>
     <div className="flex flex-col gap-[20px] lg:flex-row">
       <div className="flex flex-[1.6] flex-col gap-[12px]">
         <div className="overflow-hidden rounded-[20px] border-[5px] border-[#d4af37]">
@@ -238,15 +249,15 @@ export function VideoNotesPanel({
             )}
 
             {/* --- QUIZ BUTTON ADDED HERE --- */}
-            <Button
-              variant="accent" // Use your accent variant which handles the gold style cleanly
+            {/*<Button
+              variant="accent"
               disabled={!completed}
               href={quizUrl}
               title={completed ? "Take the quiz" : "Watch at least 50% of the video to unlock the quiz"}
             >
               <HelpCircle className="h-4 w-4" />
               <span>Take Quiz</span>
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>
@@ -266,5 +277,7 @@ export function VideoNotesPanel({
         />
       </div>
     </div>
+    {completed && quizPanel}
+    </>
   );
 }

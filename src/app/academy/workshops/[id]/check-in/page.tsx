@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { AttendanceMethod } from "@prisma/client";
 
 interface WorkshopCheckInPageProps {
   params: Promise<{ id: string }>;
@@ -47,7 +48,8 @@ export default async function WorkshopCheckInPage({
   // 4. Validate time window (allows check-in starting 1 hour before start through end time)
   const now = new Date();
   const oneHourBeforeStart = new Date(workshop.startTime.getTime() - 60 * 60 * 1000);
-  const isOpen = now >= oneHourBeforeStart && now <= workshop.endTime;
+  const oneHourAfterEnd = new Date(workshop.endTime.getTime() + 60 * 60 * 1000);
+  const isOpen = now >= oneHourBeforeStart && now <= oneHourAfterEnd;
 
   // 5. Check if member already checked in
   const existingAttendance = await prisma.attendance.findUnique({
@@ -62,7 +64,7 @@ export default async function WorkshopCheckInPage({
   let status: "SUCCESS" | "ALREADY_CHECKED_IN" | "INVALID_TOKEN" | "CLOSED" = "SUCCESS";
 
   if (existingAttendance) {
-    status = "ALREADY_CHECKED_IN";
+    status = "SUCCESS"; // just want to make it success cause it dont matter
   } else if (!isValidToken) {
     status = "INVALID_TOKEN";
   } else if (!isOpen) {
@@ -73,6 +75,7 @@ export default async function WorkshopCheckInPage({
       data: {
         userId,
         workshopId: workshop.id,
+        method: AttendanceMethod.QR_SCAN,
       },
     });
   }
@@ -105,33 +108,33 @@ export default async function WorkshopCheckInPage({
     );
   }
 
-  // UI State: Already Checked In
-  if (status === "ALREADY_CHECKED_IN") {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-6 text-center">
-        <div className="w-full max-w-[420px] rounded-[16px] bg-white p-6 md:p-[36px] border border-border-soft shadow-sm">
-          <span className="style-caption font-semibold uppercase tracking-wider text-ink-muted">
-            Already Verified
-          </span>
-          <h1 className="mt-[12px] style-section-header text-ink">
-            Already Checked In
-          </h1>
-          <p className="mt-[8px] style-body-text text-ink-muted leading-[20px]">
-            You&apos;ve already received attendance credit for <span className="font-semibold text-ink">{workshop.title}</span>.
-          </p>
+  // // UI State: Already Checked In
+  // if (status === "ALREADY_CHECKED_IN") {
+  //   return (
+  //     <div className="flex min-h-screen flex-col items-center justify-center p-6 text-center">
+  //       <div className="w-full max-w-[420px] rounded-[16px] bg-white p-6 md:p-[36px] border border-border-soft shadow-sm">
+  //         <span className="style-caption font-semibold uppercase tracking-wider text-ink-muted">
+  //           Already Verified
+  //         </span>
+  //         <h1 className="mt-[12px] style-section-header text-ink">
+  //           Already Checked In
+  //         </h1>
+  //         <p className="mt-[8px] style-body-text text-ink-muted leading-[20px]">
+  //           You&apos;ve already received attendance credit for <span className="font-semibold text-ink">{workshop.title}</span>.
+  //         </p>
 
-          <div className="mt-[24px]">
-            <Link
-              href={`/academy/workshops/${workshop.id}`}
-              className="inline-flex w-full items-center justify-center rounded-[10px] bg-brand px-4 py-[12px] style-caption font-medium text-white transition-colors hover:bg-brand-dark"
-            >
-              ← Return to Workshop
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  //         <div className="mt-[24px]">
+  //           <Link
+  //             href={`/academy/workshops/${workshop.id}`}
+  //             className="inline-flex w-full items-center justify-center rounded-[10px] bg-brand px-4 py-[12px] style-caption font-medium text-white transition-colors hover:bg-brand-dark"
+  //           >
+  //             ← Return to Workshop
+  //           </Link>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   // UI State: Invalid Token / QR Code
   if (status === "INVALID_TOKEN") {

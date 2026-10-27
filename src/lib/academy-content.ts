@@ -245,9 +245,8 @@ export async function getFeaturedWorkshop(
     where: {
       ...WORKSHOP_WHERE,
       endTime: { lt: now },
-      recordingUrl: { not: null },
     },
-    orderBy: { startTime: "desc" },
+    orderBy: { endTime: "desc" },
     select: { id: true },
   });
 

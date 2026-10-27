@@ -58,7 +58,6 @@ const activeAcademyUsers = await prisma.user.findMany({
 });
 
   // 3. Map Data for Client
-  // 3. Map Data for Client
 const membersData: AcademyMemberAttendance[] = activeAcademyUsers.map((user) => {
   const name = user.profile
     ? `${user.profile.firstName} ${user.profile.lastName}`.trim()

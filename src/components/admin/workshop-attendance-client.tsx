@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { checkInUserLive } from "@/app/admin/academy/workshops/[id]/attendance/actions";
 
@@ -34,10 +35,22 @@ export function WorkshopAttendanceClient({
   members,
   canCheckIn,
 }: Props) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"ALL" | "QUIZ" | "LIVE" | "ABSENT">("ALL");
   const [selectedMember, setSelectedMember] = useState<AcademyMemberAttendance | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [loadingUserId, setLoadingUserId] = useState<string | null>(null);
+
+  // Correct calculation for Live vs Quiz vs Total
+  const liveCount = members.filter(
+    (m) =>
+      m.method === "MANUAL" ||
+      m.method === "QR_SCAN" ||
+      m.method === "OFFICER_TICKET_SCAN"
+  ).length;
+  const quizCount = members.filter((m) => m.method === "QUIZ").length;
+  const totalAttended = members.filter((m) => m.hasAttended).length;
 
   // Filter members by Search & Tab
   const filteredMembers = members.filter((m) => {
@@ -48,21 +61,32 @@ export function WorkshopAttendanceClient({
     if (!matchesSearch) return false;
 
     if (activeTab === "QUIZ") return m.method === "QUIZ";
-    if (activeTab === "LIVE") return m.method === "MANUAL" || m.method === "QR_SCAN";
+    if (activeTab === "LIVE")
+      return (
+        m.method === "MANUAL" ||
+        m.method === "QR_SCAN" ||
+        m.method === "OFFICER_TICKET_SCAN"
+      );
     if (activeTab === "ABSENT") return !m.hasAttended;
     return true;
   });
 
-  const liveCount = members.filter((m) => m.method === "MANUAL" || m.method === "QR_SCAN").length;
-  const quizCount = members.filter((m) => m.method === "QUIZ").length;
-  const totalAttended = liveCount + quizCount;
-
   const handleLiveCheckIn = (userId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    setLoadingUserId(userId);
+
     startTransition(async () => {
-      const res = await checkInUserLive(workshopId, userId);
-      if (!res.success) {
-        alert(res.error || "Check-in failed");
+      try {
+        const res = await checkInUserLive(workshopId, userId);
+        if (!res.success) {
+          alert(res.error || "Check-in failed");
+        } else {
+          router.refresh();
+        }
+      } catch {
+        alert("An unexpected error occurred.");
+      } finally {
+        setLoadingUserId(null);
       }
     });
   };
@@ -101,7 +125,10 @@ export function WorkshopAttendanceClient({
         <div className="rounded-xl border border-border-soft bg-white p-4 shadow-2xs">
           <p className="text-xs font-medium text-ink-faint">Total Attended</p>
           <p className="mt-1 text-2xl font-bold text-emerald-600">
-            {totalAttended} <span className="text-xs text-ink-faint">({Math.round((totalAttended / (members.length || 1)) * 100)}%)</span>
+            {totalAttended}{" "}
+            <span className="text-xs text-ink-faint">
+              ({Math.round((totalAttended / (members.length || 1)) * 100)}%)
+            </span>
           </p>
         </div>
         <div className="rounded-xl border border-border-soft bg-white p-4 shadow-2xs">
@@ -140,7 +167,7 @@ export function WorkshopAttendanceClient({
           placeholder="Search by name or email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full sm:w-72 rounded-lg border border-border-soft bg-white px-3 py-1.5 text-sm text-ink outline-hidden focus:border-brand"
+          className="w-full sm:w-72 rounded-lg border border-border-soft bg-white px-3 py-1.5 text-sm text-ink outline-none focus:border-brand"
         />
       </div>
 
@@ -195,12 +222,14 @@ export function WorkshopAttendanceClient({
                     <td className="px-5 py-3.5">
                       {member.method === "QUIZ" && (
                         <span className="inline-flex items-center gap-1 text-xs font-semibold text-purple-700 bg-purple-50 border border-purple-200 rounded-md px-2 py-0.5">
-                            Quiz Passed (Click to view)
+                          Quiz Passed (Click to view)
                         </span>
                       )}
-                      {(member.method === "MANUAL" || member.method === "QR_SCAN") && (
+                      {(member.method === "MANUAL" ||
+                        member.method === "QR_SCAN" ||
+                        member.method === "OFFICER_TICKET_SCAN") && (
                         <span className="inline-flex items-center gap-1 text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-md px-2 py-0.5">
-                            Live Check-In
+                          Live Check-In
                         </span>
                       )}
                       {!member.method && (
@@ -226,7 +255,7 @@ export function WorkshopAttendanceClient({
                           onClick={(e) => handleLiveCheckIn(member.userId, e)}
                           className="rounded-lg border border-border-soft hover:bg-emerald-50 hover:text-emerald-700"
                         >
-                          Check-In Live
+                          {loadingUserId === member.userId ? "Checking In..." : "Check-In Live"}
                         </Button>
                       )}
                     </td>
@@ -240,12 +269,20 @@ export function WorkshopAttendanceClient({
 
       {/* Quiz Completion Detail Modal */}
       {selectedMember && selectedMember.quizAttempt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-border-soft flex flex-col gap-4">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+          onClick={() => setSelectedMember(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-border-soft flex flex-col gap-4"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-lg font-bold text-ink">Quiz Completion Details</h3>
-                <p className="text-xs text-ink-faint">{selectedMember.name} ({selectedMember.email})</p>
+                <p className="text-xs text-ink-faint">
+                  {selectedMember.name} ({selectedMember.email})
+                </p>
               </div>
               <button
                 onClick={() => setSelectedMember(null)}
@@ -262,15 +299,20 @@ export function WorkshopAttendanceClient({
               </div>
               <div className="flex justify-between">
                 <span className="text-ink-faint">Score:</span>
-                <span className="font-semibold text-ink">{selectedMember.quizAttempt.score}%</span>
+                <span className="font-semibold text-ink">
+                  {selectedMember.quizAttempt.score}%
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-ink-faint">Submitted On:</span>
                 <span className="text-ink">
-                  {new Date(selectedMember.quizAttempt.completedAt).toLocaleString("en-US", {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  })}
+                  {new Date(selectedMember.quizAttempt.completedAt).toLocaleString(
+                    "en-US",
+                    {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    }
+                  )}
                 </span>
               </div>
             </div>

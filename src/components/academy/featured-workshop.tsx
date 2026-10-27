@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Calendar, MapPin, Users } from "lucide-react";
+import { Calendar, MapPin } from "lucide-react";
+import { WorkshopQuizPanel } from "@/components/academy/workshop-quiz-panel";
 import { VideoNotesPanel } from "@/components/academy/video-notes-panel";
 import {
   hasWorkshopStarted,
@@ -17,15 +18,19 @@ import { formatEventDate } from "@/lib/utils";
 export function FeaturedWorkshop({ workshop }: { workshop: AcademyWorkshopDetail }) {
   if (workshop.recordingUrl) {
     return (
-      <VideoNotesPanel
-        key={workshop.id}
-        title={workshop.title}
-        videoUrl={workshop.recordingUrl}
-        notesKey={workshop.id}
-        workshopId={workshop.id}
-        userId={workshop.viewerId ?? undefined}
-        quizUrl={`/academy/workshops/${workshop.id}/quiz`}
-      />
+      <div className="flex flex-col gap-[24px]">
+        <VideoNotesPanel
+          key={workshop.id}
+          title={workshop.title}
+          videoUrl={workshop.recordingUrl}
+          notesKey={workshop.id}
+          workshopId={workshop.id}
+          userId={workshop.viewerId ?? undefined}
+          initiallyCompleted={workshop.progressCompleted}
+          quizPanel={<WorkshopQuizPanel workshop={workshop} />}
+          quizUrl={`/academy/workshops/${workshop.id}/quiz`}
+        />
+      </div>
     );
   }
 
@@ -36,11 +41,9 @@ export function FeaturedWorkshop({ workshop }: { workshop: AcademyWorkshopDetail
     <div className="flex flex-col gap-[20px] rounded-[20px] border-[5px] border-[#d4af37] bg-[#181c25] p-[28px] lg:flex-row lg:items-center lg:justify-between">
       <div className="flex flex-col gap-[10px]">
         <span
-          className={`w-fit rounded-full px-[12px] py-[6px] style-badge-text ${
-            isLive ? "bg-[#dc2626] text-white" : "bg-[#2563eb] text-white"
-          }`}
+          className={`w-fit rounded-2xl px-3 py-1 style-badge-text bg-brand text-white`}
         >
-          {isLive ? "Happening Now" : "Up Next"}
+          {isLive ? "Happening Now" : "Recently"}
         </span>
 
         <h3 className="style-card-title uppercase text-white">{workshop.title}</h3>
@@ -59,8 +62,8 @@ export function FeaturedWorkshop({ workshop }: { workshop: AcademyWorkshopDetail
 
         <p className="style-caption mt-[4px] text-white/50">
           {isLive
-            ? "The recording will appear here once the session wraps up."
-            : "Save your seat now. The recording and make-up quiz land here afterward."}
+            ? "The recording will appear here after the workshop!"
+            : "The recording will show up soon! Look out for the announcement on Discord."}
         </p>
       </div>
 
