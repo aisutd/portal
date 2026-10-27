@@ -84,20 +84,21 @@ export default async function CheckInPage({ params, searchParams }: CheckInProps
     );
   }
 
-  // 4. Check if event has ended
+  // 4. Check if event is not currently live
   const now = new Date();
-  if (now > event.endTime) {
+  if (now > event.endTime || now < event.startTime) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center p-6 text-center">
         <div className="w-full max-w-[420px] rounded-[16px] bg-[#f4f1ea] p-[36px] border border-border-soft">
-          <span className="style-caption font-semibold uppercase tracking-wider text-ink-faint">
+
+          {/* <span className="style-caption font-semibold uppercase tracking-wider text-ink-faint">
             Ended
-          </span>
+          </span> */}
           <h1 className="mt-[12px] style-section-header text-ink">
             Check-In Closed
           </h1>
           <p className="mt-[8px] style-body-text text-ink-muted leading-[20px]">
-            <span className="font-semibold text-ink">{event.title}</span> has already concluded. Attendance tracking is no longer active.
+            <span className="font-semibold text-ink">{event.title}</span> is not in session right now. Attendance is only active during the event's timings.
           </p>
           <div className="mt-[24px]">
             <Link
