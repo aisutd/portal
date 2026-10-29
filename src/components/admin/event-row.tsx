@@ -1,3 +1,4 @@
+import { EventSelectionCheckbox } from "./event-bulk-selection";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/progress-bar";
@@ -27,6 +28,7 @@ export type EventRowData = {
 };
 
 export function EventRow({
+  id,
   title,
   imageUrl,
   status,
@@ -48,6 +50,7 @@ export function EventRow({
           : "border-border-soft bg-white"
       } ${dim ? "opacity-[0.72]" : ""}`}
     >
+      <EventSelectionCheckbox id={id} title={title} />
       {/* Thumbnail */}
       <EventCoverImage
         className="h-[56px] w-[72px] shrink-0 rounded-[12px]"

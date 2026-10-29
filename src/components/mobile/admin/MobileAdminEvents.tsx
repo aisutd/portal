@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+import { EventBulkSelection, EventSelectionCheckbox } from "@/components/admin/event-bulk-selection";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/progress-bar";
@@ -8,6 +10,8 @@ import type { EventRowData } from "@/components/admin/event-row";
 import { EventCoverImage } from "@/components/events/event-cover-image";
 
 type MobileAdminEventsProps = {
+  canManage: boolean;
+  archivedSection: ReactNode;
   stats: StatCardData[];
   publishedRows: EventRowData[];
   draftRows: EventRowData[];
@@ -27,6 +31,7 @@ function MobileEventCard({ event }: { event: EventRowData }) {
       } ${event.dim ? "opacity-[0.72]" : ""}`}
     >
       <div className="flex items-center gap-[12px]">
+        <EventSelectionCheckbox id={event.id} title={event.title} />
         <EventCoverImage
           imageUrl={event.imageUrl ?? undefined}
           className="h-[44px] w-[56px] shrink-0 rounded-[10px] bg-photo"
@@ -103,6 +108,8 @@ function MobileEventCard({ event }: { event: EventRowData }) {
 }
 
 export function MobileAdminEvents({
+  canManage,
+  archivedSection,
   stats,
   publishedRows,
   draftRows,
@@ -143,6 +150,7 @@ export function MobileAdminEvents({
         ))}
       </div>
 
+      <EventBulkSelection enabled={canManage}>
       {/* Published Events */}
       <div className="flex flex-col gap-[12px]">
         <h3 className="style-mobile-title text-ink">
@@ -185,6 +193,8 @@ export function MobileAdminEvents({
         )}
       </div>
 
+      </EventBulkSelection>
+      {archivedSection}
       {/* Quick Action Link */}
       <Link
         href="/admin/events/new"

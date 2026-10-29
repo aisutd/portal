@@ -1,5 +1,9 @@
 export const dynamic = "force-dynamic";
 
+import { getAdminViewer } from "@/lib/admin-access";
+import { canManageEventArchive } from "@/lib/roles";
+import { EventBulkSelection } from "@/components/admin/event-bulk-selection";
+import { ArchivedEvents } from "@/components/admin/archived-events";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
@@ -79,6 +83,7 @@ async function getEventViewModel() {
   const now = new Date();
 
   const events = await prisma.event.findMany({
+    where: { isArchived: false },
     orderBy: { startTime: "asc" },
     include: {
       rsvps: {
@@ -132,11 +137,15 @@ async function getEventViewModel() {
 
 export default async function AdminEventsPage() {
   const data = await getEventViewModel();
+  const viewer = await getAdminViewer();
+  const canManage = canManageEventArchive(viewer?.role);
 
   return (
     <>
       <div className="md:hidden">
         <MobileAdminEvents 
+          canManage={canManage}
+          archivedSection={canManage ? <ArchivedEvents /> : null}
           stats={data.stats} 
           publishedRows={data.publishedRows} 
           draftRows={data.draftRows}
@@ -174,6 +183,7 @@ export default async function AdminEventsPage() {
               ))}
             </div>
 
+            <EventBulkSelection enabled={canManage}>
             {/* Published Events Section */}
             <div className="flex flex-col gap-[12px]">
               <div className="flex items-center justify-between">
@@ -224,6 +234,8 @@ export default async function AdminEventsPage() {
               )}
             </div>
 
+            </EventBulkSelection>
+            {canManage && <ArchivedEvents />}
             <Link href="/admin/events/new" className="mt-2 block w-full">
               <div className="flex w-full items-center justify-between rounded-[16px] bg-brand px-[23px] py-[21px] transition-opacity hover:opacity-95">
                 <span className="style-section-header leading-[21.25px] text-white [font-variation-settings:'wdth'_100]">

@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { canManageEventArchive } from "@/lib/roles";
 import { AttendanceMethod } from "@prisma/client";
 import { getAuthenticatedUser } from "@/lib/auth";
 
@@ -16,6 +17,11 @@ export async function processScan(
 
     if (!currentUser || currentUser.role === "MEMBER" && currentUser.memberships?.[-1].membershipType !== "AIM_MENTOR") {
       return { success: false, error: "Unauthorized. Please sign in." };
+    }
+
+    const event = await prisma.event.findUnique({ where: { id: eventId }, select: { isArchived: true } });
+    if (event?.isArchived && !canManageEventArchive(currentUser.role)) {
+      return { success: false, error: "Unauthorized action." };
     }
 
     // 2. Find the RSVP for this specific event using the qrToken

@@ -296,3 +296,7 @@ export function isAcademyParticipant(params: {
   // 3. Active AI_ACADEMY membership holders
   return hasActiveAcademyMembership(memberships);
 }
+/** Bulk event management and archived-event access. */
+export function canManageEventArchive(role: string | null | undefined): boolean {
+  return role === "DIRECTOR" || role === "EXECUTIVE";
+}

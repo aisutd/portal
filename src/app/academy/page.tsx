@@ -53,6 +53,7 @@ export default async function AcademyPage() {
         <MobileAcademy
           workshops={workshops}
           resources={resources}
+          featuredWorkshop={featured ?? undefined}
           featuredLesson={
             featured
               ? {

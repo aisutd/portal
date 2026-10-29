@@ -123,13 +123,14 @@ export async function updateEvent(formData: FormData) {
   // Consolidated database fetch into a single query
   const existingEvent = await prisma.event.findUnique({
     where: { id },
-    select: { imageUrl: true, isPublished: true },
+    select: { imageUrl: true, isPublished: true, isArchived: true },
   });
 
   if (!existingEvent) {
     throw new Error("Event not found.");
   }
 
+  if (existingEvent.isArchived) throw new Error("Restore this event before editing it.");
   const imageUrl = await resolveEventImageUrl(formData.get("image"), existingEvent.imageUrl);
 
   const action = String(formData.get("action") ?? "");

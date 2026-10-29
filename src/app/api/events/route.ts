@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const events = await prisma.event.findMany({
+    where: { isArchived: false },
     orderBy: { startTime: "asc" },
     take: 20,
   });

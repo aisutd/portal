@@ -38,6 +38,7 @@ export default async function EditEventPage({
   });
 
   if (!event) return notFound();
+  if (event.isArchived) redirect("/admin/events");
 
   if (event.isPublished && user.role == "OFFICER") {
     redirect("/admin/events");

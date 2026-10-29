@@ -5,13 +5,14 @@ import { Footer } from "@/components/footer";
 import { VideoNotesPanel } from "@/components/academy/video-notes-panel";
 import { WorkshopQuizPanel } from "@/components/academy/workshop-quiz-panel";
 import { CourseSequence } from "@/components/academy/course-sequence";
-import type { AcademyWorkshopSummary, AcademyResource } from "@/lib/academy-content";
+import type { AcademyWorkshopSummary, AcademyWorkshopDetail, AcademyResource } from "@/lib/academy-content";
 import { AcademyGradientBackground } from "@/components/academy/gradient-background";
 import { Button } from "@/components/ui/button";
 
 type MobileAcademyProps = {
   workshops: AcademyWorkshopSummary[];
   resources: AcademyResource[];
+  featuredWorkshop?: AcademyWorkshopDetail;
   featuredLesson?: {
     title: string;
     videoUrl: string | null;
@@ -21,7 +22,7 @@ type MobileAcademyProps = {
   };
 };
 
-export function MobileAcademy({ workshops, resources, featuredLesson }: MobileAcademyProps) {
+export function MobileAcademy({ workshops, resources, featuredLesson, featuredWorkshop }: MobileAcademyProps) {
   const safeFeaturedLesson = featuredLesson ?? { title: "Featured workshop", videoUrl: null };
 
   return (
@@ -66,6 +67,7 @@ export function MobileAcademy({ workshops, resources, featuredLesson }: MobileAc
           workshopId={safeFeaturedLesson.workshopId}
           userId={safeFeaturedLesson.userId}
           initiallyCompleted={safeFeaturedLesson.completed}
+          quizPanel={featuredWorkshop ? <WorkshopQuizPanel workshop={featuredWorkshop} /> : undefined}
         />
       </section>
 

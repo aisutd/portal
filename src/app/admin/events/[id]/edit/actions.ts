@@ -5,10 +5,12 @@ import { redirect } from "next/navigation";
 import { EventStatus, EventTag, ItemType, MembershipType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getAuthenticatedUser } from "@/lib/auth";
-import { isAssignableProgram } from "@/lib/roles";
+import { canManageEventArchive, isAssignableProgram } from "@/lib/roles";
 import { putObjectToR2, deleteObjectFromR2 } from "@/lib/r2";
 import { extractStorageKeyFromUrl } from "@/lib/admin/event-form-parsing";
 import { chicagoInputToUtc } from "@/lib/timezone";
+
+import { deleteEventRecords } from "@/lib/admin/delete-events";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 
@@ -132,12 +134,14 @@ export async function updateEvent(formData: FormData): Promise<void> {
 
   const existingEvent = await prisma.event.findUnique({
     where: { id },
-    select: { imageUrl: true, isPublished: true },
+    select: { imageUrl: true, isPublished: true, isArchived: true },
   });
 
   if (!existingEvent) {
     throw new Error("Event not found.");
   }
+
+  if (existingEvent.isArchived) throw new Error("Restore this event before editing it.");
 
   const imageResult = await resolveEventImageUrl(
     formData.get("image"),
@@ -227,32 +231,10 @@ export async function deleteEvent(formData: FormData): Promise<void> {
   const id = formData.get("id") as string;
   if (!id) throw new Error("Event ID is required for deletion.");
 
-  const existingEvent = await prisma.event.findUnique({
-    where: { id },
-    select: { imageUrl: true },
-  });
-
-  // 1. Delete RSVPs (RSVP does not cascade on Event deletion)
-  // Attendance and ItemScan will automatically cascade delete via RSVP -> Attendance -> ItemScan
-  await prisma.rSVP.deleteMany({
-    where: { eventId: id },
-  });
-
-  // 2. Delete the Event
-  // EventItems will automatically cascade delete via Event -> EventItem
-  await prisma.event.delete({
-    where: { id },
-  });
-
-  // 3. Clean up image storage key from Cloudflare R2
-  if (existingEvent?.imageUrl) {
-    const oldStorageKey = extractStorageKeyFromUrl(existingEvent.imageUrl);
-    if (oldStorageKey) {
-      deleteObjectFromR2(oldStorageKey).catch((err) =>
-        console.error("Failed to delete event image from R2 on event deletion:", err)
-      );
-    }
-  }
+  const event = await prisma.event.findUnique({ where: { id }, select: { isArchived: true } });
+  if (!event) throw new Error("Event not found.");
+  if (event.isArchived && !canManageEventArchive(user?.role)) throw new Error("Unauthorized action.");
+  await deleteEventRecords([id]);
 
   revalidatePath("/admin/events");
   revalidatePath(`/admin/events/${id}/edit`);

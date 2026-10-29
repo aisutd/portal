@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ExternalLink, HelpCircle } from "lucide-react";
 import { Button } from "../ui/button";
 import { resolveVideoEmbed } from "@/lib/video-embed";
@@ -13,6 +13,8 @@ type VideoNotesPanelProps = {
   workshopId?: string;
   userId?: string;
   initiallyCompleted?: boolean;
+  quizPanel?: ReactNode;
+  onCompleted?: () => void;
   quizUrl?: string; // Optional: Pass a link/path to the quiz if needed
   onOpenQuiz?: () => void; // Optional: Or handle via callback/modal trigger
 };
@@ -71,6 +73,8 @@ export function VideoNotesPanel({
   initiallyCompleted = false,
   quizUrl,
   onOpenQuiz,
+  quizPanel,
+  onCompleted,
 }: VideoNotesPanelProps) {
   const storageKey = `academy-notes:${notesKey}`;
   const [notes, setNotes] = useState("");
@@ -96,7 +100,10 @@ export function VideoNotesPanel({
 
       const watchedSeconds = Math.floor(currentTime);
       const durationSeconds = Math.floor(duration);
-      if (watchedSeconds >= durationSeconds * 0.5) setWatched(true);
+      if (watchedSeconds >= durationSeconds * 0.5) {
+        setWatched(true);
+        onCompleted?.();
+      }
       lastSentAt = Date.now();
       try {
         await fetch("/api/academy/progress", {
@@ -142,7 +149,7 @@ export function VideoNotesPanel({
       window.removeEventListener("pagehide", flushOnExit);
       player?.destroy();
     };
-  }, [isYouTube, userId, workshopId]);
+  }, [isYouTube, userId, workshopId, onCompleted]);
 
   useEffect(() => {
     let active = true;
@@ -170,6 +177,7 @@ export function VideoNotesPanel({
   }
 
   return (
+    <>
     <div className="flex flex-col gap-[20px] lg:flex-row">
       <div className="flex flex-[1.6] flex-col gap-[12px]">
         <div className="overflow-hidden rounded-[20px] border-[5px] border-[#d4af37]">
@@ -269,5 +277,7 @@ export function VideoNotesPanel({
         />
       </div>
     </div>
+    {completed && quizPanel}
+    </>
   );
 }

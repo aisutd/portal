@@ -173,6 +173,7 @@ export default async function ProfilePage() {
                   <Card className="flex flex-col gap-[20px] p-[29px]">
                     <SectionHeader title="Resume Upload" />
                     <ResumeUploadButton
+                      key={profile.resumeFileId ?? "no-resume"}
                       initialFileName={profile.resumeFile?.fileName}
                       initialFileSize={profile.resumeFile?.fileSize}
                       hasResume={!!profile.resumeFileId}

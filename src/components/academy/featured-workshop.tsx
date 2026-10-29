@@ -26,9 +26,10 @@ export function FeaturedWorkshop({ workshop }: { workshop: AcademyWorkshopDetail
           notesKey={workshop.id}
           workshopId={workshop.id}
           userId={workshop.viewerId ?? undefined}
+          initiallyCompleted={workshop.progressCompleted}
+          quizPanel={<WorkshopQuizPanel workshop={workshop} />}
           quizUrl={`/academy/workshops/${workshop.id}/quiz`}
         />
-        <WorkshopQuizPanel workshop={workshop} />
       </div>
     );
   }

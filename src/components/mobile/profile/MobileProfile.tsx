@@ -203,6 +203,7 @@ export function MobileProfile({
         <Card className="flex flex-col gap-[12px] p-[18px]">
           <Eyebrow>Resume Upload</Eyebrow>
           <ResumeUploadButton
+            key={profile.resumeFileId ?? "no-resume"}
             initialFileName={profile.resumeFile?.fileName}
             initialFileSize={profile.resumeFile?.fileSize}
             hasResume={!!profile.resumeFileId}

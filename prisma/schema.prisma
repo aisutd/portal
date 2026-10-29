@@ -189,6 +189,7 @@ model Event {
   imageUrl             String?
   eligibilityRules     Json?
   isPublished          Boolean          @default(false)
+  isArchived           Boolean          @default(false)
   checkInToken         String           @unique @default(uuid())
   attendances          Attendance[]
   tags                 EventTag[]

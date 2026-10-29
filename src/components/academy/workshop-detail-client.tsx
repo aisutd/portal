@@ -1,11 +1,16 @@
 "use client";
 
+import { useCallback, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { VideoNotesPanel } from "@/components/academy/video-notes-panel";
 import type { AcademyWorkshopDetail } from "@/lib/academy-content";
 import { WorkshopQuizPanel } from "@/components/academy/workshop-quiz-panel";
 
 export function WorkshopDetailClient({ workshop, initiallyCompleted }: { workshop: AcademyWorkshopDetail, initiallyCompleted?: boolean}) {
+  const [watched, setWatched] = useState(false);
+  const completed = (initiallyCompleted ?? workshop.progressCompleted) || watched;
+  const handleCompleted = useCallback(() => setWatched(true), []);
+
   return (
     <div className="flex flex-col gap-[24px]">
       {workshop.hasAttended && (
@@ -22,15 +27,15 @@ export function WorkshopDetailClient({ workshop, initiallyCompleted }: { worksho
         notesKey={workshop.id}
         workshopId={workshop.id}
         userId={workshop.viewerId ?? undefined}
-        initiallyCompleted={initiallyCompleted}
+        initiallyCompleted={initiallyCompleted ?? workshop.progressCompleted}
+        onCompleted={handleCompleted}
         quizUrl={`/academy/workshops/${workshop.id}/quiz`}
       />
 
       {workshop.summary && (
         <p className="style-body-text text-white/75">{workshop.summary}</p>
       )}
-
-      <WorkshopQuizPanel workshop={workshop} />
+      {completed && <WorkshopQuizPanel workshop={workshop} />}
     </div>
   );
 }

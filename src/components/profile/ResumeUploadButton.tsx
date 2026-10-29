@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { uploadResumeAction, deleteResumeAction } from "@/app/profile/resume";
 import { cn } from "@/lib/utils";
@@ -46,12 +46,6 @@ export function ResumeUploadButton({
     title: "",
     message: "",
   });
-
-  useEffect(() => {
-    setHasFile(hasResume || Boolean(initialFileName));
-    setFileName(initialFileName ?? null);
-    setFileSize(initialFileSize ?? null);
-  }, [hasResume, initialFileName, initialFileSize]);
 
   const isUploaded = hasFile || Boolean(fileName);
   const formattedSize = formatFileSize(fileSize);

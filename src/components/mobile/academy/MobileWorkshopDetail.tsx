@@ -81,7 +81,7 @@ export function MobileWorkshopDetail({
           to watch the recording and take the attendance quiz.
         </div>
       ) : (
-        <WorkshopDetailClient workshop={workshop} />
+        <WorkshopDetailClient workshop={workshop} initiallyCompleted={initiallyWatched} />
       )}
 
       <BottomNav />
