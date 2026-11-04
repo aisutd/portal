@@ -113,7 +113,7 @@ export function MobileAcademy({ workshops, resources, featuredLesson }: MobileAc
         </div>
       </section>
 
-      <div className="-mx-5 mt-4 pt-6">
+      <div className="-mx-5 mt-auto">
         <Footer />
       </div>
       <BottomNav />

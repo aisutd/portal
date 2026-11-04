@@ -3,7 +3,7 @@ import { Calendar, MapPin } from "lucide-react";
 import { WorkshopQuizPanel } from "@/components/academy/workshop-quiz-panel";
 import { VideoNotesPanel } from "@/components/academy/video-notes-panel";
 import {
-  hasWorkshopStarted,
+  isWorkshopPast,
   isWorkshopInProgress,
   type AcademyWorkshopDetail,
 } from "@/lib/academy-content";
@@ -34,7 +34,7 @@ export function FeaturedWorkshop({ workshop }: { workshop: AcademyWorkshopDetail
   }
 
   const isLive = isWorkshopInProgress(workshop);
-  const started = hasWorkshopStarted(workshop);
+  const past = isWorkshopPast(workshop);
 
   return (
     <div className="flex flex-col gap-4 rounded-[20px] border-[5px] border-[#d4af37] bg-[#181c25] p-[28px] lg:flex-row lg:items-center lg:justify-between">
@@ -42,7 +42,7 @@ export function FeaturedWorkshop({ workshop }: { workshop: AcademyWorkshopDetail
         <span
           className={`w-fit rounded-2xl px-3 py-1 style-badge-text bg-brand text-white`}
         >
-          {isLive ? "Happening Now" : "Recently"}
+          {isLive ? "Happening Now" : past ? "Recently" : "Upcoming"}
         </span>
 
         <h3 className="style-card-title uppercase text-white">{workshop.title}</h3>
@@ -59,10 +59,12 @@ export function FeaturedWorkshop({ workshop }: { workshop: AcademyWorkshopDetail
           </span>
         </div>
 
-        <p className="style-caption mt-1 text-white/50">
+        <p className="style-body-text mt-1 text-white/70">
           {isLive
             ? "PULL UP NOW! :) Or if you can't, the recording and quiz will be here shortly."
-            : "PU!! We look forward to seeing you there!"}
+            : past 
+            ? "Recording and quiz will posted shortly! Check Discord for updates. Link in footer if you haven't joined!"
+            : `PU at ${formatEventDate(workshop.startTime).split(" · ")[1]}!! We'll cover some super cool things.`}
         </p>
       </div>
 

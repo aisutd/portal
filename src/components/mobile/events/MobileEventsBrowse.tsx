@@ -223,7 +223,7 @@ export function MobileEventsBrowse({ upcomingEvents, pastEvents }: MobileEventsB
         )}
       </div>
       {/* Footer Wrapper with Margin Cancellation & Bottom Spacing for Fixed Nav */}
-      <div className="-mx-5 mt-8 pt-6">
+      <div className="-mx-5 mt-auto">
         <Footer />
       </div>
       <BottomNav />

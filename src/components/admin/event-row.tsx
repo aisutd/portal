@@ -49,10 +49,18 @@ export function EventRow({
       } ${dim ? "opacity-[0.72]" : ""}`}
     >
       {/* Thumbnail */}
-      <EventCoverImage
-        className="h-[56px] w-[72px] shrink-0 rounded-[12px]"
-        imageUrl={imageUrl}
-      />
+      {(imageUrl ? 
+        <EventCoverImage
+          imageUrl={imageUrl}
+          alt={title}
+          className="h-[56px] w-[72px] shrink-0 rounded-[12px]"
+        /> :
+        <EventCoverImage
+          imageUrl={`/images/ais_logo_black-bg.jpg`}
+          alt={title}
+          className="h-[56px] w-[72px] shrink-0 rounded-[12px]"
+        />
+      )}
 
       {/* Title + schedule */}
       <div className="flex min-w-[250px] shrink-0 flex-col gap-[5px]">
