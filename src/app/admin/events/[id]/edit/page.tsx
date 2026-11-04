@@ -15,7 +15,7 @@ import { EventActionButtons } from "@/components/admin/admin-event-actions";
 import { utcToChicagoInput } from "@/lib/timezone";
 
 export const metadata: Metadata = {
-  title: "AIS Admin Edit Event",
+  title: "AIS Admin - Edit Event",
   description: "Edit an existing AIS event.",
 };
 
@@ -90,7 +90,7 @@ export default async function EditEventPage({
       </div>
 
       <div className="hidden md:block">
-        <div className="flex min-h-screen w-full bg-cream">
+        <div className="flex min-h-screen w-full backdrop-blur-xl">
           <AdminSidebar active="Events" role={user.role} />
 
           <div className="flex h-full flex-1 flex-col gap-[20px] p-[46px]">

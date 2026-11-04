@@ -8,7 +8,7 @@ import { parseQuizQuestions } from "@/lib/academy-quiz";
 import type { BuilderQuestion } from "@/components/admin/question-builder";
 
 export const metadata: Metadata = {
-  title: "AIS Admin — Workshop Quiz",
+  title: "AIS Admin - Workshop Quiz",
   description: "Build the attendance quiz for an AI Academy workshop.",
 };
 

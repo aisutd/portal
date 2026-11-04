@@ -9,7 +9,7 @@ import { StatCard } from "@/components/admin/stat-card";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-  title: "AIS Admin — Academy Member Profile",
+  title: "AIS Admin - Academy Member Profile",
   description: "View individual academy member attendance and quiz achievements.",
 };
 

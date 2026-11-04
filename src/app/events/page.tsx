@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { EventsBrowseClient } from "@/components/events/events-browse-client";
 
 export const metadata: Metadata = {
-  title: "Events — Browse",
+  title: "Events",
   description: "Browse upcoming and past AIS events by tag.",
 };
 

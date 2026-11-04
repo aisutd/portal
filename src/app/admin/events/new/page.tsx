@@ -11,7 +11,7 @@ import { EventActionButtons } from "@/components/admin/admin-event-actions";
 import { getAuthenticatedUser } from "@/lib/auth";
 
 export const metadata: Metadata = {
-  title: "AIS Admin — Create Event",
+  title: "AIS Admin - Create Event",
   description: "Create and publish a new AIS event.",
 };
 
@@ -41,7 +41,7 @@ export default async function CreateEventPage() {
       </div>
 
       <div className="hidden md:block">
-        <div className="flex min-h-screen w-full bg-cream">
+        <div className="flex min-h-screen w-full backdrop-blur-xl">
           <AdminSidebar active="Events" role="Officer" />
 
           <div className="flex h-full flex-1 flex-col gap-[20px] p-[46px]">

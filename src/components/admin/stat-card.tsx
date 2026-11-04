@@ -19,16 +19,16 @@ export function StatCard({ value, label, highlight }: StatCardData) {
         "transition-[border-color,box-shadow,transform] duration-150",
         "hover:-translate-y-[2px] hover:shadow-[0_10px_24px_-14px_rgba(22,22,28,0.35)]",
         highlight
-          ? "border-brand bg-gradient-to-b from-brand-soft/60 to-white"
-          : "border-border-soft bg-white hover:border-ink-faint/40"
+          ? "border-brand/30 bg-white/60"
+          : "border-ink-faint/60 bg-white/60 hover:border-ink-faint/60"
       )}
     >
-      {/* Accent rail: colour without competing with the number. */}
+      {/* Accent rail: color without competing with the number. */}
       <span
         aria-hidden
         className={cn(
           "absolute inset-y-0 left-0 w-[3px]",
-          highlight ? "bg-brand" : "bg-border-soft group-hover:bg-brand/40"
+          highlight ? "bg-brand" : "bg-ink-faint/60 group-hover:bg-brand/30"
         )}
       />
 

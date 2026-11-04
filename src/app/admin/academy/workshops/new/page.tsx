@@ -11,7 +11,7 @@ import { eventTags } from "@/lib/data";
 import { getAdminViewer } from "@/lib/admin-access";
 
 export const metadata: Metadata = {
-  title: "AIS Admin — Create Workshop",
+  title: "AIS Admin - Create Workshop",
   description: "Create and publish a new AI Academy workshop.",
 };
 

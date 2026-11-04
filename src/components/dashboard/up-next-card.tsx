@@ -180,10 +180,18 @@ export function UpNextCard({
             className="group flex flex-1 flex-wrap items-start gap-[24px] min-w-0"
           >
             {/* Photo */}
-            <EventCoverImage
-              className="flex h-68 w-auto min-w-75 max-w-90 shrink-0 items-center justify-center rounded-xl group-hover:opacity-90 transition-opacity"
-              imageUrl={imageUrl}
-            />
+            {(imageUrl ? 
+              <EventCoverImage
+                imageUrl={imageUrl}
+                alt={title}
+                className="flex h-68 w-auto min-w-75 max-w-90 shrink-0 items-center justify-center rounded-xl group-hover:opacity-90 transition-opacity"
+              /> :
+              <EventCoverImage
+                imageUrl={`/images/ais_logo_black-bg.jpg`}
+                alt={title}
+                className="flex h-68 w-auto min-w-75 max-w-90 shrink-0 items-center justify-center rounded-xl group-hover:opacity-90 transition-opacity"
+              />
+            )}
 
             {/* Details */}
             <div className="flex min-w-px flex-1 flex-col justify-center gap-[10px] self-stretch">

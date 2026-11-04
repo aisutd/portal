@@ -98,12 +98,18 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
             <div className="flex flex-col gap-[32px] lg:flex-row lg:items-stretch">
               {/* Event body */}
               <div className="flex min-w-px flex-1 flex-col gap-6">
-                <EventCoverImage
-                  imageUrl={event.imageUrl}
-                  className="min-h-75 w-full"
-                  alt={`${event.title} cover`}
-                />
-                
+                {(event.imageUrl ? 
+                  <EventCoverImage
+                    imageUrl={event.imageUrl}
+                    alt={event.title}
+                    className="min-h-75 w-full"
+                  /> :
+                  <EventCoverImage
+                    imageUrl={`/images/ais_logo_black-bg.jpg`}
+                    alt={event.title}
+                    className="min-h-75 w-full"
+                  />
+                )}
                 <div className="flex flex-col rounded-2xl bg-white/65 backdrop-blur-md ring-white/65 ring-1 shadow-sm shadow-ink/15 px-6 py-6">
                   <div className="flex items-center gap-3">
                     <h1 className="style-section-header leading-[41px] tracking-[-0.4px] text-ink [font-variation-settings:'wdth'_100]">
@@ -238,9 +244,10 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               </div>
             </div>
           </div>
+          
+          <Footer />
         </div>
       </div>
-      <Footer />
     </>
   );
 }
