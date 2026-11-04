@@ -17,7 +17,7 @@ type LessonStatus =
   | "coming-up";
 
 const STATUS: Record<LessonStatus, { label: string; className: string }> = {
-  completed: { label: "Completed", className: "bg-emerald-600 text-white" },
+  completed: { label: "Completed", className: "bg-checked-text text-white" },
   "make-up-available": { label: "Watch to Make Up", className: "bg-[#d4af37] text-ink" },
   missed: { label: "Missed", className: "bg-[#6b7280] text-white" },
   "happening-now": { label: "Happening Now", className: "bg-[#dc2626] text-white" },
@@ -63,7 +63,7 @@ export function CourseSequence({
   }
 
   return (
-    <div className="flex snap-x snap-mandatory gap-[20px] overflow-x-auto pb-[8px]">
+    <div className="flex snap-x snap-mandatory gap-6 overflow-x-auto p-2">
       {[...sequence].reverse().map((workshop, idx) => {
         const { label, className } = STATUS[getStatus(workshop, upNextId)];
 
@@ -75,7 +75,7 @@ export function CourseSequence({
             href={`/academy/workshops/${workshop.id}`}
             className="w-[280px] shrink-0 snap-start"
           >
-            <div className="group flex h-full max-h-80 flex-col gap-[12px] rounded-[20px] border border-[#2a2f3a] bg-[#181c25] p-[14px] transition-all duration-200 hover:-translate-y-[2px] hover:border-[#2563eb]/60">
+            <div className="group flex h-80 flex-col gap-[12px] rounded-[20px] border border-[#2a2f3a] bg-[#181c25] p-[14px] transition-all duration-100 hover:-translate-y-0.5 hover:border-2 hover:border-brand/70">
               
               {/* Media Container */}
               <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-[14px] border-[3px] border-[#d4af37] bg-[linear-gradient(135deg,#2f5fe8_0%,#434655_100%)]">

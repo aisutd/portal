@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ExternalLink, HelpCircle } from "lucide-react";
 import { Button } from "../ui/button";
+import Link from "next/link";
 import { resolveVideoEmbed } from "@/lib/video-embed";
 
 type VideoNotesPanelProps = {
@@ -170,9 +171,9 @@ export function VideoNotesPanel({
   }
 
   return (
-    <div className="flex flex-col gap-[20px] lg:flex-row">
-      <div className="flex flex-[1.6] flex-col gap-[12px]">
-        <div className="overflow-hidden rounded-[20px] border-[5px] border-[#d4af37]">
+    <div className="flex flex-col gap-4 lg:flex-row">
+      <div className="flex flex-[1.6] flex-col gap-4">
+        <div className="overflow-hidden rounded-2xl border-[5px] border-[#d4af37]">
           {embed?.kind === "file" && (
             <video
               src={embed.src}
@@ -198,7 +199,7 @@ export function VideoNotesPanel({
               href={embed.src}
               target="_blank"
               rel="noreferrer"
-              className="flex aspect-video w-full flex-col items-center justify-center gap-[8px] bg-[#181c25] px-[24px] text-center transition-colors hover:bg-[#1f2431]"
+              className="flex aspect-video w-full flex-col items-center justify-center gap-2 bg-[#181c25] px-6 text-center transition-colors hover:bg-[#1f2431]"
             >
               <ExternalLink className="h-6 w-6 text-[#d4af37]" />
               <span className="style-body-text text-white">Open the recording</span>
@@ -209,54 +210,60 @@ export function VideoNotesPanel({
           )}
 
           {!embed && (
-            <div className="flex aspect-video w-full items-center justify-center bg-[#181c25] px-[24px] text-center style-body-text text-white/60">
+            <div className="flex aspect-video w-full items-center justify-center bg-[#181c25] px-6 text-center style-body-text text-white/60">
               The recording for this workshop hasn&apos;t been posted yet.
             </div>
           )}
         </div>
         
-        {/* Workshop Title and take quiz button*/}
-        <div className="mt-1 flex flex-wrap justify-between items-center gap-4 rounded-2xl bg-[#181c25] p-4 border-[5px] rounded-2xl border-[#d4af37] sm:flex-row">
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[10px] font-semibold tracking-wider text-[#d4af37] uppercase">
-              Workshop
-            </span>
-            <h3 className="style-card-title tracking-widest pt-1 uppercase text-white">{title}</h3>
-          </div>
+        {/* Workshop Title */}
+        <Link
+            key={workshopId}
+            href={`/academy/workshops/${workshopId}`}
+          >
+          <div className="mt-1 flex flex-wrap justify-between items-center gap-4 rounded-2xl bg-[#181c25] p-4 border-[5px] border-brand sm:flex-row">
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[10px] font-semibold tracking-wider text-brand-soft uppercase">
+                Workshop
+              </span>
+              <h3 className="style-card-title tracking-widest pt-1 uppercase text-white">{title}</h3>
+            </div>
 
-          <div className="flex items-center gap-3">
-            {workshopId && (
-              <div
-                aria-live="polite"
-                className={`inline-flex w-fit h-fit shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-medium border transition-colors ${
-                  completed
-                    ? "bg-green-500/10 text-green-400 border-green-500/30"
-                    : "bg-zinc-800/80 text-zinc-400 border-zinc-700/50"
-                }`}
+            <div className="flex items-center gap-3">
+              {workshopId && (
+                <div
+                  aria-live="polite"
+                  className={`inline-flex w-fit h-fit shrink-0 items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-medium border transition-colors ${
+                    completed
+                      ? "bg-checked-text/50 text-checked border-checked/30"
+                      : "bg-brand-dark/50 text-brand-soft/60 border-brand-dark"
+                  }`}
+                >
+                  {completed ? (
+                    <span>Watched</span>
+                  ) : (
+                    <span>Watch before quiz</span>
+                  )}
+                </div>
+              )}
+
+              {/* --- QUIZ BUTTON ADDED HERE ---
+              <Button
+                variant="accent"
+                disabled={!completed}
+                href={quizUrl}
+                title={completed ? "Take the quiz" : "Watch the video fully to unlock the quiz"}
               >
-                {completed ? (
-                  <span>Watched</span>
-                ) : (
-                  <span>Watch to unlock quiz</span>
-                )}
-              </div>
-            )}
-
-            {/* --- QUIZ BUTTON ADDED HERE --- */}
-            <Button
-              variant="accent"
-              disabled={!completed}
-              href={quizUrl}
-              title={completed ? "Take the quiz" : "Watch the video fully to unlock the quiz"}
-            >
-              <span>Quiz</span>
-            </Button>
+                <span>Quiz</span>
+              </Button> */}
+            </div>
           </div>
-        </div>
+        </Link>
+        
       </div>
 
       {/* Take Notes Module */}
-      <div className="flex w-full flex-col gap-[8px] rounded-[20px] border-[5px] border-[#d4af37] bg-[#181c25] p-[16px] lg:w-[320px] lg:shrink-0">
+      <div className="flex w-full flex-col gap-2 rounded-2xl border-[5px] border-brand bg-[#181c25] p-4 lg:w-[320px] lg:shrink-0">
         <div className="flex flex-col gap-[2px]">
           <span className="style-card-title text-white">My Notes</span>
           <span className="style-caption text-white/60">
@@ -267,7 +274,7 @@ export function VideoNotesPanel({
           value={notes}
           onChange={(e) => handleChange(e.target.value)}
           placeholder="Start typing..."
-          className="min-h-[220px] flex-1 resize-none rounded-[12px] border border-[#2a2f3a] bg-[#e7e2d4] p-[12px] style-body-text text-ink outline-none focus:border-[#d4af37]"
+          className="min-h-24 flex-1 resize-none rounded-[12px] border border-[#2a2f3a] bg-[#e7e2d4] p-[12px] style-body-text text-ink outline-none focus:border-[#d4af37]"
         />
       </div>
     </div>

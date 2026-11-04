@@ -44,7 +44,7 @@ export async function AdminSidebar({
   const fname = viewer?.firstName;
   const lname = viewer?.lastName;
   return (
-    <aside className="flex min-h-screen w-[248px] shrink-0 flex-col border-r border-border-soft bg-white px-[24px] pb-[30px] pt-[30px]">
+    <aside className="flex min-h-screen shrink-0 flex-col border-r border-border-soft bg-cream/50 px-[24px] pb-[30px] pt-[30px]">
       <div className="flex flex-col gap-2">
       <h1 className="style-section-header leading-[25.96px] text-ink [font-variation-settings:'wdth'_100]">
         AIS Admin
@@ -62,10 +62,10 @@ export async function AdminSidebar({
               key={label}
               href={href}
               className={cn(
-                "rounded-[10px] px-[14px] py-[10px] style-body-text",
+                "rounded-lg px-[14px] py-[10px] style-body-text",
                 isActive
-                  ? "bg-brand-soft text-brand-dark"
-                  : "text-ink-muted hover:bg-row-soft"
+                  ? "bg-brand-mid text-white"
+                  : "text-ink-muted hover:bg-brand-soft"
               )}
             >
               {label}

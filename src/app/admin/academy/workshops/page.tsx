@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-  title: "AIS Admin — Academy Workshops",
+  title: "AIS Admin - Academy Workshops",
   description: "Manage AI Academy workshops, recordings, and quizzes.",
 };
 
@@ -114,7 +114,7 @@ async function getWorkshopViewModel() {
     ],
     publishedRows: [...live, ...upcoming].map(mapWorkshopToRow),
     draftRows: drafts.map(mapWorkshopToRow),
-    pastRows: past.map(mapWorkshopToRow),
+    pastRows: past.map(mapWorkshopToRow).reverse(),
   };
 }
 

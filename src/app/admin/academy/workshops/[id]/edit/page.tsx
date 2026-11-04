@@ -16,7 +16,7 @@ import { eventTags } from "@/lib/data";
 import { utcToChicagoInput } from "@/lib/timezone";
 
 export const metadata: Metadata = {
-  title: "AIS Admin — Edit Workshop",
+  title: "AIS Admin - Edit Workshop",
   description: "Edit an existing AI Academy workshop.",
 };
 

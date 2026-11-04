@@ -233,6 +233,40 @@ export async function getFeaturedWorkshop(
 ): Promise<AcademyWorkshopDetail | null> {
   const now = new Date();
 
+  // 1. Priority: Workshop with an open quiz that the user hasn't passed yet
+  if (viewerId) {
+    const uncompletedQuizWorkshop = await prisma.workshop.findFirst({
+      where: {
+        ...WORKSHOP_WHERE,
+        quizDueAt: { gt: now },
+        quiz: {
+          isNot: null
+        },
+          // Ensure the user has NOT attended this workshop already
+        attendances: {
+          none: {
+            userId: viewerId,
+          },
+        },
+      },
+      select: { id: true },
+    });
+
+    if (uncompletedQuizWorkshop) {
+      return getAcademyWorkshop(uncompletedQuizWorkshop.id, viewerId);
+    }
+  } else {
+    // Fallback if no user is logged in (e.g., just check if any workshop has an active quiz)
+    const activeQuizWorkshop = await prisma.workshop.findFirst({
+      where: { ...WORKSHOP_WHERE, quizDueAt: { gt: now }, quiz: { isNot: null } },
+      select: { id: true },
+    });
+
+    if (activeQuizWorkshop) {
+      return getAcademyWorkshop(activeQuizWorkshop.id, viewerId);
+    }
+  }
+
   const nextUp = await prisma.workshop.findFirst({
     where: { ...WORKSHOP_WHERE, startTime: { gt: now } },
     orderBy: { startTime: "asc" },

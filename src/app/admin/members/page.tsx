@@ -14,7 +14,7 @@ import { canManageRoles } from "@/lib/roles";
 import { MemberExportButton } from "@/components/admin/member-export-button";
 
 export const metadata: Metadata = {
-  title: "AIS Admin — Members",
+  title: "AIS Admin - Members",
   description: "Browse and manage AIS members.",
 };
 

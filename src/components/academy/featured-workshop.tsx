@@ -18,7 +18,7 @@ import { formatEventDate } from "@/lib/utils";
 export function FeaturedWorkshop({ workshop }: { workshop: AcademyWorkshopDetail }) {
   if (workshop.recordingUrl) {
     return (
-      <div className="flex flex-col gap-[24px]">
+      <div className="flex flex-col gap-4">
         <VideoNotesPanel
           key={workshop.id}
           title={workshop.title}
@@ -37,8 +37,8 @@ export function FeaturedWorkshop({ workshop }: { workshop: AcademyWorkshopDetail
   const started = hasWorkshopStarted(workshop);
 
   return (
-    <div className="flex flex-col gap-[20px] rounded-[20px] border-[5px] border-[#d4af37] bg-[#181c25] p-[28px] lg:flex-row lg:items-center lg:justify-between">
-      <div className="flex flex-col gap-[10px]">
+    <div className="flex flex-col gap-4 rounded-[20px] border-[5px] border-[#d4af37] bg-[#181c25] p-[28px] lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-4">
         <span
           className={`w-fit rounded-2xl px-3 py-1 style-badge-text bg-brand text-white`}
         >
@@ -48,7 +48,7 @@ export function FeaturedWorkshop({ workshop }: { workshop: AcademyWorkshopDetail
         <h3 className="style-card-title uppercase text-white">{workshop.title}</h3>
         <p className="style-body-text max-w-xl text-white/70">{workshop.description}</p>
 
-        <div className="mt-[4px] flex flex-col gap-y-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-[20px] style-caption text-white/60">
+        <div className="mt-1 flex flex-col gap-y-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-[20px] style-caption text-white/60">
           <span className="flex items-start gap-1.5 min-w-0 w-full sm:w-auto">
             <Calendar className="h-3.5 w-3.5" />
             {formatEventDate(workshop.startTime, true)}
@@ -59,14 +59,14 @@ export function FeaturedWorkshop({ workshop }: { workshop: AcademyWorkshopDetail
           </span>
         </div>
 
-        <p className="style-caption mt-[4px] text-white/50">
+        <p className="style-caption mt-1 text-white/50">
           {isLive
             ? "PULL UP NOW! :) Or if you can't, the recording and quiz will be here shortly."
             : "PU!! We look forward to seeing you there!"}
         </p>
       </div>
 
-      <div className="flex shrink-0 flex-wrap items-center gap-[12px]">
+      <div className="flex shrink-0 flex-wrap items-center gap-3">
         <Link
           href={`/academy/workshops/${workshop.id}`}
           className="rounded-full bg-[#d4af37] px-[22px] py-[12px] style-button-text text-ink transition-colors hover:bg-[#c19d2e]"
