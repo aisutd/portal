@@ -63,7 +63,7 @@ export function CourseSequence({
   }
 
   return (
-    <div className="flex snap-x snap-mandatory gap-6 overflow-x-auto p-2">
+    <div className="flex snap-x snap-mandatory gap-6 overflow-x-auto scrollbar-auto scrollbar-thumb-brand-dark p-2">
       {[...sequence].reverse().map((workshop, idx) => {
         const { label, className } = STATUS[getStatus(workshop, upNextId)];
 

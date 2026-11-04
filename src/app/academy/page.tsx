@@ -133,20 +133,31 @@ export default async function AcademyPage() {
               No resources have been published yet.
             </p>
           ) : (
-            <div className="flex snap-x snap-mandatory gap-5 max-h-60 overflow-x-auto p-2">
+            <div className="flex snap-x snap-mandatory gap-5 max-h-60 overflow-x-auto p-2 scrollbar-auto scrollbar-thumb-brand-dark">
               {resources.map((resource) => (
                 <a
                   key={resource.id}
                   href={resource.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex w-[260px] h-40 shrink-0 snap-start flex-col gap-[16px] rounded-[20px] border border-[#2a2f3a] bg-[#181c25] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-2 hover:border-brand/60"
+                  className="flex w-[260px] h-50 shrink-0 snap-start flex-col gap-[16px] rounded-[20px] border border-[#2a2f3a] bg-[#181c25] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-2 hover:border-brand/60"
                 >
-                  <div className="flex flex-col gap-2">
-                    <span className="style-card-title text-white">{resource.title}</span>
+                  <div className="flex flex-col min-h-0 overflow-hidden gap-2">
+                    <span 
+                    title={resource.title} 
+                    className="style-card-title text-white line-clamp-4">
+                      {resource.title}
+                      </span>
                     {resource.description && (
-                      <span className="style-caption text-white/70">{resource.description}</span>
-                    )}
+                      <div className="group/desc relative">
+                        <span 
+                          title={resource.description}
+                          className="style-caption line-clamp-3 text-white/70 cursor-pointer"
+                        >
+                          {resource.description}
+                        </span>
+                      </div>
+                      )}
                   </div>
                   {resource.category && (
                     <div className="mt-auto flex flex-wrap gap-2">

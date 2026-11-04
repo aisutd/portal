@@ -54,7 +54,7 @@ export async function MobileAdminNav({ active = "Events" }: MobileAdminNavProps)
               href={item.href}
               className={cn(
                 "shrink-0 rounded-full px-[14px] py-[6px] style-mobile-body font-bold",
-                isActive ? "bg-brand-soft text-brand-dark" : "text-ink-muted"
+                isActive ? "bg-brand text-brand-soft" : "text-ink-muted"
               )}
             >
               {item.label}

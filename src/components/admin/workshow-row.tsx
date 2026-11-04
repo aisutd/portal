@@ -60,68 +60,77 @@ export function WorkshopRow({
 
   return (
     <div
-      className={`group relative flex w-full flex-col gap-4 rounded-[16px] border p-5 transition-all duration-200 lg:flex-row lg:items-center lg:justify-between lg:gap-6 ${
+      className={`group relative flex w-full flex-col gap-4 rounded-2xl ring-[0.5px] p-5 transition-all lg:flex-row lg:items-center lg:gap-5 ${
         isLive
-          ? "border-emerald-500/40 bg-emerald-50/20 ring-1 ring-emerald-500/20 shadow-sm hover:shadow-md"
-          : "border-border-soft bg-white hover:border-brand/40 hover:shadow-sm"
+          ? "bg-checked/60 ring-checked-text/15 shadow-md shadow-ink/10"
+          : "ring-ink-faint/15 bg-white/60 hover:ring-brand/40 hover:shadow-sm"
       } ${dim ? "opacity-[0.72]" : ""}`}
     >
       {/* Clickable Overlay for Main Card Navigation */}
       <Link
         href={attendanceHref}
-        className="absolute inset-0 z-0 rounded-[16px]"
+        className="absolute inset-0 z-0 rounded-2xl"
         aria-label={`View attendance for ${title}`}
       />
 
-      {/* Left Section: Cover Image + Metadata */}
-      <div className="pointer-events-none z-10 flex min-w-0 items-center gap-4 lg:min-w-[280px] lg:shrink-0">
-        <EventCoverImage
-          className="h-[60px] w-[76px] shrink-0 rounded-[12px] object-cover shadow-xs transition-transform group-hover:scale-[1.02]"
-          imageUrl={imageUrl}
-        />
+      {/* Left Section: Thumbnail + Title & Metadata */}
+      <div className="pointer-events-none z-10 flex flex-1 items-center gap-4 lg:min-w-[250px] lg:flex-none lg:gap-5">
+        {/* Thumbnail */}
+        {imageUrl ? (
+          <EventCoverImage
+            imageUrl={imageUrl}
+            alt={title}
+            className="h-[56px] w-[72px] shrink-0 rounded-[12px] transition-transform group-hover:scale-[1.02]"
+          />
+        ) : (
+          <EventCoverImage
+            imageUrl="/images/ais_logo_black-bg.jpg"
+            alt={title}
+            className="h-[56px] w-[72px] shrink-0 rounded-[12px] transition-transform group-hover:scale-[1.02]"
+          />
+        )}
 
-        <div className="flex min-w-0 flex-col gap-1.5">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="style-body-text font-semibold text-ink group-hover:text-brand transition-colors">
+        {/* Title + schedule + extra workshop badges */}
+        <div className="flex flex-col gap-[5px]">
+          <div className="flex flex-wrap items-center gap-[10px]">
+            <span className="style-label leading-[22.5px] text-ink font-semibold group-hover:text-brand transition-colors">
               {title}
             </span>
-
-            {/* Live / Status Badge */}
             <span
-              className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 style-caption text-[11px] font-bold uppercase tracking-wider"
+              className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 style-caption font-semibold uppercase leading-[normal] tracking-[0.5px]"
               style={{ backgroundColor: status.bg, color: status.color }}
             >
               {isLive && (
                 <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-checked-text opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-checked-text"></span>
                 </span>
               )}
               {status.label}
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 style-caption text-ink-faint">
+          <div className="flex flex-wrap items-center gap-2 style-caption leading-[16.8px] tracking-[0.2px] text-label-ink">
             <span>{meta}</span>
 
-            {/* Quick Badges: Recording & Quiz status */}
-            {(hasRecording || quizStatus) && (
-              <span className="text-border-soft">•</span>
+            {(hasRecording || (quizStatus && quizStatus !== "NONE")) && (
+              <span className="text-ink-faint/40">•</span>
             )}
 
             {hasRecording && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200/60 rounded px-1.5 py-0.2">
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200/60 rounded px-1.5 py-0.5">
                 🎥 Recording
               </span>
             )}
 
             {quizStatus === "PUBLISHED" && (
-              <span className="inline-flex items-center text-[11px] font-medium text-blue-700 bg-blue-50 border border-blue-200/60 rounded px-1.5 py-0.2">
+              <span className="inline-flex items-center text-[11px] font-medium text-blue-700 bg-blue-50 border border-blue-200/60 rounded px-1.5 py-0.5">
                 Quiz Active
               </span>
             )}
+
             {quizStatus === "DRAFT" && (
-              <span className="inline-flex items-center text-[11px] font-medium text-amber-700 bg-amber-50 border border-amber-200/60 rounded px-1.5 py-0.2">
+              <span className="inline-flex items-center text-[11px] font-medium text-amber-700 bg-amber-50 border border-amber-200/60 rounded px-1.5 py-0.5">
                 Quiz Draft
               </span>
             )}
@@ -129,29 +138,33 @@ export function WorkshopRow({
         </div>
       </div>
 
-      {/* Middle Section: Progress Bar / Attendance Metrics */}
-      <div className="pointer-events-none z-10 flex min-w-0 flex-1 flex-col gap-2 lg:min-w-[200px]">
-        <div className="flex flex-wrap items-center justify-between gap-x-3 style-caption text-ink-faint font-medium">
-          <span>{leftInfo}</span>
-          <span>{rightInfo}</span>
+      {/* Progress Bar */}
+      <div className="pointer-events-none z-10 flex min-w-px flex-1 flex-col gap-[8px]">
+        <div className="flex items-center justify-between">
+          <span className="style-caption leading-[16.8px] tracking-[0.2px] text-label-ink">
+            {leftInfo}
+          </span>
+          <span className="style-caption leading-[16.8px] tracking-[0.2px] text-label-ink">
+            {rightInfo}
+          </span>
         </div>
         <ProgressBar
           value={progress}
-          trackColor="#eceae2"
+          trackColor="#ffffff99"
           fillColor={progressFill}
-          height={8}
+          height={9}
         />
       </div>
 
-      {/* Right Section: Action Buttons + Nav Indicator */}
-      <div className="z-20 flex flex-wrap items-center gap-2 lg:shrink-0 lg:flex-nowrap lg:justify-end">
+      {/* Action Buttons */}
+      <div className="z-20 flex items-center gap-2">
         {actions.map((a) => {
           const buttonNode = (
             <Button
               variant={a.variant}
               size="sm"
               pill={a.pill}
-              className="w-full rounded-[8px] shadow-2xs lg:w-auto"
+              className="w-full rounded-[8px] lg:w-auto"
               onClick={(e) => {
                 e.stopPropagation();
                 a.onClick?.(e);
@@ -165,13 +178,13 @@ export function WorkshopRow({
             <Link
               key={a.label}
               href={a.href}
+              className="flex-1 lg:flex-none"
               onClick={(e) => e.stopPropagation()}
-              className="min-w-[72px] flex-1 lg:flex-none"
             >
               {buttonNode}
             </Link>
           ) : (
-            <div key={a.label} className="min-w-[72px] flex-1 lg:flex-none">
+            <div key={a.label} className="flex-1 lg:flex-none">
               {buttonNode}
             </div>
           );
