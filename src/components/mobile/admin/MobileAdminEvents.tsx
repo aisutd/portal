@@ -20,25 +20,36 @@ function MobileEventCard({ event }: { event: EventRowData }) {
 
   return (
     <div
-      className={`flex flex-col gap-[10px] rounded-[16px] border p-[16px] transition-all ${
+      className={`flex flex-col gap-4 rounded-2xl ring-[0.5px] p-5 transition-all ${
         isLive
-          ? "border-green bg-white/60 ring-1 ring-green/20 shadow-md shadow-green/10"
-          : "border-border-soft bg-white"
+          ? "bg-checked/60 ring-checked-text/15 shadow-md shadow-ink/10"
+          : "ring-ink-faint/15 bg-white/60"
       } ${event.dim ? "opacity-[0.72]" : ""}`}
     >
-      <div className="flex items-center gap-[12px]">
-        <EventCoverImage
-          imageUrl={event.imageUrl ?? undefined}
-          className="h-[44px] w-[56px] shrink-0 rounded-[10px] bg-photo"
-        />
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-[8px]">
-            <span className="style-mobile-body font-bold text-ink">
+      {/* Thumbnail + Title + Metadata */}
+      <div className="flex items-center gap-4">
+        {event.imageUrl ? (
+          <EventCoverImage
+            imageUrl={event.imageUrl}
+            alt={event.title}
+            className="h-[56px] w-[72px] shrink-0 rounded-[12px]"
+          />
+        ) : (
+          <EventCoverImage
+            imageUrl="/images/ais_logo_black-bg.jpg"
+            alt={event.title}
+            className="h-[56px] w-[72px] shrink-0 rounded-[12px]"
+          />
+        )}
+
+        <div className="flex min-w-0 flex-1 flex-col gap-[5px]">
+          <div className="flex flex-wrap items-center gap-[10px]">
+            <span className="style-label leading-[22.5px] text-ink font-semibold">
               {event.title}
             </span>
             {event.status && (
               <span
-                className="inline-flex items-center gap-1.5 rounded-[6px] px-[7px] py-[2px] style-caption font-semibold uppercase tracking-[0.5px]"
+                className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 style-caption font-semibold uppercase leading-[normal] tracking-[0.5px]"
                 style={{
                   backgroundColor: event.status.bg,
                   color: event.status.color,
@@ -46,36 +57,40 @@ function MobileEventCard({ event }: { event: EventRowData }) {
               >
                 {isLive && (
                   <span className="relative flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-checked-text opacity-75"></span>
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-checked-text"></span>
                   </span>
                 )}
                 {event.status.label}
               </span>
             )}
           </div>
-          <span className="style-caption text-ink-faint">{event.meta}</span>
+          <span className="style-caption leading-[16.8px] tracking-[0.2px] text-label-ink">
+            {event.meta}
+          </span>
         </div>
       </div>
 
-      <div className="flex flex-col gap-[6px]">
+      {/* Progress Bar */}
+      <div className="flex flex-col gap-[8px]">
         <div className="flex items-center justify-between">
-          <span className="style-caption text-ink-faint">
+          <span className="style-caption leading-[16.8px] tracking-[0.2px] text-label-ink">
             {event.leftInfo}
           </span>
-          <span className="style-caption text-ink-faint">
+          <span className="style-caption leading-[16.8px] tracking-[0.2px] text-label-ink">
             {event.rightInfo}
           </span>
         </div>
         <ProgressBar
           value={event.progress}
-          trackColor="#eceae2"
+          trackColor="#ffffff99"
           fillColor={event.progressFill}
-          height={8}
+          height={9}
         />
       </div>
 
-      <div className="flex gap-[8px]">
+      {/* Actions */}
+      <div className="flex items-center gap-2">
         {event.actions.map((a) => {
           const buttonNode = (
             <Button
@@ -109,7 +124,7 @@ export function MobileAdminEvents({
   pastRows,
 }: MobileAdminEventsProps) {
   return (
-    <MobileScreen withBottomNavPadding={false} backgroundColor="bg-cream">
+    <MobileScreen withBottomNavPadding={false}>
       <MobileAdminNav active="Events" />
 
       {/* Header */}

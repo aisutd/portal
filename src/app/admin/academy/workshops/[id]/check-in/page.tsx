@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { AdminQrDisplay } from "@/components/admin/admin-qr-display";
+import Image from "next/image";
 
 interface WorkshopQrPageProps {
   params: Promise<{ id: string }>;
@@ -43,23 +44,31 @@ export default async function WorkshopQrPage({ params }: WorkshopQrPageProps) {
   const checkInUrl = `${baseUrl}/academy/workshops/${id}/check-in?token=${workshop.checkInToken}`;
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-cream p-4 sm:p-6">
-      {/* Static on mobile so it can't sit on top of the QR card. */}
-      <div className="w-full max-w-md sm:absolute sm:top-6 sm:left-6 sm:w-auto">
+    <div className="flex min-h-screen flex-col items-center justify-center backdrop-blur-xs p-6">
+      <div className="absolute top-6 left-6">
         <Link
-          href="/admin/academy/workshops"
+          href={`/admin/academy/workshops`}
           className="style-caption text-brand hover:underline"
         >
           ← Back to Workshops
         </Link>
       </div>
 
-      <div className="w-full max-w-md rounded-3xl bg-white p-6 text-center shadow-lg border border-border-soft sm:p-8">
-        <span className="rounded-full bg-brand-soft px-3 py-1 style-caption font-bold uppercase tracking-wider text-brand">
-          Live Check-In
+      <div className="relative w-full max-w-md rounded-3xl bg-white/50 p-8 text-center shadow-lg border border-white">
+        <div className="absolute top-6 left-6">
+          <Image
+            src="/images/academy/badge.png"
+            alt="Academy Badge"
+            width={200}
+            height={200}
+            className="h-12 w-12 object-contain"
+          />
+        </div>
+        <span className="rounded-lg bg-brand/80 px-3 py-1 style-badge font-bold uppercase tracking-wider text-white">
+          Attendance
         </span>
         
-        <h1 className="mt-4 font-display text-2xl font-bold text-ink">
+        <h1 className="mt-4 style-card-title font-bold text-ink">
           {workshop.title}
         </h1>
         
@@ -71,14 +80,14 @@ export default async function WorkshopQrPage({ params }: WorkshopQrPageProps) {
               <strong className="font-semibold">{TIME_FORMAT.format(workshop.startTime)}</strong>.
             </p>
           </div>
-        ) : (  */}
+        ) : ( */}
           <>
-            <p className="mt-1 text-sm text-ink-muted">
+            <p className="mt-2 style-body-text text-label-ink">
               Scan with your phone camera to check in
             </p>
 
             {/* QR Code Component (Client side rendered) */}
-            <div className="my-8 flex justify-center">
+            <div className="mt-4 mb-6 flex justify-center">
               <AdminQrDisplay url={checkInUrl} />
             </div>
 
@@ -86,6 +95,7 @@ export default async function WorkshopQrPage({ params }: WorkshopQrPageProps) {
               {checkInUrl}
             </div>
           </>
+        {/* )} */}
       </div>
     </div>
   );

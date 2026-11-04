@@ -8,7 +8,7 @@ import { MobileAdminNav } from "@/components/mobile/admin/MobileAdminNav";
  */
 export function AdminAcademyShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen w-full bg-cream">
+    <div className="flex min-h-screen w-full backdrop-blur-xl">
       <div className="hidden md:flex">
         <AdminSidebar active="Academy" />
       </div>
