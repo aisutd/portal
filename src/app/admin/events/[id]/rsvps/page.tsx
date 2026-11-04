@@ -38,7 +38,7 @@ type RsvpWithUser = Prisma.RSVPGetPayload<{
 // --- Inline UI Components ---
 function StatusBadge({ label, bg, color }: { label: string; bg: string; color: string }) {
   return (
-    <span className={`inline-flex items-center rounded-full px-[8px] py-[2px] style-caption md:font-bold uppercase tracking-[0.5px] ${bg} ${color}`}>
+    <span className={`inline-flex items-center rounded-md px-2.5 py-0.5 style-caption text-[11px] font-bold uppercase tracking-wider ${bg} ${color}`}>
       {label}
     </span>
   );
@@ -54,20 +54,20 @@ function UserRow({ rsvp, isAttended, eventId, isPast }: { rsvp: RsvpWithUser; is
   return (
     <Link
       href={`/admin/members/${userId}?from=/admin/events/${eventId}/rsvps`}
-      className="flex items-center justify-between border-b border-table-line last:border-0 p-[16px] md:p-[20px] hover:bg-row-soft transition-colors cursor-pointer"
+      className="group flex items-center justify-between border-b border-table-line last:border-0 p-4 transition-colors hover:bg-row-soft cursor-pointer"
     >
-      <div className="flex items-center gap-[12px] md:gap-[16px]">
-        <div className="size-[36px] md:size-[40px] shrink-0 rounded-full border border-border-soft bg-gray-200" />
-        <div className="flex flex-col">
-          <span className="style-body-text md:font-bold text-ink hover:underline">{name}</span>
-          <span className="style-caption md:text-ink-faint">{rsvp.user.email}</span>
+      <div className="flex items-center gap-3.5 min-w-0">
+        <div className="h-[40px] w-[40px] shrink-0 rounded-full border border-border-soft bg-gray-200" />
+        <div className="flex flex-col min-w-0">
+          <span className="style-label text-ink font-semibold group-hover:text-brand transition-colors truncate">{name}</span>
+          <span className="style-caption text-ink-faint truncate">{rsvp.user.email}</span>
         </div>
       </div>
-      <div className="flex flex-col items-end gap-[4px]">
+      <div className="flex flex-col items-end gap-1 shrink-0 ml-4">
         {isAttended ? (
           <>
-            <StatusBadge label="Checked In" bg="bg-green-50" color="text-green-700" />
-            <span className="style-caption md:text-ink-faint">
+            <StatusBadge label="Checked In" bg="bg-emerald-50" color="text-emerald-700" />
+            <span className="style-caption text-ink-faint">
               {TIME_FORMAT.format(rsvp.attendance!.checkedInAt)}
             </span>
           </>
@@ -155,21 +155,22 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
         <MobileScreen withBottomNavPadding={false}>
           <MobileAdminNav active="Events" />
 
-          <div className="relative z-10 flex items-center justify-between pb-[16px] gap-[12px]">
-            <div className="flex items-center gap-[12px] min-w-0 flex-1">
+          {/* Top Header Bar */}
+          <div className="relative z-10 flex flex-col gap-3 pb-4">
+            <div className="flex items-center gap-3">
               <Link 
                 href="/admin/events" 
-                className="flex h-[32px] w-[32px] shrink-0 items-center justify-center rounded-full border border-border-soft bg-white text-ink-faint hover:bg-gray-50"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border-soft bg-white text-ink-faint hover:bg-gray-50"
               >
                 <span aria-hidden>←</span>
               </Link>
               <div className="flex flex-col min-w-0 flex-1">
-                <h2 className="style-mobile-title text-ink leading-tight truncate">{event.title}</h2>
+                <h2 className="style-card-title text-ink leading-tight truncate">{event.title}</h2>
                 <span className="style-caption text-ink-faint">Attendance Dashboard</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-[8px] shrink-0">
+            <div className="flex items-center justify-end gap-2 shrink-0">
               <RsvpExportButton eventId={event.id} eventTitle={event.title} />
               {canSendReminder && (
                 <SendReminderButton
@@ -181,27 +182,27 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
             </div>
           </div>
 
-          <div className="flex flex-col gap-[16px] pb-[40px]">
-            <div className="grid grid-cols-3 gap-[8px]">
-              <div className="flex flex-col rounded-[12px] border border-border-soft bg-white p-[12px] text-center shadow-sm">
-                <span className="style-body-text text-ink">{stats.totalRsvps}</span>
+          <div className="flex flex-col gap-4 pb-10">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="flex flex-col rounded-2xl ring-[0.5px] ring-ink-faint/15 bg-white p-3 text-center shadow-sm">
+                <span className="style-body-text font-bold text-ink">{stats.totalRsvps}</span>
                 <span className="style-caption text-ink-faint">Total RSVPs</span>
               </div>
-              <div className="flex flex-col rounded-[12px] border border-border-soft bg-white p-[12px] text-center shadow-sm">
-                <span className="style-body-text text-green-700">{stats.totalAttended}</span>
+              <div className="flex flex-col rounded-2xl ring-[0.5px] ring-ink-faint/15 bg-white p-3 text-center shadow-sm">
+                <span className="style-body-text font-bold text-emerald-700">{stats.totalAttended}</span>
                 <span className="style-caption text-ink-faint">Attended</span>
               </div>
-              <div className="flex flex-col rounded-[12px] border border-border-soft bg-brand p-[12px] text-center shadow-sm">
-                <span className="style-body-text text-white">{stats.ratio}%</span>
+              <div className="flex flex-col rounded-2xl ring-[0.5px] ring-brand/20 bg-brand p-3 text-center shadow-sm">
+                <span className="style-body-text font-bold text-white">{stats.ratio}%</span>
                 <span className="style-caption text-white/80">Turnout</span>
               </div>
             </div>
 
-            <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
-              <div className="bg-row-soft border-b border-table-line p-[16px]">
-                <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Last Reminder Sent</h2>
+            <div className="flex flex-col rounded-2xl ring-[0.5px] ring-ink-faint/15 bg-white shadow-sm overflow-hidden">
+              <div className="bg-row-soft border-b border-table-line p-4">
+                <h2 className="style-caption font-bold uppercase tracking-wider text-ink-faint">Last Reminder Sent</h2>
               </div>
-              <div className="flex flex-col p-[16px] gap-[8px]">
+              <div className="flex flex-col p-4 gap-2">
                 {event.lastReminderSentAt ? (
                   <>
                     <div className="flex justify-between items-center">
@@ -212,13 +213,13 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="style-caption text-ink-muted">Sent By</span>
-                      <span className="style-body-text font-bold text-ink">
+                      <span className="style-body-text font-semibold text-ink">
                         {reminderSenderName}
                       </span>
                     </div>
                   </>
                 ) : (
-                  <span className="style-caption text-ink-muted text-center py-[4px]">
+                  <span className="style-caption text-ink-muted text-center py-1">
                     No reminders sent yet.
                   </span>
                 )}
@@ -226,38 +227,38 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
             </div>
 
             {Object.keys(itemStats).length > 0 && (
-              <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
-                <div className="bg-row-soft border-b border-table-line p-[16px]">
-                  <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Items Scanned</h2>
+              <div className="flex flex-col rounded-2xl ring-[0.5px] ring-ink-faint/15 bg-white shadow-sm overflow-hidden">
+                <div className="bg-row-soft border-b border-table-line p-4">
+                  <h2 className="style-caption font-bold uppercase tracking-wider text-ink-faint">Items Scanned</h2>
                 </div>
-                <div className="grid grid-cols-2 gap-y-[12px] p-[16px]">
+                <div className="grid grid-cols-2 gap-3 p-4">
                   {Object.entries(itemStats).map(([type, count]) => (
                     <div key={type} className="flex flex-col">
                       <span className="style-caption text-ink-faint">{type}</span>
-                      <span className="style-body-text text-ink">{count}</span>
+                      <span className="style-body-text font-bold text-ink">{count}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
-              <div className="bg-row-soft border-b border-table-line p-[16px] flex justify-between items-center">
-                <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Checked In</h2>
-                <span className="style-caption font-bold text-green-700">{attended.length}</span>
+            <div className="flex flex-col rounded-2xl ring-[0.5px] ring-ink-faint/15 bg-white shadow-sm overflow-hidden">
+              <div className="bg-row-soft border-b border-table-line p-4 flex justify-between items-center">
+                <h2 className="style-caption font-bold uppercase tracking-wider text-ink-faint">Checked In</h2>
+                <span className="style-caption font-bold text-emerald-700">{attended.length}</span>
               </div>
               <div className="flex flex-col">
                 {attended.length > 0 ? (
                   attended.map((r) => <UserRow key={r.id} rsvp={r} isAttended={true} eventId={event.id} isPast={stats.isPast} />)
                 ) : (
-                  <div className="p-[20px] text-center style-caption text-ink-muted">No check-ins yet.</div>
+                  <div className="p-5 text-center style-caption text-ink-muted">No check-ins yet.</div>
                 )}
               </div>
             </div>
 
-            <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
-              <div className="bg-row-soft border-b border-table-line p-[16px] flex justify-between items-center">
-                <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">
+            <div className="flex flex-col rounded-2xl ring-[0.5px] ring-ink-faint/15 bg-white shadow-sm overflow-hidden">
+              <div className="bg-row-soft border-b border-table-line p-4 flex justify-between items-center">
+                <h2 className="style-caption font-bold uppercase tracking-wider text-ink-faint">
                   {stats.isPast ? "Missed" : "Pending"}
                 </h2>
                 <span className="style-caption font-bold text-ink-muted">{unattended.length}</span>
@@ -266,7 +267,7 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
                 {unattended.length > 0 ? (
                   unattended.map((r) => <UserRow key={r.id} rsvp={r} isAttended={false} eventId={event.id} isPast={stats.isPast} />)
                 ) : (
-                  <div className="p-[20px] text-center style-caption text-ink-muted">Everyone checked in!</div>
+                  <div className="p-5 text-center style-caption text-ink-muted">Everyone checked in!</div>
                 )}
               </div>
             </div>
@@ -278,54 +279,58 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
       <div className="hidden min-h-screen w-full backdrop-blur-xl md:flex">
         <AdminSidebar active="Events" />
 
-        <div className="flex h-full flex-1 flex-col gap-[24px] p-[46px] overflow-y-auto">
-          <div className="flex items-center justify-between">
-            <div>
-              <Link href="/admin/events" className="style-caption text-brand hover:underline">
+        <div className="flex h-full flex-1 flex-col gap-6 p-12 overflow-y-auto">
+          {/* Top Header Section */}
+          <div className="flex items-start justify-between gap-6">
+            <div className="flex flex-col min-w-0 flex-1">
+              <Link href="/admin/events" className="style-caption text-brand hover:underline inline-flex items-center gap-1">
                 ← Back to Events
               </Link>
-              <h2 className="mt-[6px] style-section-header leading-[1.1] tracking-[-0.4px] text-ink">
+              <h2 className="mt-1.5 style-section-header leading-tight text-ink truncate">
                 {event.title} <span className="text-ink-faint font-normal">— RSVPs</span>
               </h2>
             </div>
-            <div className="flex items-center gap-[10px]">
+            <div className="flex items-center gap-3 shrink-0 pt-1">
               <RsvpExportButton eventId={event.id} eventTitle={event.title} />
-              <SendReminderButton
-                eventId={event.id}
-                eventTitle={event.title}
-                rsvpCount={stats.totalRsvps}
-              />
+              {canSendReminder && (
+                <SendReminderButton
+                  eventId={event.id}
+                  eventTitle={event.title}
+                  rsvpCount={stats.totalRsvps}
+                />
+              )}
             </div>
           </div>
 
-          <div className="grid grid-cols-[1fr_2.5fr] gap-[24px] items-start">
-            <div className="flex flex-col gap-[24px] sticky top-[46px]">
-              <div className="flex flex-col rounded-[14px] border border-border-soft bg-white overflow-hidden shadow-sm">
-                <div className="border-b border-table-line p-[20px]">
-                  <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Attendance Overview</h2>
+          {/* Grid Layout */}
+          <div className="grid grid-cols-[1fr_2.5fr] gap-6 items-start">
+            <div className="flex flex-col gap-6 sticky top-12">
+              <div className="flex flex-col rounded-2xl ring-[0.5px] ring-ink-faint/15 bg-white overflow-hidden shadow-sm">
+                <div className="border-b border-table-line p-5">
+                  <h2 className="style-caption font-bold uppercase tracking-wider text-ink-faint">Attendance Overview</h2>
                 </div>
-                <div className="flex flex-col p-[20px] gap-[16px]">
+                <div className="flex flex-col p-5 gap-4">
                   <div className="flex justify-between items-end">
                     <span className="style-caption text-ink-muted">Total RSVPs</span>
-                    <span className="style-body-text text-ink leading-none">{stats.totalRsvps}</span>
+                    <span className="style-body-text font-bold text-ink leading-none">{stats.totalRsvps}</span>
                   </div>
                   <div className="flex justify-between items-end">
                     <span className="style-caption text-ink-muted">Checked In</span>
-                    <span className="style-body-text text-green-700 leading-none">{stats.totalAttended}</span>
+                    <span className="style-body-text font-bold text-emerald-700 leading-none">{stats.totalAttended}</span>
                   </div>
                   <div className="h-[1px] w-full bg-border-soft" />
                   <div className="flex justify-between items-end">
                     <span className="style-caption text-ink-muted">Turnout Ratio</span>
-                    <span className="style-body-text text-brand leading-none">{stats.ratio}%</span>
+                    <span className="style-body-text font-bold text-brand leading-none">{stats.ratio}%</span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-col rounded-[14px] border border-border-soft bg-white overflow-hidden shadow-sm">
-                <div className="border-b border-table-line p-[20px]">
-                  <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Last Reminder Sent</h2>
+              <div className="flex flex-col rounded-2xl ring-[0.5px] ring-ink-faint/15 bg-white overflow-hidden shadow-sm">
+                <div className="border-b border-table-line p-5">
+                  <h2 className="style-caption font-bold uppercase tracking-wider text-ink-faint">Last Reminder Sent</h2>
                 </div>
-                <div className="flex flex-col p-[20px] gap-[12px]">
+                <div className="flex flex-col p-5 gap-3">
                   {event.lastReminderSentAt ? (
                     <>
                       <div className="flex justify-between items-center">
@@ -336,13 +341,13 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="style-caption text-ink-muted">Sent By</span>
-                        <span className="style-body-text font-bold text-ink">
+                        <span className="style-body-text font-semibold text-ink">
                           {reminderSenderName}
                         </span>
                       </div>
                     </>
                   ) : (
-                    <div className="style-caption text-ink-muted text-center py-[8px]">
+                    <div className="style-caption text-ink-muted text-center py-2">
                       No reminder email has been sent yet.
                     </div>
                   )}
@@ -350,15 +355,15 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
               </div>
 
               {Object.keys(itemStats).length > 0 && (
-                <div className="flex flex-col rounded-[14px] border border-border-soft bg-white overflow-hidden shadow-sm">
-                  <div className="border-b border-table-line p-[20px]">
-                    <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Items Dispensed</h2>
+                <div className="flex flex-col rounded-2xl ring-[0.5px] ring-ink-faint/15 bg-white overflow-hidden shadow-sm">
+                  <div className="border-b border-table-line p-5">
+                    <h2 className="style-caption font-bold uppercase tracking-wider text-ink-faint">Items Dispensed</h2>
                   </div>
-                  <div className="flex flex-col p-[20px] gap-[12px]">
+                  <div className="flex flex-col p-5 gap-3">
                     {Object.entries(itemStats).map(([type, count]) => (
                       <div key={type} className="flex justify-between items-center">
                         <span className="style-caption text-ink-muted">{type}</span>
-                        <span className="style-body-text text-ink">{count}</span>
+                        <span className="style-body-text font-bold text-ink">{count}</span>
                       </div>
                     ))}
                   </div>
@@ -366,24 +371,24 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
               )}
             </div>
 
-            <div className="flex flex-col gap-[24px]">
-              <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
-                <div className="flex items-center justify-between border-b border-table-line p-[20px] bg-row-soft">
-                  <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">Checked In</h2>
-                  <StatusBadge label={`${attended.length} Members`} bg="bg-green-50" color="text-green-700" />
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col rounded-2xl ring-[0.5px] ring-ink-faint/15 bg-white shadow-sm overflow-hidden">
+                <div className="flex items-center justify-between border-b border-table-line p-5 bg-row-soft">
+                  <h2 className="style-caption font-bold uppercase tracking-wider text-ink-faint">Checked In</h2>
+                  <StatusBadge label={`${attended.length} Members`} bg="bg-emerald-50" color="text-emerald-700" />
                 </div>
                 <div className="flex flex-col">
                   {attended.length > 0 ? (
                     attended.map((r) => <UserRow key={r.id} rsvp={r} isAttended={true} eventId={event.id} isPast={stats.isPast} />)
                   ) : (
-                    <div className="p-[40px] text-center style-body-text text-ink-muted">No one has checked in yet.</div>
+                    <div className="p-10 text-center style-body-text text-ink-muted">No one has checked in yet.</div>
                   )}
                 </div>
               </div>
 
-              <div className="flex flex-col rounded-[14px] border border-border-soft bg-white shadow-sm overflow-hidden">
-                <div className="flex items-center justify-between border-b border-table-line p-[20px] bg-row-soft">
-                  <h2 className="font-techno uppercase tracking-[1px] text-ink-faint">
+              <div className="flex flex-col rounded-2xl ring-[0.5px] ring-ink-faint/15 bg-white shadow-sm overflow-hidden">
+                <div className="flex items-center justify-between border-b border-table-line p-5 bg-row-soft">
+                  <h2 className="style-caption font-bold uppercase tracking-wider text-ink-faint">
                     {stats.isPast ? "Missed Event" : "Pending Check-in"}
                   </h2>
                   <StatusBadge label={`${unattended.length} Members`} bg="bg-gray-100" color="text-gray-600" />
@@ -392,7 +397,7 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
                   {unattended.length > 0 ? (
                     unattended.map((r) => <UserRow key={r.id} rsvp={r} isAttended={false} eventId={event.id} isPast={stats.isPast} />)
                   ) : (
-                    <div className="p-[40px] text-center style-body-text text-ink-muted">
+                    <div className="p-10 text-center style-body-text text-ink-muted">
                       {stats.totalRsvps > 0 ? "Everyone who RSVP'd checked in!" : "No RSVPs for this event."}
                     </div>
                   )}

@@ -12,7 +12,7 @@ type MobileAdminScanProps = {
 
 export function MobileAdminScan({ eventTitle, eventId, items }: MobileAdminScanProps) {
   return (
-    <MobileScreen withBottomNavPadding={false} backgroundColor="bg-cream">
+    <MobileScreen withBottomNavPadding={false}>
       <MobileAdminNav active="Events" />
 
       <div>

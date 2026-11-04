@@ -40,7 +40,7 @@ export default async function AdminMembersPage({
         <MobileAdminMembers query={query} view={view} editable={editable} />
       </div>
 
-      <div className="hidden min-h-screen w-full bg-cream md:flex">
+      <div className="hidden min-h-screen w-full backdrop-blur-xl md:flex">
       <AdminSidebar active="Members" />
 
       <div className="flex h-full flex-1 flex-col gap-[20px] p-[46px]">

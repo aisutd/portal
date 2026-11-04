@@ -12,7 +12,7 @@ type MobileWorkshopScanProps = {
 
 export function MobileWorkshopScan({ workshopTitle, workshopId, items }: MobileWorkshopScanProps) {
   return (
-    <MobileScreen withBottomNavPadding={false} backgroundColor="bg-cream">
+    <MobileScreen withBottomNavPadding={false}>
       {/* Update active state based on your MobileAdminNav options (e.g., "Academy" or "Workshops") */}
       <MobileAdminNav active="Academy" />
 
