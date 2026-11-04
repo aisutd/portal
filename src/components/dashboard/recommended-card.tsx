@@ -102,10 +102,18 @@ function RecommendedRow({
       className="group flex w-full flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-xl ring-1 ring-ink/15 shadow-sm shadow-ink/10 px-[18px] py-[14px] transition-all hover:bg-white/35 hover:ring-ink/5 hover:shadow-lg hover:scale-[1.01]"
     >
       <div className="flex flex-1 items-start sm:items-center gap-[14px] min-w-0 w-full">
-        <EventCoverImage
-          imageUrl={item.imageUrl}
-          className="size-[56px] shrink-0 rounded-xl bg-photo"
-        />
+        {(item.imageUrl ? 
+          <EventCoverImage
+            imageUrl={item.imageUrl}
+            alt={item.title}
+            className="size-14 shrink-0 rounded-xl bg-photo"
+          /> :
+          <EventCoverImage
+            imageUrl={`/images/ais_logo_black-bg.jpg`}
+            alt={item.title}
+            className="size-14 shrink-0 rounded-xl bg-photo"
+          />
+        )}
         <div className="flex flex-col gap-1 min-w-0 flex-1">
           <span className="style-card-title leading-[20px] text-ink group-hover:text-brand break-words">
             {item.title}

@@ -81,11 +81,18 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
         ← All Events
       </Link>
 
-      <EventCoverImage
-        imageUrl={event.imageUrl}
-        className="min-h-20 w-full shrink-0 shadow-sm"
-        alt={`${event.title} cover`}
-      />
+        {(event.imageUrl ? 
+          <EventCoverImage
+            imageUrl={event.imageUrl}
+            className="min-h-20 w-full shrink-0 shadow-sm"
+            alt={`${event.title} cover`}
+          /> :
+          <EventCoverImage
+            imageUrl={`/images/ais_logo_black-bg.jpg`}
+            className="min-h-20 w-full shrink-0 shadow-sm"
+            alt={`${event.title} cover`}
+          />
+        )}
 
       <div className="flex flex-col gap-2 bg-white/50 backdrop-blur-md border-2 border-white/35 shadow-ink/15 shadow-sm px-4 py-5 rounded-xl">
         <div className="flex flex-col gap-2">
@@ -199,7 +206,7 @@ export async function MobileEventDetail({ eventId }: MobileEventDetailProps) {
         )}
       </div>
 
-      <div className="-mx-5 pt-6">
+      <div className="-mx-5 mt-auto">
         <Footer />
       </div>
       <BottomNav />

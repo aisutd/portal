@@ -7,7 +7,7 @@ import { QRScannerClient } from "@/components/admin/qr-scanner";
 import { MobileWorkshopScan } from "@/components/mobile/admin/MobileWorkshopScan";
 
 export const metadata: Metadata = {
-  title: "AIS Admin — Workshop Scan & Perks",
+  title: "AIS Admin - Workshop Scan & Perks",
 };
 
 export default async function WorkshopScanPage({ 

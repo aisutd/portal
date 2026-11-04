@@ -91,11 +91,18 @@ export function EventGridCard({
       href={`/events/${eventId}`}
       className="group flex h-full flex-col rounded-2xl bg-white/50 backdrop-blur-md border-white/35 border-2 shadow-sm shadow-ink/15 p-5 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:shadow-ink/15"
     >
-      <EventCoverImage
-        imageUrl={imageUrl}
-        className="h-[150px] w-full shrink-0"
-        alt={`${title} cover`}
-      />
+      {(imageUrl ? 
+        <EventCoverImage
+          imageUrl={imageUrl}
+          alt={`${title} cover`}
+          className="h-[150px] w-full shrink-0"
+        /> :
+        <EventCoverImage
+          imageUrl={`/images/ais_logo_black-bg.jpg`}
+          alt={`${title} cover`}
+          className="h-[150px] w-full shrink-0"
+        />
+      )}
 
       <div className="flex flex-1 flex-col">
         <h3 className="mt-4 line-clamp-2 style-card-title leading-tight text-ink [font-variation-settings:'wdth'_100]">

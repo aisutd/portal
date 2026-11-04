@@ -10,7 +10,7 @@ import { canManageRoles } from "@/lib/roles";
 import { MemberRolesEditor } from "@/components/admin/member-roles-editor";
 
 export const metadata: Metadata = {
-  title: "AIS Admin — Member Profile",
+  title: "AIS Admin - Member Profile",
 };
 
 // --- Formatters ---

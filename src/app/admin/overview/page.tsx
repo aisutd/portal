@@ -13,7 +13,7 @@ import {
 } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "AIS Admin — Overview",
+  title: "AIS Admin - Overview",
   description: "Admin overview of applications, members, and events.",
 };
 

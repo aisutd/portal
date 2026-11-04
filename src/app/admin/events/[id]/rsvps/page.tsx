@@ -11,7 +11,7 @@ import type { Prisma } from "@prisma/client";
 import { getAuthenticatedUser } from "@/lib/auth";
 
 export const metadata: Metadata = {
-  title: "AIS Admin — Event RSVPs",
+  title: "AIS Admin - Event RSVPs",
 };
 
 // --- Formatters (Explicitly bind Central Timezone) ---
@@ -152,7 +152,7 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
     <>
       {/* MOBILE VIEW */}
       <div className="md:hidden">
-        <MobileScreen withBottomNavPadding={false} backgroundColor="bg-cream">
+        <MobileScreen withBottomNavPadding={false}>
           <MobileAdminNav active="Events" />
 
           <div className="relative z-10 flex items-center justify-between pb-[16px] gap-[12px]">
@@ -275,7 +275,7 @@ export default async function EventRsvpsPage({ params }: { params: Promise<{ id:
       </div>
 
       {/* DESKTOP VIEW */}
-      <div className="hidden min-h-screen w-full bg-cream md:flex">
+      <div className="hidden min-h-screen w-full backdrop-blur-xl md:flex">
         <AdminSidebar active="Events" />
 
         <div className="flex h-full flex-1 flex-col gap-[24px] p-[46px] overflow-y-auto">

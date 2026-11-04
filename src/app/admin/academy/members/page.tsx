@@ -8,7 +8,7 @@ import { StatCard } from "@/components/admin/stat-card";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-  title: "AIS Admin — Academy Members",
+  title: "Academy Members - AIS Admin",
   description: "View and manage active AI Academy members and attendance analytics.",
 };
 

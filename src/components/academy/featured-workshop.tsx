@@ -3,7 +3,7 @@ import { Calendar, MapPin } from "lucide-react";
 import { WorkshopQuizPanel } from "@/components/academy/workshop-quiz-panel";
 import { VideoNotesPanel } from "@/components/academy/video-notes-panel";
 import {
-  hasWorkshopStarted,
+  isWorkshopPast,
   isWorkshopInProgress,
   type AcademyWorkshopDetail,
 } from "@/lib/academy-content";
@@ -18,7 +18,7 @@ import { formatEventDate } from "@/lib/utils";
 export function FeaturedWorkshop({ workshop }: { workshop: AcademyWorkshopDetail }) {
   if (workshop.recordingUrl) {
     return (
-      <div className="flex flex-col gap-[24px]">
+      <div className="flex flex-col gap-4">
         <VideoNotesPanel
           key={workshop.id}
           title={workshop.title}
@@ -34,53 +34,55 @@ export function FeaturedWorkshop({ workshop }: { workshop: AcademyWorkshopDetail
   }
 
   const isLive = isWorkshopInProgress(workshop);
-  const started = hasWorkshopStarted(workshop);
+  const past = isWorkshopPast(workshop);
 
   return (
-    <div className="flex flex-col gap-[20px] rounded-[20px] border-[5px] border-[#d4af37] bg-[#181c25] p-[28px] lg:flex-row lg:items-center lg:justify-between">
-      <div className="flex flex-col gap-[10px]">
+    <div className="flex flex-col gap-4 rounded-[20px] border-[5px] border-[#d4af37] bg-[#181c25] p-[28px] lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-4">
         <span
           className={`w-fit rounded-2xl px-3 py-1 style-badge-text bg-brand text-white`}
         >
-          {isLive ? "Happening Now" : "Recently"}
+          {isLive ? "Happening Now" : past ? "Recently" : "Upcoming"}
         </span>
 
         <h3 className="style-card-title uppercase text-white">{workshop.title}</h3>
         <p className="style-body-text max-w-xl text-white/70">{workshop.description}</p>
 
-        <div className="mt-[4px] flex flex-wrap items-center gap-x-[20px] gap-y-[8px] style-caption text-white/60">
-          <span className="flex items-center gap-1.5">
+        <div className="mt-1 flex flex-col gap-y-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-[20px] style-caption text-white/60">
+          <span className="flex items-start gap-1.5 min-w-0 w-full sm:w-auto">
             <Calendar className="h-3.5 w-3.5" />
             {formatEventDate(workshop.startTime, true)}
           </span>
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-start gap-1.5 min-w-0 w-full sm:w-auto">
             <MapPin className="h-3.5 w-3.5" />
             {workshop.location}
           </span>
         </div>
 
-        <p className="style-caption mt-[4px] text-white/50">
+        <p className="style-body-text mt-1 text-white/70">
           {isLive
-            ? "The recording will appear here after the workshop!"
-            : "The recording will show up soon! Look out for the announcement on Discord."}
+            ? "PULL UP NOW! :) Or if you can't, the recording and quiz will be here shortly."
+            : past 
+            ? "Recording and quiz will posted shortly! Check Discord for updates. Link in footer if you haven't joined!"
+            : `PU at ${formatEventDate(workshop.startTime).split(" · ")[1]}!! We'll cover some super cool things.`}
         </p>
       </div>
 
-      <div className="flex shrink-0 flex-wrap items-center gap-[12px]">
+      <div className="flex shrink-0 flex-wrap items-center gap-3">
         <Link
           href={`/academy/workshops/${workshop.id}`}
           className="rounded-full bg-[#d4af37] px-[22px] py-[12px] style-button-text text-ink transition-colors hover:bg-[#c19d2e]"
         >
           View Workshop
         </Link>
-        {!started && (
+        {/* {!started && (
           <Link
             href="/events"
             className="rounded-full border border-white/25 px-[22px] py-[12px] style-button-text text-white transition-colors hover:border-white/50"
           >
             RSVP
           </Link>
-        )}
+        )} */}
       </div>
     </div>
   );

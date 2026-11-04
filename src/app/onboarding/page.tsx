@@ -6,7 +6,7 @@ import { getAuthenticatedUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "AIS Portal — Get Started",
+  title: "AIS Portal - Get Started",
   description: "Create your AIS account with your UTD email.",
 };
 

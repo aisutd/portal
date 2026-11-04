@@ -53,17 +53,7 @@ export default async function AcademyPage() {
         <MobileAcademy
           workshops={workshops}
           resources={resources}
-          featuredLesson={
-            featured
-              ? {
-                  title: featured.title,
-                  videoUrl: featured.recordingUrl ?? null,
-                  workshopId: featured.id,
-                  userId: viewer.id,
-                  completed: featured.progressCompleted,
-                }
-              : undefined
-          }
+          featuredLesson={featured ? featured : null}
         />
       </div>
 
@@ -91,12 +81,9 @@ export default async function AcademyPage() {
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-[12px]">
-            <a
-              href="#course-sequence-desktop"
-              className="flex-1 rounded-full bg-[#2563eb] px-4 py-3 style-button-text text-white shadow-[0_5px_14px_rgba(0,0,0,0.5)] transition-colors hover:bg-[#1e4fc7] inline-flex items-center justify-center text-center"
-            >
-              Browse Courses
-            </a>
+            <Button href="#course-sequence-mobile" variant="primary">
+              Browse Workshops
+          </Button>
             <Button
               className="rounded-full border border-[#d4af37] bg-[#d4af37] px-[22px] py-[14px] style-button-text text-ink transition-colors hover:bg-[#c19d2e]"
               variant="accent"
@@ -127,7 +114,7 @@ export default async function AcademyPage() {
         {/* Course Sequence */}
         <ScrollReveal>
           <section id="course-sequence-desktop" className="flex flex-col gap-[20px]">
-            <h2 className="style-section-header uppercase text-white">Course Sequence</h2>
+            <h2 className="style-section-header uppercase text-white">All Workshops</h2>
             <CourseSequence workshops={workshops} />
           </section>
         </ScrollReveal>
@@ -146,23 +133,23 @@ export default async function AcademyPage() {
               No resources have been published yet.
             </p>
           ) : (
-            <div className="flex snap-x snap-mandatory gap-[20px] overflow-x-auto pb-[8px] scrollbar-none">
+            <div className="flex snap-x snap-mandatory gap-5 max-h-60 overflow-x-auto p-2">
               {resources.map((resource) => (
                 <a
                   key={resource.id}
                   href={resource.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex w-[260px] shrink-0 snap-start flex-col gap-[16px] rounded-[20px] border border-[#2a2f3a] bg-[#181c25] p-[16px] transition-all duration-200 hover:-translate-y-[2px] hover:border-[#2563eb]/60"
+                  className="flex w-[260px] h-40 shrink-0 snap-start flex-col gap-[16px] rounded-[20px] border border-[#2a2f3a] bg-[#181c25] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-2 hover:border-brand/60"
                 >
-                  <div className="flex flex-col gap-[8px]">
+                  <div className="flex flex-col gap-2">
                     <span className="style-card-title text-white">{resource.title}</span>
                     {resource.description && (
                       <span className="style-caption text-white/70">{resource.description}</span>
                     )}
                   </div>
                   {resource.category && (
-                    <div className="mt-auto flex flex-wrap gap-[8px]">
+                    <div className="mt-auto flex flex-wrap gap-2">
                       <span className="rounded-full bg-[#2563eb]/15 px-[12px] py-[6px] style-badge-text text-[#9db8ff]">
                         {resource.category}
                       </span>

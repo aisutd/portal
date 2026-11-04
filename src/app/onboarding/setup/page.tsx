@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { ProfileWizard } from "@/components/onboarding/profile-wizard";
 
 export const metadata: Metadata = {
-  title: "AIS Portal — Complete Your Profile",
+  title: "AIS Portal - Complete Your Profile",
   description: "Set up your AIS member profile.",
 };
 

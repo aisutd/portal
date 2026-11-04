@@ -43,7 +43,7 @@ export default async function EventQrPage({ params }: EventQrPageProps) {
   const checkInUrl = `${baseUrl}/events/${id}/check-in?token=${event.checkInToken}`;
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-cream p-6">
+    <div className="flex min-h-screen flex-col items-center justify-center backdrop-blur-xs p-6">
       <div className="absolute top-6 left-6">
         <Link
           href={`/admin/events`}
@@ -53,16 +53,16 @@ export default async function EventQrPage({ params }: EventQrPageProps) {
         </Link>
       </div>
 
-      <div className="w-full max-w-md rounded-3xl bg-white p-8 text-center shadow-lg border border-border-soft">
-        <span className="rounded-full bg-brand-soft px-3 py-1 style-caption font-bold uppercase tracking-wider text-brand">
-          Live Check-In
+      <div className="w-full max-w-md rounded-3xl bg-white/50 p-8 text-center shadow-lg border border-white">
+        <span className="rounded-lg bg-brand/80 px-3 py-1 style-badge font-bold uppercase tracking-wider text-white">
+          Attendance
         </span>
         
-        <h1 className="mt-4 font-display text-2xl font-bold text-ink">
+        <h1 className="mt-4 style-card-title font-bold text-ink">
           {event.title}
         </h1>
         
-        {isTooEarly ? (
+        {/* {isTooEarly ? (
           <div className="my-8 flex flex-col items-center gap-3 rounded-2xl bg-amber-50 p-6 border border-amber-200 text-amber-900">
             <span className="font-bold text-sm">Check-in not open yet</span>
             <p className="text-xs text-amber-700 leading-relaxed">
@@ -70,14 +70,14 @@ export default async function EventQrPage({ params }: EventQrPageProps) {
               <strong className="font-semibold">{TIME_FORMAT.format(event.startTime)}</strong>.
             </p>
           </div>
-        ) : (
+        ) : ( */}
           <>
-            <p className="mt-1 text-sm text-ink-muted">
+            <p className="mt-2 style-body-text text-label-ink">
               Scan with your phone camera to check in
             </p>
 
             {/* QR Code Component (Client side rendered) */}
-            <div className="my-8 flex justify-center">
+            <div className="mt-4 mb-6 flex justify-center">
               <AdminQrDisplay url={checkInUrl} />
             </div>
 
@@ -85,7 +85,7 @@ export default async function EventQrPage({ params }: EventQrPageProps) {
               {checkInUrl}
             </div>
           </>
-        )}
+        {/* )} */}
       </div>
     </div>
   );

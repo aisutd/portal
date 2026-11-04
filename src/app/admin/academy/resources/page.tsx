@@ -14,7 +14,7 @@ import {
 } from "../resource-actions";
 
 export const metadata: Metadata = {
-  title: "AIS Admin — Academy Resources",
+  title: "AIS Admin - Academy Resources",
   description: "Manage the resources shown on the AI Academy hub.",
 };
 

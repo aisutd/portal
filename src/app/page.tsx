@@ -18,7 +18,7 @@ import {
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Events — What's Happening",
+  title: "Events - What's Happening",
   description: "Upcoming AIS workshops, socials, and hackathons.",
 };
 

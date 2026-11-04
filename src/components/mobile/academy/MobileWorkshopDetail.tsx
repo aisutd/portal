@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Calendar, MapPin } from "lucide-react";
 import { MobileScreen } from "@/components/mobile/ui/MobileScreen";
 import { BottomNav } from "@/components/mobile/ui/BottomNav";
+import { Footer } from "@/components/footer";
 import { AcademyGradientBackground } from "@/components/academy/gradient-background";
 import { WorkshopDetailClient } from "@/components/academy/workshop-detail-client";
 import type { AcademyWorkshopDetail } from "@/lib/academy-content";
@@ -84,6 +85,9 @@ export function MobileWorkshopDetail({
         <WorkshopDetailClient workshop={workshop} />
       )}
 
+      <div className="-mx-5 mt-auto">
+        <Footer />
+      </div>
       <BottomNav />
     </MobileScreen>
   );

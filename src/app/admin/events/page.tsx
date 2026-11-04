@@ -12,7 +12,7 @@ import type { Prisma } from "@prisma/client";
 import type { EventRowData } from "@/components/admin/event-row";
 
 export const metadata: Metadata = {
-  title: "AIS Admin — Events",
+  title: "AIS Admin - Events",
   description: "Manage AIS events, RSVPs, and check-ins.",
 };
 
@@ -126,7 +126,7 @@ async function getEventViewModel() {
     ],
     publishedRows: activePublishedEvents.map(mapEventToRow),
     draftRows: draftEvents.map(mapEventToRow),
-    pastRows: pastEvents.map(mapEventToRow),
+    pastRows: pastEvents.map(mapEventToRow).reverse(),
   };
 }
 
@@ -145,7 +145,7 @@ export default async function AdminEventsPage() {
       </div>
 
       <div className="hidden md:block">
-        <div className="flex min-h-screen w-full bg-cream">
+        <div className="flex min-h-screen w-full backdrop-blur-xl">
           <AdminSidebar active="Events" />
 
           <div className="flex h-full flex-1 flex-col gap-[28px] p-[46px]">
@@ -154,17 +154,15 @@ export default async function AdminEventsPage() {
                 Events
               </h2>
               <div className="flex items-center gap-[10px]">
-                <Button variant="soft" size="sm" className="rounded-[8px]">
+                {/* <Button variant="soft" size="sm" className="rounded-[8px]">
                   List
                 </Button>
                 <Button variant="ghost" size="sm" className="rounded-[8px]">
                   Calendar
+                </Button> */}
+                <Button variant="primary" size="md" href="/admin/events/new">
+                  + New Event
                 </Button>
-                <Link href="/admin/events/new">
-                  <Button variant="primary" size="md">
-                    + New Event
-                  </Button>
-                </Link>
               </div>
             </div>
 

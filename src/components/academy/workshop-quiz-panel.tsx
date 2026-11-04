@@ -9,8 +9,8 @@ export function WorkshopQuizPanel({ workshop }: { workshop: AcademyWorkshopDetai
   }
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-[16px] rounded-[20px] border border-[#2a2f3a] bg-[#181c25] p-5 md:p-[24px]">
-      <div className="flex flex-col gap-[4px]">
+    <div className="flex flex-wrap items-center justify-between gap-4 border-[5px] rounded-[20px] border-[#d4af37] bg-[#181c25] p-4">
+      <div className="flex flex-col gap-1">
         <span className="style-card-title text-white">
           {attempt ? "Your quiz attempt" : "Missed this workshop?"}
         </span>
