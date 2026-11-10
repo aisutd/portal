@@ -1255,7 +1255,7 @@ export function AdminApplicationsManager({
                           <a className="style-caption text-xs text-ais-blue hover:underline" 
                             href={`https://portal.aisutd.org/applications/detail?id=${detail.id}`}
                           >
-                            Share Link &#8599; 
+                            {" "}Share Link &#8599; 
                           </a>
                         </div>
                         
