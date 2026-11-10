@@ -1247,10 +1247,18 @@ export function AdminApplicationsManager({
                             {detail.visibleToUsers ? "Published" : "Unpublished"}
                           </span>
                         </div>
-                        <p className="style-caption mt-0.5 text-xs text-ink-faint truncate">
-                          {detail.submissions.length} total submissions · {detail.acceptedCount ?? 0}{" "}
-                          accepted
-                        </p>
+                        <div className="flex flex-row mt-0.5">
+                          <p className="style-caption text-xs text-ais-blue truncate">
+                            {detail.submissions.length} total submissions · {detail.acceptedCount ?? 0}{" "}
+                            accepted
+                          </p>
+                          <a className="style-caption text-xs text-ink-faint truncate" 
+                            href={`https://portal.aisutd.org/applications/detail?id=${detail.id}`}
+                          >
+                            · App Link &#8599; 
+                          </a>
+                        </div>
+                        
                       </div>
 
                       <div className="flex items-center gap-1 shrink-0">
