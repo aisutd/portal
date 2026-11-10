@@ -1248,14 +1248,14 @@ export function AdminApplicationsManager({
                           </span>
                         </div>
                         <div className="flex flex-row mt-0.5">
-                          <p className="style-caption text-xs text-ais-blue truncate">
-                            {detail.submissions.length} total submissions · {detail.acceptedCount ?? 0}{" "}
-                            accepted
+                          <p className="style-caption text-xs text-ink-faint truncate">
+                            {detail.submissions.length} total · {detail.acceptedCount ?? 0}{" "}
+                            accepted ·{" "}
                           </p>
-                          <a className="style-caption text-xs text-ink-faint truncate" 
+                          <a className="style-caption text-xs text-ais-blue hover:underline" 
                             href={`https://portal.aisutd.org/applications/detail?id=${detail.id}`}
                           >
-                            · App Link &#8599; 
+                            Share Link &#8599; 
                           </a>
                         </div>
                         
