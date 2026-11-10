@@ -1252,7 +1252,7 @@ export function AdminApplicationsManager({
                             {detail.submissions.length} total · {detail.acceptedCount ?? 0}{" "}
                             accepted ·{" "}
                           </p>
-                          <a className="style-caption text-xs border-2 text-ais-blue hover:underline" 
+                          <a className="style-caption text-xs text-ais-blue hover:underline" 
                             href={`https://portal.aisutd.org/applications/detail?id=${detail.id}`}
                           >
                             {" "}Share Link &#8599; 
