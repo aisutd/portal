@@ -129,9 +129,10 @@ export async function GET(
     return createErrorResponse("Application not found", "NOT_FOUND", 404);
   }
 
-  if (!application.visibleToUsers) {
-    return createErrorResponse("Application not available", "NOT_FOUND", 404);
-  }
+  /* REMOVING 404 on link */
+  // if (!application.visibleToUsers) {
+  //   return createErrorResponse("Application not available", "NOT_FOUND", 404);
+  // }
 
   // 2. Conditionally fetch user draft & submission if authenticated
   let draft = null;
