@@ -4,6 +4,7 @@ import { createErrorResponse } from "@/lib/api-error";
 import { getAdminUser, getApplicationReviewer } from "@/lib/admin-app-auth";
 import { logAction } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
+import { canManageApplications } from "@/lib/roles";
 
 const programTypes = Object.values(ProgramType);
 
@@ -16,7 +17,10 @@ export async function GET() {
 
   const applications = await prisma.programApplication.findMany({
     // null means unrestricted; anything else narrows the reviewer to their programs.
-    where: allowedProgramTypes ? { programType: { in: allowedProgramTypes } } : undefined,
+    where: {
+      ...(!canManageApplications(currentUser.user.role) ? { isArchived: false } : {}),
+      ...(allowedProgramTypes ? { programType: { in: allowedProgramTypes } } : {}),
+    },
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
@@ -30,6 +34,7 @@ export async function GET() {
       closeAt: true,
       decisionDate: true,
       visibleToUsers: true,
+      isArchived: true,
       createdAt: true,
       updatedAt: true,
       _count: { select: { submissions: true } },

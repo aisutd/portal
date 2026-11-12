@@ -103,7 +103,7 @@ export async function GET(
 
   // 1. Fetch the application
   const application = await prisma.programApplication.findUnique({
-    where: { id },
+    where: { id, isArchived: false },
     select: {
       id: true,
       title: true,

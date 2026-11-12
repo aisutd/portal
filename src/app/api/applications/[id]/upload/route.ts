@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { putObjectToR2 } from "@/lib/r2";
 import { getAuthenticatedUser } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -18,6 +19,14 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       );
     }
     const userId = user.id;
+
+    const application = await prisma.programApplication.findUnique({
+      where: { id: applicationId, isArchived: false },
+      select: { id: true },
+    });
+    if (!application) {
+      return NextResponse.json({ error: { message: "Application not found" } }, { status: 404 });
+    }
 
     const formData = await req.formData();
     const file = formData.get("file") as File | null;

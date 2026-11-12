@@ -41,7 +41,7 @@ export async function POST(
   const now = new Date();
 
   const application = await prisma.programApplication.findFirst({
-    where: { id },
+    where: { id, isArchived: false },
     select: {
       id: true,
       questionsJson: true,

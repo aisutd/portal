@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createErrorResponse } from "@/lib/api-error";
 import { getApplicationReviewer, postingOutOfScopeResponse } from "@/lib/admin-app-auth";
-import { canReviewProgramType } from "@/lib/roles";
+import { canManageApplications, canReviewProgramType } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
 import { ApplicationStatus } from "@prisma/client";
 
@@ -26,7 +26,7 @@ export async function PATCH(
       where: { id: submissionId },
       select: {
         status: true,
-        application: { select: { programType: true } },
+        application: { select: { programType: true, isArchived: true } },
       },
     });
 
@@ -35,12 +35,17 @@ export async function PATCH(
     }
 
     if (
+      (currentSubmission.application.isArchived && !canManageApplications(currentUser.user.role)) ||
       !canReviewProgramType(
         currentUser.allowedProgramTypes,
         currentSubmission.application.programType
       )
     ) {
       return postingOutOfScopeResponse();
+    }
+
+    if (currentSubmission.application.isArchived) {
+      return createErrorResponse("Restore this application before reviewing it.", "CONFLICT", 409);
     }
 
     if (status) {

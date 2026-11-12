@@ -33,7 +33,7 @@ export async function GET(
 
   const [application, draft] = await Promise.all([
     prisma.programApplication.findUnique({
-      where: { id },
+      where: { id, isArchived: false },
       select: { id: true },
     }),
     prisma.applicationDraft.findUnique({
@@ -101,7 +101,7 @@ export async function PUT(
   // Pre-flight validation & existing submission check
   const [application, existingSubmission] = await Promise.all([
     prisma.programApplication.findUnique({
-      where: { id },
+      where: { id, isArchived: false },
       select: { openAt: true, closeAt: true },
     }),
     prisma.applicationSubmission.findFirst({

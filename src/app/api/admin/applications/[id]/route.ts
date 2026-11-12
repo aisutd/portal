@@ -102,7 +102,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 
   if (!application) return createErrorResponse("Application not found", "NOT_FOUND", 404);
 
-  if (!canReviewProgramType(currentUser.allowedProgramTypes, application.programType)) {
+  if ((application.isArchived && !canManageApplications(currentUser.user.role)) ||
+      !canReviewProgramType(currentUser.allowedProgramTypes, application.programType)) {
     return postingOutOfScopeResponse();
   }
 
@@ -128,6 +129,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const { id } = await params;
 
   try {
+    const application = await prisma.programApplication.findUnique({ where: { id }, select: { isArchived: true } });
+    if (!application) return createErrorResponse("Application not found", "NOT_FOUND", 404);
+    if (application.isArchived) {
+      return createErrorResponse("Restore this application before editing or publishing it.", "CONFLICT", 409);
+    }
     const rawBody = await request.json();
     const parsed = updateApplicationSchema.safeParse(rawBody);
 
@@ -169,7 +175,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
 
     const updatedApplication = await prisma.programApplication.update({
-      where: { id },
+      where: { id, isArchived: false },
       data: updateData,
     });
 

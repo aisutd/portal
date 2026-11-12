@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getApplicationReviewer } from "@/lib/admin-app-auth";
-import { canReviewProgramType } from "@/lib/roles";
+import { canManageApplications, canReviewProgramType } from "@/lib/roles";
 
 export async function GET(
   req: NextRequest,
@@ -35,7 +35,8 @@ export async function GET(
   if (!appData) return new NextResponse("Application not found", { status: 404 });
 
   // A scoped reviewer exports only their own programs' postings.
-  if (!canReviewProgramType(reviewer.allowedProgramTypes, appData.programType)) {
+  if ((appData.isArchived && !canManageApplications(reviewer.user.role)) ||
+      !canReviewProgramType(reviewer.allowedProgramTypes, appData.programType)) {
     return new NextResponse("Application not found", { status: 404 });
   }
 

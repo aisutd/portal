@@ -42,6 +42,7 @@ export async function GET() {
   const applications = await prisma.programApplication.findMany({
     where: {
       visibleToUsers: true,
+      isArchived: false,
     },
     orderBy: {
       openAt: "asc",

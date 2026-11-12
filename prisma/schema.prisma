@@ -336,6 +336,7 @@ model ProgramApplication {
   closeAt               DateTime
   decisionDate          DateTime?
   visibleToUsers        Boolean                 @default(true)
+  isArchived            Boolean                 @default(false)
   retentionUntil        DateTime?
   createdById           String
   createdAt             DateTime                @default(now())

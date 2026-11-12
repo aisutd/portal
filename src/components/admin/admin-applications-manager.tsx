@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -8,6 +8,7 @@ import { z } from "zod";
 import { ApplicationStatus, MembershipType, ProgramType, UserRole } from "@prisma/client";
 import { chicagoInputToUtc, formatChicagoDisplayDate, formatChicagoDateTimeInput } from "@/lib/timezone";
 import { normalizeUrl } from "@/lib/url";
+import { manageApplicationArchive } from "@/app/admin/applications/archive-actions";
 
 export function ExportCustomizerModal({
   application,
@@ -140,6 +141,7 @@ type Summary = {
   closeAt: string;
   decisionDate: string | null;
   visibleToUsers: boolean;
+  isArchived: boolean;
   submissionCount: number;
   acceptedCount: number;
   inReviewCount: number;
@@ -254,6 +256,8 @@ export function AdminApplicationsManager({
 }) {
   const [currUserId, setCurrUserId] = useState<string>(currentUserId ?? "");
   const [applications, setApplications] = useState<Summary[]>([]);
+  const [selectedApplicationIds, setSelectedApplicationIds] = useState<string[]>([]);
+  const detailPanelRef = useRef<HTMLElement>(null);
   const [selectedId, setSelectedId] = useState(initialApplicationId ?? "");
   const [detail, setDetail] = useState<Detail | null>(null);
   const [selectedSubmissionId, setSelectedSubmissionId] = useState("");
@@ -292,6 +296,7 @@ export function AdminApplicationsManager({
   const [notes, setNotes] = useState("");
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [applicationToDelete, setApplicationToDelete] = useState<Summary | null>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [pendingVisibilityState, setPendingVisibilityState] = useState<boolean>(false);
@@ -308,14 +313,15 @@ export function AdminApplicationsManager({
   /** The postings rail is collapsed and untoggleable for a single-posting reviewer. */
   const showPostingsList = isAppsListOpen && !isReviewerOnly;
 
-  const canEditOrPublish = isExecutiveOrDirector;
+  const canEditOrPublish = isExecutiveOrDirector && !detail?.isArchived;
   const canDelete = userRole === "EXECUTIVE";
 
   // Restricted: ONLY Executives and Directors can accept/reject/shortlist candidates
-  const canChangeStatus = isExecutiveOrDirector;
+  const canChangeStatus = isExecutiveOrDirector && !detail?.isArchived;
 
   const visibleApplications = useMemo(() => {
     return applications.filter((app) => {
+      if (app.isArchived) return false;
       if (isOfficerOrAbove) return true;
       if (userRole === "MEMBER" && isAIMMentor) {
         return app.programType === "AI_MENTORSHIP_MENTEE";
@@ -323,6 +329,8 @@ export function AdminApplicationsManager({
       return false;
     });
   }, [applications, userRole, isAIMMentor, isOfficerOrAbove]);
+
+  const archivedApplications = applications.filter((app) => app.isArchived);
 
   useEffect(() => {
     if (currentUserId) {
@@ -347,8 +355,9 @@ export function AdminApplicationsManager({
     });
 
     setApplications(allowed);
+    setSelectedApplicationIds((ids) => ids.filter((id) => allowed.some((app) => app.id === id && !app.isArchived)));
     setSelectedId((current) =>
-      current && allowed.some((app) => app.id === current) ? current : allowed[0]?.id || ""
+      current && allowed.some((app) => app.id === current) ? current : allowed.find((app) => !app.isArchived)?.id || ""
     );
     setLoading(false);
   }
@@ -401,6 +410,8 @@ export function AdminApplicationsManager({
     setSelectedChoiceRankFilter("all");
     if (selectedId) {
       void loadDetail(selectedId).catch((caught) => setError((caught as Error).message));
+    } else {
+      setDetail(null);
     }
   }, [selectedId]);
 
@@ -701,12 +712,31 @@ export function AdminApplicationsManager({
     }
   }
 
-  async function handleDeleteApplication() {
-    if (!detail) return;
+  async function handleArchiveApplications(ids: string[], action: "archive" | "restore") {
+    if (action === "archive" && !window.confirm(`Archive ${ids.length} selected applications? They will be hidden from users. Drafts, submissions, and reviews will be preserved.`)) return;
     setSaving(true);
     setError(null);
     try {
-      const response = await fetch(`/api/admin/applications/${detail.id}`, {
+      await manageApplicationArchive(ids, action);
+      await loadApplications();
+      if (detail && ids.includes(detail.id)) {
+        await loadDetail(detail.id);
+        setIsEditingApp(false);
+      }
+    } catch {
+      setError("Unable to update applications. Refresh and try again.");
+      setLoading(false);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDeleteApplication() {
+    if (!applicationToDelete) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/admin/applications/${applicationToDelete.id}`, {
         method: "DELETE",
       });
 
@@ -716,6 +746,7 @@ export function AdminApplicationsManager({
       }
 
       setShowDeleteModal(false);
+      setApplicationToDelete(null);
       setSelectedId("");
       await loadApplications();
     } catch (caught) {
@@ -855,7 +886,7 @@ export function AdminApplicationsManager({
           </div>
 
           <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-            {canEditOrPublish && (
+            {isExecutiveOrDirector && (
               <Button
                 size="sm"
                 variant="outline"
@@ -968,42 +999,62 @@ export function AdminApplicationsManager({
                 </button>
               </div>
 
+              {isExecutiveOrDirector ? (
+                <div className="flex flex-wrap items-center gap-2" aria-label="Bulk application actions">
+                  <span className="style-caption">{selectedApplicationIds.length} selected</span>
+                  <Button type="button" variant="ghost" size="sm" disabled={saving || !selectedApplicationIds.length} onClick={() => void handleArchiveApplications(selectedApplicationIds, "archive")}>
+                    Archive
+                  </Button>
+                </div>
+              ) : null}
+
               {loading ? (
                 <p className="text-xs text-ink-muted p-2">Loading applications...</p>
               ) : visibleApplications.length ? (
                 <div className="space-y-2 h-full overflow-y-auto pr-1">
                   {visibleApplications.map((app) => (
-                    <button
-                      type="button"
-                      key={app.id}
-                      onClick={() => setSelectedId(app.id)}
-                      className={`w-full rounded-xl border p-3.5 text-left transition-all ${
-                        selectedId === app.id
-                          ? "border-brand/70 bg-brand-soft border-3 shadow-xs"
-                          : "border-border-soft bg-white hover:border-purple-ink/40"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="style-body-text font-semibold text-ink text-sm leading-snug">
-                          {app.title}
-                        </p>
-                        <span
-                          className={`mt-0.5 inline-block size-2 rounded-full shrink-0 ${
-                            app.visibleToUsers ? "bg-brand-mid" : "bg-stone-300"
-                          }`}
-                          title={app.visibleToUsers ? "Visible to users" : "Draft / Hidden"}
+                    <div key={app.id} className="flex items-start gap-2">
+                      {isExecutiveOrDirector ? (
+                        <input
+                          type="checkbox"
+                          aria-label={`Select ${app.title}`}
+                          className="mt-4 h-4 w-4 shrink-0"
+                          checked={selectedApplicationIds.includes(app.id)}
+                          disabled={saving}
+                          onChange={() => setSelectedApplicationIds((ids) => ids.includes(app.id) ? ids.filter((id) => id !== app.id) : [...ids, app.id])}
                         />
-                      </div>
-                      <div className="mt-2 flex items-center justify-between text-xs gap-2 text-ink-faint">
-                        <span className="font-medium px-1 py-0.5 bg-stone-100 rounded text-[11px]">
-                          Count: {app.submissionCount}
-                        </span>
-                        <span>Closes {formatChicagoDisplayDate(app.closeAt)}</span>
-                      </div>
-                      <p className="pt-2 text-xs font-medium text-ink-faint leading-snug">
-                        Decision Date: {formatChicagoDisplayDate(app.decisionDate)}
-                      </p>
-                    </button>
+                      ) : null}
+                      <button
+                        type="button"
+                        onClick={() => setSelectedId(app.id)}
+                        className={`w-full rounded-xl border p-3.5 text-left transition-all ${
+                          selectedId === app.id
+                            ? "border-brand/70 bg-brand-soft border-3 shadow-xs"
+                            : "border-border-soft bg-white hover:border-purple-ink/40"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="style-body-text font-semibold text-ink text-sm leading-snug">
+                            {app.title}
+                          </p>
+                          <span
+                            className={`mt-0.5 inline-block size-2 rounded-full shrink-0 ${
+                              app.visibleToUsers ? "bg-brand-mid" : "bg-stone-300"
+                            }`}
+                            title={app.visibleToUsers ? "Visible to users" : "Draft / Hidden"}
+                          />
+                        </div>
+                        <div className="mt-2 flex items-center justify-between text-xs gap-2 text-ink-faint">
+                          <span className="font-medium px-1 py-0.5 bg-stone-100 rounded text-[11px]">
+                            Count: {app.submissionCount}
+                          </span>
+                          <span>Closes {formatChicagoDisplayDate(app.closeAt)}</span>
+                        </div>
+                        <p className="pt-2 text-xs font-medium text-ink-faint leading-snug">
+                          Decision Date: {formatChicagoDisplayDate(app.decisionDate)}
+                        </p>
+                      </button>
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -1213,7 +1264,7 @@ export function AdminApplicationsManager({
           ) : null}
 
          {/* Application Detail View Main Panel */}
-        <section className={`w-full min-w-0 flex-1 rounded-2xl border border-border-soft bg-white p-5 lg:p-6 shadow-xs ${mobileView === "list" ? "hidden md:block" : "block"}`}>
+        <section ref={detailPanelRef} className={`w-full min-w-0 flex-1 rounded-2xl border border-border-soft bg-white p-5 lg:p-6 shadow-xs ${mobileView === "list" ? "hidden md:block" : "block"}`}>
           {detail ? (
             <>
               <div className="w-full min-w-0 border-b border-border-soft pb-4">
@@ -1244,7 +1295,7 @@ export function AdminApplicationsManager({
                                 : "bg-orange-soft text-orange-ink border-orange"
                             }`}
                           >
-                            {detail.visibleToUsers ? "Published" : "Unpublished"}
+                            {detail.isArchived ? "Archived" : detail.visibleToUsers ? "Published" : "Unpublished"}
                           </span>
                         </div>
                         <p className="style-caption mt-0.5 text-xs text-ink-faint truncate">
@@ -1275,6 +1326,11 @@ export function AdminApplicationsManager({
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
+                    {isExecutiveOrDirector ? (
+                      <Button size="sm" variant="outline" disabled={saving} onClick={() => void handleArchiveApplications([detail.id], detail.isArchived ? "restore" : "archive")}>
+                        {detail.isArchived ? "Restore" : "Archive"}
+                      </Button>
+                    ) : null}
                     <Button
                       size="sm"
                       variant="outline"
@@ -1310,7 +1366,7 @@ export function AdminApplicationsManager({
                       <Button
                         size="sm"
                         variant="danger"
-                        onClick={() => setShowDeleteModal(true)}
+                        onClick={() => { setApplicationToDelete(detail); setShowDeleteModal(true); }}
                       >
                         Delete
                       </Button>
@@ -1641,6 +1697,7 @@ export function AdminApplicationsManager({
                       <textarea
                         className="mt-3 min-h-24 w-full rounded-lg border border-border-soft bg-search-field p-3 text-xs focus:border-brand outline-none transition-all"
                         value={notes}
+                        disabled={detail.isArchived}
                         onChange={(event) => setNotes(event.target.value)}
                         placeholder="Add review notes or justification here..."
                       />
@@ -1651,7 +1708,7 @@ export function AdminApplicationsManager({
                             <Button
                               size="sm"
                               variant="ghost"
-                              disabled={saving}
+                              disabled={saving || detail.isArchived}
                               onClick={() => void updateSubmission()}
                             >
                               Save Notes
@@ -1716,6 +1773,28 @@ export function AdminApplicationsManager({
           )}
         </section>
         </div>
+
+        {isExecutiveOrDirector ? (
+          <section className="flex flex-col gap-3">
+            <h3 className="style-section-header text-ink">Archived Applications ({archivedApplications.length})</h3>
+            {!archivedApplications.length && <p className="rounded-xl border border-dashed border-border-soft p-4 style-caption text-ink-faint">No archived applications.</p>}
+            {archivedApplications.map((app) => (
+              <div key={app.id} className="rounded-2xl border border-border-soft bg-white p-4">
+                <h4 className="font-semibold text-ink">{app.title}</h4>
+                <p className="style-caption text-ink-faint">Submissions: {app.submissionCount} · Closes {formatChicagoDisplayDate(app.closeAt)}</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <Button type="button" size="sm" variant="ghost" disabled={saving} onClick={() => {
+                    setSelectedId(app.id);
+                    setMobileView("detail");
+                    requestAnimationFrame(() => detailPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+                  }}>View</Button>
+                  <Button type="button" size="sm" variant="ghost" disabled={saving} onClick={() => void handleArchiveApplications([app.id], "restore")}>Restore</Button>
+                  {canDelete ? <Button type="button" size="sm" variant="ghost" disabled={saving} onClick={() => { setApplicationToDelete(app); setShowDeleteModal(true); }}>Delete</Button> : null}
+                </div>
+              </div>
+            ))}
+          </section>
+        ) : null}
       </div>
 
       {/* Confirmation Modals */}
@@ -1753,7 +1832,7 @@ export function AdminApplicationsManager({
               Delete Application Posting
             </h3>
             <p className="mt-2 text-xs text-ink-muted">
-              Are you sure you want to delete <strong className="text-ink">{detail?.title}</strong>? This will permanently delete candidate submissions and reviews linked to this application.
+              Are you sure you want to delete <strong className="text-ink">{applicationToDelete?.title}</strong>? This will permanently delete candidate submissions and reviews linked to this application.
             </p>
             <div className="mt-6 flex items-center justify-end gap-3">
               <Button variant="ghost" size="sm" onClick={() => setShowDeleteModal(false)}>

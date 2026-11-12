@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getApplicationReviewer, postingOutOfScopeResponse } from "@/lib/admin-app-auth";
-import { canReviewProgramType } from "@/lib/roles";
+import { canManageApplications, canReviewProgramType } from "@/lib/roles";
 
 export async function GET(
   _req: NextRequest,
@@ -18,7 +18,7 @@ export async function GET(
     const submission = await prisma.applicationSubmission.findUnique({
       where: { id: submissionId },
       include: {
-        application: { select: { programType: true } },
+        application: { select: { programType: true, isArchived: true } },
         user: {
           include: {
             profile: {
@@ -34,7 +34,8 @@ export async function GET(
     }
 
     // Scope against the submission's own posting, not the id in the URL.
-    if (!canReviewProgramType(reviewer.allowedProgramTypes, submission.application.programType)) {
+    if ((submission.application.isArchived && !canManageApplications(reviewer.user.role)) ||
+        !canReviewProgramType(reviewer.allowedProgramTypes, submission.application.programType)) {
       return postingOutOfScopeResponse();
     }
 
